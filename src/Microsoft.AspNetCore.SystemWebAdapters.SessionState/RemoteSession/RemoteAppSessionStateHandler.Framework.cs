@@ -24,13 +24,18 @@ internal sealed class RemoteAppSessionStateHandler : HttpTaskAsyncHandler
 
     public RemoteAppSessionStateHandler(RemoteAppSessionStateOptions options)
     {
+        if (string.IsNullOrEmpty(options.ApiKey))
+        {
+            throw new ArgumentOutOfRangeException("API key must not be empty.");
+        }
+
         _options = options;
         _serializer = new SessionSerializer(options.KnownKeys);
     }
 
     public override async Task ProcessRequestAsync(HttpContext context)
     {
-        if (string.IsNullOrEmpty(_options.ApiKey) || !string.Equals(_options.ApiKey, context.Request.Headers.Get(_options.ApiKeyHeader), StringComparison.Ordinal))
+        if (!string.Equals(_options.ApiKey, context.Request.Headers.Get(_options.ApiKeyHeader), StringComparison.Ordinal))
         {
             context.Response.StatusCode = 401;
         }
