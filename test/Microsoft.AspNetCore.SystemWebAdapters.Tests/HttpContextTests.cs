@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Web;
+using System.Web.Caching;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -129,6 +130,27 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
 
             // Assert
             Assert.Same(items, result);
+        }
+
+        [Fact]
+        public void CacheFromServices()
+        {
+            // Arrange
+            var cache = new Cache();
+
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider.Setup(s => s.GetService(typeof(Cache))).Returns(cache);
+
+            var coreContext = new Mock<HttpContextCore>();
+            coreContext.Setup(c => c.RequestServices).Returns(serviceProvider.Object);
+
+            var context = new HttpContext(coreContext.Object);
+
+            // Act
+            var result = context.Cache;
+
+            // Assert
+            Assert.Same(cache, result);
         }
     }
 }

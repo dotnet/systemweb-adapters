@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Web;
+using System.Web.Caching;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
@@ -18,6 +19,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public static ISystemWebAdapterBuilder AddSystemWebAdapters(this IServiceCollection services)
         {
             services.AddHttpContextAccessor();
+            services.AddSingleton<Cache>();
 
             return new Builder(services);
         }

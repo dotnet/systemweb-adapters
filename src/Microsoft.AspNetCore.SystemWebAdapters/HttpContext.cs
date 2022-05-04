@@ -9,6 +9,7 @@ using System.Web.Caching;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace System.Web;
 
@@ -38,7 +39,7 @@ public class HttpContext : IServiceProvider
 
     public HttpServerUtility Server => _server ??= new(_context);
 
-    public Cache Cache => throw new NotImplementedException();
+    public Cache Cache => _context.RequestServices.GetRequiredService<Cache>();
 
     public IPrincipal User
     {

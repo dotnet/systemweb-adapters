@@ -10,15 +10,19 @@ T:Microsoft.AspNetCore.SystemWebAdapters.SessionAttribute
 T:Microsoft.AspNetCore.SystemWebAdapters.ISessionState
 T:Microsoft.AspNetCore.SystemWebAdapters.ISessionMetadata
 T:Microsoft.AspNetCore.SystemWebAdapters.ISessionManager
+T:Microsoft.AspNetCore.SystemWebAdapters.SessionBehavior
 T:Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteAppSessionStateExtensions
 T:Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteAppSessionStateOptions
 T:Microsoft.AspNetCore.SystemWebAdapters.SessionState.DelegatingSessionState
-T:Microsoft.AspNetCore.SystemWebAdapters.SessionBehavior
+T:Microsoft.AspNetCore.SystemWebAdapters.SessionState.SessionOptions
 M:System.Web.SessionState.HttpSessionState.#ctor(Microsoft.AspNetCore.SystemWebAdapters.ISessionState)
 
 # Buffering
 T:Microsoft.AspNetCore.SystemWebAdapters.BufferResponseStreamAttribute
 T:Microsoft.AspNetCore.SystemWebAdapters.IBufferResponseStreamMetadata
+
+# Caching
+M:System.Web.Caching.Cache.#ctor(System.Runtime.Caching.ObjectCache)
 
 # Internal constructors
 M:System.Web.HttpContext.#ctor(Microsoft.AspNetCore.Http.HttpContext)
@@ -34,8 +38,6 @@ M:System.Web.HttpRequest.op_Implicit(System.Web.HttpRequest)~Microsoft.AspNetCor
 M:System.Web.HttpResponse.#ctor(Microsoft.AspNetCore.Http.HttpResponse)
 M:System.Web.HttpResponse.op_Implicit(Microsoft.AspNetCore.Http.HttpResponse)~System.Web.HttpResponse
 M:System.Web.HttpResponse.op_Implicit(System.Web.HttpResponse)~Microsoft.AspNetCore.Http.HttpResponse
-
-M:System.Web.SessionState.HttpSessionState.#ctor(Microsoft.AspNetCore.Http.HttpContext)
 
 M:System.Web.HttpServerUtility.#ctor(Microsoft.AspNetCore.Http.HttpContext)
 
