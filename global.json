@@ -1,0 +1,19 @@
+{
+  "sdk": {
+    "version": "7.0.100-preview.2.22153.17"
+  },
+  "tools": {
+    "dotnet": "7.0.100-preview.2.22153.17",
+    "runtimes": {
+      "dotnet": [
+        "6.0.3"
+      ],
+      "aspnetcore": [
+        "6.0.3"
+      ]
+    }
+  },
+  "msbuild-sdks": {
+    "Microsoft.DotNet.Arcade.Sdk": "7.0.0-beta.22222.4"
+  }
+}
