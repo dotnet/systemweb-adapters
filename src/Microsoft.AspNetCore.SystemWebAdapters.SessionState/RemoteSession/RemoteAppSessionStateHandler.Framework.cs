@@ -30,7 +30,7 @@ internal sealed class RemoteAppSessionStateHandler : HttpTaskAsyncHandler
 
     public override async Task ProcessRequestAsync(HttpContext context)
     {
-        if (_options.ApiKey is null || !string.Equals(_options.ApiKey, context.Request.Headers.Get(_options.ApiKeyHeader), StringComparison.OrdinalIgnoreCase))
+        if (string.IsNullOrEmpty(_options.ApiKey) || !string.Equals(_options.ApiKey, context.Request.Headers.Get(_options.ApiKeyHeader), StringComparison.Ordinal))
         {
             context.Response.StatusCode = 401;
         }
