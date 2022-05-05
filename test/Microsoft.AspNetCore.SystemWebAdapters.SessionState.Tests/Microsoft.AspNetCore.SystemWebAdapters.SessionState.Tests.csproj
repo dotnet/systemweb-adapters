@@ -21,9 +21,9 @@
     <Using Include="Microsoft.AspNetCore.Http.HttpRequest" Alias="HttpRequestCore" />
     <Using Include="Microsoft.AspNetCore.Http.HttpResponse" Alias="HttpResponseCore" />
 
-    <Using Include="System.Web.HttpContext" Alias="HttpContext"/>
-    <Using Include="System.Web.HttpRequest" Alias="HttpRequest"/>
-    <Using Include="System.Web.HttpResponse" Alias="HttpResponse"/>
+    <Using Include="System.Web.HttpContext" Alias="HttpContext" />
+    <Using Include="System.Web.HttpRequest" Alias="HttpRequest" />
+    <Using Include="System.Web.HttpResponse" Alias="HttpResponse" />
   </ItemGroup>
 
   <ItemGroup>
