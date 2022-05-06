@@ -5,12 +5,11 @@
 using System.ComponentModel.DataAnnotations;
 #endif
 
-using System.Collections.Generic;
 using System;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
-public class RemoteAppSessionStateOptions : SessionOptions
+public class RemoteAppSessionStateOptions
 {
     internal const string ApiKeyHeaderName = "X-SystemWebAdapter-RemoteAppSession-Key";
     internal const string ReadOnlyHeaderName = "X-SystemWebAdapter-RemoteAppSession-ReadOnly";

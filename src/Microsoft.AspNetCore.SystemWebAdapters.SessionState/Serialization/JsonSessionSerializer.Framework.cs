@@ -10,7 +10,7 @@ using System.Web.SessionState;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
-internal partial class SessionSerializer
+internal partial class JsonSessionSerializer
 {
     public Task SerializeAsync(HttpSessionState state, Stream stream, CancellationToken token)
     {

@@ -51,8 +51,6 @@ internal partial class SerializedSessionState
 
     object ISessionState.SyncRoot => ((ICollection)Values).SyncRoot;
 
-    void ISessionState.Add(string name, object value) => Values.Add(name, value);
-
     void ISessionState.Clear() => RawValues?.Clear();
 
     void ISessionState.Remove(string name) => RawValues?.Remove(name);

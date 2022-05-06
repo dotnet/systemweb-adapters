@@ -4,21 +4,24 @@
 using System;
 using System.Web;
 using System.Web.SessionState;
+using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
 internal sealed class RemoteSessionModule : IHttpModule
 {
     private readonly RemoteAppSessionStateOptions _options;
+    private readonly ISessionSerializer _serializer;
 
-    public RemoteSessionModule(RemoteAppSessionStateOptions options)
+    public RemoteSessionModule(RemoteAppSessionStateOptions options, ISessionSerializer serializer)
     {
         _options = options;
+        _serializer = serializer;
     }
 
     public void Init(HttpApplication context)
     {
-        var handler = new RemoteAppSessionStateHandler(_options);
+        var handler = new RemoteAppSessionStateHandler(_options, _serializer);
 
         context.PostMapRequestHandler += MapRemoteSessionHandler;
 

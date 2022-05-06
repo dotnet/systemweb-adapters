@@ -18,11 +18,9 @@ namespace MvcApp
 
             Application.AddSystemWebAdapters()
                 .AddProxySupport(options => options.UseForwardedHeaders = true)
-                .AddRemoteAppSession(options=>
-                {
-                    options.ApiKey = ClassLibrary.SessionUtils.ApiKey;
-                    ClassLibrary.SessionUtils.RegisterSessionKeys(options);
-                });
+                .AddRemoteAppSession(
+                    options => options.ApiKey = ClassLibrary.SessionUtils.ApiKey,
+                    options => ClassLibrary.SessionUtils.RegisterSessionKeys(options));
         }
     }
 }

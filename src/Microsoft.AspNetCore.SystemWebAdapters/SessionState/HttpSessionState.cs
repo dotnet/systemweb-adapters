@@ -21,7 +21,7 @@ public class HttpSessionState : ICollection
 
     public bool IsReadOnly => _container.IsReadOnly;
 
-    public bool IsNewSession { get; }
+    public bool IsNewSession => _container.IsNewSession;
 
     public int Timeout
     {
@@ -41,7 +41,7 @@ public class HttpSessionState : ICollection
         set => _container[name] = value;
     }
 
-    public void Add(string name, object value) => _container.Add(name, value);
+    public void Add(string name, object value) => _container[name] = value;
 
     public void Remove(string name) => _container.Remove(name);
 

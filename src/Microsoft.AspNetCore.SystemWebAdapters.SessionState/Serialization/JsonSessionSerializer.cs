@@ -2,20 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
-internal partial class SessionSerializer
+internal partial class JsonSessionSerializer
 {
-    public SessionSerializer(IOptions<RemoteAppSessionStateOptions> options)
+    public JsonSessionSerializer(IOptions<SessionSerializerOptions> options)
         : this(options.Value.KnownKeys)
     {
     }

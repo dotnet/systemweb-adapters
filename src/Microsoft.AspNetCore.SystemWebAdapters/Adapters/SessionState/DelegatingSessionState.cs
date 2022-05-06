@@ -46,8 +46,6 @@ public abstract class DelegatingSessionState : ISessionState
         set => State.IsAbandoned = value;
     }
 
-    public virtual void Add(string name, object value) => State.Add(name, value);
-
     public virtual void Clear() => State.Clear();
 
     public async ValueTask DisposeAsync()

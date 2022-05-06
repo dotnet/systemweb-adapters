@@ -8,12 +8,14 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
-internal partial class SessionSerializer : ISessionSerializer
+internal partial class JsonSessionSerializer : ISessionSerializer
 {
+    private readonly IDictionary<string, Type> _map;
     private readonly JsonSerializerOptions _options;
 
-    public SessionSerializer(IDictionary<string, Type> map, bool writeIndented = false)
+    public JsonSessionSerializer(IDictionary<string, Type> map, bool writeIndented = false)
     {
+        _map = map;
         _options = new JsonSerializerOptions
         {
 #if !NETCOREAPP3_1
@@ -26,6 +28,25 @@ internal partial class SessionSerializer : ISessionSerializer
                 new SerializedSessionConverter(map),
             }
         };
+    }
+
+    public byte[] Serialize(string key, object value) => _map.TryGetValue(key, out var type)
+        ? JsonSerializer.SerializeToUtf8Bytes(value, type, _options)
+        : throw new InvalidOperationException($"Key '{key}' is not registered");
+
+    public object? Deserialize(string key, Memory<byte> bytes)
+    {
+        if (_map.TryGetValue(key, out var type))
+        {
+            if (bytes.IsEmpty)
+            {
+                return null;
+            }
+
+            return JsonSerializer.Deserialize(bytes.Span, type, _options);
+        }
+
+        throw new InvalidOperationException($"Key '{key}' is not registered");
     }
 
     private class SerializedSessionConverter : JsonConverter<SessionValues>

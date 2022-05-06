@@ -30,11 +30,9 @@ public interface ISessionState : IAsyncDisposable
 
     bool IsAbandoned { get; set; }
 
-    object? this[string name] { get; set; }
+    object? this[string key] { get; set; }
 
-    void Add(string name, object value);
-
-    void Remove(string name);
+    void Remove(string key);
 
     void Clear();
 
