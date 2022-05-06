@@ -1,7 +1,7 @@
 # Remote App Session State
 
 Remote app session state will enable communication between the ASP.NET Core and ASP.NET app and to retrieve the session state. This is enabled by exposing an endpoint on the ASP.NET app that can be queried to retrieve and set the session state.
-
+ 
 ## Configuration
 
 In order to configure it, both the framework and core app must set an API key as well as register known app settings types. These properties are:
