@@ -4,7 +4,9 @@ namespace ClassLibrary
 {
     public static class SharedAuthUtils
     {
-        public static string ApplicationName = "SystemWebAdaptersDemo";
+        public const string ApplicationName = "SystemWebAdaptersDemo";
+
+        public const string AuthenticationScheme = "ApplicationCookie";
 
         public static DirectoryInfo SharedAuthDataProtectionDir
         {

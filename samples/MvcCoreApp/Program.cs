@@ -1,5 +1,4 @@
 using ClassLibrary;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
@@ -12,20 +11,21 @@ builder.Services.AddSystemWebAdapters()
     .AddRemoteAppSession(options =>
     {
         options.RemoteApp = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
-        options.ApiKey = ClassLibrary.SessionUtils.ApiKey;
+        options.ApiKey = SessionUtils.ApiKey;
 
-        ClassLibrary.SessionUtils.RegisterSessionKeys(options);
+        SessionUtils.RegisterSessionKeys(options);
     });
 
 // In a distributed solution, this would use similar AddSharedCookieAuthentication variants using
 // a Redis cache or Azure blob storage instead.
-builder.Services.AddSharedCookieAuthenticationWithSharedDirectory(options =>
-{
-    options.LoginPath = new PathString("/Account/Login");
-},
-new SharedAuthCookieOptions(SharedAuthUtils.ApplicationName),
-SharedAuthUtils.SharedAuthDataProtectionDir,
-"ApplicationCookie");
+builder.Services.AddAuthentication(SharedAuthUtils.AuthenticationScheme)
+    .AddSharedCookieAuthenticationWithSharedDirectory(options =>
+    {
+        options.LoginPath = new PathString("/Account/Login");
+    },
+    new SharedAuthCookieOptions(SharedAuthUtils.ApplicationName),
+    SharedAuthUtils.SharedAuthDataProtectionDir,
+    SharedAuthUtils.AuthenticationScheme);
 
 var app = builder.Build();
 
