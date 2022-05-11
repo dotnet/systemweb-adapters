@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0;netcoreapp3.1;netstandard2.0;net472</TargetFrameworks>
+    <LangVersion>10</LangVersion>
+    <IsPackable>true</IsPackable>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkFiles Include="**/*.Framework.cs" />
+    <StandardFiles Include="**/*.Standard.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <Compile Remove="**/*" />
+    <Compile Include="@(StandardFiles)" />
+    <Compile Include="@(SharedFiles)" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'netcoreapp3.1' ">
+    <Compile Remove="@(FrameworkFiles)" />
+    <Compile Remove="@(StandardFiles)" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
+    <Compile Remove="**/*" />
+    <Compile Include="@(FrameworkFiles)" />
+    <Compile Include="@(SharedFiles)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.AspNetCore.SystemWebAdapters.Authentication\Microsoft.AspNetCore.SystemWebAdapters.Authentication.csproj" />
+  </ItemGroup>
+</Project>

@@ -28,7 +28,6 @@
 
   <ItemGroup>
     <SharedFiles Include="Adapters/SessionState/SessionOptions.cs" />
-    <SharedFiles Include="Adapters/Authentication/SharedAuthCookieOptions.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
@@ -54,17 +53,6 @@
     <Compile Include="@(SharedFiles)" />
 
     <Reference Include="System.Web" />
-    
-    <PackageReference Include="Microsoft.Owin.Security.Interop" Version="2.1.2" />
-    <PackageReference Include="Microsoft.Owin.Security.Cookies" Version="4.2.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.2.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspnetCore.DataProtection" Version="6.0.4" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="6.0.4" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
   </ItemGroup>
 
   <Import Condition="$(HasImplementation)" Project="GenerateApis.targets" />

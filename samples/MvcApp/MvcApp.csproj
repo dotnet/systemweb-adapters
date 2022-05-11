@@ -344,6 +344,10 @@
     <Content Include="Scripts\jquery-3.4.1.min.map" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.Authentication\Microsoft.AspNetCore.SystemWebAdapters.Authentication.csproj">
+      <Project>{4ad25fa8-d860-4dac-abf5-6152594b9ea1}</Project>
+      <Name>Microsoft.AspNetCore.SystemWebAdapters.Authentication</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.SessionState\Microsoft.AspNetCore.SystemWebAdapters.SessionState.csproj">
       <Project>{2029d409-07e3-49f8-bb6a-77114de7b337}</Project>
       <Name>Microsoft.AspNetCore.SystemWebAdapters.SessionState</Name>
