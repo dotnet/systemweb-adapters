@@ -48,7 +48,7 @@ public static class SharedAuthCookieExtensions
             .PersistKeysToStackExchangeRedis(redisConnectionMux);
 
         using var serviceProvider = services.BuildServiceProvider();
-        var dataProtectorProvider = serviceProvider.GetRequiredService<Microsoft.AspNetCore.DataProtection.IDataProtectionProvider>();
+        var dataProtectorProvider = serviceProvider.GetRequiredService<IDataProtectionProvider>();
         var dataProtector = dataProtectorProvider.CreateProtector(
             "Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationMiddleware",
             options.AuthenticationType,
@@ -98,7 +98,7 @@ public static class SharedAuthCookieExtensions
             .PersistKeysToAzureBlobStorage(blobContainerSASUri);
 
         using var serviceProvider = services.BuildServiceProvider();
-        var dataProtectorProvider = serviceProvider.GetRequiredService<Microsoft.AspNetCore.DataProtection.IDataProtectionProvider>();
+        var dataProtectorProvider = serviceProvider.GetRequiredService<IDataProtectionProvider>();
         var dataProtector = dataProtectorProvider.CreateProtector(
             "Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationMiddleware",
             options.AuthenticationType,
@@ -124,7 +124,7 @@ public static class SharedAuthCookieExtensions
             .PersistKeysToAzureBlobStorage(blobClient);
 
         using var serviceProvider = services.BuildServiceProvider();
-        var dataProtectorProvider = serviceProvider.GetRequiredService<Microsoft.AspNetCore.DataProtection.IDataProtectionProvider>();
+        var dataProtectorProvider = serviceProvider.GetRequiredService<IDataProtectionProvider>();
         var dataProtector = dataProtectorProvider.CreateProtector(
             "Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationMiddleware",
             options.AuthenticationType,

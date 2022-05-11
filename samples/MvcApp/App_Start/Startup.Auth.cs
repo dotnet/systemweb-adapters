@@ -1,6 +1,8 @@
 using System;
+using ClassLibrary;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
+using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using MvcApp.Models;
@@ -21,7 +23,8 @@ namespace MvcApp
             // Enable the application to use a cookie to store information for the signed in user
             // and to use a cookie to temporarily store information about a user logging in with a third party login provider
             // Configure the sign in cookie
-            app.UseCookieAuthentication(new CookieAuthenticationOptions
+
+            app.UseSharedCookieAuthenticationWithSharedDirectory(new CookieAuthenticationOptions
             {
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
                 LoginPath = new PathString("/Account/Login"),
@@ -33,7 +36,7 @@ namespace MvcApp
                         validateInterval: TimeSpan.FromMinutes(30),
                         regenerateIdentity: (manager, user) => user.GenerateUserIdentityAsync(manager))
                 }
-            });
+            }, new SharedAuthCookieOptions(SharedAuthUtils.ApplicationName), SharedAuthUtils.SharedAuthDataProtectionDir);
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
 
             // Enables the application to temporarily store user information when they are verifying the second factor in the two-factor authentication process.

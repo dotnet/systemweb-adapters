@@ -1,4 +1,7 @@
+using ClassLibrary;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
@@ -13,6 +16,16 @@ builder.Services.AddSystemWebAdapters()
 
         ClassLibrary.SessionUtils.RegisterSessionKeys(options);
     });
+
+// In a distributed solution, this would use similar AddSharedCookieAuthentication variants using
+// a Redis cache or Azure blob storage instead.
+builder.Services.AddSharedCookieAuthenticationWithSharedDirectory(options =>
+{
+    options.LoginPath = new PathString("/Account/Login");
+},
+new SharedAuthCookieOptions(SharedAuthUtils.ApplicationName),
+SharedAuthUtils.SharedAuthDataProtectionDir,
+"ApplicationCookie");
 
 var app = builder.Build();
 
@@ -29,6 +42,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSystemWebAdapters();
