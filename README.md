@@ -37,7 +37,7 @@ public class Class2
 
 In order to run the above logic in ASP.NET Core, a developer will need to add the `Microsoft.AspNetCore.SystemWebAdapters` package, that will enable the projects to work on both platforms.
 
-The libraries would need to be updated to understand the adapters, but it will be as simple as adding the package and recompiling. If these are the only dependencies a system has on `System.Web.dll`, then the libraries will be able to target .NET Standard to facillitate a simpler building process while migrating.
+The libraries would need to be updated to understand the adapters, but it will be as simple as adding the package and recompiling. If these are the only dependencies a system has on `System.Web.dll`, then the libraries will be able to target .NET Standard to facilitate a simpler building process while migrating.
 
 The controller in ASP.NET Core will now look like this:
 
@@ -152,6 +152,16 @@ Below are some of the limitations of the APIs in the adapters. These are usually
 
 - A number of APIs in `System.Web.HttpContext` are exposed as `NameValueCollection` instances. In order to reduce copying, many of these are implemented on ASP.NET Core using the core containers. This makes it so that for many of these collections, `Get(int)` (and any API that requires that such as `.Keys` or `.GetEnumerator()`) are unavailable as most of the containers in ASP.NET Core (such as `IHeaderDictionary`) does not have the ability to index by position.
 
+# Reporting security issues and bugs
+
+Security issues and bugs should be reported privately, via email, to the Microsoft Security Response Center (MSRC) secure@microsoft.com. You should receive a response within 24 hours. If for some reason you do not, please follow up via email to ensure we received your original message. Further information, including the MSRC PGP key, can be found in the [Security TechCenter](https://technet.microsoft.com/en-us/security/ff852094.aspx).
+
 # Contributing
 
+See [CONTRIBUTING.md](./CONTRIBUTING.md)
+
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+# Trademarks
+
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow Microsoft's Trademark & Brand Guidelines. Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos are subject to those third-party's policies.
