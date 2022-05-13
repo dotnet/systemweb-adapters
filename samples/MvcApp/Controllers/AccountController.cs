@@ -4,6 +4,7 @@ using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
+using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 using Microsoft.Owin.Security;
 using MvcApp.Models;
 
@@ -388,7 +389,7 @@ namespace MvcApp.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
-            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+            AuthenticationManager.SignOut(WellKnownAuthenticationSchemes.IdentityApplication);
             return RedirectToAction("Index", "Home");
         }
 

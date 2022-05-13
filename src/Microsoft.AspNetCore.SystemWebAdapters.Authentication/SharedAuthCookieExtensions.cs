@@ -11,68 +11,62 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 public static class SharedAuthCookieExtensions
 {
     /// <summary>
+    /// Update an existing ASP.NET Core Identity registration to use cookies compatible with
+    /// shared cookie authentication. This method assumes that it is run after IServiceCollection.AddIdentity or .AddDefaultIdentity.
+    /// </summary>
+    /// <param name="builder">The ISystemWebAdapterBuilder configuration to configure cookie services for.</param>
+    /// <param name="configureCookieOptions">Configuration method for cookie authentication options.</param>
+    /// <param name="sharedOptions">Options for cookie sharing, including cookie name and applicaiton name.</param>
+    /// <param name="protectorFactory">A factory object capable of producing an IDataProtector for protecting and unprotecting cookies.</param>
+    /// <returns>The ISystemWebAdapterBuilder updated with cookie authentication updated to be shareable with other apps.</returns>
+    public static ISystemWebAdapterBuilder ConfigureSharedIdentityAuthentication(this ISystemWebAdapterBuilder builder, Action<CookieAuthenticationOptions>? configureCookieOptions, SharedAuthCookieOptions sharedOptions, ICookieDataProtectorFactory protectorFactory)
+    {
+        var provider = DataProtectionProvider.Create(new DirectoryInfo(Path.Combine(Path.GetTempPath(), sharedOptions.ApplicationName)), builder =>
+        {
+            builder.SetApplicationName(sharedOptions.ApplicationName);
+        });
+
+        builder.Services.ConfigureApplicationCookie(options =>
+        {
+            configureCookieOptions?.Invoke(options);
+            options.Cookie.Name = sharedOptions.CookieName;
+            options.DataProtectionProvider = provider;
+        });
+
+        return builder;
+    }
+
+
+    /// <summary>
     /// Add cookie authentication with options set such that cookies can
     /// be shared with other apps, including ASP.NET applications using .NET Framework
     /// versions of this API.
     /// </summary>
-    /// <param name="authenticationBuilder">The authentication configuration to add cookie services to. This can be obtained by calling services.AddAuthentication.</param>
-    /// <param name="optionsConfiguration">Configuration method for cookie authentication options.</param>
+    /// <param name="builder">The ISystemWebAdapterBuilder configuration to add cookie services to.</param>
+    /// <param name="configureAuthenticationOptions">Configuration method for applicaiton authentication options.</param>
+    /// <param name="configureCookieOptions">Configuration method for cookie authentication options.</param>
     /// <param name="sharedOptions">Options for cookie sharing, including cookie name and applicaiton name.</param>
-    /// <param name="configureDataProtection">Configuration method for setting up data protection system to be used for protecting and unprotecting authentication cookies.</param>
-    /// <param name="authenticationScheme">The authentication scheme for authentication with the shared cookie. This must match the authentication type used in the ASP.NET app. Defaults to "Cookies".</param>
-    public static void AddSharedCookieAuthentication(this AuthenticationBuilder authenticationBuilder, Action<CookieAuthenticationOptions>? optionsConfiguration, SharedAuthCookieOptions sharedOptions, Action<IDataProtectionBuilder> configureDataProtection, string authenticationScheme = CookieAuthenticationDefaults.AuthenticationScheme)
+    /// <param name="protectorFactory">A factory object capable of producing an IDataProtector for protecting and unprotecting cookies.</param>
+    /// /// <returns>The ISystemWebAdapterBuilder with cookie authentication enabled such that auth cookies are shareable with other apps.</returns>
+    public static ISystemWebAdapterBuilder AddSharedCookieAuthentication(this ISystemWebAdapterBuilder builder,
+                                                                         Action<AuthenticationOptions>? configureAuthenticationOptions,
+                                                                         Action<CookieAuthenticationOptions>? configureCookieOptions,
+                                                                         SharedAuthCookieOptions sharedOptions,
+                                                                         ICookieDataProtectorFactory protectorFactory)
     {
-        // Enable cookie authentication with the specified cookie name
-        authenticationBuilder
-            .AddCookie(authenticationScheme, options =>
+        var provider = DataProtectionProvider.Create(new DirectoryInfo(Path.Combine(Path.GetTempPath(), sharedOptions.ApplicationName)), builder =>
+        {
+            builder.SetApplicationName(sharedOptions.ApplicationName);
+        });
+
+        builder.Services.AddAuthentication(configureAuthenticationOptions ?? (options => { }))
+            .AddCookie(sharedOptions.AuthenticationScheme, options =>
             {
-                optionsConfiguration?.Invoke(options);
+                configureCookieOptions?.Invoke(options);
                 options.Cookie.Name = sharedOptions.CookieName;
+                options.DataProtectionProvider = provider;
             });
 
-        // Ensure that data protection uses the application name that is shared between
-        // applications sharing auth cookies, but unique to other apps
-        var dataProtectionBuilder = authenticationBuilder.Services.AddDataProtection()
-            .SetApplicationName(sharedOptions.ApplicationName);
-
-        // Use user-provided callback to configure data protection services
-        configureDataProtection(dataProtectionBuilder);
+        return builder;
     }
-
-    /// <summary>
-    /// Add cookie authentication services with cookie options set such that cookies can
-    /// be shared with other apps, including ASP.NET applications using .NET Framework
-    /// versions of this API.
-    /// </summary>
-    /// <param name="services">The service collection to add authentication services to.</param>
-    /// <param name="optionsConfiguration">Configuration method for cookie authentication options.</param>
-    /// <param name="sharedOptions">Options for cookie sharing, including cookie name and applicaiton name.</param>
-    /// <param name="configureDataProtection">Configuration method for setting up data protection system to be used for protecting and unprotecting authentication cookies.</param>
-    /// <param name="authenticationScheme">The authentication scheme for authentication with the shared cookie. This must match the authentication type used in the ASP.NET app. Defaults to "Cookies".</param>
-    public static void AddSharedCookieAuthentication(this IServiceCollection services, Action<CookieAuthenticationOptions>? optionsConfiguration, SharedAuthCookieOptions sharedOptions, Action<IDataProtectionBuilder> configureDataProtection, string authenticationScheme = CookieAuthenticationDefaults.AuthenticationScheme) =>
-        AddSharedCookieAuthentication(services.AddAuthentication(authenticationScheme), optionsConfiguration, sharedOptions, configureDataProtection, authenticationScheme);
-
-    /// <summary>
-    /// Add cookie authentication with cookie options set such that cookies can
-    /// be shared with other apps, using a shared folder to share keys for data protection.
-    /// </summary>
-    /// <param name="authenticationBuilder">The authentication configuration to add cookie services to. This can be obtained by calling services.AddAuthentication.</param>
-    /// <param name="optionsConfiguration">Configuration method for cookie authentication options.</param>
-    /// <param name="sharedOptions">Options for cookie sharing, including cookie name and applicaiton name.</param>
-    /// <param name="keyRingDir">The directory to use for sharing data protection keys.</param>
-    /// <param name="authenticationScheme">The authentication scheme for authentication with the shared cookie. This must match the authentication type used in the ASP.NET app. Defaults to "Cookies".</param>
-    public static void AddSharedCookieAuthenticationWithSharedDirectory(this AuthenticationBuilder authenticationBuilder, Action<CookieAuthenticationOptions>? optionsConfiguration, SharedAuthCookieOptions sharedOptions, DirectoryInfo keyRingDir, string authenticationScheme = CookieAuthenticationDefaults.AuthenticationScheme) =>
-        authenticationBuilder.AddSharedCookieAuthentication(optionsConfiguration, sharedOptions, dpb => dpb.PersistKeysToFileSystem(keyRingDir), authenticationScheme);
-
-    /// <summary>
-    /// Add cookie authentication services with cookie options set such that cookies can
-    /// be shared with other apps, using a shared folder to share keys for data protection.
-    /// </summary>
-    /// <param name="services">The service collection to add authentication services to.</param>
-    /// <param name="optionsConfiguration">Configuration method for cookie authentication options.</param>
-    /// <param name="sharedOptions">Options for cookie sharing, including cookie name and applicaiton name.</param>
-    /// <param name="keyRingDir">The directory to use for sharing data protection keys.</param>
-    /// <param name="authenticationScheme">The authentication scheme for authentication with the shared cookie. This must match the authentication type used in the ASP.NET app. Defaults to "Cookies".</param>
-    public static void AddSharedCookieAuthenticationWithSharedDirectory(this ServiceCollection services, Action<CookieAuthenticationOptions>? optionsConfiguration, SharedAuthCookieOptions sharedOptions, DirectoryInfo keyRingDir, string authenticationScheme = CookieAuthenticationDefaults.AuthenticationScheme) =>
-        services.AddSharedCookieAuthentication(optionsConfiguration, sharedOptions, dpb => dpb.PersistKeysToFileSystem(keyRingDir), authenticationScheme);
 }
