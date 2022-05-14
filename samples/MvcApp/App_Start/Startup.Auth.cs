@@ -15,6 +15,11 @@ namespace MvcApp
         // For more information on configuring authentication, please visit https://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
+#if DUAL_IDENTITY
+            // Specify DataDirectory for use in connection string
+            // This is only needed for demo purposes since the two apps need to share an on-disk mdf-based SQL database
+            AppDomain.CurrentDomain.SetData("DataDirectory", SharedAuthUtils.SharedAuthDataProtectionDir.FullName);
+#endif
             // Configure the db context, user manager and signin manager to use a single instance per request
             app.CreatePerOwinContext(ApplicationDbContext.Create);
             app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
@@ -25,20 +30,20 @@ namespace MvcApp
             // Configure the sign in cookie
 
             app.UseSharedCookieAuthentication(new CookieAuthenticationOptions
+            {
+                AuthenticationType = WellKnownAuthenticationSchemes.IdentityApplication,
+                LoginPath = new PathString("/Account/Login"),
+                Provider = new CookieAuthenticationProvider
                 {
-                    AuthenticationType = WellKnownAuthenticationSchemes.IdentityApplication,
-                    LoginPath = new PathString("/Account/Login"),
-                    Provider = new CookieAuthenticationProvider
-                    {
-                        // Enables the application to validate the security stamp when the user logs in.
-                        // This is a security feature which is used when you change a password or add an external login to your account.  
-                        OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser>(
-                            validateInterval: TimeSpan.FromMinutes(30),
-                            regenerateIdentity: (manager, user) => user.GenerateUserIdentityAsync(manager))
-                    }
-                },
-                new SharedAuthCookieOptions(SharedAuthUtils.ApplicationName, WellKnownAuthenticationSchemes.IdentityApplication),
-                new SharedDirectoryDataProtectorFactory(SharedAuthUtils.SharedAuthDataProtectionDir));
+                    // Enables the application to validate the security stamp when the user logs in.
+                    // This is a security feature which is used when you change a password or add an external login to your account.  
+                    OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser>(
+                        validateInterval: TimeSpan.FromMinutes(30),
+                        regenerateIdentity: (manager, user) => user.GenerateUserIdentityAsync(manager))
+                }
+            },
+            new SharedAuthCookieOptions(SharedAuthUtils.ApplicationName, WellKnownAuthenticationSchemes.IdentityApplication),
+            new SharedDirectoryDataProtectorFactory(SharedAuthUtils.SharedAuthDataProtectionDir));
 
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
 

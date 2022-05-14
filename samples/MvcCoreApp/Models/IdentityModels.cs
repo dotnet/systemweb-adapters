@@ -1,3 +1,4 @@
+#if DUAL_IDENTITY
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -17,3 +18,4 @@ namespace MvcApp.Models
         }
     }
 }
+#endif

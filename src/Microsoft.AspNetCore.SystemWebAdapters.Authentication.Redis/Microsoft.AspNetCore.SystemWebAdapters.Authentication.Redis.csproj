@@ -8,24 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <FrameworkFiles Include="**/*.Framework.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <SharedFiles Include="RedisDataProtectorFactory.cs" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'netcoreapp3.1' ">
-    <Compile Remove="@(FrameworkFiles)" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
-    <Compile Remove="**/*" />
-    <Compile Include="@(FrameworkFiles)" />
-    <Compile Include="@(SharedFiles)" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="6.0.4" />
   </ItemGroup>
 

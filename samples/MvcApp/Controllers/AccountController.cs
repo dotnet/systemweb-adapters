@@ -77,6 +77,7 @@ namespace MvcApp.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
+                    return Redirect("https://localhost:44339/Home/Index");
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
