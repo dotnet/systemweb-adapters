@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 using Microsoft.EntityFrameworkCore;
 using MvcCoreApp.Models;
 
@@ -46,6 +47,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSystemWebAdapters();
+app.UseClaimsPrincipalForwarding();
 
 app.UseEndpoints(endpoints =>
 {

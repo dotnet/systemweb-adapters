@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0;netcoreapp3.1;net472</TargetFrameworks>
+    <LangVersion>10</LangVersion>
+    <IsPackable>true</IsPackable>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkFiles Include="**/*.Framework.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SharedFiles Include="Constants.cs" />
+  </ItemGroup>
+  
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'netcoreapp3.1' ">
+    <Compile Remove="@(FrameworkFiles)" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
+    <Compile Remove="**/*" />
+    <Compile Include="@(FrameworkFiles)" />
+    <Compile Include="@(SharedFiles)" />
+
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj" />
+  </ItemGroup>
+</Project>

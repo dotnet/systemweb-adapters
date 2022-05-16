@@ -3,6 +3,7 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
 namespace MvcApp
 {
@@ -17,6 +18,7 @@ namespace MvcApp
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             Application.AddSystemWebAdapters()
+                .AddForwardedClaimsPrincipalSupport()
                 .AddProxySupport(options => options.UseForwardedHeaders = true)
                 .AddRemoteAppSession(options=>
                 {

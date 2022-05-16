@@ -28,7 +28,7 @@ public static class SystemWebAdaptersExtensions
     internal static ISystemWebAdapterBuilder? GetSystemWebBuilder(this HttpApplicationState state)
         => state[Key] as ISystemWebAdapterBuilder;
 
-    private static ISystemWebAdapterBuilder AddModule<TOptions>(this ISystemWebAdapterBuilder builder, Action<TOptions> configure, Func<TOptions, IHttpModule> factory)
+    public static ISystemWebAdapterBuilder AddModule<TOptions>(this ISystemWebAdapterBuilder builder, Action<TOptions> configure, Func<TOptions, IHttpModule> factory)
         where TOptions : class, new()
     {
         var options = new TOptions();
@@ -37,7 +37,7 @@ public static class SystemWebAdaptersExtensions
         return builder.AddModule(factory(options));
     }
 
-    private static ISystemWebAdapterBuilder AddModule(this ISystemWebAdapterBuilder builder, IHttpModule module)
+    public static ISystemWebAdapterBuilder AddModule(this ISystemWebAdapterBuilder builder, IHttpModule module)
     {
         builder.Modules.Add(module);
         return builder;
