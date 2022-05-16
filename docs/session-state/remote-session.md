@@ -8,18 +8,20 @@ In order to configure it, both the framework and core app must set an API key as
 
 - `ApiKeyHeader` - header name that will contain an API key to secure the endpoint added on .NET Framework
 - `ApiKey` - the shared API key that will be validated in the .NET Framework handler
-- `RegisterKey<T>(string)` - Registers a session key to a known type. This is required in order to serialize/deserialize the session state correctly. If a key is found that there is no registration for, an error will be thrown and session will not be available.
 
 Configuration for ASP.NET Core would look similar to the following:
 
 ```csharp
 builder.Services.AddSystemWebAdapters()
+    .AddJsonSessionSerializer(options =>
+    {        
+        options.RegisterKey<int>("test-value");
+        options.RegisterKey<SessionDemoModel>("SampleSessionItem");
+    })
     .AddRemoteAppSession(options =>
     {
         options.RemoteApp = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
         options.ApiKey = "test-key";
-        options.RegisterKey<int>("test-value");
-        options.RegisterKey<SessionDemoModel>("SampleSessionItem");
     });
 ```
 
@@ -27,12 +29,13 @@ The framework equivalent would look like the following change in `Global.asax.cs
 
 ```csharp
 Application.AddSystemWebAdapters()
-    .AddRemoteAppSession(options=>
-    {
-        options.ApiKey = "test-key";
-        options.RegisterKey<int>("test-value");
-        options.RegisterKey<SessionDemoModel>("SampleSessionItem");
-    });
+    .AddRemoteAppSession(
+        options => options.ApiKey = "test-key",
+        options =>
+        {
+            options.RegisterKey<int>("test-value");
+            options.RegisterKey<SessionDemoModel>("SampleSessionItem");
+        });
 ```
 # Protocol
 

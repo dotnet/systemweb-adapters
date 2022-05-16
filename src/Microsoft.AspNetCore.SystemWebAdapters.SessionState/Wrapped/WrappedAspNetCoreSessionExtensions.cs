@@ -2,14 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using Microsoft.AspNetCore.SystemWebAdapters.SessionState.BuiltIn;
+using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Wrapped;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-public static class BuiltInSessionExtensions
+public static class WrappedAspNetCoreSessionExtensions
 {
-    public static ISystemWebAdapterBuilder AddBuiltInSession(this ISystemWebAdapterBuilder builder, Action<Builder.SessionOptions>? options = null)
+    public static ISystemWebAdapterBuilder WrapAspNetCoreSession(this ISystemWebAdapterBuilder builder, Action<Builder.SessionOptions>? options = null)
     {
         if (options is null)
         {
@@ -20,7 +20,7 @@ public static class BuiltInSessionExtensions
             builder.Services.AddSession(options);
         }
 
-        builder.Services.AddSingleton<ISessionManager, BuiltInSessionManager>();
+        builder.Services.AddSingleton<ISessionManager, AspNetCoreSessionManager>();
 
         return builder;
     }

@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.BuiltIn;
+namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Wrapped;
 
-internal class BuiltInSessionState : ISessionState
+internal class AspNetCoreSessionState : ISessionState
 {
     private readonly ISession _session;
     private readonly ISessionSerializer _serializer;
 
-    public BuiltInSessionState(ISession session, ISessionSerializer serializer, bool isReadOnly)
+    public AspNetCoreSessionState(ISession session, ISessionSerializer serializer, bool isReadOnly)
     {
         _session = session;
         _serializer = serializer;
