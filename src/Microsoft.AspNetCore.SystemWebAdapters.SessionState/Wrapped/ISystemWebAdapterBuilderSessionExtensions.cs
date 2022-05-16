@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-public static class WrappedAspNetCoreSessionExtensions
+public static class ISystemWebAdapterBuilderSessionExtensions
 {
     public static ISystemWebAdapterBuilder WrapAspNetCoreSession(this ISystemWebAdapterBuilder builder, Action<Builder.SessionOptions>? options = null)
     {
