@@ -65,7 +65,7 @@ Below are the steps needed to start using these adapters in your project:
       <!--To inherit the global NuGet package sources remove the <clear/> line below -->
       <clear />
       <add key="nuget" value="https://api.nuget.org/v3/index.json" />
-      <add key="dotnet6" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet6/nuget/v3/index.json" />
+      <add key=".NET Libraries Daily" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-libraries/nuget/v3/index.json" />
     </packageSources>
   </configuration>
   ```
