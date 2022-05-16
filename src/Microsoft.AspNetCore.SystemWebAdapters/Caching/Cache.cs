@@ -109,7 +109,15 @@ public sealed class Cache : IEnumerable
             return null;
         }
 
-        return args => callback(args.CacheItem.Key, args.CacheItem.Value, Convert(args.RemovedReason));
+        return args =>
+        {
+            if (args.CacheItem is null)
+            {
+                return;
+            }
+
+            callback(args.CacheItem.Key, args.CacheItem.Value, Convert(args.RemovedReason));
+        };
     }
 
     private static DateTimeOffset Convert(DateTime dt) => dt == NoAbsoluteExpiration ? DateTimeOffset.MaxValue : dt;
