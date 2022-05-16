@@ -62,11 +62,6 @@ stages:
           value: $(_BuildConfig)
         strategy:
           matrix:
-            ${{ if in(variables['Build.Reason'], 'PullRequest') }}:
-              Debug:
-                _BuildConfig: Debug
-                _SignType: test
-                _BuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName)
             Release:
               _BuildConfig: Release
               # PRs and external builds are not signed.
@@ -127,8 +122,6 @@ stages:
           vmImage: macOS-10.15
         strategy:
           matrix:
-            debug:
-              _BuildConfig: Debug
             release:
               _BuildConfig: Release
         variables:
@@ -166,8 +159,6 @@ stages:
           container: LinuxContainer
         strategy:
           matrix:
-            debug:
-              _BuildConfig: Debug
             release:
               _BuildConfig: Release
         variables:
