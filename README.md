@@ -168,4 +168,4 @@ This project may contain trademarks or logos for projects, products, or services
 
 ## Code of conduct
 
-See [CODE-OF-CONDUCT](./CODE-OF-CONDUCT.md)
+See [CODE OF CONDUCT](./CODE_OF_CONDUCT.md)
