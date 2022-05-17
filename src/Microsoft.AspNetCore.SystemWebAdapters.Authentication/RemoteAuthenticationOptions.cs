@@ -5,26 +5,18 @@
 using System.ComponentModel.DataAnnotations;
 #endif
 
-using System.Collections.Generic;
 using System;
-using System.Linq;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
 public class RemoteAuthenticationOptions
 {
     internal const string ApiKeyHeaderName = "X-SystemWebAdapter-RemoteAuthentication-Key";
-    internal const string ReadOnlyHeaderName = "X-SystemWebAdapter-RemoteAuthentication-RequiredClaim";
 
     /// <summary>
     /// Gets or sets the header used to store the API key
     /// </summary>
     public string ApiKeyHeader { get; set; } = ApiKeyHeaderName;
-
-    /// <summary>
-    /// Gets or sets the header used to store required claims
-    /// </summary>
-    public string RequiredClaimHeader { get; set; } = ApiKeyHeaderName;
 
     /// <summary>
     /// Gets or sets an API key used to secure the endpoint
@@ -48,12 +40,6 @@ public class RemoteAuthenticationOptions
     [Required]
 #endif
     public string AuthenticationEndpointPath { get; set; } = "/fallback/adapter/authenticate";
-
-    /// <summary>
-    /// Gets or sets an enumerable of claims to retrieve for the authenticated
-    /// user. Passing an empty enumerable will retrieve all claims.
-    /// </summary>
-    public IEnumerable<string> RequiredClaimNames { get; set; } = Enumerable.Empty<string>();
 
 #if NETCOREAPP3_1_OR_GREATER
     /// <summary>

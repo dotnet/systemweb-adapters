@@ -2,16 +2,17 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Threading.Tasks;
+using System.IO;
+using System.Security.Claims;
 using System.Web;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
-internal sealed class RemoteAuthenticationHandler : HttpTaskAsyncHandler
+internal sealed class RemoteAuthenticationHandler : IHttpHandler
 {
     private readonly RemoteAuthenticationOptions _options;
 
-    public override bool IsReusable => true;
+    public bool IsReusable => true;
 
     public RemoteAuthenticationHandler(RemoteAuthenticationOptions options)
     {
@@ -23,33 +24,33 @@ internal sealed class RemoteAuthenticationHandler : HttpTaskAsyncHandler
         _options = options;
     }
 
-    public override async Task ProcessRequestAsync(HttpContext context)
+    public void ProcessRequest(HttpContext context)
     {
+        if (context is null)
+        {
+            return;
+        }
+
+        // TODO : Do we need to even check the API key for this? The handler only returns information
+        //        about the currently authenticated user.
         if (!string.Equals(_options.ApiKey, context.Request.Headers.Get(_options.ApiKeyHeader), StringComparison.Ordinal))
         {
-            context.Response.StatusCode = 401;
+            // Using 407 here (proxy authentication required) to differentiate from the scenario of
+            // a valid API key but no authenticated user.
+            context.Response.StatusCode = 407;
         }
         else
         {
-            /*
-            var readOnly = bool.TryParse(context.Request.Headers.Get(RemoteAppSessionStateOptions.ReadOnlyHeaderName), out var result) && result;
-
-            // Dispatch the work depending on the HTTP method used
-            var method = context.Request.HttpMethod;
-            if (method.Equals("PUT", StringComparison.OrdinalIgnoreCase))
+            if (context.User is ClaimsPrincipal claimsPrincipal && context.User.Identity.IsAuthenticated)
             {
-                await StoreSessionStateAsync(context).ConfigureAwait(false);
-            }
-            else if (method.Equals("GET", StringComparison.OrdinalIgnoreCase))
-            {
-                await GetSessionStateAsync(context, !readOnly).ConfigureAwait(false);
+                context.Response.StatusCode = 200;
+                context.Response.ContentType = "application/octet-stream";
+                claimsPrincipal.WriteTo(new BinaryWriter(context.Response.OutputStream));
             }
             else
             {
-                // HTTP methods other than GET (read) or PUT (write) are not accepted
-                context.Response.StatusCode = 405; // Method not allowed
+                context.Response.StatusCode = 401;
             }
-            */
         }
 
         context.ApplicationInstance.CompleteRequest();

@@ -20,7 +20,14 @@ namespace MvcApp
                 .AddProxySupport(options => options.UseForwardedHeaders = true)
                 .AddRemoteAppSession(
                     options => options.ApiKey = ClassLibrary.SessionUtils.ApiKey,
-                    options => ClassLibrary.SessionUtils.RegisterSessionKeys(options));
+                    options => ClassLibrary.SessionUtils.RegisterSessionKeys(options))
+                .AddRemoteAuthentication(options =>
+                {
+                    // TODO - Now that we have multiple endpoints requiring an API key,
+                    // should we centralize this somehow so that we only need to configure
+                    // the API key once?
+                    options.ApiKey = ClassLibrary.SessionUtils.ApiKey;
+                });
         }
     }
 }
