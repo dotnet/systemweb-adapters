@@ -13,7 +13,9 @@ The adapter infrastructure exposes two interfaces that can be used to implement 
 ## Serialization
 Since the adapters provide the ability to work with strongly-typed session state, we must be able to serialize and deserialize types. This is accomplished through implementation of the type `Microsoft.AspnetCore.SysteWebAdapters.SessionState.Serialization.ISessionSerializer`, of which a JSON implementation is provided.
 
-Serialization and deserialization of session keys requires registering what the expected type should be, which is available via the `SessionSerializerOptions`.
+Serialization and deserialization of session keys requires additional information which is configured via the `SessionSerializerOptions`:
+
+- `RegisterKey<T>(string)` - Registers a session key to a known type. This is required in order to serialize/deserialize the session state correctly. If a key is found that there is no registration for, an error will be thrown and session will not be available.
 
 To use the default JSON backed implementation, add the following to the startup:
 
