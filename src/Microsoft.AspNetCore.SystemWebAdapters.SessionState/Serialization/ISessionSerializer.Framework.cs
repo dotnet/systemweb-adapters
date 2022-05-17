@@ -14,4 +14,8 @@ public interface ISessionSerializer
     Task DeserializeToAsync(Stream stream, HttpSessionState state, CancellationToken token);
 
     Task SerializeAsync(HttpSessionState state, Stream stream, CancellationToken token);
+
+    byte[] Serialize(string key, object value);
+
+    object? Deserialize(string key, Memory<byte> bytes);
 }

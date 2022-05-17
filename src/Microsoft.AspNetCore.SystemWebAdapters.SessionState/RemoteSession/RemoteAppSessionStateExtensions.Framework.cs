@@ -3,16 +3,22 @@
 
 using System;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
+using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public static class RemoteAppSessionStateExtensions
 {
-    public static ISystemWebAdapterBuilder AddRemoteAppSession(this ISystemWebAdapterBuilder builder, Action<RemoteAppSessionStateOptions> configure)
+    public static ISystemWebAdapterBuilder AddRemoteAppSession(this ISystemWebAdapterBuilder builder, Action<RemoteAppSessionStateOptions> configureRemote, Action<SessionSerializerOptions> configureSerializer)
     {
         var options = new RemoteAppSessionStateOptions();
-        configure(options);
-        builder.Modules.Add(new RemoteSessionModule(options));
+        configureRemote(options);
+
+        var serializerOptions = new SessionSerializerOptions();
+        configureSerializer(serializerOptions);
+        var serializer = new JsonSessionSerializer(serializerOptions.KnownKeys);
+
+        builder.Modules.Add(new RemoteSessionModule(options, serializer));
         return builder;
     }
 }

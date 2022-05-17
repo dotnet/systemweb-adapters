@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <SharedFiles Include="Adapters/SessionState/SessionOptions.cs" />
+    <SharedFiles Include="Adapters/SessionState/Serialization/SessionSerializerOptions.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net6.0;netcoreapp3.1;net472</TargetFrameworks>
@@ -42,7 +42,7 @@
     <Compile Include="RemoteSession/RemoteAppSessionStateOptions.cs" />
     <Compile Include="Serialization/SessionValues.cs" />
     <Compile Include="Serialization/SerializedSessionState.cs" />
-    <Compile Include="Serialization/SessionSerializer.Shared.cs" />
+    <Compile Include="Serialization/JsonSessionSerializer.Shared.cs" />
 
     <Reference Include="System.Web" />
 

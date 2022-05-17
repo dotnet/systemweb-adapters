@@ -15,14 +15,14 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 internal sealed class RemoteAppSessionStateHandler : HttpTaskAsyncHandler
 {
     private readonly RemoteAppSessionStateOptions _options;
-    private readonly SessionSerializer _serializer;
+    private readonly ISessionSerializer _serializer;
 
     // Track locked sessions awaiting updates or release
     private static readonly ConcurrentDictionary<string, SessionContainer> SessionResponseTasks = new();
 
     public override bool IsReusable => true;
 
-    public RemoteAppSessionStateHandler(RemoteAppSessionStateOptions options)
+    public RemoteAppSessionStateHandler(RemoteAppSessionStateOptions options, ISessionSerializer serializer)
     {
         if (string.IsNullOrEmpty(options.ApiKey))
         {
@@ -30,7 +30,7 @@ internal sealed class RemoteAppSessionStateHandler : HttpTaskAsyncHandler
         }
 
         _options = options;
-        _serializer = new SessionSerializer(options.KnownKeys);
+        _serializer = serializer;
     }
 
     public override async Task ProcessRequestAsync(HttpContext context)

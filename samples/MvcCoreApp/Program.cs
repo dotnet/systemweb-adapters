@@ -6,12 +6,11 @@ builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSecti
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSystemWebAdapters()
+    .AddJsonSessionSerializer(options => ClassLibrary.SessionUtils.RegisterSessionKeys(options))
     .AddRemoteAppSession(options =>
     {
         options.RemoteApp = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
         options.ApiKey = ClassLibrary.SessionUtils.ApiKey;
-
-        ClassLibrary.SessionUtils.RegisterSessionKeys(options);
     });
 
 var app = builder.Build();
@@ -36,8 +35,8 @@ app.UseSystemWebAdapters();
 app.UseEndpoints(endpoints =>
 {
     app.MapDefaultControllerRoute();
-        // This method can be used to enable session (or read-only session) on all controllers
-        //.RequireSystemWebAdapterSession();
+    // This method can be used to enable session (or read-only session) on all controllers
+    //.RequireSystemWebAdapterSession();
 
     app.MapReverseProxy();
 });

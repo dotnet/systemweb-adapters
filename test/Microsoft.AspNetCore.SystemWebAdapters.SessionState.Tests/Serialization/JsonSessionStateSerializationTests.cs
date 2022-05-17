@@ -9,7 +9,7 @@ using KeyDictionary = System.Collections.Generic.Dictionary<string, System.Type>
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
-public class SessionStateSerializationTests
+public class JsonSessionStateSerializationTests
 {
     [Fact]
     public void NewSession()
@@ -18,7 +18,7 @@ public class SessionStateSerializationTests
         const string PayLoad = @"{
     ""n"": true,
 }";
-        var serializer = new SessionSerializer(new KeyDictionary());
+        var serializer = new JsonSessionSerializer(new KeyDictionary());
 
         // Act
         var result = serializer.Deserialize(PayLoad);
@@ -40,7 +40,7 @@ public class SessionStateSerializationTests
     }
 }";
 
-        var serializer = new SessionSerializer(new KeyDictionary
+        var serializer = new JsonSessionSerializer(new KeyDictionary
         {
             { "Key1", typeof(int) }
         });
@@ -65,7 +65,7 @@ public class SessionStateSerializationTests
     }
 }";
 
-        var serializer = new SessionSerializer(new KeyDictionary
+        var serializer = new JsonSessionSerializer(new KeyDictionary
         {
             { "Key1", typeof(int) }
         }, writeIndented: true);
@@ -113,7 +113,7 @@ public class SessionStateSerializationTests
         ""Key2"": ""hello""
     }
 }";
-        var serializer = new SessionSerializer(new KeyDictionary
+        var serializer = new JsonSessionSerializer(new KeyDictionary
         {
             { "Key1", typeof(int) },
             { "Key2", typeof(string) }
@@ -143,7 +143,7 @@ public class SessionStateSerializationTests
         }
     }
 }";
-        var serializer = new SessionSerializer(new KeyDictionary
+        var serializer = new JsonSessionSerializer(new KeyDictionary
         {
             { "Key1", typeof(SomeObject) }
         });
