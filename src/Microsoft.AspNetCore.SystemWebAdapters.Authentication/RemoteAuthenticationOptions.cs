@@ -2,15 +2,34 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #if NETCOREAPP3_1_OR_GREATER
+using Microsoft.AspNetCore.Authentication;
 using System.ComponentModel.DataAnnotations;
 #endif
 
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
 public class RemoteAuthenticationOptions
+#if NETCOREAPP3_1_OR_GREATER
+    : AuthenticationSchemeOptions
+#endif
 {
+#if NETCOREAPP3_1_OR_GREATER
+    public static readonly string[] DefaultHeadersToForward = new[]
+    {
+        "Authorization"
+    };
+
+    public static readonly string[] DefaultResponseHeadersToForward = new[]
+    {
+        "Location",
+        "Set-Cookie",
+        "WWW-Authenticate"
+    };
+#endif
+
     internal const string ApiKeyHeaderName = "X-SystemWebAdapter-RemoteAuthentication-Key";
 
     /// <summary>
@@ -32,6 +51,12 @@ public class RemoteAuthenticationOptions
     /// </summary>
     [Required]
     public Uri RemoteApp { get; set; } = null!;
+
+    public IList<string> HeadersToForward { get; set; } = new List<string>(DefaultHeadersToForward);
+
+    public IList<string> CookiesToForward { get; set; } = new List<string>();
+
+    public IList<string> ResponseHeadersToForward { get; set; } = new List<string>(DefaultResponseHeadersToForward);
 
     /// <summary>
     /// Gets or sets the endpoint on the remote app that provides remote authentication

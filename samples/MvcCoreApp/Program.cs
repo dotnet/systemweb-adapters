@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
@@ -9,6 +10,12 @@ builder.Services.AddSystemWebAdapters()
     .AddJsonSessionSerializer(options => ClassLibrary.SessionUtils.RegisterSessionKeys(options))
     .AddRemoteAppSession(options =>
     {
+        options.RemoteApp = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
+        options.ApiKey = ClassLibrary.SessionUtils.ApiKey;
+    })
+    .AddRemoteAuthentication(options =>
+    {
+        // TODO : Remove this duplication
         options.RemoteApp = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
         options.ApiKey = ClassLibrary.SessionUtils.ApiKey;
     });
@@ -28,6 +35,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSystemWebAdapters();

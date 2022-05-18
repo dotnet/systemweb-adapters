@@ -8,13 +8,13 @@ using System.Web;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
-internal sealed class RemoteAuthenticationHandler : IHttpHandler
+internal sealed class RemoteAuthenticationHttpHandler : IHttpHandler
 {
     private readonly RemoteAuthenticationOptions _options;
 
     public bool IsReusable => true;
 
-    public RemoteAuthenticationHandler(RemoteAuthenticationOptions options)
+    public RemoteAuthenticationHttpHandler(RemoteAuthenticationOptions options)
     {
         if (string.IsNullOrEmpty(options.ApiKey))
         {
