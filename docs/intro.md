@@ -4,7 +4,7 @@ Migrating an application from ASP.NET Framework to ASP.NET Core is a non-trivial
 
 One of the larger challenges is the pervasive use of `System.Web.HttpContext` throughout a code base to access information about a request or update a response. Until now, in order to move forward, a large scale rewrite was required to remove this dependency. Now, the adapters in this repo provide a set of runtime helpers to access the types your code is expecting but in a way that will work on ASP.NET Core with little change.
 
-A complete mgiration may take a while (sometimes a multi-year effort) depending on the size of the application. In order to continue deploying an application to production while working on migrating, the best pattern is to follow is the [Strangler Fig pattern](https://docs.microsoft.com/en-us/azure/architecture/patterns/strangler-fig). This pattern allows for continual development on the old system with an incremental approach to moving foward. This document will describe how to apply that pattern to an ASP.NET app migrating towards ASP.NET Core.
+A complete migration may take a while (sometimes a multi-year effort) depending on the size of the application. In order to continue deploying an application to production while working on migrating, the best pattern is to follow is the [Strangler Fig pattern](https://docs.microsoft.com/en-us/azure/architecture/patterns/strangler-fig). This pattern allows for continual development on the old system with an incremental approach to moving forward. This document will describe how to apply that pattern to an ASP.NET app migrating towards ASP.NET Core.
 
 ## Migration Journey
 
@@ -66,7 +66,7 @@ flowchart LR;
 
 The `Microsoft.AspNetCore.SystemWebAdapters` is a collection of runtime helpers that will facillitate using old core written against `System.Web` while moving onto ASP.NET Core.
 
-The heart of the library is support for `System.Web.HttpContext`. This attempts to provide compatible behavior for what is found running on ASP.NET to expedite moving onto ASP.NET Core. There are a number of behaviors that ASP.NET provided that incur a performance cost if enabled on ASP.NET Core so must be opted into. For details, see [here](./metadata.md).
+The heart of the library is support for `System.Web.HttpContext`. This attempts to provide compatible behavior for what is found running on ASP.NET to expedite moving onto ASP.NET Core. There are a number of behaviors that ASP.NET provided that incur a performance cost if enabled on ASP.NET Core so must be opted into.
 
 For guidance around usage, please see [here](usage_guidance.md).
 
