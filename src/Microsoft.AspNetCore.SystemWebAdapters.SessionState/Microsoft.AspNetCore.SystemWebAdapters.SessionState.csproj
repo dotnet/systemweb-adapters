@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net6.0;netcoreapp3.1;net472</TargetFrameworks>
-    <HasImplementation>false</HasImplementation>
     <LangVersion>10</LangVersion>
     <IsPackable>true</IsPackable>
     <Nullable>enable</Nullable>
@@ -18,7 +17,6 @@
   <ItemGroup>
     <FrameworkFiles Include="**/*.Framework.cs" />
     <FrameworkFiles Include="RemoteSession/Framework/*.cs" />
-    <StandardFiles Include="**/*.Standard.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'netcoreapp3.1' ">
