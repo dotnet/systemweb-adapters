@@ -48,6 +48,8 @@ flowchart LR;
   framework --- libraries[[Business logic]]
 ```
 
+During this process, you may have the route in both the ASP.NET Core and the ASP.NET Framework applications. This could allow you to perform some A/B testing to ensure functionality is as expected.
+
 Once the .NET Framework Application is no longer needed, it may be removed:
 
 ```mermaid
