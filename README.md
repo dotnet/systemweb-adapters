@@ -10,7 +10,7 @@ To understand how these adapters can be used within the context of a large scale
 ## Set up
 Below are the steps needed to start using these adapters in your project:
 
-1. *Optional for CI builds*: Set up `NuGet.config` to point to the CI feed:
+1. *Optional for nightly adapter builds*: Set up `NuGet.config` to point to the CI feed:
   ```xml
   <?xml version="1.0" encoding="utf-8"?>
   <configuration>
