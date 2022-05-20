@@ -40,7 +40,7 @@ public class SomeController : Controller
 }
 ```
 
-or enabled for the endpoints:
+or to enable for all endpoints by default:
 
 ```cs
 app.MapDefaultControllerRoute()
