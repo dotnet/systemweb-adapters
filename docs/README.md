@@ -28,7 +28,7 @@ flowchart LR;
   framework --- libraries[[Business logic]]
 ```
 
-In order to start moving over business logic that relies on `HttpContext`, the libraries need to be built against `Microsoft.AspNetCore.SystemWebAdapters`. This will ensure that the libraries are using surface area that is available on both ASP.NET and ASP.NET Core:
+In order to start moving over business logic that relies on `HttpContext`, the libraries need to be built against `Microsoft.AspNetCore.SystemWebAdapters`. This allows libraries to be built against .NET Framework, .NET Core, or .NET Standard 2.0. This will ensure that the libraries are using surface area that is available on both ASP.NET and ASP.NET Core:
 
 ```mermaid
 flowchart LR;
@@ -38,7 +38,15 @@ flowchart LR;
   framework --- libraries[[Business logic]]
 ```
 
-At this point, the journey is to focus on moving routes over one at a time. This could be WebAPI or MVC controllers (or even a single method from a controller), ASPX pages, handlers, or some other implementation of a route. If the route is available in the core app, it will then be matched and served from there. Over time, the core app will start processing more of the routes served than the .NET Framework Application:
+At this point, the journey is to focus on moving routes over one at a time. This could be WebAPI or MVC controllers (or even a single method from a controller), ASPX pages, handlers, or some other implementation of a route. If the route is available in the core app, it will then be matched and served from there.
+
+During this process, additional service and infrastructure will be identified that must be moved, in some way, to run on .NET Core. Some options include (listed in order of maintainability):
+
+1. Duplicate the code
+2. Link the code in the new project
+3. Move the code to shared libraries
+
+Over time, the core app will start processing more of the routes served than the .NET Framework Application:
 
 ```mermaid
 flowchart LR;
