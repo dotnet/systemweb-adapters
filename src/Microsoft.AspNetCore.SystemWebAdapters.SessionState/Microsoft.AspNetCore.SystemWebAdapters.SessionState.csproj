@@ -36,7 +36,7 @@
     <Compile Include="RemoteSession/RemoteAppSessionStateOptions.cs" />
     <Compile Include="Serialization/SessionValues.cs" />
     <Compile Include="Serialization/SerializedSessionState.cs" />
-    <Compile Include="Serialization/JsonSessionSerializer.Shared.cs" />
+    <Compile Include="**/*.Shared.cs" />
 
     <Reference Include="System.Web" />
 

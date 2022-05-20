@@ -9,14 +9,14 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public static class RemoteAppSessionStateExtensions
 {
-    public static ISystemWebAdapterBuilder AddRemoteAppSession(this ISystemWebAdapterBuilder builder, Action<RemoteAppSessionStateOptions> configureRemote, Action<SessionSerializerOptions> configureSerializer)
+    public static ISystemWebAdapterBuilder AddRemoteAppSession(this ISystemWebAdapterBuilder builder, Action<RemoteAppSessionStateOptions> configureRemote, Action<JsonSessionSerializerOptions> configureSerializer)
     {
         var options = new RemoteAppSessionStateOptions();
         configureRemote(options);
 
-        var serializerOptions = new SessionSerializerOptions();
+        var serializerOptions = new JsonSessionSerializerOptions();
         configureSerializer(serializerOptions);
-        var serializer = new JsonSessionSerializer(serializerOptions.KnownKeys);
+        var serializer = new JsonSessionSerializer(serializerOptions);
 
         builder.Modules.Add(new RemoteSessionModule(options, new InMemoryLockedSessions(serializer), serializer));
         return builder;
