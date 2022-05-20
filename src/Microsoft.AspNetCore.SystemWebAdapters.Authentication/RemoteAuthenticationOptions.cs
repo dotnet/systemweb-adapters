@@ -52,10 +52,19 @@ public class RemoteAuthenticationOptions
     [Required]
     public Uri RemoteApp { get; set; } = null!;
 
+    /// <summary>
+    /// Gets or sets a list of request headers that should be forwarded to the remote app for authentication purposes.
+    /// </summary>
     public IList<string> HeadersToForward { get; set; } = new List<string>(DefaultHeadersToForward);
 
+    /// <summary>
+    /// Gets or sets a list of cookies that should be forwarded to the remote app for authentication purposes.
+    /// </summary>
     public IList<string> CookiesToForward { get; set; } = new List<string>();
 
+    /// <summary>
+    /// Gets or sets a list of response headers that may need propagated back from authenticate responses.
+    /// </summary>
     public IList<string> ResponseHeadersToForward { get; set; } = new List<string>(DefaultResponseHeadersToForward);
 
     /// <summary>

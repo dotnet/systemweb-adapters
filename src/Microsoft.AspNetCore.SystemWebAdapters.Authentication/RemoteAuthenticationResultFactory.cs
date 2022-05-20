@@ -23,16 +23,7 @@ public class RemoteAuthenticationResultFactory : IAuthenticationResultFactory<Re
 
     public async Task<RemoteAuthenticationResult> CreateRemoteAuthenticationResultAsync(HttpResponseMessage response, RemoteAuthenticationOptions options)
     {
-        var ret = new RemoteAuthenticationResult();
-
-        // Copy the status code to the RemoteAuthenticationResult
-        ret.StatusCode = (int)response.StatusCode;
-
-        // Copy expected response headers
-        foreach (var headerName in options.ResponseHeadersToForward.Where(h => response.Headers.Contains(h)))
-        {
-            ret.ResponseHeaders.Add(headerName, response.Headers.GetValues(headerName));
-        }
+        RemoteAuthenticationResult? ret = null;
 
         // If the result has a 200 status code, attempt to deserialize the ClaimsPrincipal
         if (response.StatusCode == HttpStatusCode.OK)
@@ -40,7 +31,7 @@ public class RemoteAuthenticationResultFactory : IAuthenticationResultFactory<Re
             try
             {
                 using var reader = new BinaryReader(await response.Content.ReadAsStreamAsync());
-                ret.User = new ClaimsPrincipal(reader);
+                ret = new RemoteAuthenticationResult(new ClaimsPrincipal(reader), (int)response.StatusCode);
             }
             catch (Exception exc)
             {
@@ -48,7 +39,18 @@ public class RemoteAuthenticationResultFactory : IAuthenticationResultFactory<Re
             }
         }
 
-        // TODO : Should we return response content in cases where deserializing the claims principal fails?
+        // If the remote authentication result hasn't yet been created, create it without a claims principal
+        if (ret is null)
+        {
+            ret = new RemoteAuthenticationResult(null, (int)response.StatusCode);
+        }
+
+        // Copy expected response headers
+        foreach (var headerName in options.ResponseHeadersToForward.Where(h => response.Headers.Contains(h)))
+        {
+            ret.ResponseHeaders.Add(headerName, response.Headers.GetValues(headerName));
+        }
+
         return ret;
     }
 }

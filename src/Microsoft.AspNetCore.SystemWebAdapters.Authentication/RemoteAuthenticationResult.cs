@@ -1,4 +1,6 @@
-using System;
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using System.Collections.Generic;
 using System.Security.Claims;
 
@@ -6,22 +8,32 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
 public class RemoteAuthenticationResult
 {
-    // TODO : Document these properties and in what circumstances
-    //        each should be used.
-    public ClaimsPrincipal? User { get; set; }
-    public int StatusCode { get; set; }
-    public IDictionary<string, IEnumerable<string>> ResponseHeaders { get; set; } = new Dictionary<string, IEnumerable<string>>();
-    public ResponseContent? Content { get; set; }
-
-    public class ResponseContent
+    /// <summary>
+    /// Create an instance of RemoteAuthenticationResult
+    /// </summary>
+    /// <param name="user">The user returned by the remote authenticate call.</param>
+    /// <param name="statusCode">The status code returned from the remote authenticate call.</param>
+    public RemoteAuthenticationResult(ClaimsPrincipal? user, int statusCode)
     {
-        public string ContentType { get; set; }
-        public byte[] Content { get; set; }
-
-        public ResponseContent(string contentType, byte[] content)
-        {
-            ContentType = contentType;
-            Content = content;
-        }
+        User = user;
+        StatusCode = statusCode;
     }
+
+    /// <summary>
+    /// Gets the user principal returned in the remote authentication result.
+    /// This will be null if remote authenticaiton fails.
+    /// </summary>
+    public ClaimsPrincipal? User { get; }
+
+    /// <summary>
+    /// Gets the status code returned in the remote authentication result.
+    /// If a user was successfully retrieved, this status code will be 200.
+    /// </summary>
+    public int StatusCode { get; }
+
+    /// <summary>
+    /// Gets a dictionary of auth-related headers that may need propagated back
+    /// to the caller if remote authentication fails.
+    /// </summary>
+    public IDictionary<string, IEnumerable<string>> ResponseHeaders { get; } = new Dictionary<string, IEnumerable<string>>();
 }
