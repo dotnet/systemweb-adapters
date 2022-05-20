@@ -14,7 +14,7 @@ To understand how this is helpful in the migration process, please refer to the 
 
 ## Set up ASP.NET Core Project
 
-1. Install this [experimental Visual Studio extension](https://somelink) that will help configure the solution.
+1. Install this [experimental Visual Studio extension](https://marketplace.visualstudio.com/items?itemName=WebToolsTeam.aspnetprojectmigrations) that will help configure the solution.
 2. Right click the ASP.NET Framework application and select "Migrate Project":
    ![Migrate Menu](images/migrate_menu.png)
 3. This will open a menu that will offter to start a migration. Click the link to begin:
