@@ -4,7 +4,7 @@ Migrating an application from ASP.NET Framework to ASP.NET Core is a non-trivial
 
 One of the larger challenges is the pervasive use of `System.Web.HttpContext` throughout a code base to access information about a request or update a response. Until now, in order to move forward, a large scale rewrite was required to remove this dependency. Now, the adapters in this repo provide a set of runtime helpers to access the types your code is expecting but in a way that will work on ASP.NET Core with little change.
 
-A complete migration may take a while (sometimes a multi-year effort) depending on the size of the application. In order to continue deploying an application to production while working on migrating, the best pattern is to follow is the [Strangler Fig pattern](https://docs.microsoft.com/en-us/azure/architecture/patterns/strangler-fig). This pattern allows for continual development on the old system with an incremental approach to moving forward. This document will describe how to apply that pattern to an ASP.NET app migrating towards ASP.NET Core.
+A complete migration may take a while depending on the size of the application. In order to continue deploying an application to production while working on migrating, the best pattern is to follow is the [Strangler Fig pattern](https://docs.microsoft.com/en-us/azure/architecture/patterns/strangler-fig). This pattern allows for continual development on the old system with an incremental approach to moving forward. This document will describe how to apply that pattern to an ASP.NET app migrating towards ASP.NET Core.
 
 To jump into the process, please see the [Getting Started](getting_started.md) guide.
 
