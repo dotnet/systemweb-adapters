@@ -29,6 +29,25 @@ builder.Services.AddSystemWebAdapters()
     });
 ```
 
+Session support requires additional work for the ASP.NET Core pipeline, and is not turned on by default. It can be configured on a per-route basis via ASP.NET Core metadata.
+
+For example, session support requires either to annotate a controller:
+
+```cs
+[Session]
+public class SomeController : Controller
+{
+}
+```
+
+or enabled for the endpoints:
+
+```cs
+app.MapDefaultControllerRoute()
+    .RequireSystemWebAdapterSession();
+```
+
+
 The framework equivalent would look like the following change in `Global.asax.cs`:
 
 ```csharp
