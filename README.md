@@ -39,7 +39,7 @@ Below are the steps needed to start using these adapters in your project:
    ```cs
    app.UseSystemWebAdapters();
    ```
-   - For additional configuration, please see the [configuration](#configuration) section
+   - For additional configuration, please see the [configuration](./docs/core.md) section
 
 ## Supported Targets
 - .NET Core App 3.1: This will implement the adapters against ASP.NET Core `HttpContext`. This will provide the following:
