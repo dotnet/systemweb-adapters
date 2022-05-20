@@ -19,6 +19,8 @@ Serialization and deserialization of session keys requires additional informatio
 
 To use the default JSON backed implementation, add a package reference to [Microsoft.AspNetCore.SystemWebAdapters.SessionState](https://www.nuget.org/packages/Microsoft.AspNetCore.SystemWebAdapters.SessionState) and add the following to the startup:
 
+> The Microsoft.AspNetCore.SystemWebAdapters.SessionState package is currently in preview. Remember to check the box to 'include prerelease' packages.
+
 ```csharp
 builder.Services.AddSystemWebAdapters()
     .AddJsonSessionSerializer(options =>
