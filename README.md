@@ -10,15 +10,27 @@ To understand how these adapters can be used within the context of a large scale
 ## Set up
 Below are the steps needed to start using these adapters in your project:
 
-1. Install `Microsoft.AspNetCore.SystemWebAdapters`
-2. If you use `HttpContext.Session`, install `Microsoft.AspNetCore.SystemWebAdapters.SessionState`
-3. In your framework application:
+1. *Optional for CI builds*: Set up `NuGet.config` to point to the CI feed:
+  ```xml
+  <?xml version="1.0" encoding="utf-8"?>
+  <configuration>
+    <packageSources>
+      <!--To inherit the global NuGet package sources remove the <clear/> line below -->
+      <clear />
+      <add key="nuget" value="https://api.nuget.org/v3/index.json" />
+      <add key=".NET Libraries Daily" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-libraries/nuget/v3/index.json" />
+    </packageSources>
+  </configuration>
+  ```
+2. Install `Microsoft.AspNetCore.SystemWebAdapters`
+3. If you use `HttpContext.Session`, install `Microsoft.AspNetCore.SystemWebAdapters.SessionState`
+4. In your framework application:
    - The package installation will add a new module to your `web.config`. This module handles any customizations that are required to help migrate to .NET Core. See [this](docs/framework.md) for details on what is available here.
-4. In your class libraries:
+5. In your class libraries:
    - Class libraries can target .NET Standard 2.0 if desired which will ensure you are using the shared surface area
    - If you find that there's still some missing APIs, you may cross-compile with .NET Framework to maintain that behavior and handle it in .NET core in some other way
    - There should be no manual changes to enable using supported surface area of the adapters. If a member is not found, it is not currently supported on ASP.NET Core
-5. For your ASP.NET Core application:
+6. For your ASP.NET Core application:
    - Register the adapter services:
     ```cs
     builder.Services.AddSystemWebAdapters();
