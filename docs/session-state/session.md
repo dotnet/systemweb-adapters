@@ -36,7 +36,7 @@ There are two available implementations of the session state object that current
 
 - Strongly typed: Provides the ability to access an object and can be cast to the expected type
 - Locking: Ensures multiple requests within a single session are queued up and aren't accessing the session at the same time
-- Standalone: Can be used when there is just a .NET Core app without needing additional support.
+- Standalone: Use when you're not sharing session between ASP.NET Framework and ASP.NET Core to avoid modifying code in class libraries that references SessionState
 
 Below are the available implementations:
 
