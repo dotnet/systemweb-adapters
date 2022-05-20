@@ -23,6 +23,7 @@ To use the default JSON backed implementation, add the following to the startup:
 builder.Services.AddSystemWebAdapters()
     .AddJsonSessionSerializer(options =>
     {
+        // Serialization/deserialization requires each session key to be registered to a type
         options.RegisterKey<int>("test-value");
     });
 ```

@@ -8,6 +8,7 @@ Configuration for ASP.NET Core would look similar to the following:
 builder.Services.AddSystemWebAdapters()
     .AddJsonSessionSerializer(options =>
     {
+        // Serialization/deserialization requires each session key to be registered to a type
         options.RegisterKey<int>("test-value");
         options.RegisterKey<SessionDemoModel>("SampleSessionItem");
     })
