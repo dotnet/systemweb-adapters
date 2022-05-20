@@ -73,7 +73,7 @@ app.MapDefaultControllerRoute()
     .RequireSystemWebAdapterSession();
 ```
 
-This also requires some implementation of a session store. For details of options here, see [here](./docs/session-state/session.md).
+This also requires some implementation of a session store. For details of options here, see [here](./session-state/session.md).
 
 ## Remote session exposes additional endpoint for application
 

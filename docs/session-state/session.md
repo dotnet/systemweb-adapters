@@ -17,7 +17,9 @@ Serialization and deserialization of session keys requires additional informatio
 
 - `RegisterKey<T>(string)` - Registers a session key to a known type. This is required in order to serialize/deserialize the session state correctly. If a key is found that there is no registration for, an error will be thrown and session will not be available.
 
-To use the default JSON backed implementation, add the following to the startup:
+To use the default JSON backed implementation, add a package reference to [Microsoft.AspNetCore.SystemWebAdapters.SessionState](https://www.nuget.org/packages/Microsoft.AspNetCore.SystemWebAdapters.SessionState) and add the following to the startup:
+
+> The Microsoft.AspNetCore.SystemWebAdapters.SessionState package is currently in preview. Remember to check the box to 'include prerelease' packages.
 
 ```csharp
 builder.Services.AddSystemWebAdapters()
@@ -34,7 +36,7 @@ There are two available implementations of the session state object that current
 
 - Strongly typed: Provides the ability to access an object and can be cast to the expected type
 - Locking: Ensures multiple requests within a single session are queued up and aren't accessing the session at the same time
-- Standalone: Can be used when there is just a .NET Core app without needing additional support.
+- Standalone: Use when you're not sharing session between ASP.NET Framework and ASP.NET Core to avoid modifying code in class libraries that references SessionState
 
 Below are the available implementations:
 
