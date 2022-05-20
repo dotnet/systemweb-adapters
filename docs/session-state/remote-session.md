@@ -12,7 +12,7 @@ In order to configure it, both the framework and core app must set an API key as
 Configuration for ASP.NET Core would look similar to the following:
 
 ```csharp
-builder.Services.AddSystemWebAdapters()
+builder.Services.UseSystemWebAdapters()
     .AddJsonSessionSerializer(options =>
     {
         // Serialization/deserialization requires each session key to be registered to a type
@@ -32,7 +32,7 @@ builder.Services.AddSystemWebAdapters()
 The framework equivalent would look like the following change in `Global.asax.cs`:
 
 ```csharp
-Application.AddSystemWebAdapters()
+Application.UseSystemWebAdapters()
     .AddRemoteAppSession(
         // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
         options => options.ApiKey = "strong-api-key",
