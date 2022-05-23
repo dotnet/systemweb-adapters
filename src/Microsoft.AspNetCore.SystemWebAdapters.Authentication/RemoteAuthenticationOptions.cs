@@ -30,40 +30,27 @@ public class RemoteAuthenticationOptions
     };
 #endif
 
-    internal const string ApiKeyHeaderName = "X-SystemWebAdapter-RemoteAuthentication-Key";
-
     /// <summary>
-    /// Gets or sets the header used to store the API key
+    /// Gets or sets the remote service options used to connect with the remote authentication service.
     /// </summary>
-    public string ApiKeyHeader { get; set; } = ApiKeyHeaderName;
-
-    /// <summary>
-    /// Gets or sets an API key used to secure the endpoint
-    /// </summary>
-#if NETCOREAPP3_1_OR_GREATER
-    [Required]
-#endif
-    public string ApiKey { get; set; } = null!;
+    public RemoteServiceOptions RemoteServiceOptions { get; set; } = new RemoteServiceOptions();
 
 #if NETCOREAPP3_1_OR_GREATER
     /// <summary>
-    /// Gets or sets the remote app url
-    /// </summary>
-    [Required]
-    public Uri RemoteApp { get; set; } = null!;
-
-    /// <summary>
-    /// Gets or sets a list of request headers that should be forwarded to the remote app for authentication purposes.
+    /// Gets or sets a list of request headers that should be forwarded to the remote app for authentication purposes. If no headers
+    /// are specified, all headers will be forwarded.
     /// </summary>
     public IList<string> HeadersToForward { get; set; } = new List<string>(DefaultHeadersToForward);
 
     /// <summary>
-    /// Gets or sets a list of cookies that should be forwarded to the remote app for authentication purposes.
+    /// Gets or sets a list of names of cookies that should be forwarded to the remote app for authentication purposes. If no cookies
+    /// are specified, all cookies will be forwarded.
     /// </summary>
     public IList<string> CookiesToForward { get; set; } = new List<string>();
 
     /// <summary>
-    /// Gets or sets a list of response headers that may need propagated back from authenticate responses.
+    /// Gets or sets a list of response headers that may need propagated back from authenticate responses. If no headers
+    /// are specified, all headers will be forwarded.
     /// </summary>
     public IList<string> ResponseHeadersToForward { get; set; } = new List<string>(DefaultResponseHeadersToForward);
 

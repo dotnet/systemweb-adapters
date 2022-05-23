@@ -59,10 +59,12 @@ internal class RemoteAuthenticationAuthHandler : AuthenticationHandler<RemoteAut
         if (authResult.User is not null)
         {
             var ticket = new AuthenticationTicket(authResult.User, Scheme.Name);
+            _logger.LogDebug("Authenticated user {UserName} based on remote authentication service", authResult.User.Identity?.Name);
             return AuthenticateResult.Success(ticket);
         }
         else
         {
+            _logger.LogDebug("Remote service did not authenticate a user");
             return AuthenticateResult.NoResult();
         }
     }

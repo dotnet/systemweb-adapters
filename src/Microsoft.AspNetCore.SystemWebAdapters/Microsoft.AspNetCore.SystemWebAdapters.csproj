@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <SharedFiles Include="RemoteServiceOptions.cs" />
     <SharedFiles Include="Adapters/SessionState/Serialization/SessionSerializerOptions.cs" />
   </ItemGroup>
 

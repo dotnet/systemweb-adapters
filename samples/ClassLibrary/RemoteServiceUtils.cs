@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
 namespace ClassLibrary;
 
-public class SessionUtils
+public class RemoteServiceUtils
 {
     public static string ApiKey = "test-key";
 

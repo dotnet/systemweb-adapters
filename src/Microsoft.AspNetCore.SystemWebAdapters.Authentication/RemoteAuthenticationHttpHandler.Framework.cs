@@ -16,7 +16,7 @@ internal sealed class RemoteAuthenticationHttpHandler : IHttpHandler
 
     public RemoteAuthenticationHttpHandler(RemoteAuthenticationOptions options)
     {
-        if (string.IsNullOrEmpty(options.ApiKey))
+        if (string.IsNullOrEmpty(options.RemoteServiceOptions.ApiKey))
         {
             throw new ArgumentOutOfRangeException("API key must not be empty.");
         }
@@ -33,7 +33,7 @@ internal sealed class RemoteAuthenticationHttpHandler : IHttpHandler
 
         // TODO : Do we need to even check the API key for this? The handler only returns information
         //        about the currently authenticated user.
-        if (!string.Equals(_options.ApiKey, context.Request.Headers.Get(_options.ApiKeyHeader), StringComparison.Ordinal))
+        if (!string.Equals(_options.RemoteServiceOptions.ApiKey, context.Request.Headers.Get(_options.RemoteServiceOptions.ApiKeyHeader), StringComparison.Ordinal))
         {
             // Using 407 here (proxy authentication required) to differentiate from the scenario of
             // a valid API key but no authenticated user.

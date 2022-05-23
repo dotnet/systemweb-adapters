@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
@@ -46,7 +47,12 @@ public class RemoteAuthenticationResultFactory : IAuthenticationResultFactory<Re
         }
 
         // Copy expected response headers
-        foreach (var headerName in options.ResponseHeadersToForward.Where(h => response.Headers.Contains(h)))
+        var headersToForward = response.Headers.Select(h => h.Key);
+        if (options.ResponseHeadersToForward.Any())
+        {
+            headersToForward = headersToForward.Where(headersToForward.Contains);
+        }
+        foreach (var headerName in headersToForward)
         {
             ret.ResponseHeaders.Add(headerName, response.Headers.GetValues(headerName));
         }

@@ -43,8 +43,8 @@ public class RemoteAuthenticationService : IAuthenticationService<RemoteAuthenti
     public void Initialize(AuthenticationScheme scheme)
     {
         _options = _optionsMonitor.Get(scheme.Name);
-        _client.BaseAddress = new Uri(_options.RemoteApp, _options.AuthenticationEndpointPath);
-        _client.DefaultRequestHeaders.Add(_options.ApiKeyHeader, _options.ApiKey);
+        _client.BaseAddress = new Uri(_options.RemoteServiceOptions.RemoteAppUrl, _options.AuthenticationEndpointPath);
+        _client.DefaultRequestHeaders.Add(_options.RemoteServiceOptions.ApiKeyHeader, _options.RemoteServiceOptions.ApiKey);
         _initialized = true;
     }
 
@@ -74,7 +74,7 @@ public class RemoteAuthenticationService : IAuthenticationService<RemoteAuthenti
         IEnumerable<string> headerNames = originalRequest.Headers.Keys;
         if (headersToForward.Any())
         {
-            headerNames = headerNames.Where(key => headersToForward.Contains(key));
+            headerNames = headerNames.Where(headersToForward.Contains);
         }
 
         foreach (var headerName in headerNames)
@@ -88,7 +88,7 @@ public class RemoteAuthenticationService : IAuthenticationService<RemoteAuthenti
         IEnumerable<string> cookieNames = originalRequest.Cookies.Keys;
         if (cookiesToForward.Any())
         {
-            cookieNames = cookieNames.Where(key => cookiesToForward.Contains(key));
+            cookieNames = cookieNames.Where(cookiesToForward.Contains);
         }
 
         var cookies = new List<string>();
