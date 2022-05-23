@@ -7,6 +7,7 @@ using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -54,30 +55,41 @@ internal class RemoteAuthenticationAuthHandler : AuthenticationHandler<RemoteAut
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var authResult = await GetRemoteAuthenticationResultAsync();
-
-        if (authResult.User is not null)
+        if (Context.GetEndpoint()?.Metadata.GetMetadata<IRemoteAuthenticationMetadata>() is IRemoteAuthenticationMetadata metadata && metadata.Enabled)
         {
-            var ticket = new AuthenticationTicket(authResult.User, Scheme.Name);
-            _logger.LogDebug("Authenticated user {UserName} based on remote authentication service", authResult.User.Identity?.Name);
-            return AuthenticateResult.Success(ticket);
+            var authResult = await GetRemoteAuthenticationResultAsync();
+
+            if (authResult.User is not null)
+            {
+                var ticket = new AuthenticationTicket(authResult.User, Scheme.Name);
+                _logger.LogDebug("Authenticated user {UserName} based on remote authentication service", authResult.User.Identity?.Name);
+                return AuthenticateResult.Success(ticket);
+            }
+            else
+            {
+                _logger.LogDebug("Remote service did not authenticate a user");
+            }
         }
         else
         {
-            _logger.LogDebug("Remote service did not authenticate a user");
-            return AuthenticateResult.NoResult();
+            _logger.LogDebug("Not using remote authentication handler as endpoint metadata does not have remote authentication enabled");
         }
+
+        return AuthenticateResult.NoResult();
     }
 
     protected override async Task HandleChallengeAsync(AuthenticationProperties properties)
     {
-        var authResult = await GetRemoteAuthenticationResultAsync();
-
-        // Propagate headers and status code back to the caller
-        Context.Response.StatusCode = authResult.StatusCode;
-        foreach (var header in authResult.ResponseHeaders.Keys)
+        if (Context.GetEndpoint()?.Metadata.GetMetadata<IRemoteAuthenticationMetadata>() is IRemoteAuthenticationMetadata metadata && metadata.Enabled)
         {
-            Context.Response.Headers.Add(header, authResult.ResponseHeaders[header].ToArray());
+            var authResult = await GetRemoteAuthenticationResultAsync();
+
+            // Propagate headers and status code back to the caller
+            Context.Response.StatusCode = authResult.StatusCode;
+            foreach (var header in authResult.ResponseHeaders.Keys)
+            {
+                Context.Response.Headers.Add(header, authResult.ResponseHeaders[header].ToArray());
+            }
         }
     }
 }

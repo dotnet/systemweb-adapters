@@ -39,7 +39,8 @@ app.UseSystemWebAdapters();
 
 app.UseEndpoints(endpoints =>
 {
-    app.MapDefaultControllerRoute();
+    app.MapDefaultControllerRoute()
+       .RequireRemoteAuthentication();
     // This method can be used to enable session (or read-only session) on all controllers
     //.RequireSystemWebAdapterSession();
 

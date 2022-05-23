@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
@@ -37,4 +38,11 @@ public static class RemoteAuthenticationExtensions
 
         return systemWebAdapterBuilder;
     }
+
+    /// <summary>
+    /// Adds session support for System.Web adapters for the endpoint(s)
+    /// </summary>
+    public static TBuilder RequireRemoteAuthentication<TBuilder>(this TBuilder builder, IRemoteAuthenticationMetadata? metadata = null)
+        where TBuilder : IEndpointConventionBuilder
+        => builder.WithMetadata(metadata ?? new RemoteAuthenticationAttribute());
 }
