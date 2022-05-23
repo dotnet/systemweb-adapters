@@ -5,15 +5,15 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.SessionState;
+using System.Web;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
 public interface ISessionSerializer
 {
-    Task DeserializeToAsync(Stream stream, HttpSessionState state, CancellationToken token);
+    Task DeserializeToAsync(Stream stream, HttpSessionStateBase state, CancellationToken token);
 
-    Task SerializeAsync(HttpSessionState state, Stream stream, CancellationToken token);
+    Task SerializeAsync(HttpSessionStateBase state, Stream stream, CancellationToken token);
 
     byte[] Serialize(string key, object value);
 

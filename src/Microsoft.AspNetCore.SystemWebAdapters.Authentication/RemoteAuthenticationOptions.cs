@@ -60,7 +60,7 @@ public class RemoteAuthenticationOptions
     /// </summary>
     [Required]
 #endif
-    public string AuthenticationEndpointPath { get; set; } = "/fallback/adapter/authenticate";
+    public string AuthenticationEndpointPath { get; set; } = "/systemweb-adapters/authenticate";
 
 #if NETCOREAPP3_1_OR_GREATER
     /// <summary>

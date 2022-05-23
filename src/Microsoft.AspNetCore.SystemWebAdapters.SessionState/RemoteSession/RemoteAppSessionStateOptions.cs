@@ -16,7 +16,7 @@ public class RemoteAppSessionStateOptions : RemoteServiceOptions
 #if NETCOREAPP3_1_OR_GREATER
     [Required]
 #endif
-    public string SessionEndpointPath { get; set; } = "/fallback/adapter/session";
+    public string SessionEndpointPath { get; set; } = "/systemweb-adapters/session";
 
     /// <summary>
     /// Gets or sets the cookie name that the ASP.NET framework app is expecting to hold the session id

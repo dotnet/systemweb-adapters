@@ -6,13 +6,13 @@ using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.SessionState;
+using System.Web;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
 internal partial class JsonSessionSerializer
 {
-    public Task SerializeAsync(HttpSessionState state, Stream stream, CancellationToken token)
+    public Task SerializeAsync(HttpSessionStateBase state, Stream stream, CancellationToken token)
     {
         if (state is null)
         {
@@ -35,7 +35,7 @@ internal partial class JsonSessionSerializer
         return JsonSerializer.SerializeAsync(stream, session, _options, token);
     }
 
-    public async Task DeserializeToAsync(Stream stream, HttpSessionState state, CancellationToken token)
+    public async Task DeserializeToAsync(Stream stream, HttpSessionStateBase state, CancellationToken token)
     {
         var result = await JsonSerializer.DeserializeAsync<SerializedSessionState>(stream, _options, token);
 

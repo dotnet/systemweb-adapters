@@ -14,25 +14,50 @@ Configuration for ASP.NET Core would look similar to the following:
 ```csharp
 builder.Services.AddSystemWebAdapters()
     .AddJsonSessionSerializer(options =>
-    {        
+    {
+        // Serialization/deserialization requires each session key to be registered to a type
         options.RegisterKey<int>("test-value");
         options.RegisterKey<SessionDemoModel>("SampleSessionItem");
     })
     .AddRemoteAppSession(options =>
     {
+        // Provide the URL for the remote app that has enabled session querying
         options.RemoteApp = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
-        options.ApiKey = "test-key";
+
+        // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
+        options.ApiKey = "strong-api-key";
     });
 ```
+
+Session support requires additional work for the ASP.NET Core pipeline, and is not turned on by default. It can be configured on a per-route basis via ASP.NET Core metadata.
+
+For example, session support requires either to annotate a controller:
+
+```cs
+[Session]
+public class SomeController : Controller
+{
+}
+```
+
+or to enable for all endpoints by default:
+
+```cs
+app.MapDefaultControllerRoute()
+    .RequireSystemWebAdapterSession();
+```
+
 
 The framework equivalent would look like the following change in `Global.asax.cs`:
 
 ```csharp
 Application.AddSystemWebAdapters()
     .AddRemoteAppSession(
-        options => options.ApiKey = "test-key",
+        // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
+        options => options.ApiKey = "strong-api-key",
         options =>
         {
+            // Serialization/deserialization requires each session key to be registered to a type
             options.RegisterKey<int>("test-value");
             options.RegisterKey<SessionDemoModel>("SampleSessionItem");
         });
