@@ -9,11 +9,14 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
-public class RemoteAuthenticationResultFactory : IAuthenticationResultFactory<RemoteAuthenticationResult>
+/// <summary>
+/// Factory type for generating remote authentication results from HTTP responses
+/// from a remote app.
+/// </summary>
+public class RemoteAuthenticationResultFactory : IAuthenticationResultFactory
 {
     private readonly ILogger<RemoteAuthenticationResultFactory> _logger;
 

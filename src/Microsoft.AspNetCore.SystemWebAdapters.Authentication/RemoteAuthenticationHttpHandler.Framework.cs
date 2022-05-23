@@ -8,6 +8,9 @@ using System.Web;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
+/// <summary>
+/// HTTP handler for serving requests to remote authenticaiton endpoint.
+/// </summary>
 internal sealed class RemoteAuthenticationHttpHandler : IHttpHandler
 {
     private readonly RemoteAuthenticationOptions _options;
@@ -41,6 +44,7 @@ internal sealed class RemoteAuthenticationHttpHandler : IHttpHandler
         }
         else
         {
+            // If a user is logged in (using ASP.NET's usual authenticaiton mechanisms), return that claims principal.
             if (context.User is ClaimsPrincipal claimsPrincipal && context.User.Identity.IsAuthenticated)
             {
                 context.Response.StatusCode = 200;

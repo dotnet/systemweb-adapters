@@ -6,6 +6,10 @@ using System.Security.Claims;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
+/// <summary>
+/// The result of a remote authentication action, potentially including the claims principal
+/// of the authenticated user, an HTTP status code or HTTP response headers to return to the caller.
+/// </summary>
 public class RemoteAuthenticationResult
 {
     /// <summary>

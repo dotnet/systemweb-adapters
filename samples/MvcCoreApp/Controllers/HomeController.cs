@@ -19,8 +19,13 @@ namespace MvcCoreApp.Controllers
             return View();
         }
 
-        [Authorize]
         public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public IActionResult UserInfo()
         {
             return View();
         }

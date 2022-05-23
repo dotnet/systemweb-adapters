@@ -40,6 +40,10 @@ app.UseSystemWebAdapters();
 app.UseEndpoints(endpoints =>
 {
     app.MapDefaultControllerRoute()
+       // This enables remote authentication for all endpoints.
+       // Use the [RemoteAuthentication] attribute on specific
+       // controllers or actions, instead, to only use remote
+       // authentication with a subset of endpoints.
        .RequireRemoteAuthentication();
     // This method can be used to enable session (or read-only session) on all controllers
     //.RequireSystemWebAdapterSession();
