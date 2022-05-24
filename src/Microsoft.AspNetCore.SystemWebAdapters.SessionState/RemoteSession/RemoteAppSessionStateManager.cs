@@ -4,10 +4,10 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -15,7 +15,7 @@ using Microsoft.Net.Http.Headers;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
-internal class RemoteAppSessionStateManager : ISessionManager
+internal partial class RemoteAppSessionStateManager : ISessionManager
 {
     private readonly HttpClient _client;
     private readonly ISessionSerializer _serializer;
@@ -36,6 +36,18 @@ internal class RemoteAppSessionStateManager : ISessionManager
         _client.DefaultRequestHeaders.Add(_options.ApiKeyHeader, _options.ApiKey);
     }
 
+    [LoggerMessage(EventId = 0, Level = LogLevel.Debug, Message = "Loaded {Count} items from remote session state for session {SessionId}")]
+    private partial void LogSessionLoad(int count, string sessionId);
+
+    [LoggerMessage(EventId = 1, Level = LogLevel.Error, Message = "Unable to load remote session state for session {SessionId}")]
+    private partial void LogRemoteSessionException(Exception exc, string? sessionId);
+
+    [LoggerMessage(EventId = 2, Level = LogLevel.Trace, Message = "Received {StatusCode} response getting remote session state")]
+    private partial void LogRetrieveResponse(HttpStatusCode statusCode);
+
+    [LoggerMessage(EventId = 3, Level = LogLevel.Trace, Message = "Received {StatusCode} response committing remote session state")]
+    private partial void LogCommitResponse(HttpStatusCode statusCode);
+
     public async Task<ISessionState> CreateAsync(HttpContextCore context, ISessionMetadata metadata)
     {
         using var timeout = new CancellationTokenSource(_options.NetworkTimeout);
@@ -51,13 +63,13 @@ internal class RemoteAppSessionStateManager : ISessionManager
             // Get or create session data
             var response = await GetSessionDataAsync(sessionId, metadata.IsReadOnly, context, cts.Token);
 
-            _logger.LogDebug("Loaded {SessionItemCount} items from remote session state for session {SessionId}", response.Count, response.SessionID);
+            LogSessionLoad(response.Count, response.SessionID);
 
             return response;
         }
         catch (Exception exc)
         {
-            _logger.LogError(exc, "Unable to load remote session state for session {SessionId}", sessionId);
+            LogRemoteSessionException(exc, sessionId);
             throw;
         }
     }
@@ -73,7 +85,9 @@ internal class RemoteAppSessionStateManager : ISessionManager
         AddReadOnlyHeader(req, readOnly);
 
         var response = await _client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-        _logger.LogTrace("Received {StatusCode} response getting remote session state for request {RequestUrl}", response.StatusCode, callingContext.Request.GetDisplayUrl());
+
+        LogRetrieveResponse(response.StatusCode);
+
         response.EnsureSuccessStatusCode();
 
         var remoteSessionState = await ReadSessionStateAsync(response);
@@ -121,7 +135,9 @@ internal class RemoteAppSessionStateManager : ISessionManager
         }
 
         using var response = await _client.SendAsync(req, cts.Token);
-        _logger.LogTrace("Received {StatusCode} response committing remote session state", response.StatusCode);
+
+        LogCommitResponse(response.StatusCode);
+
         response.EnsureSuccessStatusCode();
     }
 

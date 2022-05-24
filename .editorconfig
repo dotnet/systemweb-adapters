@@ -79,8 +79,5 @@ dotnet_diagnostic.CA2007.severity = silent
 # CA2225: Operator overloads have named alternates
 dotnet_diagnostic.CA2225.severity = none
 
-# CA1848: Use the LoggerMessage delegates
-dotnet_diagnostic.CA1848.severity = suggestion
-
 # CA5396
 dotnet_diagnostic.CA5396.severity = none
