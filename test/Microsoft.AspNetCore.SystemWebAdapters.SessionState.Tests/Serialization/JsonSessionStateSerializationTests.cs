@@ -239,26 +239,12 @@ public class JsonSessionStateSerializationTests
         var str = Encoding.UTF8.GetString(result);
 
         // Assert
-#if NETCOREAPP3_1
-        var expected = @$"{{
-  ""id"": null,
-  ""r"": false,
-  ""v"": {{}},
-  ""t"": 0,
-  ""n"": false,
-  ""a"": false,
-  ""u"": [
-    ""{key}""
-  ]
-}}";
-#else
         var expected = @$"{{
   ""v"": {{}},
   ""u"": [
     ""{key}""
   ]
 }}";
-#endif
         Assert.Equal(expected, str);
     }
 
