@@ -42,7 +42,7 @@ Below are the steps needed to start using these adapters in your project:
    - For additional configuration, please see the [configuration](./docs/core.md) section
 
 ## Supported Targets
-- .NET Core App 3.1: This will implement the adapters against ASP.NET Core `HttpContext`. This will provide the following:
+- .NET 6.0: This will implement the adapters against ASP.NET Core `HttpContext`. This will provide the following:
   - Conversions between ASP.NET Core `HttpContext` and `System.Web` adapter `HttpContext` (with appropriate caching so it will not cause perf hits for GC allocations)
   - Default implementations against `Microsoft.AspNetCore.Http.HttpContext`
   - Services that can be implemented to override some functionality such as session/caching/etc that may need to be customized to match experience.
