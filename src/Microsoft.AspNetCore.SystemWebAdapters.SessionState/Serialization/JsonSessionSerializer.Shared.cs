@@ -18,9 +18,7 @@ internal partial class JsonSessionSerializer : ISessionSerializer
         _map = map;
         _options = new JsonSerializerOptions
         {
-#if !NETCOREAPP3_1
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-#endif
             AllowTrailingCommas = true,
             WriteIndented = writeIndented,
             Converters =
