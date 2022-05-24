@@ -48,7 +48,14 @@ internal partial class JsonSessionSerializer
         {
             foreach (var unknown in unknownKeys)
             {
-                LogUnknownKey(unknown, serialize);
+                if (serialize)
+                {
+                    LogSerialization(unknown);
+                }
+                else
+                {
+                    LogDeserialization(unknown);
+                }
             }
 
             if (_options.ThrowOnUnknownSessionKey)
@@ -58,17 +65,11 @@ internal partial class JsonSessionSerializer
         }
     }
 
-    partial void LogUnknownKey(string unknown, bool serialize)
-    {
-        if (serialize)
-        {
-            _logger.LogWarning("Could not serialize unknown session key '{Key}'", unknown);
-        }
-        else
-        {
-            _logger.LogWarning("Could not deserialize unknown session key '{Key}'", unknown);
-        }
-    }
+    [LoggerMessage(EventId = 0, Level = LogLevel.Warning, Message = "Could not serialize unknown session key '{Key}'")]
+    partial void LogSerialization(string key);
+
+    [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Could not deserialize unknown session key '{Key}'")]
+    partial void LogDeserialization(string key);
 
     private static SerializedSessionState GetSessionState(ISessionState state)
     {

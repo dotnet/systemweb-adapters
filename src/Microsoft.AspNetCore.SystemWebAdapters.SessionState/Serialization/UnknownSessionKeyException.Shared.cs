@@ -9,10 +9,19 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 public class UnknownSessionKeyException : Exception
 {
     public UnknownSessionKeyException(IReadOnlyCollection<string> unknownKeys)
-        : base($"Unknown session keys: '{string.Join("', '", unknownKeys)}'")
+        : base(CreateMessage(unknownKeys))
     {
         UnknownKeys = unknownKeys;
     }
+
+    public UnknownSessionKeyException(IReadOnlyCollection<string> unknownKeys, Exception inner)
+        : base(CreateMessage(unknownKeys), inner)
+    {
+        UnknownKeys = unknownKeys;
+    }
+
+    private static string CreateMessage(IReadOnlyCollection<string> unknownKeys)
+        => $"Unknown session keys: '{string.Join("', '", unknownKeys)}'";
 
     public IReadOnlyCollection<string> UnknownKeys { get; }
 }

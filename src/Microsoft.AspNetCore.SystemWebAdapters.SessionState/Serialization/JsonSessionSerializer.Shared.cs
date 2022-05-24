@@ -29,7 +29,7 @@ internal partial class JsonSessionSerializer : ISessionSerializer
             return JsonSerializer.SerializeToUtf8Bytes(value, type, _jsonOptions);
         }
 
-        LogUnknownKey(key, serialize: true);
+        LogSerialization(key);
 
         return _options.ThrowOnUnknownSessionKey ? throw new UnknownSessionKeyException(new[] { key }) : Array.Empty<byte>();
     }
@@ -46,10 +46,8 @@ internal partial class JsonSessionSerializer : ISessionSerializer
             return JsonSerializer.Deserialize(bytes.Span, type, _jsonOptions);
         }
 
-        LogUnknownKey(key, serialize: false);
+        LogDeserialization(key);
 
         return _options.ThrowOnUnknownSessionKey ? throw new UnknownSessionKeyException(new[] { key }) : null;
     }
-
-    partial void LogUnknownKey(string unknown, bool serialize);
 }

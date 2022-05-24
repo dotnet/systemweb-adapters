@@ -69,4 +69,8 @@ internal partial class JsonSessionSerializer
             state[key] = result[key];
         }
     }
+
+    partial void LogSerialization(string key);
+
+    partial void LogDeserialization(string key);
 }
