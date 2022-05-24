@@ -26,7 +26,7 @@ public class JsonSessionSerializerOptions
     /// <summary>
     /// Gets or sets whether an exception should be thrown if an unknown session key is encountered.
     /// </summary>
-    public bool ThrowOnUnknownSessionKey { get; set; }
+    public bool ThrowOnUnknownSessionKey { get; set; } = true;
 
     /// <summary>
     /// Gets or sets whether the serialized JSON should be indented.
