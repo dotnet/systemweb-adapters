@@ -39,8 +39,16 @@ app.UseRequestLocalization();
 
 In ASP.NET Framework, a request had thread-affinity and `HttpContext.Current` would only be available if on that thread. ASP.NET Core does not have this guarantee so `HttpContext.Current` will be available within the same async context, but no guarantees about threads are made.
 
-**Recommendation**: If reading/writing to the `HttpContext`, you must ensure you are doing so in a single-threaded way.
+**Recommendation**: If reading/writing to the `HttpContext`, you must ensure you are doing so in a single-threaded way. You can force a request to never run concurrently on any async context by setting the `ISingleThreadedRequestMetadata`. There is an implementation available to add to controllers with `SingleThreadedRequestAttribute`:
 
+
+```csharp
+[SingleThreadedRequest]
+public class SomeController : Controller
+{
+    ...
+} 
+```
 
 ## `HttpContext.Request` may need to be prebuffered
 
