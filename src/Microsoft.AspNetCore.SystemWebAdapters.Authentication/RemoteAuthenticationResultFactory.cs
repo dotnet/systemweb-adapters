@@ -34,7 +34,8 @@ public class RemoteAuthenticationResultFactory : IAuthenticationResultFactory
         {
             try
             {
-                using var reader = new BinaryReader(await response.Content.ReadAsStreamAsync());
+                using var responseContent = await response.Content.ReadAsStreamAsync();
+                using var reader = new BinaryReader(responseContent);
                 ret = new RemoteAuthenticationResult(new ClaimsPrincipal(reader), (int)response.StatusCode);
             }
             catch (Exception exc)
@@ -50,14 +51,12 @@ public class RemoteAuthenticationResultFactory : IAuthenticationResultFactory
         }
 
         // Copy expected response headers
-        var headersToForward = response.Headers.Select(h => h.Key);
-        if (options.ResponseHeadersToForward.Any())
+        foreach (var responseHeader in response.Headers)
         {
-            headersToForward = headersToForward.Where(headersToForward.Contains);
-        }
-        foreach (var headerName in headersToForward)
-        {
-            ret.ResponseHeaders.Add(headerName, response.Headers.GetValues(headerName));
+            if (!options.ResponseHeadersToForward.Any() || options.ResponseHeadersToForward.Contains(responseHeader.Key))
+            {
+                ret.ResponseHeaders.Add(responseHeader.Key, responseHeader.Value.ToArray());
+            }
         }
 
         return ret;

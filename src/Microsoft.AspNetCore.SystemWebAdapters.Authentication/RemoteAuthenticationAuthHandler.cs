@@ -98,9 +98,9 @@ internal class RemoteAuthenticationAuthHandler : AuthenticationHandler<RemoteAut
             // app, so make a best effort to forward the effects of these challenges by forwarding
             // configured headers (like Location, perhaps) and status code (like 302 or 401, for example).
             Context.Response.StatusCode = authResult.StatusCode;
-            foreach (var header in authResult.ResponseHeaders.Keys)
+            foreach (var header in authResult.ResponseHeaders)
             {
-                Context.Response.Headers.Add(header, authResult.ResponseHeaders[header].ToArray());
+                Context.Response.Headers.Add(header);
             }
         }
     }

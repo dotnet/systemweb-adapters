@@ -19,8 +19,8 @@ public static class RemoteAuthenticationExtensions
     /// </summary>
     /// <param name="authenticationBuilder">The authentication builder to register the remote authentication handler with.</param>
     /// <returns>The authentication builder updated with the remote authentication handler added.</returns>
-    public static AuthenticationBuilder AddRemote(this AuthenticationBuilder authenticationBuilder)
-        => AddRemote(authenticationBuilder, RemoteAuthenticationDefaults.AuthenticationScheme, null);
+    public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder)
+        => AddRemoteAppAuthentication(authenticationBuilder, RemoteAuthenticationDefaults.AuthenticationScheme, null);
 
     /// <summary>
     /// Registers remote authentication auth handler with an authentication builder.
@@ -28,8 +28,8 @@ public static class RemoteAuthenticationExtensions
     /// <param name="authenticationBuilder">The authentication builder to register the remote authentication handler with.</param>
     /// <param name="scheme">The scheme name for the remote authentication handler.</param>
     /// <returns>The authentication builder updated with the remote authentication handler added using the given scheme.</returns>
-    public static AuthenticationBuilder AddRemote(this AuthenticationBuilder authenticationBuilder, string scheme)
-        => AddRemote(authenticationBuilder, scheme, null);
+    public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder, string scheme)
+        => AddRemoteAppAuthentication(authenticationBuilder, scheme, null);
 
     /// <summary>
     /// Registers remote authentication auth handler with an authentication builder using a default scheme name.
@@ -37,8 +37,8 @@ public static class RemoteAuthenticationExtensions
     /// <param name="authenticationBuilder">The authentication builder to register the remote authentication handler with.</param>
     /// <param name="configureOptions">Configuration options for the remote authentication handler.</param>
     /// <returns>The authentication builder updated with the remote authentication handler added using the given configuration.</returns>
-    public static AuthenticationBuilder AddRemote(this AuthenticationBuilder authenticationBuilder, Action<RemoteAuthenticationOptions>? configureOptions)
-        => AddRemote(authenticationBuilder, RemoteAuthenticationDefaults.AuthenticationScheme, configureOptions);
+    public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder, Action<RemoteAuthenticationOptions>? configureOptions)
+        => AddRemoteAppAuthentication(authenticationBuilder, RemoteAuthenticationDefaults.AuthenticationScheme, configureOptions);
 
     /// <summary>
     /// Registers remote authentication auth handler with an authentication builder.
@@ -47,7 +47,7 @@ public static class RemoteAuthenticationExtensions
     /// <param name="scheme">The scheme name for the remote authentication handler.</param>
     /// <param name="configureOptions">Configuration options for the remote authentication handler.</param>
     /// <returns>The authentication builder updated with the remote authentication handler added using the given scheme and configuration.</returns>
-    public static AuthenticationBuilder AddRemote(this AuthenticationBuilder authenticationBuilder, string scheme, Action<RemoteAuthenticationOptions>? configureOptions)
+    public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder, string scheme, Action<RemoteAuthenticationOptions>? configureOptions)
     {
         authenticationBuilder.Services.AddScoped<IRemoteAuthenticationResultProcessor, RedirectUrlProcessor>();
         authenticationBuilder.Services.AddSingleton<IAuthenticationResultFactory, RemoteAuthenticationResultFactory>();
@@ -64,10 +64,10 @@ public static class RemoteAuthenticationExtensions
     /// <summary>
     /// Adds remote authentication services to System.Web adapters builder.
     /// </summary>
-    public static ISystemWebAdapterBuilder AddRemoteAuthentication(this ISystemWebAdapterBuilder systemWebAdapterBuilder, Action<RemoteAuthenticationOptions> configureOptions)
+    public static ISystemWebAdapterBuilder AddRemoteAppAuthentication(this ISystemWebAdapterBuilder systemWebAdapterBuilder, Action<RemoteAuthenticationOptions> configureOptions)
     {
         systemWebAdapterBuilder.Services.AddAuthentication(RemoteAuthenticationDefaults.AuthenticationScheme)
-            .AddRemote(configureOptions);
+            .AddRemoteAppAuthentication(configureOptions);
 
         return systemWebAdapterBuilder;
     }
@@ -75,7 +75,7 @@ public static class RemoteAuthenticationExtensions
     /// <summary>
     /// Adds remote authentication support for System.Web adapters for the endpoint(s)
     /// </summary>
-    public static TBuilder RequireRemoteAuthentication<TBuilder>(this TBuilder builder, IRemoteAuthenticationMetadata? metadata = null)
+    public static TBuilder RequireRemoteAppAuthentication<TBuilder>(this TBuilder builder, IRemoteAuthenticationMetadata? metadata = null)
         where TBuilder : IEndpointConventionBuilder
         => builder.WithMetadata(metadata ?? new RemoteAuthenticationAttribute());
 }

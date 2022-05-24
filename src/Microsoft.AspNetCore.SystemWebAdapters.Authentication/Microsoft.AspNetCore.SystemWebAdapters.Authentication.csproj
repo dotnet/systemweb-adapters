@@ -28,6 +28,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\Microsoft.AspNetCore.SystemWebAdapters\NullableAttributes.cs" Link="NullableAttributes.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj" />
   </ItemGroup>
 

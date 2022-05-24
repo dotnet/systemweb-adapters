@@ -34,10 +34,11 @@ internal class RedirectUrlProcessor : IRemoteAuthenticationResultProcessor
         if (result.ResponseHeaders.TryGetValue(LocationHeaderName, out var locationHeaders))
         {
             // Look for any Location headers with URLs including a ReturnUrl query string as their value
-            var headerValues = locationHeaders.ToArray();
-            for (var i = 0; i < headerValues.Length; i++)
+            var processedHeaderValues = new List<string>();
+            for (var i = 0; i < locationHeaders.Count; i++)
             {
-                if (Uri.TryCreate(headerValues[i], UriKind.RelativeOrAbsolute, out var redirectLocation))
+                var headerValue = locationHeaders[i];
+                if (Uri.TryCreate(headerValue, UriKind.RelativeOrAbsolute, out var redirectLocation))
                 {
                     var queryStrings = QueryHelpers.ParseQuery(redirectLocation.Query);
                     if (queryStrings.ContainsKey(ReturnUrlQueryStringName))
@@ -53,11 +54,13 @@ internal class RedirectUrlProcessor : IRemoteAuthenticationResultProcessor
                         var queryStringDictionary = queryStrings.ToDictionary<KeyValuePair<string, StringValues>, string, string?>(kvp => kvp.Key, kvp => kvp.Value.ToString());
 
                         var updatedRedirect = QueryHelpers.AddQueryString(redirectWithoutQuery, queryStringDictionary);
-                        headerValues[i] = updatedRedirect.ToString();
+                        headerValue = updatedRedirect.ToString();
                     }
                 }
+                processedHeaderValues.Add(headerValue);
             }
-            result.ResponseHeaders[LocationHeaderName] = headerValues;
+            result.ResponseHeaders.Remove(LocationHeaderName);
+            result.ResponseHeaders.Add(LocationHeaderName, processedHeaderValues.ToArray());
         }
 
         return Task.CompletedTask;

@@ -18,7 +18,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// <summary>
 /// Service for authenticating a user by making an HTTP request on their behalf to a remote app.
 /// </summary>
-public class RemoteAuthenticationService : IRemoteAuthenticationService
+internal class RemoteAuthenticationService : IRemoteAuthenticationService
 {
     private const string CookieHeaderName = "Cookie";
 
@@ -82,12 +82,12 @@ public class RemoteAuthenticationService : IRemoteAuthenticationService
 
         // Create a new HTTP request, but propagate along configured headers or cookies
         // that may matter for authentication
-        var authRequest = new HttpRequestMessage();
+        using var authRequest = new HttpRequestMessage();
         AddHeaders(_options.HeadersToForward, originalRequest, authRequest);
         AddCookies(_options.CookiesToForward, originalRequest, authRequest);
 
         // Get the response from the remote app and convert the response into a remote authentication result
-        var response = await _client.SendAsync(authRequest, cancellationToken);
+        using var response = await _client.SendAsync(authRequest, cancellationToken);
         _logger.LogDebug("Received remote authentication response with status code {StatusCode}", response.StatusCode);
 
         return await _resultFactory.CreateRemoteAuthenticationResultAsync(response, _options);

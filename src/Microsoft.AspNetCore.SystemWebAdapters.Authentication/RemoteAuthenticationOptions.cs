@@ -4,6 +4,7 @@
 #if NETCOREAPP3_1_OR_GREATER
 using Microsoft.AspNetCore.Authentication;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Immutable;
 #endif
 
 using System;
@@ -17,17 +18,17 @@ public class RemoteAuthenticationOptions
 #endif
 {
 #if NETCOREAPP3_1_OR_GREATER
-    public static readonly string[] DefaultHeadersToForward = new[]
+    public static readonly IEnumerable<string> DefaultHeadersToForward = ImmutableArray.CreateRange(new[]
     {
         "Authorization"
-    };
+    });
 
-    public static readonly string[] DefaultResponseHeadersToForward = new[]
+    public static readonly IEnumerable<string> DefaultResponseHeadersToForward = ImmutableArray.CreateRange(new[]
     {
         "Location",
         "Set-Cookie",
         "WWW-Authenticate"
-    };
+    });
 #endif
 
     /// <summary>

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
@@ -39,5 +40,5 @@ public class RemoteAuthenticationResult
     /// Gets a dictionary of auth-related headers that may need propagated back
     /// to the caller if remote authentication fails.
     /// </summary>
-    public IDictionary<string, IEnumerable<string>> ResponseHeaders { get; } = new Dictionary<string, IEnumerable<string>>();
+    public IHeaderDictionary ResponseHeaders { get; } = new HeaderDictionary();
 }

@@ -34,27 +34,16 @@ internal sealed class RemoteAuthenticationHttpHandler : IHttpHandler
             return;
         }
 
-        // TODO : Do we need to even check the API key for this? The handler only returns information
-        //        about the currently authenticated user.
-        if (!string.Equals(_options.RemoteServiceOptions.ApiKey, context.Request.Headers.Get(_options.RemoteServiceOptions.ApiKeyHeader), StringComparison.Ordinal))
+        // If a user is logged in (using ASP.NET's usual authenticaiton mechanisms), return that claims principal.
+        if (context.User is ClaimsPrincipal claimsPrincipal && context.User.Identity.IsAuthenticated)
         {
-            // Using 407 here (proxy authentication required) to differentiate from the scenario of
-            // a valid API key but no authenticated user.
-            context.Response.StatusCode = 407;
+            context.Response.StatusCode = 200;
+            context.Response.ContentType = "application/octet-stream";
+            claimsPrincipal.WriteTo(new BinaryWriter(context.Response.OutputStream));
         }
         else
         {
-            // If a user is logged in (using ASP.NET's usual authenticaiton mechanisms), return that claims principal.
-            if (context.User is ClaimsPrincipal claimsPrincipal && context.User.Identity.IsAuthenticated)
-            {
-                context.Response.StatusCode = 200;
-                context.Response.ContentType = "application/octet-stream";
-                claimsPrincipal.WriteTo(new BinaryWriter(context.Response.OutputStream));
-            }
-            else
-            {
-                context.Response.StatusCode = 401;
-            }
+            context.Response.StatusCode = 401;
         }
 
         context.ApplicationInstance.CompleteRequest();
