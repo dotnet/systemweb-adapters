@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -49,7 +50,7 @@ internal class InMemoryLockedSessions : ILockedSessionCache
                 return SessionSaveResult.AlreadyUpdated;
             }
         }
-        catch
+        catch (JsonException)
         {
             return SessionSaveResult.DeserializationError;
         }

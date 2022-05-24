@@ -8,10 +8,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal class BufferResponseStreamMiddleware
+internal partial class BufferResponseStreamMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<BufferResponseStreamMiddleware> _logger;
+
+    [LoggerMessage(Level = LogLevel.Trace, Message = "Buffering response stream {BufferLimit} {MemoryThreshold}")]
+    private partial void LogBuffering(long? bufferLimit, long memoryThreshold);
 
     public BufferResponseStreamMiddleware(RequestDelegate next, ILogger<BufferResponseStreamMiddleware> logger)
     {
@@ -26,12 +29,12 @@ internal class BufferResponseStreamMiddleware
 
     private async Task BufferResponseStreamAsync(HttpContextCore context, IHttpResponseBodyFeature feature, IBufferResponseStreamMetadata metadata)
     {
-        _logger.LogTrace("Buffering response stream");
+        LogBuffering(metadata.BufferLimit, metadata.MemoryThreshold);
 
         var originalBodyFeature = context.Features.Get<IHttpResponseBodyFeature>();
         var originalBufferedResponseFeature = context.Features.Get<IBufferedResponseFeature>();
 
-        var bufferedFeature = new BufferedHttpResponseFeature(feature, metadata);
+        await using var bufferedFeature = new BufferedHttpResponseFeature(feature, metadata);
 
         context.Features.Set<IHttpResponseBodyFeature>(bufferedFeature);
         context.Features.Set<IBufferedResponseFeature>(bufferedFeature);

@@ -57,7 +57,7 @@ public abstract class DelegatingSessionState : ISessionState
 
     protected virtual ValueTask DisposeAsyncCore() => State.DisposeAsync();
 
-    public virtual void Remove(string name) => State.Remove(name);
+    public virtual void Remove(string key) => State.Remove(key);
 
     public virtual ValueTask CommitAsync(CancellationToken token) => State.CommitAsync(token);
 

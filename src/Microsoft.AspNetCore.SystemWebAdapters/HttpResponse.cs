@@ -16,6 +16,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace System.Web
 {
+    [SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "_writer is registered to be disposed by the owning HttpContext")]
     public class HttpResponse
     {
         private const string NoContentTypeMessage = "No content type declared";
@@ -140,6 +141,8 @@ namespace System.Web
                     {
                         AutoFlush = true,
                     };
+
+                    _response.RegisterForDispose(_writer);
                 }
 
                 return _writer;

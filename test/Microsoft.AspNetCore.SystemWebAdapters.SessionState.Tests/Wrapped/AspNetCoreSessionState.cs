@@ -22,7 +22,7 @@ public class AspNetCoreSessionStateTests
     }
 
     [Fact]
-    public void GetValue()
+    public async Task GetValue()
     {
         // Arrange
         var key = _fixture.Create<string>();
@@ -35,7 +35,7 @@ public class AspNetCoreSessionStateTests
         var serializer = new Mock<ISessionSerializer>();
         serializer.Setup(s => s.Deserialize(key, value)).Returns(expected);
 
-        var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: false);
+        await using var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: false);
 
         // Act
         var result = state[key];
@@ -45,7 +45,7 @@ public class AspNetCoreSessionStateTests
     }
 
     [Fact]
-    public void SetValue()
+    public async Task SetValue()
     {
         // Arrange
         var key = _fixture.Create<string>();
@@ -57,7 +57,7 @@ public class AspNetCoreSessionStateTests
         var serializer = new Mock<ISessionSerializer>();
         serializer.Setup(s => s.Serialize(key, obj)).Returns(bytes);
 
-        var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: false);
+        await using var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: false);
 
         // Act
         state[key] = obj;
@@ -67,7 +67,7 @@ public class AspNetCoreSessionStateTests
     }
 
     [Fact]
-    public void SetReadOnly()
+    public async Task SetReadOnly()
     {
         // Arrange
         var key = _fixture.Create<string>();
@@ -76,14 +76,14 @@ public class AspNetCoreSessionStateTests
         var session = new Mock<ISession>();
         var serializer = new Mock<ISessionSerializer>();
 
-        var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: true);
+        await using var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: true);
 
         // Act/Assert
         Assert.Throws<InvalidOperationException>(() => state[key] = obj);
     }
 
     [Fact]
-    public void SessionId()
+    public async Task SessionId()
     {
         // Arrange
         var id = _fixture.Create<string>();
@@ -92,7 +92,7 @@ public class AspNetCoreSessionStateTests
         session.Setup(s => s.Id).Returns(id);
         var serializer = new Mock<ISessionSerializer>();
 
-        var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: true);
+        await using var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: true);
 
         // Act
         var result = state.SessionID;
@@ -104,13 +104,13 @@ public class AspNetCoreSessionStateTests
     [InlineData(true)]
     [InlineData(false)]
     [Theory]
-    public void IsReadOnly(bool isReadOnly)
+    public async Task IsReadOnly(bool isReadOnly)
     {
         // Arrange
         var session = new Mock<ISession>();
         var serializer = new Mock<ISessionSerializer>();
 
-        var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: isReadOnly);
+        await using var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: isReadOnly);
 
         // Act
         var result = state.IsReadOnly;
@@ -120,7 +120,7 @@ public class AspNetCoreSessionStateTests
     }
 
     [Fact]
-    public void Count()
+    public async Task Count()
     {
         // Arrange
         const int Count = 10;
@@ -130,7 +130,7 @@ public class AspNetCoreSessionStateTests
         session.Setup(s => s.Keys).Returns(keys);
         var serializer = new Mock<ISessionSerializer>();
 
-        var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: true);
+        await using var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: true);
 
         // Act
         var result = state.Count;
@@ -140,7 +140,7 @@ public class AspNetCoreSessionStateTests
     }
 
     [Fact]
-    public void Keys()
+    public async Task Keys()
     {
         // Arrange
         var keys = _fixture.CreateMany<string>(10);
@@ -149,7 +149,7 @@ public class AspNetCoreSessionStateTests
         session.Setup(s => s.Keys).Returns(keys);
         var serializer = new Mock<ISessionSerializer>();
 
-        var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: true);
+        await using var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: true);
 
         // Act
         var result = state.Keys;
@@ -159,13 +159,13 @@ public class AspNetCoreSessionStateTests
     }
 
     [Fact]
-    public void Clear()
+    public async Task Clear()
     {
         // Arrange
         var session = new Mock<ISession>();
         var serializer = new Mock<ISessionSerializer>();
 
-        var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: false);
+        await using var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: false);
 
         // Act
         state.Clear();
@@ -175,13 +175,13 @@ public class AspNetCoreSessionStateTests
     }
 
     [Fact]
-    public void ClearReadOnly()
+    public async Task ClearReadOnly()
     {
         // Arrange
         var session = new Mock<ISession>();
         var serializer = new Mock<ISessionSerializer>();
 
-        var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: true);
+        await using var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: true);
 
         // Act/Assert
         Assert.Throws<InvalidOperationException>(() => state.Clear());
@@ -194,7 +194,7 @@ public class AspNetCoreSessionStateTests
         var session = new Mock<ISession>();
         var serializer = new Mock<ISessionSerializer>();
 
-        var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: false);
+        await using var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: false);
 
         // Act
         await state.CommitAsync(default);
@@ -211,7 +211,7 @@ public class AspNetCoreSessionStateTests
         var session = new Mock<ISession>();
         var serializer = new Mock<ISessionSerializer>();
 
-        var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: false)
+        await using var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: false)
         {
             IsAbandoned = true
         };
@@ -231,21 +231,21 @@ public class AspNetCoreSessionStateTests
         var session = new Mock<ISession>();
         var serializer = new Mock<ISessionSerializer>();
 
-        var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: true);
+        await using var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: true);
 
         // Act/Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await state.CommitAsync(default));
     }
 
     [Fact]
-    public void Remove()
+    public async Task Remove()
     {
         // Arrange
         var key = _fixture.Create<string>();
         var session = new Mock<ISession>();
         var serializer = new Mock<ISessionSerializer>();
 
-        var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: false);
+        await using var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: false);
 
         // Act
         state.Remove(key);
@@ -255,14 +255,14 @@ public class AspNetCoreSessionStateTests
     }
 
     [Fact]
-    public void RemoveReadOnly()
+    public async Task RemoveReadOnly()
     {
         // Arrange
         var key = _fixture.Create<string>();
         var session = new Mock<ISession>();
         var serializer = new Mock<ISessionSerializer>();
 
-        var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: true);
+        await using var state = new AspNetCoreSessionState(session.Object, serializer.Object, isReadOnly: true);
 
         // Act/Assert
         Assert.Throws<InvalidOperationException>(() => state.Remove(key));

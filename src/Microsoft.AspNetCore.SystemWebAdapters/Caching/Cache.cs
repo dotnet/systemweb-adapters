@@ -9,6 +9,9 @@ namespace System.Web.Caching;
 public delegate void CacheItemRemovedCallback(string key, object value, CacheItemRemovedReason reason);
 public delegate void CacheItemUpdateCallback(string key, CacheItemUpdateReason reason, out object? expensiveObject, out CacheDependency? dependency, out DateTime absoluteExpiration, out TimeSpan slidingExpiration);
 
+[Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Generic interface should also be implemented", Justification = Constants.ApiFromAspNet)]
+[Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = Constants.ApiFromAspNet)]
+[Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1724:Type names should not match namespaces", Justification = Constants.ApiFromAspNet)]
 public sealed class Cache : IEnumerable
 {
     private readonly ObjectCache _cache;
