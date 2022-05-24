@@ -232,7 +232,7 @@ public class JsonSessionStateSerializationTests
         state.Setup(s => s.Keys).Returns(keys);
         state.Setup(s => s[key]).Returns(value);
 
-        var serializer = CreateSerializer(new() { Indented = true });
+        var serializer = CreateSerializer(new() { ThrowOnUnknownSessionKey = false, Indented = true });
 
         // Act
         var result = serializer.Serialize(state.Object);
@@ -392,5 +392,5 @@ public class JsonSessionStateSerializationTests
     }
 
     internal static IReadOnlyCollection<string>? GetUnknownKeys(ISessionState session)
-        => ((SerializedSessionState)session).UnknownKeys; 
+        => ((SerializedSessionState)session).UnknownKeys;
 }
