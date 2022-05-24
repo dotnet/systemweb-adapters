@@ -1,10 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;netcoreapp3.1;net472</TargetFrameworks>
-    <LangVersion>10</LangVersion>
+    <TargetFrameworks>net6.0;net472</TargetFrameworks>
     <IsPackable>true</IsPackable>
-    <Nullable>enable</Nullable>
     <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
 
@@ -19,7 +17,7 @@
     <FrameworkFiles Include="RemoteSession/Framework/*.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'netcoreapp3.1' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <Compile Remove="@(FrameworkFiles)" />
     <Compile Remove="@(StandardFiles)" />
 

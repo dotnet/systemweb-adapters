@@ -97,27 +97,13 @@ public class JsonSessionStateSerializationTests
         var str = Encoding.UTF8.GetString(byteResult);
 
         // Assert
-#if NETCOREAPP3_1
-        const string Expected = @"{
-  ""id"": ""5"",
-  ""r"": false,
-  ""v"": {
-    ""Key1"": 5
-  },
-  ""t"": 0,
-  ""n"": false,
-  ""a"": false,
-  ""u"": null
-}";
-
-#else
         const string Expected = @"{
   ""id"": ""5"",
   ""v"": {
     ""Key1"": 5
   }
 }";
-#endif
+
         Assert.Equal(Expected, str);
     }
 

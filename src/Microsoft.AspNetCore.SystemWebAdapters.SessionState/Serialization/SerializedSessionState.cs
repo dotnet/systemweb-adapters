@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
 internal partial class SerializedSessionState
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
     : ISessionState
 #endif
 {
@@ -53,7 +53,7 @@ internal partial class SerializedSessionState
         set => Values.UnknownKeys = value;
     }
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
     bool ISessionState.IsSynchronized => ((ICollection)Values).IsSynchronized;
 
     object ISessionState.SyncRoot => ((ICollection)Values).SyncRoot;
