@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace System.Web;
 
+[Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = Constants.ApiFromAspNet)]
 public class HttpServerUtility
 {
     private readonly HttpContextCore _context;
@@ -19,6 +20,7 @@ public class HttpServerUtility
     [Obsolete(Constants.NotImplemented)]
     public string MapPath(string path) => throw new NotImplementedException();
 
+    [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1024:Use properties where appropriate", Justification = Constants.ApiFromAspNet)]
     public Exception? GetLastError() => null;
 
     public void ClearError()
@@ -55,6 +57,7 @@ public class HttpServerUtility
         static bool IsDigit(char c) => (uint)(c - '0') <= (uint)('9' - '0');
     }
 
+
     /// <summary>
     /// This method is similar to <see cref="WebEncoders.Base64UrlEncode(byte[])"/> but the resulting string includes an extra character
     /// that is the count of how many padding characters where removed from the Base64 encoded value.
@@ -62,6 +65,7 @@ public class HttpServerUtility
     /// <param name="input">Value to encode</param>
     /// <returns>URL encoded value.</returns>
     /// <exception cref="ArgumentNullException"></exception>
+    [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1055:URI-like return values should not be strings", Justification = Constants.ApiFromAspNet)]
     public static string UrlTokenEncode(byte[] input)
     {
         if (input is null)

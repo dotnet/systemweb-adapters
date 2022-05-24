@@ -51,7 +51,7 @@ internal sealed class GetWriteableSessionHandler : HttpTaskAsyncHandler, IRequir
 
         // Delimit the json body with a new line to mark the end of content
         context.Response.OutputStream.WriteByte(EndOfFrame);
-        await context.Response.OutputStream.FlushAsync();
+        await context.Response.OutputStream.FlushAsync(token);
 
         // Wait for up to request timeout for updated session state to be written.
         // We send down heartbeats to ensure the request disconnected token fires correctly
@@ -62,7 +62,7 @@ internal sealed class GetWriteableSessionHandler : HttpTaskAsyncHandler, IRequir
         {
             await Task.Delay(heartbeatDelay, waitToken.Token);
             context.Response.OutputStream.WriteByte(EndOfFrame);
-            await context.Response.OutputStream.FlushAsync();
+            await context.Response.OutputStream.FlushAsync(waitToken.Token);
         }
     }
 }

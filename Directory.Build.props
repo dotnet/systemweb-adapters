@@ -17,6 +17,13 @@
     <Product>Microsoft ASP.NET Core</Product>
   </PropertyGroup>
 
+  <PropertyGroup Label="Analyzer Settings">
+    <WarningLevel>9999</WarningLevel>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+  </PropertyGroup>
+
   <PropertyGroup Label="Warning Suppressions">
     <!--
       Suppress a warning about upcoming deprecation of PackageLicenseUrl. When embedding licenses are supported,

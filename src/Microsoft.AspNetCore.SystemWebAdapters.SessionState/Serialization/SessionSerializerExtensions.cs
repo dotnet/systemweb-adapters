@@ -11,7 +11,13 @@ public static class SessionSerializerExtensions
 {
     public static ISystemWebAdapterBuilder AddJsonSessionSerializer(this ISystemWebAdapterBuilder builder, Action<SessionSerializerOptions>? configure = null)
     {
+        if (builder is null)
+        {
+            throw new ArgumentNullException(nameof(builder));
+        }
+
         builder.Services.AddSingleton<ISessionSerializer, JsonSessionSerializer>();
+
         var options = builder.Services.AddOptions<SessionSerializerOptions>();
 
         if (configure is not null)

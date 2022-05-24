@@ -11,6 +11,21 @@ public static class RemoteAppSessionStateExtensions
 {
     public static ISystemWebAdapterBuilder AddRemoteAppSession(this ISystemWebAdapterBuilder builder, Action<RemoteAppSessionStateOptions> configureRemote, Action<SessionSerializerOptions> configureSerializer)
     {
+        if (builder is null)
+        {
+            throw new ArgumentNullException(nameof(builder));
+        }
+
+        if (configureRemote is null)
+        {
+            throw new ArgumentNullException(nameof(configureRemote));
+        }
+
+        if (configureSerializer is null)
+        {
+            throw new ArgumentNullException(nameof(configureSerializer));
+        }
+
         var options = new RemoteAppSessionStateOptions();
         configureRemote(options);
 
@@ -19,6 +34,7 @@ public static class RemoteAppSessionStateExtensions
         var serializer = new JsonSessionSerializer(serializerOptions.KnownKeys);
 
         builder.Modules.Add(new RemoteSessionModule(options, new InMemoryLockedSessions(serializer), serializer));
+
         return builder;
     }
 }

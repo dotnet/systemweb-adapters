@@ -33,14 +33,17 @@ internal class SessionMiddleware
 
         var manager = context.RequestServices.GetRequiredService<ISessionManager>();
 
-#pragma warning disable CS0618 // Type or member is obsolete
         await using var state = metadata.Behavior switch
         {
-            SessionBehavior.PreLoad => await manager.CreateAsync(context, metadata),
+#pragma warning disable CA2000 // False positive for CA2000 here
+#pragma warning disable CS0618 // Type or member is obsolete
             SessionBehavior.OnDemand => new LazySessionState(context, _logger, metadata, manager),
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CA2000 // Dispose objects before losing scope
+
+            SessionBehavior.PreLoad => await manager.CreateAsync(context, metadata),
             var behavior => throw new InvalidOperationException($"Unknown session behavior {behavior}"),
         };
-#pragma warning restore CS0618 // Type or member is obsolete
 
         context.Features.Set(new HttpSessionState(state));
 
@@ -54,6 +57,7 @@ internal class SessionMiddleware
             context.Features.Set<HttpSessionState?>(null);
         }
     }
+
 
     private class LazySessionState : DelegatingSessionState
     {

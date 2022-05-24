@@ -163,7 +163,9 @@ public class JsonSessionStateSerializationTests
         Assert.Equal(expected, result);
     }
 
+#pragma warning disable CA1812
     private class SomeObject
+#pragma warning restore CA1812
     {
         public int IntKey { get; set; }
 

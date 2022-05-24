@@ -44,12 +44,14 @@ namespace System.Web
 
         public Uri Url => new(_request.GetEncodedUrl());
 
+        [SuppressMessage("Design", "CA1056:URI-like properties should not be strings", Justification = Constants.ApiFromAspNet)]
         public string? RawUrl => _request.HttpContext.Features.Get<IHttpRequestFeature>()?.RawTarget;
 
         public string HttpMethod => _request.Method;
 
         public string? UserHostAddress => _request.HttpContext.Connection.RemoteIpAddress?.ToString();
 
+        [SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = Constants.ApiFromAspNet)]
         public string[] UserLanguages
         {
             get

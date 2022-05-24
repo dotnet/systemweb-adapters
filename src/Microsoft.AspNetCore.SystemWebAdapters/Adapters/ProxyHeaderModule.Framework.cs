@@ -80,7 +80,7 @@ internal class ProxyHeaderModule : IHttpModule
     {
         public ForwardedHost(string host)
         {
-            var idx = host.IndexOf(":");
+            var idx = host.IndexOf(':');
 
             if (idx < 0)
             {

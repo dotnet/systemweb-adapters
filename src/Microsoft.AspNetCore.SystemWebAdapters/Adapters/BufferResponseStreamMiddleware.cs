@@ -31,7 +31,7 @@ internal class BufferResponseStreamMiddleware
         var originalBodyFeature = context.Features.Get<IHttpResponseBodyFeature>();
         var originalBufferedResponseFeature = context.Features.Get<IBufferedResponseFeature>();
 
-        var bufferedFeature = new BufferedHttpResponseFeature(feature, metadata);
+        await using var bufferedFeature = new BufferedHttpResponseFeature(feature, metadata);
 
         context.Features.Set<IHttpResponseBodyFeature>(bufferedFeature);
         context.Features.Set<IBufferedResponseFeature>(bufferedFeature);

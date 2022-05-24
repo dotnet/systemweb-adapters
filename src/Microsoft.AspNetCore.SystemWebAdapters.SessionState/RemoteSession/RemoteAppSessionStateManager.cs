@@ -64,7 +64,10 @@ internal class RemoteAppSessionStateManager : ISessionManager
 
     private async Task<ISessionState> GetSessionDataAsync(string? sessionId, bool readOnly, HttpContextCore callingContext, CancellationToken cancellationToken = default)
     {
+        // The request message is manually disposed at a later time
+#pragma warning disable CA2000 // Dispose objects before losing scope
         var req = new HttpRequestMessage { Method = HttpMethod.Get };
+#pragma warning restore CA2000 // Dispose objects before losing scope
 
         AddSessionCookieToHeader(req, sessionId);
         AddReadOnlyHeader(req, readOnly);

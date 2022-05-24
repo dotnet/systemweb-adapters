@@ -6,7 +6,7 @@ using System;
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-public class BufferResponseStreamAttribute : Attribute, IBufferResponseStreamMetadata
+public sealed class BufferResponseStreamAttribute : Attribute, IBufferResponseStreamMetadata
 {
     public bool IsEnabled { get; set; } = true;
 
