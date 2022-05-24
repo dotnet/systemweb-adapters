@@ -27,7 +27,7 @@ In ASP.NET Framework, `System.Threading.Thread.CurrentPrincipal` would be set to
 
 In ASP.NET Framework, `CultureInfo.Current` was set for a request, but is not available in ASP.NET Core.
 
-**Recommendation**: You may access the expected culture from `System.Web.HttpContext.Response.UserLanguages`.
+**Recommendation**: You may access the expected culture from `System.Web.HttpContext.Request.UserLanguages`.
 
 ## Request thread does not exist in ASP.NET Core
 
