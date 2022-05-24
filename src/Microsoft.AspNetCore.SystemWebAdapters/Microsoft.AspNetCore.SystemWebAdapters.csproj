@@ -20,6 +20,7 @@
   <ItemGroup>
     <FrameworkFiles Include="**/*.Framework.cs" />
     <StandardFiles Include="**/*.Standard.cs" />
+    <SharedFiles Include="**/*.Shared.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">

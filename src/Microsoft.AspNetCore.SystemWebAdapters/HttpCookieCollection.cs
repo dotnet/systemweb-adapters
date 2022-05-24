@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace System.Web;
 
+[Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Generic interface should also be implemented", Justification = Constants.ApiFromAspNet)]
 public sealed class HttpCookieCollection : NameObjectCollectionBase
 {
     public HttpCookieCollection()
@@ -17,7 +18,9 @@ public sealed class HttpCookieCollection : NameObjectCollectionBase
     {
         foreach (var (name, value) in request.Cookies)
         {
+#pragma warning disable CA5396
             Add(new HttpCookie(name, value));
+#pragma warning restore CA5396
         }
     }
 
@@ -40,15 +43,32 @@ public sealed class HttpCookieCollection : NameObjectCollectionBase
         }, response);
     }
 
+    [Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = Constants.ApiFromAspNet)]
     public string?[] AllKeys => BaseGetAllKeys();
 
     public HttpCookie? this[string name] => Get(name);
 
     public HttpCookie? this[int index] => Get(index);
 
-    public void Add(HttpCookie cookie) => BaseAdd(cookie.Name, cookie);
+    public void Add(HttpCookie cookie)
+    {
+        if (cookie is null)
+        {
+            throw new ArgumentNullException(nameof(cookie));
+        }
 
-    public void Set(HttpCookie cookie) => BaseSet(cookie.Name, cookie);
+        BaseAdd(cookie.Name, cookie);
+    }
+
+    public void Set(HttpCookie cookie)
+    {
+        if (cookie is null)
+        {
+            throw new ArgumentNullException(nameof(cookie));
+        }
+
+        BaseSet(cookie.Name, cookie);
+    }
 
     public HttpCookie? Get(string name) => (HttpCookie?)BaseGet(name);
 

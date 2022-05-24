@@ -382,7 +382,9 @@ public class JsonSessionStateSerializationTests
         return new JsonSessionSerializer(optionsProvider.Object, new Mock<ILogger<JsonSessionSerializer>>().Object);
     }
 
+#pragma warning disable CA1812
     private class SomeObject
+#pragma warning restore CA1812
     {
         public int IntKey { get; set; }
 

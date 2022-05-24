@@ -31,10 +31,10 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <Compile Remove="**/*" />
     <Compile Include="@(FrameworkFiles)" />
+    <Compile Include="**/*.Shared.cs" />
     <Compile Include="RemoteSession/RemoteAppSessionStateOptions.cs" />
     <Compile Include="Serialization/SessionValues.cs" />
     <Compile Include="Serialization/SerializedSessionState.cs" />
-    <Compile Include="**/*.Shared.cs" />
 
     <Reference Include="System.Web" />
 

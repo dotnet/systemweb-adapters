@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace System.Web
 {
+    [SuppressMessage("Design", "CA1065:Do not raise exceptions in unexpected locations", Justification = Constants.ApiFromAspNet)]
     public class HttpContextBase : IServiceProvider
     {
         protected HttpContextBase()

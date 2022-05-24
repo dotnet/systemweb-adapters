@@ -10,5 +10,5 @@ public sealed class SessionAttribute : Attribute, ISessionMetadata
 {
     public SessionBehavior Behavior { get; set; } = SessionBehavior.PreLoad;
 
-    public bool IsReadOnly { get; set; } = false;
+    public bool IsReadOnly { get; set; }
 }
