@@ -9,7 +9,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public static class RemoteAppSessionStateExtensions
 {
-    public static ISystemWebAdapterBuilder AddRemoteAppSession(this ISystemWebAdapterBuilder builder, Action<RemoteAppSessionStateOptions> configureRemote, Action<SessionSerializerOptions> configureSerializer)
+    public static ISystemWebAdapterBuilder AddRemoteAppSession(this ISystemWebAdapterBuilder builder, Action<RemoteAppSessionStateOptions> configureRemote, Action<JsonSessionSerializerOptions> configureSerializer)
     {
         if (builder is null)
         {
@@ -29,9 +29,11 @@ public static class RemoteAppSessionStateExtensions
         var options = new RemoteAppSessionStateOptions();
         configureRemote(options);
 
-        var serializerOptions = new SessionSerializerOptions();
+        // We don't want to throw by default on the .NET Framework side as then the error won't be easily visible in the ASP.NET Core app
+        var serializerOptions = new JsonSessionSerializerOptions { ThrowOnUnknownSessionKey = false };
         configureSerializer(serializerOptions);
-        var serializer = new JsonSessionSerializer(serializerOptions.KnownKeys);
+
+        var serializer = new JsonSessionSerializer(serializerOptions);
 
         builder.Modules.Add(new RemoteSessionModule(options, new InMemoryLockedSessions(serializer), serializer));
 

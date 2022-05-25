@@ -20,10 +20,6 @@
   <ItemGroup>
     <FrameworkFiles Include="**/*.Framework.cs" />
     <StandardFiles Include="**/*.Standard.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <SharedFiles Include="Adapters/SessionState/Serialization/SessionSerializerOptions.cs" />
     <SharedFiles Include="**/*.Shared.cs" />
   </ItemGroup>
 

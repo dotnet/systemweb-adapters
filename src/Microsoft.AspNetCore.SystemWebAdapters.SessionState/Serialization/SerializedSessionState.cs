@@ -46,6 +46,13 @@ internal partial class SerializedSessionState
     [JsonIgnore]
     public int Count => RawValues?.Count ?? 0;
 
+    [JsonPropertyName("u")]
+    public List<string>? UnknownKeys
+    {
+        get => RawValues?.UnknownKeys;
+        set => Values.UnknownKeys = value;
+    }
+
 #if !NETFRAMEWORK
     bool ISessionState.IsSynchronized => ((ICollection)Values).IsSynchronized;
 

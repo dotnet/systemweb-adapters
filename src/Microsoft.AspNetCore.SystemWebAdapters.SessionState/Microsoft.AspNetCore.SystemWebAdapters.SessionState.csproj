@@ -14,12 +14,11 @@
 
   <ItemGroup>
     <FrameworkFiles Include="**/*.Framework.cs" />
-    <FrameworkFiles Include="RemoteSession/Framework/*.cs" />
+    <FrameworkFiles Include="**/Framework/*.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <Compile Remove="@(FrameworkFiles)" />
-    <Compile Remove="@(StandardFiles)" />
 
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
 
