@@ -12,7 +12,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
-public class RemoteAuthenticationOptions
+public class RemoteAppAuthenticationOptions
 #if NETCOREAPP3_1_OR_GREATER
     : AuthenticationSchemeOptions
 #endif

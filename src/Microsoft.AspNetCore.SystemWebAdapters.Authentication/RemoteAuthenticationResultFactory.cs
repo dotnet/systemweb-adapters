@@ -25,7 +25,7 @@ public class RemoteAuthenticationResultFactory : IAuthenticationResultFactory
         _logger = logger;
     }
 
-    public async Task<RemoteAuthenticationResult> CreateRemoteAuthenticationResultAsync(HttpResponseMessage response, RemoteAuthenticationOptions options)
+    public async Task<RemoteAuthenticationResult> CreateRemoteAuthenticationResultAsync(HttpResponseMessage response, RemoteAppAuthenticationOptions options)
     {
         RemoteAuthenticationResult? ret = null;
 

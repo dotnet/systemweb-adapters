@@ -25,6 +25,9 @@
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <_MigrationKind>yarp</_MigrationKind>
+    <_MigrateToProjectPath>..\RemoteBearerCore\RemoteBearerCore.csproj</_MigrateToProjectPath>
+    <_MigrateToProjectGuid>6ecc8509-2937-4667-aecc-c20ba62d3fc5</_MigrateToProjectGuid>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -300,6 +303,16 @@
     <None Include="packages.config" />
     <Content Include="Scripts\jquery-3.4.1.slim.min.map" />
     <Content Include="Scripts\jquery-3.4.1.min.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters.Authentication\Microsoft.AspNetCore.SystemWebAdapters.Authentication.csproj">
+      <Project>{9cf18b9e-5190-42b6-900a-11af3cca35b2}</Project>
+      <Name>Microsoft.AspNetCore.SystemWebAdapters.Authentication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj">
+      <Project>{55c1bbe0-b922-46b0-8f2c-8472bc9a5f33}</Project>
+      <Name>Microsoft.AspNetCore.SystemWebAdapters</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

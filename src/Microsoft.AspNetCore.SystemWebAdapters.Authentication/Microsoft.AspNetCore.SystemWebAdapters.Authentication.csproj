@@ -8,9 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <SharedFiles Include="RemoteAuthenticationOptions.cs" />
+    <SharedFiles Include="RemoteAppAuthenticationOptions.cs" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <FrameworkFiles Include="**/*.Framework.cs" />
   </ItemGroup>

@@ -5,9 +5,10 @@ using System;
 using System.Net.Http;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
+namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 /// <summary>
 /// Helper methods for registering remote authentication services
@@ -37,7 +38,7 @@ public static class RemoteAuthenticationExtensions
     /// <param name="authenticationBuilder">The authentication builder to register the remote authentication handler with.</param>
     /// <param name="configureOptions">Configuration options for the remote authentication handler.</param>
     /// <returns>The authentication builder updated with the remote authentication handler added using the given configuration.</returns>
-    public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder, Action<RemoteAuthenticationOptions>? configureOptions)
+    public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder, Action<RemoteAppAuthenticationOptions>? configureOptions)
         => AddRemoteAppAuthentication(authenticationBuilder, RemoteAuthenticationDefaults.AuthenticationScheme, configureOptions);
 
     /// <summary>
@@ -47,7 +48,7 @@ public static class RemoteAuthenticationExtensions
     /// <param name="scheme">The scheme name for the remote authentication handler.</param>
     /// <param name="configureOptions">Configuration options for the remote authentication handler.</param>
     /// <returns>The authentication builder updated with the remote authentication handler added using the given scheme and configuration.</returns>
-    public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder, string scheme, Action<RemoteAuthenticationOptions>? configureOptions)
+    public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder, string scheme, Action<RemoteAppAuthenticationOptions>? configureOptions)
     {
         authenticationBuilder.Services.AddScoped<IRemoteAuthenticationResultProcessor, RedirectUrlProcessor>();
         authenticationBuilder.Services.AddSingleton<IAuthenticationResultFactory, RemoteAuthenticationResultFactory>();
@@ -55,16 +56,16 @@ public static class RemoteAuthenticationExtensions
             // Disable cookies in the HTTP client because the service will manage the cookie header directly
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { UseCookies = false, AllowAutoRedirect = false });
 
-        authenticationBuilder.Services.AddOptions<RemoteAuthenticationOptions>(scheme)
+        authenticationBuilder.Services.AddOptions<RemoteAppAuthenticationOptions>(scheme)
             .Configure(configureOptions)
             .ValidateDataAnnotations();
-        return authenticationBuilder.AddScheme<RemoteAuthenticationOptions, RemoteAuthenticationAuthHandler>(scheme, configureOptions);
+        return authenticationBuilder.AddScheme<RemoteAppAuthenticationOptions, RemoteAuthenticationAuthHandler>(scheme, configureOptions);
     }
 
     /// <summary>
     /// Adds remote authentication services to System.Web adapters builder.
     /// </summary>
-    public static ISystemWebAdapterBuilder AddRemoteAppAuthentication(this ISystemWebAdapterBuilder systemWebAdapterBuilder, Action<RemoteAuthenticationOptions> configureOptions)
+    public static ISystemWebAdapterBuilder AddRemoteAppAuthentication(this ISystemWebAdapterBuilder systemWebAdapterBuilder, Action<RemoteAppAuthenticationOptions> configureOptions)
     {
         systemWebAdapterBuilder.Services.AddAuthentication(RemoteAuthenticationDefaults.AuthenticationScheme)
             .AddRemoteAppAuthentication(configureOptions);

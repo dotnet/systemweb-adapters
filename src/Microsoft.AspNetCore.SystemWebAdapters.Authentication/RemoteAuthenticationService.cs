@@ -26,13 +26,13 @@ internal class RemoteAuthenticationService : IRemoteAuthenticationService
     private readonly HttpClient _client;
     private readonly IAuthenticationResultFactory _resultFactory;
     private readonly ILogger<RemoteAuthenticationService> _logger;
-    private readonly IOptionsMonitor<RemoteAuthenticationOptions> _optionsMonitor;
-    private RemoteAuthenticationOptions? _options;
+    private readonly IOptionsMonitor<RemoteAppAuthenticationOptions> _optionsMonitor;
+    private RemoteAppAuthenticationOptions? _options;
 
     public RemoteAuthenticationService(
         HttpClient client,
         IAuthenticationResultFactory resultFactory,
-        IOptionsMonitor<RemoteAuthenticationOptions> options,
+        IOptionsMonitor<RemoteAppAuthenticationOptions> options,
         ILogger<RemoteAuthenticationService> logger)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));

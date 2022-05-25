@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace RemoteOAuth
 {
@@ -18,6 +15,14 @@ namespace RemoteOAuth
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            Application.AddSystemWebAdapters()
+                .AddRemoteAuthentication(options =>
+                {
+                    // A real application would not hard code this, but load it
+                    // securely from environment or configuration
+                    options.RemoteServiceOptions.ApiKey = "TopSecretString";
+                });
         }
     }
 }
