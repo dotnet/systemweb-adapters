@@ -6,16 +6,10 @@ using System.Collections.Generic;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
-public class UnknownSessionKeyException : InvalidOperationException
+internal sealed class UnknownSessionKeyException : InvalidOperationException
 {
     public UnknownSessionKeyException(IReadOnlyCollection<string> unknownKeys)
         : base(CreateMessage(unknownKeys))
-    {
-        UnknownKeys = unknownKeys;
-    }
-
-    public UnknownSessionKeyException(IReadOnlyCollection<string> unknownKeys, Exception inner)
-        : base(CreateMessage(unknownKeys), inner)
     {
         UnknownKeys = unknownKeys;
     }
