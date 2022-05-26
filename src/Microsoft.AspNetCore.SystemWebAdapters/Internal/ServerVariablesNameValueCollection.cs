@@ -8,7 +8,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
     internal class ServerVariablesNameValueCollection : WrappingNameValueCollection
     {
         private const string EnumerationErrorMessage = "ASP.NET Core doesn't support enumerating server variables.";
-        private const string SerializationErrorMessage = "ASP.NET Core doesn't suppor serialization of server variables.";
+        private const string SerializationErrorMessage = "ASP.NET Core doesn't support serialization of server variables.";
 
         private readonly IServerVariablesFeature _serverVariables;
 
