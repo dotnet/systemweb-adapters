@@ -40,7 +40,7 @@ Customizing the adapters is done by adding modules to via `Application.AddSystem
 
 ### Proxy Support
 
-During migration, the .NET Framework application will be moved and will be downstream from a reverse proxy. In order for things like port, url, and scheme to be constructed correctly, we must update the values `HttpContext` use. This is similar to the [process used on ASp.NET Core](https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer).
+During migration, the .NET Framework application will be moved and will be downstream from a reverse proxy. In order for things like port, URL, and scheme to be constructed correctly, we must update the values `HttpContext` use. This is similar to the [process used on ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer).
 
 This is done by calling this `ISystemWebAdapterBuilder.AddProxySupport` method and configuring things as desired.
 
