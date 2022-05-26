@@ -18,7 +18,7 @@ internal sealed class RemoteSessionModule : IHttpModule
     {
         if (string.IsNullOrEmpty(options.ApiKey))
         {
-            throw new ArgumentOutOfRangeException("API key must not be empty.");
+            throw new ArgumentOutOfRangeException(nameof(options.ApiKey), "API key must not be empty.");
         }
 
         _options = options;
@@ -35,7 +35,7 @@ internal sealed class RemoteSessionModule : IHttpModule
             var context = ((HttpApplication)s).Context;
 
             // Filter out requests that are not the correct path so we don't create a wrapper for every request
-            if (!string.Equals(context.Request.Path, _options.SessionEndpointPath))
+            if (!string.Equals(context.Request.Path, _options.SessionEndpointPath, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }

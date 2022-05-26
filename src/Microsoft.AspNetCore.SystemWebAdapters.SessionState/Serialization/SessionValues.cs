@@ -3,11 +3,15 @@
 
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Text.Json.Serialization;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
 internal class SessionValues : NameObjectCollectionBase
 {
+    [JsonIgnore]
+    public List<string>? UnknownKeys { get; set; }
+
     public void Add(string key, object? value) => BaseAdd(key, value);
 
     public void Clear() => BaseClear();

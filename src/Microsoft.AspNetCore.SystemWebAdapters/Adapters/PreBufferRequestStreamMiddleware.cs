@@ -8,10 +8,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal class PreBufferRequestStreamMiddleware
+internal partial class PreBufferRequestStreamMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<PreBufferRequestStreamMiddleware> _logger;
+
+    [LoggerMessage(Level = LogLevel.Trace, Message = "Prebuffering request stream")]
+    private partial void LogMessage();
 
     public PreBufferRequestStreamMiddleware(RequestDelegate next, ILogger<PreBufferRequestStreamMiddleware> logger)
     {
@@ -24,10 +27,11 @@ internal class PreBufferRequestStreamMiddleware
             ? PreBufferAsync(context, metadata)
             : _next(context);
 
+
     private async Task PreBufferAsync(HttpContextCore context, IPreBufferRequestStreamMetadata metadata)
     {
         // TODO: Should this enforce MaxRequestBodySize? https://github.com/aspnet/AspLabs/pull/447#discussion_r827314309
-        _logger.LogTrace("Buffering request stream");
+        LogMessage();
 
         context.Request.EnableBuffering(metadata.BufferThreshold, metadata.BufferLimit ?? long.MaxValue);
 

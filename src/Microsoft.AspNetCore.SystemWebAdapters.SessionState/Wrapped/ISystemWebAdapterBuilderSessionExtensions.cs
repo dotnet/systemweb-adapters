@@ -11,6 +11,11 @@ public static class ISystemWebAdapterBuilderSessionExtensions
 {
     public static ISystemWebAdapterBuilder WrapAspNetCoreSession(this ISystemWebAdapterBuilder builder, Action<Builder.SessionOptions>? options = null)
     {
+        if (builder is null)
+        {
+            throw new ArgumentNullException(nameof(builder));
+        }
+
         if (options is null)
         {
             builder.Services.AddSession();

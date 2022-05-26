@@ -23,11 +23,17 @@ In ASP.NET Framework, `System.Threading.Thread.CurrentPrincipal` would be set to
 
 **Recommendation**: Use the property `HttpContext.User` instead.
 
-## `CultureInfo.Current` is not supported
+## `CultureInfo.CurrentCulture` is not set by default
 
-In ASP.NET Framework, `CultureInfo.Current` was set for a request, but is not available in ASP.NET Core.
+In ASP.NET Framework, `CultureInfo.Current` was set for a request, but this is not done automatically in ASP.NET Core. Instead, you must add the appropriate middleware to your pipeline.
 
-**Recommendation**: You may access the expected culture from `System.Web.HttpContext.Request.UserLanguages`.
+**Recommendation**: See [ASP.NET Core Localization](https://docs.microsoft.com/aspnet/core/fundamentals/localization#localization-middleware) for details on how to enable this.
+
+Simplest way to enable this with similar behavior as ASP.NET Framework would be to add the following to your pipeline:
+
+```csharp
+app.UseRequestLocalization();
+```
 
 ## Request thread does not exist in ASP.NET Core
 

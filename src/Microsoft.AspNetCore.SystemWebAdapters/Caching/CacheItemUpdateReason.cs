@@ -3,6 +3,7 @@
 
 namespace System.Web.Caching;
 
+[Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1008:Enums should have zero value", Justification = Constants.ApiFromAspNet)]
 public enum CacheItemUpdateReason
 {
     Expired = 1,

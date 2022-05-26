@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
+using System;
+using System.Collections.Generic;
 
 namespace ClassLibrary;
 
@@ -6,9 +7,9 @@ public class SessionUtils
 {
     public static string ApiKey = "test-key";
 
-    public static void RegisterSessionKeys(SessionSerializerOptions options)
+    public static void RegisterSessionKeys(IDictionary<string, Type> knownTypes)
     {
-        options.RegisterKey<int>("test-value");
-        options.RegisterKey<SessionDemoModel>("SampleSessionItem");
+        knownTypes.Add("test-value", typeof(int));
+        knownTypes.Add("SampleSessionItem", typeof(SessionDemoModel));
     }
 }

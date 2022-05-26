@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace System.Web.SessionState;
 
+[Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Generic interface should also be implemented", Justification = Constants.ApiFromAspNet)]
+[Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = Constants.ApiFromAspNet)]
 public class HttpSessionState : ICollection
 {
     private readonly ISessionState _container;
@@ -51,6 +53,11 @@ public class HttpSessionState : ICollection
 
     public void CopyTo(Array array, int index)
     {
+        if (array is null)
+        {
+            throw new ArgumentNullException(nameof(array));
+        }
+
         foreach (var key in _container.Keys)
         {
             array.SetValue(_container[key], index++);
