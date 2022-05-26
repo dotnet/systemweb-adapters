@@ -70,8 +70,11 @@ public class GetWriteableSessionHandlerTests
 
         // Act
         var task = handler.ProcessRequestAsync(context.Object, default);
+
         Assert.False(task.IsCompleted);
         lockDisposable.Verify(d => d.Dispose(), Times.Never);
+        response.Verify(r => r.FlushAsync(), Times.Once);
+
         callback!();
         await Assert.ThrowsAsync<TaskCanceledException>(() => task);
 
@@ -119,8 +122,11 @@ public class GetWriteableSessionHandlerTests
 
         // Act
         var task = handler.ProcessRequestAsync(context.Object, cts.Token);
+
         Assert.False(task.IsCompleted);
         lockDisposable.Verify(d => d.Dispose(), Times.Never);
+        response.Verify(r => r.FlushAsync(), Times.Once);
+
         cts.Cancel();
         await Assert.ThrowsAsync<TaskCanceledException>(() => task);
 
