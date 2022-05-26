@@ -88,6 +88,11 @@ public class GetWriteableSessionHandlerTests
         Assert.All(bytes.Skip(1), b => Assert.Equal((int)'\n', b));
 
         lockDisposable.Verify(d => d.Dispose(), Times.Once);
+
+        // Expect flush to be called each time a heartbeat is flushed. Since it will have already been called
+        // once with the initial push, and the test writes 2 bytes for the initial response, the expected calls
+        // to FlushAsync will be bytes.Length - 1.
+        response.Verify(r => r.FlushAsync(), Times.Exactly(bytes.Length - 1));
     }
 
     [Fact]
