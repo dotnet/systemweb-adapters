@@ -63,7 +63,7 @@ public class GetWriteableSessionHandlerTests
         context.Setup(c => c.Response).Returns(response.Object);
         context.Setup(c => c.Session).Returns(session.Object);
 
-        serializer.Setup(s => s.SerializeAsync(session.Object, stream, It.IsAny<CancellationToken>())).Callback(() =>
+        serializer.Setup(s => s.SerializeAsync(It.Is<HttpSessionStateBaseWrapper>(t => t.State == session.Object), stream, It.IsAny<CancellationToken>())).Callback(() =>
         {
             stream.WriteByte(expectedByte);
         });
@@ -120,7 +120,7 @@ public class GetWriteableSessionHandlerTests
         context.Setup(c => c.Response).Returns(response.Object);
         context.Setup(c => c.Session).Returns(session.Object);
 
-        serializer.Setup(s => s.SerializeAsync(session.Object, stream, It.IsAny<CancellationToken>())).Callback(() =>
+        serializer.Setup(s => s.SerializeAsync(It.Is<HttpSessionStateBaseWrapper>(t => t.State == session.Object), stream, It.IsAny<CancellationToken>())).Callback(() =>
         {
             stream.WriteByte(expectedByte);
         });

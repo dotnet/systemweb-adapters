@@ -42,7 +42,15 @@ internal class InMemoryLockedSessions : ILockedSessionCache
         {
             if (item.Session is { } session)
             {
-                await _serializer.DeserializeToAsync(stream, session, token);
+                using var result = await _serializer.DeserializeAsync(stream, token);
+
+                if (result is null)
+                {
+                    return SessionSaveResult.DeserializationError;
+                }
+
+                result.CopyTo(session);
+
                 return SessionSaveResult.Success;
             }
             else

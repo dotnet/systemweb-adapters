@@ -8,6 +8,11 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
 internal sealed class UnknownSessionKeyException : InvalidOperationException
 {
+    public UnknownSessionKeyException(string unknownKey)
+        : this(new[] { unknownKey })
+    {
+    }
+
     public UnknownSessionKeyException(IReadOnlyCollection<string> unknownKeys)
         : base(CreateMessage(unknownKeys))
     {

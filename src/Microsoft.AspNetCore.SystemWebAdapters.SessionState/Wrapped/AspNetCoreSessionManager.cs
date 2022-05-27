@@ -2,15 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Wrapped;
 
 internal class AspNetCoreSessionManager : ISessionManager
 {
-    private readonly ISessionSerializer _serializer;
+    private readonly ISessionKeySerializer _serializer;
 
-    public AspNetCoreSessionManager(ISessionSerializer serializer)
+    public AspNetCoreSessionManager(ISessionKeySerializer serializer)
     {
         _serializer = serializer;
     }

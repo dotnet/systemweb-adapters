@@ -16,7 +16,9 @@ public static class SessionSerializerExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
-        builder.Services.AddSingleton<ISessionSerializer, JsonSessionSerializer>();
+        builder.Services.AddSingleton<ISessionSerializer, BinarySessionSerializer>();
+        builder.Services.AddSingleton<ISessionKeySerializer, JsonSessionKeySerializer>();
+
         var options = builder.Services.AddOptions<JsonSessionSerializerOptions>();
 
         if (configure is not null)

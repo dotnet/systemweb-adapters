@@ -32,8 +32,6 @@
     <Compile Include="@(FrameworkFiles)" />
     <Compile Include="**/*.Shared.cs" />
     <Compile Include="RemoteSession/RemoteAppSessionStateOptions.cs" />
-    <Compile Include="Serialization/SessionValues.cs" />
-    <Compile Include="Serialization/SerializedSessionState.cs" />
 
     <Reference Include="System.Web" />
 

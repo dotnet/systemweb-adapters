@@ -33,7 +33,8 @@ public static class RemoteAppSessionStateExtensions
         var serializerOptions = new JsonSessionSerializerOptions { ThrowOnUnknownSessionKey = false };
         configureSerializer(serializerOptions);
 
-        var serializer = new JsonSessionSerializer(serializerOptions);
+        var keySerializer = new JsonSessionKeySerializer(serializerOptions);
+        var serializer = new BinarySessionSerializer(keySerializer, serializerOptions);
 
         builder.Modules.Add(new RemoteSessionModule(options, new InMemoryLockedSessions(serializer), serializer));
 

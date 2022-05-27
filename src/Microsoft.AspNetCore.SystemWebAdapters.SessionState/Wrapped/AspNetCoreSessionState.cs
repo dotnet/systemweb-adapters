@@ -7,16 +7,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Wrapped;
 
-internal class AspNetCoreSessionState : ISessionState
+internal sealed class AspNetCoreSessionState : ISessionState
 {
     private readonly ISession _session;
-    private readonly ISessionSerializer _serializer;
+    private readonly ISessionKeySerializer _serializer;
 
-    public AspNetCoreSessionState(ISession session, ISessionSerializer serializer, bool isReadOnly)
+    public AspNetCoreSessionState(ISession session, ISessionKeySerializer serializer, bool isReadOnly)
     {
         _session = session;
         _serializer = serializer;
@@ -34,7 +33,10 @@ internal class AspNetCoreSessionState : ISessionState
 
     public object? this[string key]
     {
-        get => _serializer.Deserialize(key, _session.Get(key));
+        get
+        {
+            return _session.Get(key) is { } value && _serializer.TryDeserialize(key, value, out var result) ? result : null;
+        }
         set
         {
             CheckReadOnly();
@@ -45,7 +47,10 @@ internal class AspNetCoreSessionState : ISessionState
             }
             else
             {
-                _session.Set(key, _serializer.Serialize(key, value));
+                if (_serializer.TrySerialize(key, value, out var result))
+                {
+                    _session.Set(key, result);
+                }
             }
         }
     }
@@ -74,7 +79,7 @@ internal class AspNetCoreSessionState : ISessionState
         _session.Clear();
     }
 
-    public async ValueTask CommitAsync(CancellationToken token)
+    public Task CommitAsync(CancellationToken token)
     {
         CheckReadOnly();
 
@@ -83,10 +88,12 @@ internal class AspNetCoreSessionState : ISessionState
             _session.Clear();
         }
 
-        await _session.CommitAsync(token);
+        return _session.CommitAsync(token);
     }
 
-    public ValueTask DisposeAsync() => default;
+    public void Dispose()
+    {
+    }
 
     public void Remove(string key)
     {
