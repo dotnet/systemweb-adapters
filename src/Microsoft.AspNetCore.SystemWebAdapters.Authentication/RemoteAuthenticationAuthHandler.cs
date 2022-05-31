@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Encodings.Web;
@@ -37,11 +38,7 @@ internal class RemoteAuthenticationAuthHandler : AuthenticationHandler<RemoteApp
         _resultProcessors = resultProcessors;
     }
 
-    protected override Task InitializeHandlerAsync()
-    {
-        _authService.Initialize(Scheme);
-        return Task.CompletedTask;
-    }
+    protected override Task InitializeHandlerAsync() => _authService.InitializeAsync(Scheme);
 
     private async Task<RemoteAuthenticationResult> GetRemoteAuthenticationResultAsync()
     {
@@ -53,6 +50,12 @@ internal class RemoteAuthenticationAuthHandler : AuthenticationHandler<RemoteApp
             {
                 await processor.ProcessAsync(_remoteAuthenticationResult, Context);
             }
+
+            if (_remoteAuthenticationResult.StatusCode == 407)
+            {
+                _logger.LogError("Failed to authenticate using the remote app due to invalid or missing API key");
+                throw new InvalidOperationException("Failed to authenticate using the remote app due to invalid or missing API key");
+            }
         }
 
         return _remoteAuthenticationResult;
@@ -60,48 +63,33 @@ internal class RemoteAuthenticationAuthHandler : AuthenticationHandler<RemoteApp
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        // If remote authentication is enabled for the endpoint, retrieve the remote authentication results and return
-        // an appropriate AuthenticateResult value.
-        if (Context.GetEndpoint()?.Metadata.GetMetadata<IRemoteAuthenticationMetadata>() is IRemoteAuthenticationMetadata metadata && metadata.Enabled)
-        {
-            var authResult = await GetRemoteAuthenticationResultAsync();
+        var authResult = await GetRemoteAuthenticationResultAsync();
 
-            if (authResult.User is not null)
-            {
-                var ticket = new AuthenticationTicket(authResult.User, Scheme.Name);
-                _logger.LogDebug("Authenticated user {UserName} based on remote authentication service", authResult.User.Identity?.Name);
-                return AuthenticateResult.Success(ticket);
-            }
-            else
-            {
-                _logger.LogDebug("Remote service did not authenticate a user");
-            }
+        if (authResult.User is not null)
+        {
+            var ticket = new AuthenticationTicket(authResult.User, Scheme.Name);
+            _logger.LogDebug("Authenticated user based on remote authentication service");
+            return AuthenticateResult.Success(ticket);
         }
         else
         {
-            _logger.LogDebug("Not using remote authentication handler as endpoint metadata does not have remote authentication enabled");
+            _logger.LogDebug("Remote service did not authenticate a user");
+            return AuthenticateResult.NoResult();
         }
-
-        return AuthenticateResult.NoResult();
     }
 
     protected override async Task HandleChallengeAsync(AuthenticationProperties properties)
     {
-        // If remote authentication is enabled for the endpoint, attempt to apply challenge behaviors based on
-        // the remote authentication result received from the remote app.
-        if (Context.GetEndpoint()?.Metadata.GetMetadata<IRemoteAuthenticationMetadata>() is IRemoteAuthenticationMetadata metadata && metadata.Enabled)
-        {
-            var authResult = await GetRemoteAuthenticationResultAsync();
+        var authResult = await GetRemoteAuthenticationResultAsync();
 
-            // Propagate headers and status code back to the caller
-            // Different authentication schemes may challenge in different ways in the remote
-            // app, so make a best effort to forward the effects of these challenges by forwarding
-            // configured headers (like Location, perhaps) and status code (like 302 or 401, for example).
-            Context.Response.StatusCode = authResult.StatusCode;
-            foreach (var header in authResult.ResponseHeaders)
-            {
-                Context.Response.Headers.Add(header);
-            }
+        // Propagate headers and status code back to the caller
+        // Different authentication schemes may challenge in different ways in the remote
+        // app, so make a best effort to forward the effects of these challenges by forwarding
+        // configured headers (like Location, perhaps) and status code (like 302 or 401, for example).
+        Context.Response.StatusCode = authResult.StatusCode;
+        foreach (var header in authResult.ResponseHeaders)
+        {
+            Context.Response.Headers.Append(header.Key, header.Value);
         }
     }
 }

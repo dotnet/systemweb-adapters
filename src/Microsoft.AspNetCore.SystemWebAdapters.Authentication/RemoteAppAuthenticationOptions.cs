@@ -18,9 +18,10 @@ public class RemoteAppAuthenticationOptions
 #endif
 {
 #if NETCOREAPP3_1_OR_GREATER
-    public static readonly IEnumerable<string> DefaultHeadersToForward = ImmutableArray.CreateRange(new[]
+    public static readonly IEnumerable<string> DefaultRequestHeadersToForward = ImmutableArray.CreateRange(new[]
     {
-        "Authorization"
+        "Authorization",
+        "Cookie"
     });
 
     public static readonly IEnumerable<string> DefaultResponseHeadersToForward = ImmutableArray.CreateRange(new[]
@@ -41,13 +42,7 @@ public class RemoteAppAuthenticationOptions
     /// Gets or sets a list of request headers that should be forwarded to the remote app for authentication purposes. If no headers
     /// are specified, all headers will be forwarded.
     /// </summary>
-    public IList<string> HeadersToForward { get; set; } = new List<string>(DefaultHeadersToForward);
-
-    /// <summary>
-    /// Gets or sets a list of names of cookies that should be forwarded to the remote app for authentication purposes. If no cookies
-    /// are specified, all cookies will be forwarded.
-    /// </summary>
-    public IList<string> CookiesToForward { get; set; } = new List<string>();
+    public IList<string> RequestHeadersToForward { get; set; } = new List<string>(DefaultRequestHeadersToForward);
 
     /// <summary>
     /// Gets or sets a list of response headers that may need propagated back from authenticate responses. If no headers

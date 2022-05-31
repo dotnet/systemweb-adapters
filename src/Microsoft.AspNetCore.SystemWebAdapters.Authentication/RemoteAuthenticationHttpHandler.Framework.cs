@@ -34,11 +34,12 @@ internal sealed class RemoteAuthenticationHttpHandler : IHttpHandler
             return;
         }
 
-        // If a user is logged in (using ASP.NET's usual authenticaiton mechanisms), return that claims principal.
-        if (context.User is ClaimsPrincipal claimsPrincipal && context.User.Identity.IsAuthenticated)
+        // If a user is logged in (using ASP.NET's usual authentication mechanisms), return that claims principal.
+        if (context.User.Identity.IsAuthenticated)
         {
             context.Response.StatusCode = 200;
             context.Response.ContentType = "application/octet-stream";
+            var claimsPrincipal = context.User as ClaimsPrincipal ?? new ClaimsPrincipal(context.User.Identity);
             claimsPrincipal.WriteTo(new BinaryWriter(context.Response.OutputStream));
         }
         else

@@ -28,8 +28,6 @@ internal sealed class RemoteAuthenticationModule : IHttpModule
             if (string.Equals(context.Request.Path, _options.AuthenticationEndpointPath)
                 && context.Request.HttpMethod.Equals("GET", StringComparison.OrdinalIgnoreCase))
             {
-                // TODO : Do we need to even check the API key for this? The handler only returns information
-                //        about the currently authenticated user.
                 if (!string.Equals(_options.RemoteServiceOptions.ApiKey, context.Request.Headers.Get(_options.RemoteServiceOptions.ApiKeyHeader), StringComparison.Ordinal))
                 {
                     // Using 407 here (proxy authentication required) to differentiate from the scenario of

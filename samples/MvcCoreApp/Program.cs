@@ -9,7 +9,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSystemWebAdapters()
     .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options))
     .AddRemoteAppSession(ConfigureRemoteServiceOptions)
-    .AddRemoteAppAuthentication(o => ConfigureRemoteServiceOptions(o.RemoteServiceOptions));
+    .AddRemoteAppAuthentication(true, o => ConfigureRemoteServiceOptions(o.RemoteServiceOptions));
 
 void ConfigureRemoteServiceOptions(RemoteServiceOptions options)
 {
@@ -39,12 +39,7 @@ app.UseSystemWebAdapters();
 
 app.UseEndpoints(endpoints =>
 {
-    app.MapDefaultControllerRoute()
-       // This enables remote authentication for all endpoints.
-       // Use the [RemoteAuthentication] attribute on specific
-       // controllers or actions, instead, to only use remote
-       // authentication with a subset of endpoints.
-       .RequireRemoteAppAuthentication();
+    app.MapDefaultControllerRoute();
     // This method can be used to enable session (or read-only session) on all controllers
     //.RequireSystemWebAdapterSession();
 

@@ -8,7 +8,7 @@ builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSecti
 builder.Services.AddControllers();
 
 builder.Services.AddSystemWebAdapters()
-    .AddRemoteAppAuthentication(options =>
+    .AddRemoteAppAuthentication(true, options =>
     {
         options.RemoteServiceOptions.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
 
@@ -24,8 +24,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers()
-   .RequireRemoteAppAuthentication();
+app.MapControllers();
 
 app.MapReverseProxy();
 

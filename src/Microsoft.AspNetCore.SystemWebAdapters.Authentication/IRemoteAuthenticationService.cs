@@ -17,7 +17,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication
         /// Initializes the remote authentication service for the given scheme.
         /// </summary>
         /// <param name="scheme">The scheme whose configuration the remote authentication service should use for authenticating requests.</param>
-        void Initialize(AuthenticationScheme scheme);
+        Task InitializeAsync(AuthenticationScheme scheme);
 
         /// <summary>
         /// Attempts to authenticate a user who made a given HTTP request by forwarding portions of the request to a remote service.

@@ -1,4 +1,3 @@
-using System;
 using System.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Owin.Security.Jwt;
@@ -31,7 +30,7 @@ namespace RemoteOAuth
             app.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions
             {
                 // This SecurityTokenProvider fetches the Azure AD B2C metadata & signing keys from the OpenIDConnect metadata endpoint
-                AccessTokenFormat = new JwtFormat(tvps, new OpenIdConnectCachingSecurityTokenProvider(String.Format(AadInstance, Tenant, DefaultPolicy)))
+                AccessTokenFormat = new JwtFormat(tvps, new OpenIdConnectCachingSecurityTokenProvider(string.Format(AadInstance, Tenant, DefaultPolicy)))
             });
         }
     }

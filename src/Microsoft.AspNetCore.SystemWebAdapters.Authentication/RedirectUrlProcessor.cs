@@ -28,7 +28,6 @@ internal class RedirectUrlProcessor : IRemoteAuthenticationResultProcessor
     /// </summary>
     /// <param name="result"></param>
     /// <param name="context"></param>
-    /// <returns></returns>
     public Task ProcessAsync(RemoteAuthenticationResult result, HttpContext context)
     {
         if (result.ResponseHeaders.TryGetValue(LocationHeaderName, out var locationHeaders))

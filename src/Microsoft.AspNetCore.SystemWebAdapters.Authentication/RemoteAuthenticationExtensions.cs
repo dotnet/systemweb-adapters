@@ -65,18 +65,18 @@ public static class RemoteAuthenticationExtensions
     /// <summary>
     /// Adds remote authentication services to System.Web adapters builder.
     /// </summary>
-    public static ISystemWebAdapterBuilder AddRemoteAppAuthentication(this ISystemWebAdapterBuilder systemWebAdapterBuilder, Action<RemoteAppAuthenticationOptions> configureOptions)
+    /// <param name="isDefaultScheme">Specifies whether the remote authentication scheme should be the default authentication scheme. If false, remote authentication will only be used for endpoints specifically requiring the remote authentication scheme.</param>
+    /// <param name="configureOptions">Configuration options for the remote authentication handler.</param>
+    public static ISystemWebAdapterBuilder AddRemoteAppAuthentication(this ISystemWebAdapterBuilder systemWebAdapterBuilder, bool isDefaultScheme, Action<RemoteAppAuthenticationOptions>? configureOptions)
     {
-        systemWebAdapterBuilder.Services.AddAuthentication(RemoteAuthenticationDefaults.AuthenticationScheme)
-            .AddRemoteAppAuthentication(configureOptions);
+        systemWebAdapterBuilder.Services.AddAuthentication(options =>
+        {
+            if (isDefaultScheme)
+            {
+                options.DefaultScheme = RemoteAuthenticationDefaults.AuthenticationScheme;
+            }
+        }).AddRemoteAppAuthentication(configureOptions);
 
         return systemWebAdapterBuilder;
     }
-
-    /// <summary>
-    /// Adds remote authentication support for System.Web adapters for the endpoint(s)
-    /// </summary>
-    public static TBuilder RequireRemoteAppAuthentication<TBuilder>(this TBuilder builder, IRemoteAuthenticationMetadata? metadata = null)
-        where TBuilder : IEndpointConventionBuilder
-        => builder.WithMetadata(metadata ?? new RemoteAuthenticationAttribute());
 }

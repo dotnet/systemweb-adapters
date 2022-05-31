@@ -45,7 +45,7 @@ internal class RemoteAuthenticationService : IRemoteAuthenticationService
     /// Initialize the remote authentication service for a given authenticaiton scheme.
     /// </summary>
     /// <param name="scheme">The scheme whose configuration should be used to authenticate.</param>
-    public void Initialize(AuthenticationScheme scheme)
+    public Task InitializeAsync(AuthenticationScheme scheme)
     {
         // Finish initializing the http client here since the scheme won't be known
         // until the owning authentication handler is initialized.
@@ -53,6 +53,8 @@ internal class RemoteAuthenticationService : IRemoteAuthenticationService
         _client.BaseAddress = new Uri(_options.RemoteServiceOptions.RemoteAppUrl, _options.AuthenticationEndpointPath);
         _client.DefaultRequestHeaders.Add(_options.RemoteServiceOptions.ApiKeyHeader, _options.RemoteServiceOptions.ApiKey);
         _initialized = true;
+
+        return Task.CompletedTask;
     }
 
     [MemberNotNullWhen(true, nameof(_options))]
@@ -83,8 +85,7 @@ internal class RemoteAuthenticationService : IRemoteAuthenticationService
         // Create a new HTTP request, but propagate along configured headers or cookies
         // that may matter for authentication
         using var authRequest = new HttpRequestMessage();
-        AddHeaders(_options.HeadersToForward, originalRequest, authRequest);
-        AddCookies(_options.CookiesToForward, originalRequest, authRequest);
+        AddHeaders(_options.RequestHeadersToForward, originalRequest, authRequest);
 
         // Get the response from the remote app and convert the response into a remote authentication result
         using var response = await _client.SendAsync(authRequest, cancellationToken);
@@ -105,27 +106,6 @@ internal class RemoteAuthenticationService : IRemoteAuthenticationService
         foreach (var headerName in headerNames)
         {
             authRequest.Headers.Add(headerName, originalRequest.Headers[headerName].ToArray());
-        }
-    }
-
-    // Add configured cookies to the request, or all cookies if none in particualr are specified
-    private static void AddCookies(IEnumerable<string> cookiesToForward, HttpRequest originalRequest, HttpRequestMessage authRequest)
-    {
-        IEnumerable<string> cookieNames = originalRequest.Cookies.Keys;
-        if (cookiesToForward.Any())
-        {
-            cookieNames = cookieNames.Where(cookiesToForward.Contains);
-        }
-
-        var cookies = new List<string>();
-        foreach (var cookieName in cookieNames)
-        {
-            cookies.Add($"{cookieName}={originalRequest.Cookies[cookieName]}");
-        }
-
-        if (cookies.Any())
-        {
-            authRequest.Headers.Add(CookieHeaderName, string.Join("; ", cookies));
         }
     }
 }
