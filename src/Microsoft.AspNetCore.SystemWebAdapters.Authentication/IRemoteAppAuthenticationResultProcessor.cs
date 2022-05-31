@@ -12,12 +12,12 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// to specify heuristics to apply to remote authentication results to clean them up
 /// or modify their properties in an extensible way.
 /// </summary>
-public interface IRemoteAuthenticationResultProcessor
+public interface IRemoteAppAuthenticationResultProcessor
 {
     /// <summary>
     /// Takes some action on the given remote authentication result, to clean it up for example.
     /// </summary>
     /// <param name="result">The remote authentication result to be processed.</param>
     /// <param name="context">The HTTP context including the HTTP request that prompted the authentication request.</param>
-    Task ProcessAsync(RemoteAuthenticationResult result, HttpContext context);
+    Task ProcessAsync(RemoteAppAuthenticationResult result, HttpContext context);
 }

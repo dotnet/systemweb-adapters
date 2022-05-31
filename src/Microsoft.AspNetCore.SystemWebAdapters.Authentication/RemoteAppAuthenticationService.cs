@@ -18,22 +18,22 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// <summary>
 /// Service for authenticating a user by making an HTTP request on their behalf to a remote app.
 /// </summary>
-internal class RemoteAuthenticationService : IRemoteAuthenticationService
+internal class RemoteAppAuthenticationService : IRemoteAppAuthenticationService
 {
     private const string CookieHeaderName = "Cookie";
 
     private bool _initialized;
     private readonly HttpClient _client;
     private readonly IAuthenticationResultFactory _resultFactory;
-    private readonly ILogger<RemoteAuthenticationService> _logger;
+    private readonly ILogger<RemoteAppAuthenticationService> _logger;
     private readonly IOptionsMonitor<RemoteAppAuthenticationOptions> _optionsMonitor;
     private RemoteAppAuthenticationOptions? _options;
 
-    public RemoteAuthenticationService(
+    public RemoteAppAuthenticationService(
         HttpClient client,
         IAuthenticationResultFactory resultFactory,
         IOptionsMonitor<RemoteAppAuthenticationOptions> options,
-        ILogger<RemoteAuthenticationService> logger)
+        ILogger<RemoteAppAuthenticationService> logger)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
         _resultFactory = resultFactory ?? throw new ArgumentNullException(nameof(resultFactory));
@@ -42,7 +42,7 @@ internal class RemoteAuthenticationService : IRemoteAuthenticationService
     }
 
     /// <summary>
-    /// Initialize the remote authentication service for a given authenticaiton scheme.
+    /// Initialize the remote authentication service for a given authentication scheme.
     /// </summary>
     /// <param name="scheme">The scheme whose configuration should be used to authenticate.</param>
     public Task InitializeAsync(AuthenticationScheme scheme)
@@ -74,7 +74,7 @@ internal class RemoteAuthenticationService : IRemoteAuthenticationService
     /// An invalid operation exception is thrown if
     /// AuthenticateAsync is called without calling Initialize.
     /// </exception>
-    public async Task<RemoteAuthenticationResult> AuthenticateAsync(HttpRequest originalRequest, CancellationToken cancellationToken)
+    public async Task<RemoteAppAuthenticationResult> AuthenticateAsync(HttpRequest originalRequest, CancellationToken cancellationToken)
     {
         if (!Initialized)
         {
@@ -91,10 +91,10 @@ internal class RemoteAuthenticationService : IRemoteAuthenticationService
         using var response = await _client.SendAsync(authRequest, cancellationToken);
         _logger.LogDebug("Received remote authentication response with status code {StatusCode}", response.StatusCode);
 
-        return await _resultFactory.CreateRemoteAuthenticationResultAsync(response, _options);
+        return await _resultFactory.CreateRemoteAppAuthenticationResultAsync(response, _options);
     }
 
-    // Add configured headers to the request, or all headers if none in particualr are specified
+    // Add configured headers to the request, or all headers if none in particular are specified
     private static void AddHeaders(IEnumerable<string> headersToForward, HttpRequest originalRequest, HttpRequestMessage authRequest)
     {
         IEnumerable<string> headerNames = originalRequest.Headers.Keys;

@@ -11,13 +11,13 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// <summary>
 /// HTTP handler for serving requests to remote authenticaiton endpoint.
 /// </summary>
-internal sealed class RemoteAuthenticationHttpHandler : IHttpHandler
+internal sealed class RemoteAppAuthenticationHttpHandler : IHttpHandler
 {
     private readonly RemoteAppAuthenticationOptions _options;
 
     public bool IsReusable => true;
 
-    public RemoteAuthenticationHttpHandler(RemoteAppAuthenticationOptions options)
+    public RemoteAppAuthenticationHttpHandler(RemoteAppAuthenticationOptions options)
     {
         if (string.IsNullOrEmpty(options.RemoteServiceOptions.ApiKey))
         {

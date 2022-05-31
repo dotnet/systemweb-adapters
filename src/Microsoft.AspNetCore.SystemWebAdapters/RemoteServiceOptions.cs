@@ -13,7 +13,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 /// </summary>
 public class RemoteServiceOptions
 {
-    internal const string ApiKeyHeaderName = "X-SystemWebAdapter-RemoteAuthentication-Key";
+    internal const string ApiKeyHeaderName = "X-SystemWebAdapter-RemoteAppAuthentication-Key";
 
     /// <summary>
     /// Gets or sets the header used to store the API key

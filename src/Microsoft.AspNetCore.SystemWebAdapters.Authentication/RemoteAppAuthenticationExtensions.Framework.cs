@@ -9,7 +9,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 /// <summary>
 /// Helper methods for registering remote authentication endpoints.
 /// </summary>
-public static class RemoteAuthenticationExtensions
+public static class RemoteAppAuthenticationExtensions
 {
     /// <summary>
     /// Adds the remote authentication module to System.Web adapter configuration.
@@ -17,12 +17,12 @@ public static class RemoteAuthenticationExtensions
     /// <param name="builder">The System.Web adapter builder to modify.</param>
     /// <param name="configureRemoteAuthentication">Configuration to use when registering the remote authentication module.</param>
     /// <returns>The System.Web adapter builder updated to include the remote authentication module.</returns>
-    public static ISystemWebAdapterBuilder AddRemoteAuthentication(this ISystemWebAdapterBuilder builder, Action<RemoteAppAuthenticationOptions> configureRemoteAuthentication)
+    public static ISystemWebAdapterBuilder AddRemoteAppAuthentication(this ISystemWebAdapterBuilder builder, Action<RemoteAppAuthenticationOptions> configureRemoteAuthentication)
     {
         var options = new RemoteAppAuthenticationOptions();
         configureRemoteAuthentication(options);
 
-        builder.Modules.Add(new RemoteAuthenticationModule(options));
+        builder.Modules.Add(new RemoteAppAuthenticationModule(options));
         return builder;
     }
 }

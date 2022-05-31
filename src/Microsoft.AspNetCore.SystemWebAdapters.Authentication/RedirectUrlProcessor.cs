@@ -16,7 +16,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// given in redirect responses so that they will return the user to the correct
 /// original URL instead of to the remote authentication endpoint.
 /// </summary>
-internal class RedirectUrlProcessor : IRemoteAuthenticationResultProcessor
+internal class RedirectUrlProcessor : IRemoteAppAuthenticationResultProcessor
 {
     private const string LocationHeaderName = "Location";
     private const string ReturnUrlQueryStringName = "ReturnUrl";
@@ -28,7 +28,7 @@ internal class RedirectUrlProcessor : IRemoteAuthenticationResultProcessor
     /// </summary>
     /// <param name="result"></param>
     /// <param name="context"></param>
-    public Task ProcessAsync(RemoteAuthenticationResult result, HttpContext context)
+    public Task ProcessAsync(RemoteAppAuthenticationResult result, HttpContext context)
     {
         if (result.ResponseHeaders.TryGetValue(LocationHeaderName, out var locationHeaders))
         {

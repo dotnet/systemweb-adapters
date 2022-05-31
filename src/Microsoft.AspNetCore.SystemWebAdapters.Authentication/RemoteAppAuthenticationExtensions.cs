@@ -13,7 +13,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 /// <summary>
 /// Helper methods for registering remote authentication services
 /// </summary>
-public static class RemoteAuthenticationExtensions
+public static class RemoteAppAuthenticationExtensions
 {
     /// <summary>
     /// Registers remote authentication auth handler with an authentication builder using a default scheme name.
@@ -21,7 +21,7 @@ public static class RemoteAuthenticationExtensions
     /// <param name="authenticationBuilder">The authentication builder to register the remote authentication handler with.</param>
     /// <returns>The authentication builder updated with the remote authentication handler added.</returns>
     public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder)
-        => AddRemoteAppAuthentication(authenticationBuilder, RemoteAuthenticationDefaults.AuthenticationScheme, null);
+        => AddRemoteAppAuthentication(authenticationBuilder, RemoteAppAuthenticationDefaults.AuthenticationScheme, null);
 
     /// <summary>
     /// Registers remote authentication auth handler with an authentication builder.
@@ -39,7 +39,7 @@ public static class RemoteAuthenticationExtensions
     /// <param name="configureOptions">Configuration options for the remote authentication handler.</param>
     /// <returns>The authentication builder updated with the remote authentication handler added using the given configuration.</returns>
     public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder, Action<RemoteAppAuthenticationOptions>? configureOptions)
-        => AddRemoteAppAuthentication(authenticationBuilder, RemoteAuthenticationDefaults.AuthenticationScheme, configureOptions);
+        => AddRemoteAppAuthentication(authenticationBuilder, RemoteAppAuthenticationDefaults.AuthenticationScheme, configureOptions);
 
     /// <summary>
     /// Registers remote authentication auth handler with an authentication builder.
@@ -50,16 +50,16 @@ public static class RemoteAuthenticationExtensions
     /// <returns>The authentication builder updated with the remote authentication handler added using the given scheme and configuration.</returns>
     public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder, string scheme, Action<RemoteAppAuthenticationOptions>? configureOptions)
     {
-        authenticationBuilder.Services.AddScoped<IRemoteAuthenticationResultProcessor, RedirectUrlProcessor>();
-        authenticationBuilder.Services.AddSingleton<IAuthenticationResultFactory, RemoteAuthenticationResultFactory>();
-        authenticationBuilder.Services.AddHttpClient<IRemoteAuthenticationService, RemoteAuthenticationService>()
+        authenticationBuilder.Services.AddScoped<IRemoteAppAuthenticationResultProcessor, RedirectUrlProcessor>();
+        authenticationBuilder.Services.AddSingleton<IAuthenticationResultFactory, RemoteAppAuthenticationResultFactory>();
+        authenticationBuilder.Services.AddHttpClient<IRemoteAppAuthenticationService, RemoteAppAuthenticationService>()
             // Disable cookies in the HTTP client because the service will manage the cookie header directly
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { UseCookies = false, AllowAutoRedirect = false });
 
         authenticationBuilder.Services.AddOptions<RemoteAppAuthenticationOptions>(scheme)
             .Configure(configureOptions)
             .ValidateDataAnnotations();
-        return authenticationBuilder.AddScheme<RemoteAppAuthenticationOptions, RemoteAuthenticationAuthHandler>(scheme, configureOptions);
+        return authenticationBuilder.AddScheme<RemoteAppAuthenticationOptions, RemoteAppAuthenticationAuthHandler>(scheme, configureOptions);
     }
 
     /// <summary>
@@ -73,7 +73,7 @@ public static class RemoteAuthenticationExtensions
         {
             if (isDefaultScheme)
             {
-                options.DefaultScheme = RemoteAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultScheme = RemoteAppAuthenticationDefaults.AuthenticationScheme;
             }
         }).AddRemoteAppAuthentication(configureOptions);
 

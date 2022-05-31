@@ -21,7 +21,7 @@ namespace MvcApp
                 .AddRemoteAppSession(
                     ConfigureRemoteServiceOptions,
                     options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options))
-                .AddRemoteAuthentication(o => ConfigureRemoteServiceOptions(o.RemoteServiceOptions));
+                .AddRemoteAppAuthentication(o => ConfigureRemoteServiceOptions(o.RemoteServiceOptions));
         }
 
         private void ConfigureRemoteServiceOptions(RemoteServiceOptions options)

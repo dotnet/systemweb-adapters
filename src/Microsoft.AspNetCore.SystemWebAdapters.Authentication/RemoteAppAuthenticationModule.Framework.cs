@@ -6,18 +6,18 @@ using System.Web;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
-internal sealed class RemoteAuthenticationModule : IHttpModule
+internal sealed class RemoteAppAuthenticationModule : IHttpModule
 {
     private readonly RemoteAppAuthenticationOptions _options;
 
-    public RemoteAuthenticationModule(RemoteAppAuthenticationOptions options)
+    public RemoteAppAuthenticationModule(RemoteAppAuthenticationOptions options)
     {
         _options = options;
     }
 
     public void Init(HttpApplication context)
     {
-        var handler = new RemoteAuthenticationHttpHandler(_options);
+        var handler = new RemoteAppAuthenticationHttpHandler(_options);
 
         context.PostMapRequestHandler += MapRemoteAuthenticationHandler;
 

@@ -11,14 +11,14 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// The result of a remote authentication action, potentially including the claims principal
 /// of the authenticated user, an HTTP status code or HTTP response headers to return to the caller.
 /// </summary>
-public class RemoteAuthenticationResult
+public class RemoteAppAuthenticationResult
 {
     /// <summary>
-    /// Create an instance of RemoteAuthenticationResult
+    /// Create an instance of RemoteAppAuthenticationResult
     /// </summary>
     /// <param name="user">The user returned by the remote authenticate call.</param>
     /// <param name="statusCode">The status code returned from the remote authenticate call.</param>
-    public RemoteAuthenticationResult(ClaimsPrincipal? user, int statusCode)
+    public RemoteAppAuthenticationResult(ClaimsPrincipal? user, int statusCode)
     {
         User = user;
         StatusCode = statusCode;

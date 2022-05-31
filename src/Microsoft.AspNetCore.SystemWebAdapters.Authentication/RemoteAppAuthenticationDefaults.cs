@@ -3,7 +3,7 @@
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
-public static class RemoteAuthenticationDefaults
+public static class RemoteAppAuthenticationDefaults
 {
     public const string AuthenticationScheme = "Remote";
 }

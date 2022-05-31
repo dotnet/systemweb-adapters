@@ -16,18 +16,18 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// Factory type for generating remote authentication results from HTTP responses
 /// from a remote app.
 /// </summary>
-public class RemoteAuthenticationResultFactory : IAuthenticationResultFactory
+public class RemoteAppAuthenticationResultFactory : IAuthenticationResultFactory
 {
-    private readonly ILogger<RemoteAuthenticationResultFactory> _logger;
+    private readonly ILogger<RemoteAppAuthenticationResultFactory> _logger;
 
-    public RemoteAuthenticationResultFactory(ILogger<RemoteAuthenticationResultFactory> logger)
+    public RemoteAppAuthenticationResultFactory(ILogger<RemoteAppAuthenticationResultFactory> logger)
     {
         _logger = logger;
     }
 
-    public async Task<RemoteAuthenticationResult> CreateRemoteAuthenticationResultAsync(HttpResponseMessage response, RemoteAppAuthenticationOptions options)
+    public async Task<RemoteAppAuthenticationResult> CreateRemoteAppAuthenticationResultAsync(HttpResponseMessage response, RemoteAppAuthenticationOptions options)
     {
-        RemoteAuthenticationResult? ret = null;
+        RemoteAppAuthenticationResult? ret = null;
 
         // If the result has a 200 status code, attempt to deserialize the ClaimsPrincipal
         if (response.StatusCode == HttpStatusCode.OK)
@@ -36,7 +36,7 @@ public class RemoteAuthenticationResultFactory : IAuthenticationResultFactory
             {
                 using var responseContent = await response.Content.ReadAsStreamAsync();
                 using var reader = new BinaryReader(responseContent);
-                ret = new RemoteAuthenticationResult(new ClaimsPrincipal(reader), (int)response.StatusCode);
+                ret = new RemoteAppAuthenticationResult(new ClaimsPrincipal(reader), (int)response.StatusCode);
             }
             catch (Exception exc)
             {
@@ -47,7 +47,7 @@ public class RemoteAuthenticationResultFactory : IAuthenticationResultFactory
         // If the remote authentication result hasn't yet been created, create it without a claims principal
         if (ret is null)
         {
-            ret = new RemoteAuthenticationResult(null, (int)response.StatusCode);
+            ret = new RemoteAppAuthenticationResult(null, (int)response.StatusCode);
         }
 
         // Copy expected response headers
