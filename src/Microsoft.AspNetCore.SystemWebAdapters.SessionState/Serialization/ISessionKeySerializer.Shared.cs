@@ -23,5 +23,5 @@ public interface ISessionKeySerializer
     /// <param name="bytes">Data to deserialize.</param>
     /// <param name="obj">Deserialized object if successful.</param>
     /// <returns>True if successful. If key is unknown, <c>false</c> will be returned.</returns>
-    bool TryDeserialize(string key, ReadOnlyMemory<byte> bytes, out object? obj);
+    bool TryDeserialize(string key, byte[] bytes, out object? obj);
 }

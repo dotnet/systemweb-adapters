@@ -27,11 +27,11 @@ internal class JsonSessionKeySerializer : ISessionKeySerializer
     }
 #endif
 
-    public bool TryDeserialize(string key, ReadOnlyMemory<byte> bytes, out object? obj)
+    public bool TryDeserialize(string key, byte[] bytes, out object? obj)
     {
         if (_options.KnownKeys.TryGetValue(key, out var type))
         {
-            obj = JsonSerializer.Deserialize(bytes.Span, type);
+            obj = JsonSerializer.Deserialize(bytes, type);
             return true;
         }
 

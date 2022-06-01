@@ -244,9 +244,9 @@ public class BinarySessionSerializerTests
     {
         // Arrange
         var obj = new object();
-        var memory = new byte[] { 42 };
+        var bytes = new byte[] { 42 };
         var keySerializer = new Mock<ISessionKeySerializer>();
-        keySerializer.Setup(k => k.TryDeserialize("key1", It.Is(memory, MemoryComparer.Instance), out obj)).Returns(true);
+        keySerializer.Setup(k => k.TryDeserialize("key1", bytes, out obj)).Returns(true);
 
         var data = new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 42, 0 };
         using var ms = new MemoryStream(data);
@@ -277,16 +277,5 @@ public class BinarySessionSerializerTests
         optionContainer.Setup(o => o.Value).Returns(new JsonSessionSerializerOptions());
 
         return new BinarySessionSerializer(keySerializer, optionContainer.Object, logger.Object);
-    }
-
-    private class MemoryComparer : IEqualityComparer<ReadOnlyMemory<byte>>
-    {
-        public static MemoryComparer Instance { get; } = new();
-
-        public bool Equals(ReadOnlyMemory<byte> x, ReadOnlyMemory<byte> y)
-            => x.Span.SequenceEqual(y.Span);
-
-        public int GetHashCode([DisallowNull] ReadOnlyMemory<byte> obj)
-            => obj.Span[0];
     }
 }
