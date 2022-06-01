@@ -36,7 +36,6 @@ builder.Services.AddSystemWebAdapters()
 In addition to configuring the remote app's URL and the shared secret ApiKey, the callback passed to `AddRemoteAppAuthentication` can also optionally specify some aspects of the remote authentication process's behavior:
 
 * `RequestHeadersToForward`: This property contains headers that should be forwarded from a request when calling the authenticate API. By default, the only header forwarded is `Authorization`. If no headers are specified (including removing the default one), then all headers will be forwarded.
-* `CookiesToForward`: This property contains cookies that should be forwarded from a request when calling the authenticate API. By default, all cookies are forwarded, but adding cookie names to this list will cause only those cookies to be used.
 * `ResponseHeadersToForward`: This property lists response headers that should be propagated back from the Authenticate request to the original call that prompted authentication in scenarios where identity is challenged. By default, this includes `Location`, `Set-Cookie`, and `WWW-Authenticate` headers.
 * `AuthenticationEndpointPath`: The endpoint on the ASP.NET app where authenticate requests should be made. This defaults to `/systemweb-adapters/authenticate` and must match the endpoint specified in ASP.NET authentication endpoint configuration.
 
