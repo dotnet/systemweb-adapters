@@ -5,6 +5,7 @@ using System;
 using System.Net.Http;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
+using Microsoft.AspNetCore.SystemWebAdapters.Authentication.ResultProcessors;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;

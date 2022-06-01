@@ -50,11 +50,6 @@
     <Reference Include="System.Web" />
   </ItemGroup>
 
-  <ItemGroup>
-    <SharedFiles Remove="Authentication\RemoteAppAuthenticationOptions.Shared.cs" />
-    <SharedFiles Remove="RemoteServiceOptions.Shared.cs" />
-  </ItemGroup>
-
   <Import Condition=" '$(TargetFramework)' == 'net6.0' " Project="GenerateApis.targets" />
 
 </Project>

@@ -36,13 +36,13 @@ public class RemoteAppAuthenticationResultFactory : IAuthenticationResultFactory
         {
             using var responseContent = await response.Content.ReadAsStreamAsync();
             using var reader = new BinaryReader(responseContent);
-            ret = new RemoteAppAuthenticationResult(new ClaimsPrincipal(reader), (int)response.StatusCode);
+            ret = new RemoteAppAuthenticationResult(new ClaimsPrincipal(reader), (int)response.StatusCode, response.RequestMessage);
         }
 
         // If the remote authentication result hasn't yet been created, create it without a claims principal
         if (ret is null)
         {
-            ret = new RemoteAppAuthenticationResult(null, (int)response.StatusCode);
+            ret = new RemoteAppAuthenticationResult(null, (int)response.StatusCode, response.RequestMessage);
         }
 
         // Copy expected response headers

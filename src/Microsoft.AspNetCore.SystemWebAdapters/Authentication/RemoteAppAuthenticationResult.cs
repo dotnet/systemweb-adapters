@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Net.Http;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
@@ -17,10 +18,11 @@ public class RemoteAppAuthenticationResult
     /// </summary>
     /// <param name="user">The user returned by the remote authenticate call.</param>
     /// <param name="statusCode">The status code returned from the remote authenticate call.</param>
-    public RemoteAppAuthenticationResult(ClaimsPrincipal? user, int statusCode)
+    public RemoteAppAuthenticationResult(ClaimsPrincipal? user, int statusCode, HttpRequestMessage? authRequest)
     {
         User = user;
         StatusCode = statusCode;
+        AuthenticationRequest = authRequest;
     }
 
     /// <summary>
@@ -34,6 +36,11 @@ public class RemoteAppAuthenticationResult
     /// If a user was successfully retrieved, this status code will be 200.
     /// </summary>
     public int StatusCode { get; }
+
+    /// <summary>
+    /// Gets the HTTP request used to request authentication.
+    /// </summary>
+    public HttpRequestMessage? AuthenticationRequest { get; }
 
     /// <summary>
     /// Gets a dictionary of auth-related headers that may need propagated back

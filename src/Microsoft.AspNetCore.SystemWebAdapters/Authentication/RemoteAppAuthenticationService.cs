@@ -96,6 +96,10 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
     // Add configured headers to the request, or all headers if none in particular are specified
     private static void AddHeaders(IEnumerable<string> headersToForward, HttpRequest originalRequest, HttpRequestMessage authRequest)
     {
+        // Add x-forwarded headers so that the authenticate API will
+        authRequest.Headers.Add("x-forwarded-host", originalRequest.Host.Value);
+        authRequest.Headers.Add("x-forwarded-proto", originalRequest.Scheme);
+
         IEnumerable<string> headerNames = originalRequest.Headers.Keys;
         if (headersToForward.Any())
         {

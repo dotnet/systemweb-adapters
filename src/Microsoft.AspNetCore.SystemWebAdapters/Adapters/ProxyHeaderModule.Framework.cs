@@ -75,27 +75,4 @@ internal class ProxyHeaderModule : IHttpModule
             request.ServerVariables.Set("REMOTE_HOST", remote);
         }
     }
-
-    private struct ForwardedHost
-    {
-        public ForwardedHost(string host)
-        {
-            var idx = host.IndexOf(':');
-
-            if (idx < 0)
-            {
-                ServerName = host;
-                Port = null;
-            }
-            else
-            {
-                ServerName = host.Substring(0, idx);
-                Port = host.Substring(idx + 1);
-            }
-        }
-
-        public string ServerName { get; }
-
-        public string? Port { get; }
-    }
 }
