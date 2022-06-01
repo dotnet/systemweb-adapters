@@ -25,7 +25,7 @@ internal sealed class RemoteAppAuthenticationModule : IHttpModule
         {
             var context = ((HttpApplication)sender).Context;
 
-            if (string.Equals(context.Request.Path, _options.AuthenticationEndpointPath)
+            if (string.Equals(context.Request.Path, _options.AuthenticationEndpointPath, StringComparison.OrdinalIgnoreCase)
                 && context.Request.HttpMethod.Equals("GET", StringComparison.OrdinalIgnoreCase))
             {
                 if (!string.Equals(_options.RemoteServiceOptions.ApiKey, context.Request.Headers.Get(_options.RemoteServiceOptions.ApiKeyHeader), StringComparison.Ordinal))

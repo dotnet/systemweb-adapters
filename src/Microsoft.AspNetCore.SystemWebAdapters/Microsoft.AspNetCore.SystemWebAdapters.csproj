@@ -1,12 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;netcoreapp3.1;netstandard2.0;net472</TargetFrameworks>
-    <HasImplementation>false</HasImplementation>
-    <HasImplementation Condition=" '$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'netcoreapp3.1' ">true</HasImplementation>
-    <LangVersion>10</LangVersion>
+    <TargetFrameworks>net6.0;netstandard2.0;net472</TargetFrameworks>
     <IsPackable>true</IsPackable>
-    <Nullable>enable</Nullable>
 
     <!-- This will validate that the package will unify correctly with System.Web.dll -->
     <EnablePackageValidation>true</EnablePackageValidation>
@@ -24,11 +20,7 @@
   <ItemGroup>
     <FrameworkFiles Include="**/*.Framework.cs" />
     <StandardFiles Include="**/*.Standard.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <SharedFiles Include="RemoteServiceOptions.cs" />
-    <SharedFiles Include="Adapters/SessionState/Serialization/SessionSerializerOptions.cs" />
+    <SharedFiles Include="**/*.Shared.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
@@ -37,7 +29,7 @@
     <Compile Include="@(SharedFiles)" />
   </ItemGroup>
 
-  <ItemGroup Condition="$(HasImplementation)">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <Compile Remove="@(FrameworkFiles)" />
     <Compile Remove="@(StandardFiles)" />
 
@@ -58,6 +50,10 @@
     <Reference Include="System.Web" />
   </ItemGroup>
 
-  <Import Condition="$(HasImplementation)" Project="GenerateApis.targets" />
+  <ItemGroup>
+    <SharedFiles Remove="RemoteServiceOptions.Shared.cs" />
+  </ItemGroup>
+
+  <Import Condition=" '$(TargetFramework)' == 'net6.0' " Project="GenerateApis.targets" />
 
 </Project>

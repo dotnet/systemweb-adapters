@@ -1,27 +1,32 @@
-# System.Web Adapters
+# System.Web adapters for ASP.NET Core
 
-This project provides a collection of adapters that help migrating from `System.Web.dll` based ASP.NET projects to ASP.NET Core projects. Adapters currently include:
+This project provides a collection of adapters that help migrating from `System.Web.dll` based ASP.NET projects to ASP.NET Core projects. The adapters currently include:
 
 - `Microsoft.AspNetCore.SystemWebAdapters`: Subset of the APIs from `System.Web.dll` backed by `Microsoft.AspNetCore.Http` types
 - `Microsoft.AspNetCore.SystemWebAdapters.SessionState`: Support for `System.Web.HttpContext.Session` usage
 
-To understand how these adapters can be used within the context of a large scale, incremental, migration from ASP.NET to ASP.NET Core, please see the [documentation](docs/README.md).
+These adapters help enable large scale, incremental migration from ASP.NET to ASP.NET Core. For more details on incremental migration from ASP.NET to ASP.NET Core, please see the [documentation](docs).
+
+## Get started
+
+Use the [Getting Started](docs/getting_started.md) guide in the docs to start using the System.Web adapters as part of an incremental migration from ASP.NET to ASP.NET Core.
 
 ## Set up
-Below are the steps needed to start using these adapters in your project:
+
+Below are the steps needed to start using the System.Web adapters with your ASP.NET project:
 
 1. *Optional for nightly adapter builds*: Set up `NuGet.config` to point to the CI feed:
-  ```xml
-  <?xml version="1.0" encoding="utf-8"?>
-  <configuration>
-    <packageSources>
-      <!--To inherit the global NuGet package sources remove the <clear/> line below -->
-      <clear />
-      <add key="nuget" value="https://api.nuget.org/v3/index.json" />
-      <add key=".NET Libraries Daily" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-libraries/nuget/v3/index.json" />
-    </packageSources>
-  </configuration>
-  ```
+   ```xml
+   <?xml version="1.0" encoding="utf-8"?>
+   <configuration>
+     <packageSources>
+       <!--To inherit the global NuGet package sources remove the <clear/> line below -->
+       <clear />
+       <add key="nuget" value="https://api.nuget.org/v3/index.json" />
+       <add key=".NET Libraries Daily" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-libraries/nuget/v3/index.json" />
+     </packageSources>
+   </configuration>
+   ```
 2. Install `Microsoft.AspNetCore.SystemWebAdapters`
 3. If you use `HttpContext.Session`, install `Microsoft.AspNetCore.SystemWebAdapters.SessionState`
 4. In your framework application:
@@ -32,17 +37,18 @@ Below are the steps needed to start using these adapters in your project:
    - There should be no manual changes to enable using supported surface area of the adapters. If a member is not found, it is not currently supported on ASP.NET Core
 6. For your ASP.NET Core application:
    - Register the adapter services:
-    ```cs
-    builder.Services.AddSystemWebAdapters();
-    ``` 
+     ```csharp
+     builder.Services.AddSystemWebAdapters();
+     ```
    - Add the middleware after routing but before endpoints (if present);
-   ```cs
-   app.UseSystemWebAdapters();
-   ```
+     ```csharp
+     app.UseSystemWebAdapters();
+     ```
    - For additional configuration, please see the [configuration](./docs/core.md) section
 
 ## Supported Targets
-- .NET Core App 3.1: This will implement the adapters against ASP.NET Core `HttpContext`. This will provide the following:
+
+- .NET 6.0: This will implement the adapters against ASP.NET Core `HttpContext`. This will provide the following:
   - Conversions between ASP.NET Core `HttpContext` and `System.Web` adapter `HttpContext` (with appropriate caching so it will not cause perf hits for GC allocations)
   - Default implementations against `Microsoft.AspNetCore.Http.HttpContext`
   - Services that can be implemented to override some functionality such as session/caching/etc that may need to be customized to match experience.

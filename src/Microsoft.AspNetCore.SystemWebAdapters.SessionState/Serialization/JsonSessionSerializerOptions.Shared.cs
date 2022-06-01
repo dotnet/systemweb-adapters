@@ -9,7 +9,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 /// <summary>
 /// An interface to register known keys for session objects.
 /// </summary>
-public class SessionSerializerOptions
+public class JsonSessionSerializerOptions
 {
     /// <summary>
     /// Gets the mapping of known session keys to types
@@ -22,4 +22,14 @@ public class SessionSerializerOptions
     /// <typeparam name="T"></typeparam>
     /// <param name="key"></param>
     public void RegisterKey<T>(string key) => KnownKeys.Add(key, typeof(T));
+
+    /// <summary>
+    /// Gets or sets whether an exception should be thrown if an unknown session key is encountered.
+    /// </summary>
+    public bool ThrowOnUnknownSessionKey { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether the serialized JSON should be indented.
+    /// </summary>
+    public bool Indented { get; set; }
 }

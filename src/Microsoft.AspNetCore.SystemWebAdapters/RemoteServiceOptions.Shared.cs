@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-#if NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
 using System.ComponentModel.DataAnnotations;
 #endif
 
@@ -23,12 +23,12 @@ public class RemoteServiceOptions
     /// <summary>
     /// Gets or sets an API key used to secure the endpoint
     /// </summary>
-#if NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
     [Required]
 #endif
     public string ApiKey { get; set; } = null!;
 
-#if NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
     /// <summary>
     /// Gets or sets the remote app url
     /// </summary>

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;netcoreapp3.1;net472</TargetFrameworks>
+    <TargetFrameworks>net6.0;net472</TargetFrameworks>
     <LangVersion>10</LangVersion>
     <IsPackable>true</IsPackable>
     <Nullable>enable</Nullable>
@@ -15,7 +15,7 @@
     <FrameworkFiles Include="**/*.Framework.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'netcoreapp3.1' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0'">
     <Compile Remove="@(FrameworkFiles)" />
   </ItemGroup>
 
@@ -25,10 +25,6 @@
     <Compile Include="@(SharedFiles)" />
 
     <Reference Include="System.Web" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="..\Microsoft.AspNetCore.SystemWebAdapters\NullableAttributes.cs" Link="NullableAttributes.cs" />
   </ItemGroup>
 
   <ItemGroup>

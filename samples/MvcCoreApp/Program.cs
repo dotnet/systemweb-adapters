@@ -7,7 +7,7 @@ builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSecti
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSystemWebAdapters()
-    .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options))
+    .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys))
     .AddRemoteAppSession(ConfigureRemoteServiceOptions)
     .AddRemoteAppAuthentication(true, o => ConfigureRemoteServiceOptions(o.RemoteServiceOptions));
 

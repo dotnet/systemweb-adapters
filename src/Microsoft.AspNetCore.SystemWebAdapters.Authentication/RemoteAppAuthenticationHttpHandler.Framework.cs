@@ -21,7 +21,7 @@ internal sealed class RemoteAppAuthenticationHttpHandler : IHttpHandler
     {
         if (string.IsNullOrEmpty(options.RemoteServiceOptions.ApiKey))
         {
-            throw new ArgumentOutOfRangeException("API key must not be empty.");
+            throw new ArgumentException("API key must not be empty.");
         }
 
         _options = options;

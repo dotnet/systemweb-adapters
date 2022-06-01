@@ -13,6 +13,11 @@ public static class SystemWebAdaptersExtensions
 
     public static ISystemWebAdapterBuilder AddSystemWebAdapters(this HttpApplicationState state)
     {
+        if (state is null)
+        {
+            throw new ArgumentNullException(nameof(state));
+        }
+
         if (state[Key] is not ISystemWebAdapterBuilder builder)
         {
             builder = new Builder();
@@ -23,7 +28,14 @@ public static class SystemWebAdaptersExtensions
     }
 
     public static ISystemWebAdapterBuilder AddProxySupport(this ISystemWebAdapterBuilder builder, Action<ProxyOptions> configure)
-        => builder.AddModule(configure, static options => new ProxyHeaderModule(options));
+    {
+        if (configure is null)
+        {
+            throw new ArgumentNullException(nameof(configure));
+        }
+
+        return builder.AddModule(configure, static options => new ProxyHeaderModule(options));
+    }
 
     internal static ISystemWebAdapterBuilder? GetSystemWebBuilder(this HttpApplicationState state)
         => state[Key] as ISystemWebAdapterBuilder;

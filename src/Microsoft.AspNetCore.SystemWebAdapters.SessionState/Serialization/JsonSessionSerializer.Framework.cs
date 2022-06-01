@@ -12,6 +12,12 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
 internal partial class JsonSessionSerializer
 {
+    public JsonSessionSerializer(JsonSessionSerializerOptions options)
+    {
+        _options = options;
+        _jsonOptions = BuildJsonOptions(options);
+    }
+
     public Task SerializeAsync(HttpSessionStateBase state, Stream stream, CancellationToken token)
     {
         if (state is null)
@@ -32,12 +38,12 @@ internal partial class JsonSessionSerializer
             session.Values.Add(key, state[key]);
         }
 
-        return JsonSerializer.SerializeAsync(stream, session, _options, token);
+        return JsonSerializer.SerializeAsync(stream, session, _jsonOptions, token);
     }
 
     public async Task DeserializeToAsync(Stream stream, HttpSessionStateBase state, CancellationToken token)
     {
-        var result = await JsonSerializer.DeserializeAsync<SerializedSessionState>(stream, _options, token);
+        var result = await JsonSerializer.DeserializeAsync<SerializedSessionState>(stream, _jsonOptions, token);
 
         if (result is null)
         {
@@ -63,4 +69,8 @@ internal partial class JsonSessionSerializer
             state[key] = result[key];
         }
     }
+
+    partial void LogSerialization(string key);
+
+    partial void LogDeserialization(string key);
 }

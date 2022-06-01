@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
 internal partial class SerializedSessionState
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
     : ISessionState
 #endif
 {
@@ -46,7 +46,14 @@ internal partial class SerializedSessionState
     [JsonIgnore]
     public int Count => RawValues?.Count ?? 0;
 
-#if NETCOREAPP3_1_OR_GREATER
+    [JsonPropertyName("u")]
+    public List<string>? UnknownKeys
+    {
+        get => RawValues?.UnknownKeys;
+        set => Values.UnknownKeys = value;
+    }
+
+#if !NETFRAMEWORK
     bool ISessionState.IsSynchronized => ((ICollection)Values).IsSynchronized;
 
     object ISessionState.SyncRoot => ((ICollection)Values).SyncRoot;

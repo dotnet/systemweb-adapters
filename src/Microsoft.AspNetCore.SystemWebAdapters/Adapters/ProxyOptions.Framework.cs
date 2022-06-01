@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Globalization;
+
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public class ProxyOptions
@@ -27,5 +29,5 @@ public class ProxyOptions
     /// </summary>
     public string Scheme { get; set; } = "https";
 
-    internal string ServerPortString => _port ??= ServerPort.ToString();
+    internal string ServerPortString => _port ??= ServerPort.ToString(CultureInfo.InvariantCulture);
 }

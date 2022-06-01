@@ -11,10 +11,16 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal class SessionMiddleware
+internal partial class SessionMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<SessionMiddleware> _logger;
+
+    [LoggerMessage(EventId = 0, Level = LogLevel.Trace, Message = "Initializing session state: {Behavior}")]
+    private partial void LogMessage(SessionBehavior behavior);
+
+    [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Creating session on demand by synchronously waiting on a potential asynchronous connection")]
+    private partial void LogOnDemand();
 
     public SessionMiddleware(RequestDelegate next, ILogger<SessionMiddleware> logger)
     {
@@ -29,18 +35,21 @@ internal class SessionMiddleware
 
     private async Task ManageStateAsync(HttpContextCore context, ISessionMetadata metadata)
     {
-        _logger.LogTrace("Initializing session state");
+        LogMessage(metadata.Behavior);
 
         var manager = context.RequestServices.GetRequiredService<ISessionManager>();
 
-#pragma warning disable CS0618 // Type or member is obsolete
         await using var state = metadata.Behavior switch
         {
+#pragma warning disable CA2000 // False positive for CA2000 here
+#pragma warning disable CS0618 // Type or member is obsolete
+            SessionBehavior.OnDemand => new LazySessionState(context, LogOnDemand, metadata, manager),
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CA2000 // Dispose objects before losing scope
+
             SessionBehavior.PreLoad => await manager.CreateAsync(context, metadata),
-            SessionBehavior.OnDemand => new LazySessionState(context, _logger, metadata, manager),
             var behavior => throw new InvalidOperationException($"Unknown session behavior {behavior}"),
         };
-#pragma warning restore CS0618 // Type or member is obsolete
 
         context.Features.Set(new HttpSessionState(state));
 
@@ -59,11 +68,11 @@ internal class SessionMiddleware
     {
         private readonly Lazy<ISessionState> _state;
 
-        public LazySessionState(HttpContextCore context, ILogger logger, ISessionMetadata metadata, ISessionManager manager)
+        public LazySessionState(HttpContextCore context, Action log, ISessionMetadata metadata, ISessionManager manager)
         {
             _state = new Lazy<ISessionState>(() =>
             {
-                logger.LogWarning("Creating session on demand by synchronously waiting on a potential asynchronous connection");
+                log();
                 return manager.CreateAsync(context, metadata).GetAwaiter().GetResult();
             });
         }

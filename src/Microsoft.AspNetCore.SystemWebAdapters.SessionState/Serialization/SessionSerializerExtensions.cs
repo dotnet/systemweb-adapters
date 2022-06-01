@@ -9,10 +9,15 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public static class SessionSerializerExtensions
 {
-    public static ISystemWebAdapterBuilder AddJsonSessionSerializer(this ISystemWebAdapterBuilder builder, Action<SessionSerializerOptions>? configure = null)
+    public static ISystemWebAdapterBuilder AddJsonSessionSerializer(this ISystemWebAdapterBuilder builder, Action<JsonSessionSerializerOptions>? configure = null)
     {
+        if (builder is null)
+        {
+            throw new ArgumentNullException(nameof(builder));
+        }
+
         builder.Services.AddSingleton<ISessionSerializer, JsonSessionSerializer>();
-        var options = builder.Services.AddOptions<SessionSerializerOptions>();
+        var options = builder.Services.AddOptions<JsonSessionSerializerOptions>();
 
         if (configure is not null)
         {

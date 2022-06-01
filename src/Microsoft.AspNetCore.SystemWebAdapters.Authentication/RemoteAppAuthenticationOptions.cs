@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
 using Microsoft.AspNetCore.Authentication;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Immutable;
@@ -13,11 +13,11 @@ using System.Collections.Generic;
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
 public class RemoteAppAuthenticationOptions
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
     : AuthenticationSchemeOptions
 #endif
 {
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
     public static readonly IEnumerable<string> DefaultRequestHeadersToForward = ImmutableArray.CreateRange(new[]
     {
         "Authorization",
@@ -37,18 +37,18 @@ public class RemoteAppAuthenticationOptions
     /// </summary>
     public RemoteServiceOptions RemoteServiceOptions { get; set; } = new RemoteServiceOptions();
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
     /// <summary>
     /// Gets or sets a list of request headers that should be forwarded to the remote app for authentication purposes. If no headers
     /// are specified, all headers will be forwarded.
     /// </summary>
-    public IList<string> RequestHeadersToForward { get; set; } = new List<string>(DefaultRequestHeadersToForward);
+    public IList<string> RequestHeadersToForward { get; } = new List<string>(DefaultRequestHeadersToForward);
 
     /// <summary>
     /// Gets or sets a list of response headers that may need propagated back from authenticate responses. If no headers
     /// are specified, all headers will be forwarded.
     /// </summary>
-    public IList<string> ResponseHeadersToForward { get; set; } = new List<string>(DefaultResponseHeadersToForward);
+    public IList<string> ResponseHeadersToForward { get; } = new List<string>(DefaultResponseHeadersToForward);
 
     /// <summary>
     /// Gets or sets the endpoint on the remote app that provides remote authentication
@@ -58,7 +58,7 @@ public class RemoteAppAuthenticationOptions
 #endif
     public string AuthenticationEndpointPath { get; set; } = "/systemweb-adapters/authenticate";
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
     /// <summary>
     /// The maximum time loading session state from the remote app
     /// or committing changes to it can take before timing out.
