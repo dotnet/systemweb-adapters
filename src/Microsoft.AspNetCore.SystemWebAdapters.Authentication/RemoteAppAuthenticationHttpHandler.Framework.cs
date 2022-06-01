@@ -40,7 +40,8 @@ internal sealed class RemoteAppAuthenticationHttpHandler : IHttpHandler
             context.Response.StatusCode = 200;
             context.Response.ContentType = "application/octet-stream";
             var claimsPrincipal = context.User as ClaimsPrincipal ?? new ClaimsPrincipal(context.User.Identity);
-            claimsPrincipal.WriteTo(new BinaryWriter(context.Response.OutputStream));
+            using var writer = new BinaryWriter(context.Response.OutputStream);
+            claimsPrincipal.WriteTo(writer);
         }
         else
         {

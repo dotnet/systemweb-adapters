@@ -8,7 +8,6 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
@@ -18,30 +17,26 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// </summary>
 public class RemoteAppAuthenticationResultFactory : IAuthenticationResultFactory
 {
-    private readonly ILogger<RemoteAppAuthenticationResultFactory> _logger;
-
-    public RemoteAppAuthenticationResultFactory(ILogger<RemoteAppAuthenticationResultFactory> logger)
-    {
-        _logger = logger;
-    }
-
     public async Task<RemoteAppAuthenticationResult> CreateRemoteAppAuthenticationResultAsync(HttpResponseMessage response, RemoteAppAuthenticationOptions options)
     {
+        if (response is null)
+        {
+            throw new ArgumentNullException(nameof(response));
+        }
+
+        if (options is null)
+        {
+            throw new ArgumentNullException(nameof(options));
+        }
+
         RemoteAppAuthenticationResult? ret = null;
 
         // If the result has a 200 status code, attempt to deserialize the ClaimsPrincipal
         if (response.StatusCode == HttpStatusCode.OK)
         {
-            try
-            {
-                using var responseContent = await response.Content.ReadAsStreamAsync();
-                using var reader = new BinaryReader(responseContent);
-                ret = new RemoteAppAuthenticationResult(new ClaimsPrincipal(reader), (int)response.StatusCode);
-            }
-            catch (Exception exc)
-            {
-                _logger.LogWarning(exc, "Failed to deserialize remote authentication response as a claims principal despite success status code");
-            }
+            using var responseContent = await response.Content.ReadAsStreamAsync();
+            using var reader = new BinaryReader(responseContent);
+            ret = new RemoteAppAuthenticationResult(new ClaimsPrincipal(reader), (int)response.StatusCode);
         }
 
         // If the remote authentication result hasn't yet been created, create it without a claims principal

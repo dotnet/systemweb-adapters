@@ -3,11 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
@@ -43,17 +41,12 @@ internal class RedirectUrlProcessor : IRemoteAppAuthenticationResultProcessor
                     if (queryStrings.ContainsKey(ReturnUrlQueryStringName))
                     {
                         // Get the plain redirect URL without the query string
-                        var redirectWithoutQuery = redirectLocation.ToString().Replace(redirectLocation.Query, string.Empty);
+                        var redirectWithoutQuery = redirectLocation.ToString().Replace(redirectLocation.Query, string.Empty, StringComparison.Ordinal);
 
                         // Update the query strings to use the original request path as the ReturnUrl query string
                         queryStrings[ReturnUrlQueryStringName] = context.Request.Path.Value;
 
-                        // .NET Core 3.1 doesn't have a QueryHelpers.AddQueryString that takes an argument of type Dictionary<string, StringValues>
-                        // so we have to convert the type.
-                        var queryStringDictionary = queryStrings.ToDictionary<KeyValuePair<string, StringValues>, string, string?>(kvp => kvp.Key, kvp => kvp.Value.ToString());
-
-                        var updatedRedirect = QueryHelpers.AddQueryString(redirectWithoutQuery, queryStringDictionary);
-                        headerValue = updatedRedirect.ToString();
+                        headerValue = QueryHelpers.AddQueryString(redirectWithoutQuery, queryStrings).ToString();
                     }
                 }
                 processedHeaderValues.Add(headerValue);

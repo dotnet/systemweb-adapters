@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,10 +19,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// <summary>
 /// Service for authenticating a user by making an HTTP request on their behalf to a remote app.
 /// </summary>
-internal class RemoteAppAuthenticationService : IRemoteAppAuthenticationService
+internal partial class RemoteAppAuthenticationService : IRemoteAppAuthenticationService
 {
-    private const string CookieHeaderName = "Cookie";
-
     private bool _initialized;
     private readonly HttpClient _client;
     private readonly IAuthenticationResultFactory _resultFactory;
@@ -78,7 +77,7 @@ internal class RemoteAppAuthenticationService : IRemoteAppAuthenticationService
     {
         if (!Initialized)
         {
-            _logger.LogError("Remote authentication handler must be initialized before authenticating");
+            LogHandlerNotInitialized();
             throw new InvalidOperationException("Remote authentication handler must be initialized before authenticating");
         }
 
@@ -89,7 +88,7 @@ internal class RemoteAppAuthenticationService : IRemoteAppAuthenticationService
 
         // Get the response from the remote app and convert the response into a remote authentication result
         using var response = await _client.SendAsync(authRequest, cancellationToken);
-        _logger.LogDebug("Received remote authentication response with status code {StatusCode}", response.StatusCode);
+        LogAuthenticationResponse(response.StatusCode);
 
         return await _resultFactory.CreateRemoteAppAuthenticationResultAsync(response, _options);
     }
@@ -108,4 +107,10 @@ internal class RemoteAppAuthenticationService : IRemoteAppAuthenticationService
             authRequest.Headers.Add(headerName, originalRequest.Headers[headerName].ToArray());
         }
     }
+
+    [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "Failed to authenticate using the remote app due to invalid or missing API key")]
+    private partial void LogHandlerNotInitialized();
+
+    [LoggerMessage(EventId = 1, Level = LogLevel.Debug, Message = "Received remote authentication response with status code {StatusCode}")]
+    private partial void LogAuthenticationResponse(HttpStatusCode statusCode);
 }

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.SystemWebAdapters;
-using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));

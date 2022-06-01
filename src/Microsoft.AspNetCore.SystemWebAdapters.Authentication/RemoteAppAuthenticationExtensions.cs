@@ -4,7 +4,6 @@
 using System;
 using System.Net.Http;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -50,6 +49,11 @@ public static class RemoteAppAuthenticationExtensions
     /// <returns>The authentication builder updated with the remote authentication handler added using the given scheme and configuration.</returns>
     public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder, string scheme, Action<RemoteAppAuthenticationOptions>? configureOptions)
     {
+        if (authenticationBuilder is null)
+        {
+            throw new ArgumentNullException(nameof(authenticationBuilder));
+        }
+
         authenticationBuilder.Services.AddScoped<IRemoteAppAuthenticationResultProcessor, RedirectUrlProcessor>();
         authenticationBuilder.Services.AddSingleton<IAuthenticationResultFactory, RemoteAppAuthenticationResultFactory>();
         authenticationBuilder.Services.AddHttpClient<IRemoteAppAuthenticationService, RemoteAppAuthenticationService>()
@@ -69,6 +73,11 @@ public static class RemoteAppAuthenticationExtensions
     /// <param name="configureOptions">Configuration options for the remote authentication handler.</param>
     public static ISystemWebAdapterBuilder AddRemoteAppAuthentication(this ISystemWebAdapterBuilder systemWebAdapterBuilder, bool isDefaultScheme, Action<RemoteAppAuthenticationOptions>? configureOptions)
     {
+        if (systemWebAdapterBuilder is null)
+        {
+            throw new ArgumentNullException(nameof(systemWebAdapterBuilder));
+        }
+
         systemWebAdapterBuilder.Services.AddAuthentication(options =>
         {
             if (isDefaultScheme)

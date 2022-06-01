@@ -18,7 +18,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// Authentication handler that authenticates users by making requests to a remote app
 /// for authentication via a remote authentication service.
 /// </summary>
-internal class RemoteAppAuthenticationAuthHandler : AuthenticationHandler<RemoteAppAuthenticationOptions>
+internal partial class RemoteAppAuthenticationAuthHandler : AuthenticationHandler<RemoteAppAuthenticationOptions>
 {
     private readonly IRemoteAppAuthenticationService _authService;
     private readonly IEnumerable<IRemoteAppAuthenticationResultProcessor> _resultProcessors;
@@ -53,7 +53,7 @@ internal class RemoteAppAuthenticationAuthHandler : AuthenticationHandler<Remote
 
             if (_remoteAppAuthResult.StatusCode == 407)
             {
-                _logger.LogError("Failed to authenticate using the remote app due to invalid or missing API key");
+                LogInvalidApiKey();
                 throw new InvalidOperationException("Failed to authenticate using the remote app due to invalid or missing API key");
             }
         }
@@ -68,12 +68,12 @@ internal class RemoteAppAuthenticationAuthHandler : AuthenticationHandler<Remote
         if (authResult.User is not null)
         {
             var ticket = new AuthenticationTicket(authResult.User, Scheme.Name);
-            _logger.LogDebug("Authenticated user based on remote authentication service");
+            LogUserAuthenticated();
             return AuthenticateResult.Success(ticket);
         }
         else
         {
-            _logger.LogDebug("Remote service did not authenticate a user");
+            LogUserNotAuthenticated();
             return AuthenticateResult.NoResult();
         }
     }
@@ -92,4 +92,13 @@ internal class RemoteAppAuthenticationAuthHandler : AuthenticationHandler<Remote
             Context.Response.Headers.Append(header.Key, header.Value);
         }
     }
+
+    [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "Failed to authenticate using the remote app due to invalid or missing API key")]
+    private partial void LogInvalidApiKey();
+
+    [LoggerMessage(EventId = 1, Level = LogLevel.Debug, Message = "Authenticated user based on remote authentication service")]
+    private partial void LogUserAuthenticated();
+
+    [LoggerMessage(EventId = 2, Level = LogLevel.Debug, Message = "Remote service did not authenticate a user")]
+    private partial void LogUserNotAuthenticated();
 }
