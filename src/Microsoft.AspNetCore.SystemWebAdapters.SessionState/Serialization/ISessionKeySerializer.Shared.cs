@@ -8,11 +8,6 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 public interface ISessionKeySerializer
 {
     /// <summary>
-    /// Gets an id for the serializer. This is used to compare payloads to ensure the same serializer is used on both ends.
-    /// </summary>
-    string Id { get; }
-
-    /// <summary>
     /// Serializes an object for a given key.
     /// </summary>
     /// <param name="key">Session key for object.</param>

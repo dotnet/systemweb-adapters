@@ -27,8 +27,6 @@ internal class JsonSessionKeySerializer : ISessionKeySerializer
     }
 #endif
 
-    public string Id => nameof(JsonSessionKeySerializer);
-
     public bool TryDeserialize(string key, ReadOnlyMemory<byte> bytes, out object? obj)
     {
         if (_options.KnownKeys.TryGetValue(key, out var type))

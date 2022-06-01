@@ -54,7 +54,6 @@ internal partial class BinarySessionSerializer : ISessionSerializer
     public void Write(ISessionState state, BinaryWriter writer)
     {
         writer.Write(Version);
-        writer.Write(_serializer.Id);
         writer.Write(state.SessionID);
 
         writer.Write(state.IsNewSession);
@@ -120,12 +119,7 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 
         if (reader.ReadByte() != Version)
         {
-            throw new InvalidOperationException("Serialized session state has different payload");
-        }
-
-        if (!string.Equals(reader.ReadString(), _serializer.Id, StringComparison.Ordinal))
-        {
-            throw new InvalidOperationException("Serialized session state used a different serializer for keys");
+            throw new InvalidOperationException("Serialized session state has different version than expected");
         }
 
         var state = new BinaryReaderSerializedSessionState(reader, _serializer);
