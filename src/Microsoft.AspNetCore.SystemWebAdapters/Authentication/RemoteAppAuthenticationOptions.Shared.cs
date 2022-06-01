@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#if !NETFRAMEWORK
+#if NET6_0_OR_GREATER
 using Microsoft.AspNetCore.Authentication;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Immutable;
@@ -13,11 +13,11 @@ using System.Collections.Generic;
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
 public class RemoteAppAuthenticationOptions
-#if !NETFRAMEWORK
+#if NET6_0_OR_GREATER
     : AuthenticationSchemeOptions
 #endif
 {
-#if !NETFRAMEWORK
+#if NET6_0_OR_GREATER
     public static readonly IEnumerable<string> DefaultRequestHeadersToForward = ImmutableArray.CreateRange(new[]
     {
         "Authorization",
@@ -37,7 +37,7 @@ public class RemoteAppAuthenticationOptions
     /// </summary>
     public RemoteServiceOptions RemoteServiceOptions { get; set; } = new RemoteServiceOptions();
 
-#if !NETFRAMEWORK
+#if NET6_0_OR_GREATER
     /// <summary>
     /// Gets or sets a list of request headers that should be forwarded to the remote app for authentication purposes. If no headers
     /// are specified, all headers will be forwarded.
@@ -58,7 +58,7 @@ public class RemoteAppAuthenticationOptions
 #endif
     public string AuthenticationEndpointPath { get; set; } = "/systemweb-adapters/authenticate";
 
-#if !NETFRAMEWORK
+#if NET6_0_OR_GREATER
     /// <summary>
     /// The maximum time loading session state from the remote app
     /// or committing changes to it can take before timing out.

@@ -33,8 +33,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.System
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.SessionState.Framework.Tests", "test\Microsoft.AspNetCore.SystemWebAdapters.SessionState.Framework.Tests\Microsoft.AspNetCore.SystemWebAdapters.SessionState.Framework.Tests.csproj", "{FE535287-999D-4D43-B41C-22AB4A6E2D15}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.Authentication", "src\Microsoft.AspNetCore.SystemWebAdapters.Authentication\Microsoft.AspNetCore.SystemWebAdapters.Authentication.csproj", "{9CF18B9E-5190-42B6-900A-11AF3CCA35B2}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteBearer", "samples\RemoteAuth\Bearer\RemoteBearer\RemoteBearer.csproj", "{898C9B2C-E43A-434F-9927-F6697C0ACE40}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemoteBearerCore", "samples\RemoteAuth\Bearer\RemoteBearerCore\RemoteBearerCore.csproj", "{6ECC8509-2937-4667-AECC-C20BA62D3FC5}"
@@ -77,10 +75,6 @@ Global
 		{FE535287-999D-4D43-B41C-22AB4A6E2D15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE535287-999D-4D43-B41C-22AB4A6E2D15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE535287-999D-4D43-B41C-22AB4A6E2D15}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9CF18B9E-5190-42B6-900A-11AF3CCA35B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9CF18B9E-5190-42B6-900A-11AF3CCA35B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9CF18B9E-5190-42B6-900A-11AF3CCA35B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9CF18B9E-5190-42B6-900A-11AF3CCA35B2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{898C9B2C-E43A-434F-9927-F6697C0ACE40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{898C9B2C-E43A-434F-9927-F6697C0ACE40}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{898C9B2C-E43A-434F-9927-F6697C0ACE40}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -102,7 +96,6 @@ Global
 		{2029D409-07E3-49F8-BB6A-77114DE7B337} = {F9DB9323-C919-49E8-8F96-B923D2F42E60}
 		{9AFF3DCE-5DEF-4337-B5BC-C98ABEA6BEDC} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
 		{FE535287-999D-4D43-B41C-22AB4A6E2D15} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
-		{9CF18B9E-5190-42B6-900A-11AF3CCA35B2} = {F9DB9323-C919-49E8-8F96-B923D2F42E60}
 		{898C9B2C-E43A-434F-9927-F6697C0ACE40} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 		{6ECC8509-2937-4667-AECC-C20BA62D3FC5} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 	EndGlobalSection

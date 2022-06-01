@@ -208,10 +208,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters.Authentication\Microsoft.AspNetCore.SystemWebAdapters.Authentication.csproj">
-      <Project>{9cf18b9e-5190-42b6-900a-11af3cca35b2}</Project>
-      <Name>Microsoft.AspNetCore.SystemWebAdapters.Authentication</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj">
       <Project>{55c1bbe0-b922-46b0-8f2c-8472bc9a5f33}</Project>
       <Name>Microsoft.AspNetCore.SystemWebAdapters</Name>

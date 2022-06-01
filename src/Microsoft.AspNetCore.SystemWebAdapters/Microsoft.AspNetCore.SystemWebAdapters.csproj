@@ -51,6 +51,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <SharedFiles Remove="Authentication\RemoteAppAuthenticationOptions.Shared.cs" />
     <SharedFiles Remove="RemoteServiceOptions.Shared.cs" />
   </ItemGroup>
 
