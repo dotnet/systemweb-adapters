@@ -22,6 +22,11 @@
     <Product>Microsoft ASP.NET Core</Product>
   </PropertyGroup>
 
+  <PropertyGroup Label="Package Information">
+    <Description>A collection of adapters that help with migrating from System.Web.dll based ASP.NET projects to ASP.NET Core projects by providing implementations of common System.Web APIs for use in ASP.NET Core apps.</Description>
+    <PackageReleaseNotes>A changelog is available at https://github.com/dotnet/systemweb-adapters/blob/main/CHANGELOG.md.</PackageReleaseNotes>
+  </PropertyGroup>
+
   <PropertyGroup Label="Analyzer Settings">
     <WarningLevel>9999</WarningLevel>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
