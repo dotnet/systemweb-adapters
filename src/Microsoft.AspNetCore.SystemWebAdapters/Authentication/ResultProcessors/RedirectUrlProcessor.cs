@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication.ResultProcessors;
@@ -42,7 +43,7 @@ internal class RedirectUrlProcessor : IRemoteAppAuthenticationResultProcessor
                 if (Uri.TryCreate(headerValue, UriKind.RelativeOrAbsolute, out var redirectLocation))
                 {
                     redirectLocation = UpdateHost(redirectLocation, result.AuthenticationRequest);
-                    redirectLocation = UpdateQueryStrings(redirectLocation, context.Request.Path.Value ?? "/");
+                    redirectLocation = UpdateQueryStrings(redirectLocation, context.Request);
 
                     processedRedirectLocations.Add(redirectLocation.ToString());
                 }
@@ -56,8 +57,13 @@ internal class RedirectUrlProcessor : IRemoteAppAuthenticationResultProcessor
 
     // Updates the query strings of the redirect URI to redirect back to the current request's URI
     // rather than to the URI of the authenticate request that led to the redirect response.
-    private static Uri UpdateQueryStrings(Uri redirectLocation, string originalRequestPath)
+    private static Uri UpdateQueryStrings(Uri redirectLocation, HttpRequest originalRequestPath)
     {
+        if (!redirectLocation.IsAbsoluteUri)
+        {
+            redirectLocation = GetAbsoluteUri(redirectLocation, originalRequestPath);
+        }
+
         var queryStrings = QueryHelpers.ParseQuery(redirectLocation.Query);
         if (queryStrings.ContainsKey(ReturnUrlQueryStringName))
         {
@@ -65,7 +71,7 @@ internal class RedirectUrlProcessor : IRemoteAppAuthenticationResultProcessor
             var redirectWithoutQuery = redirectLocation.ToString().Replace(redirectLocation.Query, string.Empty, StringComparison.Ordinal);
 
             // Update the query strings to use the original request path as the ReturnUrl query string
-            queryStrings[ReturnUrlQueryStringName] = originalRequestPath;
+            queryStrings[ReturnUrlQueryStringName] = originalRequestPath.Path.Value ?? "/";
 
             redirectLocation = new Uri(QueryHelpers.AddQueryString(redirectWithoutQuery, queryStrings));
         }
@@ -75,7 +81,10 @@ internal class RedirectUrlProcessor : IRemoteAppAuthenticationResultProcessor
 
     private static Uri UpdateHost(Uri redirectLocation, HttpRequestMessage? authenticationRequest)
     {
-        if (authenticationRequest is null)
+        // No need to update the host if the redirect location is relative (so that it has no host)
+        // or if the authentication result does not include the original request (so that we can't
+        // compare the host to any host-forward headers in that request).
+        if (!redirectLocation.IsAbsoluteUri || authenticationRequest is null)
         {
             return redirectLocation;
         }
@@ -112,5 +121,14 @@ internal class RedirectUrlProcessor : IRemoteAppAuthenticationResultProcessor
         }
 
         return redirectBuilder.Uri;
+    }
+
+    private static Uri GetAbsoluteUri(Uri redirectLocation, HttpRequest originalRequestPath)
+    {
+        var baseUri = originalRequestPath.Host.Port.HasValue
+            ? new UriBuilder(originalRequestPath.Scheme, originalRequestPath.Host.Host, originalRequestPath.Host.Port.Value).Uri
+            : new UriBuilder(originalRequestPath.Scheme, originalRequestPath.Host.Host).Uri;
+
+        return new Uri(baseUri, redirectLocation);
     }
 }

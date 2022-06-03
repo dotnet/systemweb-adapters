@@ -24,6 +24,9 @@
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <_MigrationKind>yarp</_MigrationKind>
+    <_MigrateToProjectPath>..\..\..\..\FormsAuthCore\FormsAuthCore.csproj</_MigrateToProjectPath>
+    <_MigrateToProjectGuid>eb87a63b-d71f-43e3-b0b7-588b4bed3be3</_MigrateToProjectGuid>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -237,6 +240,12 @@
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj">
+      <Project>{55c1bbe0-b922-46b0-8f2c-8472bc9a5f33}</Project>
+      <Name>Microsoft.AspNetCore.SystemWebAdapters</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
