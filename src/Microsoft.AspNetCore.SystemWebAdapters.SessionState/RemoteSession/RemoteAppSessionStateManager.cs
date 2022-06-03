@@ -124,15 +124,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
         if (state is not null)
         {
             AddSessionCookieToHeader(req, state.SessionID);
-
-            var ms = new MemoryStream();
-
-            await _serializer.SerializeAsync(state, ms, cancellationToken);
-
-            ms.Position = 0;
-
-            req.Content = new StreamContent(ms);
-            req.Content.Headers.ContentType = new("application/json") { CharSet = "utf-8" };
+            req.Content = new SerializedSessionHttpContent(_serializer, state);
         }
 
         using var response = await _client.SendAsync(req, cts.Token);
@@ -160,4 +152,28 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
 
     private static void AddReadOnlyHeader(HttpRequestMessage req, bool readOnly)
         => req.Headers.Add(RemoteAppSessionStateOptions.ReadOnlyHeaderName, readOnly.ToString());
+
+    private class SerializedSessionHttpContent : HttpContent
+    {
+        private readonly ISessionSerializer _serializer;
+        private readonly ISessionState _state;
+
+        public SerializedSessionHttpContent(ISessionSerializer serializer, ISessionState state)
+        {
+            _serializer = serializer;
+            _state = state;
+        }
+
+        protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context)
+            => SerializeToStreamAsync(stream, context, default);
+
+        protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
+            => _serializer.SerializeAsync(_state, stream, cancellationToken);
+
+        protected override bool TryComputeLength(out long length)
+        {
+            length = 0;
+            return false;
+        }
+    }
 }
