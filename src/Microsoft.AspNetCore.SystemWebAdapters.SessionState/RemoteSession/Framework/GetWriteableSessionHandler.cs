@@ -16,6 +16,7 @@ internal sealed class GetWriteableSessionHandler : HttpTaskAsyncHandler, IRequir
 
     private readonly ISessionSerializer _serializer;
     private readonly ILockedSessionCache _cache;
+    private static readonly TimeSpan HeartbeatDelay = TimeSpan.FromMilliseconds(20);
 
     public GetWriteableSessionHandler(ISessionSerializer serializer, ILockedSessionCache cache)
     {
@@ -58,16 +59,29 @@ internal sealed class GetWriteableSessionHandler : HttpTaskAsyncHandler, IRequir
         // Wait for up to request timeout for updated session state to be written.
         // We send down heartbeats to ensure the request disconnected token fires correctly
         using var waitToken = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, token);
-        var heartbeatDelay = TimeSpan.FromMilliseconds(20);
 
-        while (!waitToken.IsCancellationRequested)
+        try
         {
-            await Task.Delay(heartbeatDelay, waitToken.Token);
-            context.Response.OutputStream.WriteByte(EndOfFrame);
-
-            // Ensure to call HttpResponse.FlushAsync to flush the request itself, and not context.Response.OutputStream.FlushAsync()
-            await context.Response.FlushAsync();
+            while (!waitToken.IsCancellationRequested)
+            {
+                await SendHeartbeat(context, waitToken);
+            }
         }
+        catch (OperationCanceledException)
+        {
+            // Catch this so that normal ASP.NET request processing can continue.
+            // If an exception bubbles out of here, session state won't be properly
+            // stored, for example.
+        }
+    }
+
+    private static async Task SendHeartbeat(HttpContextBase context, CancellationTokenSource waitToken)
+    {
+        await Task.Delay(HeartbeatDelay, waitToken.Token);
+        context.Response.OutputStream.WriteByte(EndOfFrame);
+
+        // Ensure to call HttpResponse.FlushAsync to flush the request itself, and not context.Response.OutputStream.FlushAsync()
+        await context.Response.FlushAsync();
     }
 }
 

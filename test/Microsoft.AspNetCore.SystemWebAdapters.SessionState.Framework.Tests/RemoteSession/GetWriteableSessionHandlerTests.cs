@@ -76,7 +76,9 @@ public class GetWriteableSessionHandlerTests
         response.Verify(r => r.FlushAsync(), Times.Once);
 
         callback!();
-        await Assert.ThrowsAsync<TaskCanceledException>(() => task);
+
+        var exception = await Record.ExceptionAsync(() => task);
+        Assert.Null(exception);
 
         // Assert
         Assert.Equal(200, response.Object.StatusCode);
@@ -133,7 +135,9 @@ public class GetWriteableSessionHandlerTests
         response.Verify(r => r.FlushAsync(), Times.Once);
 
         cts.Cancel();
-        await Assert.ThrowsAsync<TaskCanceledException>(() => task);
+
+        var exception = await Record.ExceptionAsync(() => task);
+        Assert.Null(exception);
 
         // Assert
         Assert.Equal(200, response.Object.StatusCode);
