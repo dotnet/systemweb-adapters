@@ -48,7 +48,9 @@ internal sealed class GetWriteableSessionHandler : HttpTaskAsyncHandler, IRequir
         context.Response.ContentType = "text/event-stream";
         context.Response.StatusCode = 200;
 
-        await _serializer.SerializeAsync(context.Session, context.Response.OutputStream, token);
+        using var wrapper = new HttpSessionStateBaseWrapper(context.Session);
+
+        await _serializer.SerializeAsync(wrapper, context.Response.OutputStream, token);
 
         // Delimit the json body with a new line to mark the end of content
         context.Response.OutputStream.WriteByte(EndOfFrame);

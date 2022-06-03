@@ -8,6 +8,10 @@
     <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
 
+  <PropertyGroup Label="Package Information">
+    <Description>A collection of adapters that help with migrating from System.Web.dll based ASP.NET projects to ASP.NET Core projects by providing implementations of common System.Web APIs for use in ASP.NET Core apps.</Description>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="Content\*" Pack="true" PackagePath="Content\" />
   </ItemGroup>

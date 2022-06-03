@@ -51,6 +51,6 @@ public class ReadOnlySessionHandlerTests
         Assert.Equal(200, response.Object.StatusCode);
         Assert.Equal("application/json; charset=utf-8", response.Object.ContentType);
 
-        serializer.Verify(s => s.SerializeAsync(session.Object, output.Object, default), Times.Once);
+        serializer.Verify(s => s.SerializeAsync(It.Is<HttpSessionStateBaseWrapper>(t => t.State == session.Object), output.Object, default), Times.Once);
     }
 }

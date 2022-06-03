@@ -22,14 +22,4 @@ public class JsonSessionSerializerOptions
     /// <typeparam name="T"></typeparam>
     /// <param name="key"></param>
     public void RegisterKey<T>(string key) => KnownKeys.Add(key, typeof(T));
-
-    /// <summary>
-    /// Gets or sets whether an exception should be thrown if an unknown session key is encountered.
-    /// </summary>
-    public bool ThrowOnUnknownSessionKey { get; set; } = true;
-
-    /// <summary>
-    /// Gets or sets whether the serialized JSON should be indented.
-    /// </summary>
-    public bool Indented { get; set; }
 }

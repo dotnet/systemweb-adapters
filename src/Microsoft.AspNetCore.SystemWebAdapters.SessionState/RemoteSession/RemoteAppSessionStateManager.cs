@@ -74,7 +74,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
         }
     }
 
-    private async Task<ISessionState> GetSessionDataAsync(string? sessionId, bool readOnly, HttpContextCore callingContext, CancellationToken cancellationToken = default)
+    private async Task<ISessionState> GetSessionDataAsync(string? sessionId, bool readOnly, HttpContextCore callingContext, CancellationToken token)
     {
         // The request message is manually disposed at a later time
 #pragma warning disable CA2000 // Dispose objects before losing scope
@@ -84,13 +84,18 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
         AddSessionCookieToHeader(req, sessionId);
         AddReadOnlyHeader(req, readOnly);
 
-        var response = await _client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        var response = await _client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, token);
 
         LogRetrieveResponse(response.StatusCode);
 
         response.EnsureSuccessStatusCode();
 
-        var remoteSessionState = await ReadSessionStateAsync(response);
+        var remoteSessionState = await _serializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(token), token);
+
+        if (remoteSessionState is null)
+        {
+            throw new InvalidOperationException("Could not retrieve remote session state");
+        }
 
         // Propagate headers back to the caller since a new session ID may have been set
         // by the remote app if there was no session active previously or if the previous
@@ -104,15 +109,6 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
         }
 
         return new RemoteSessionState(remoteSessionState, response, SetOrReleaseSessionData);
-    }
-
-    private async Task<ISessionState> ReadSessionStateAsync(HttpResponseMessage response)
-    {
-        // Only read until the first new line since the response is expected to remain open until RemoteSessionState.CommitAsync is called.
-        using var streamReader = new StreamReader(await response.Content.ReadAsStreamAsync(), leaveOpen: true);
-        var json = await streamReader.ReadLineAsync();
-
-        return _serializer.Deserialize(json) ?? throw new InvalidOperationException("Could not retrieve remote session state");
     }
 
     /// <summary>
@@ -129,8 +125,13 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
         {
             AddSessionCookieToHeader(req, state.SessionID);
 
-            var bytes = _serializer.Serialize(state);
-            req.Content = new ByteArrayContent(bytes);
+            var ms = new MemoryStream();
+
+            await _serializer.SerializeAsync(state, ms, cancellationToken);
+
+            ms.Position = 0;
+
+            req.Content = new StreamContent(ms);
             req.Content.Headers.ContentType = new("application/json") { CharSet = "utf-8" };
         }
 

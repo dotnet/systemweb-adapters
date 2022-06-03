@@ -30,6 +30,8 @@ internal sealed class ReadOnlySessionHandler : HttpTaskAsyncHandler, IReadOnlySe
         context.Response.ContentType = "application/json; charset=utf-8";
         context.Response.StatusCode = 200;
 
-        await _serializer.SerializeAsync(context.Session, context.Response.OutputStream, context.Response.ClientDisconnectedToken);
+        using var wrapper = new HttpSessionStateBaseWrapper(context.Session);
+
+        await _serializer.SerializeAsync(wrapper, context.Response.OutputStream, context.Response.ClientDisconnectedToken);
     }
 }
