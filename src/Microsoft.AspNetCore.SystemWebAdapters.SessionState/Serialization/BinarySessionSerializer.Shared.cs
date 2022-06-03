@@ -3,10 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,11 +20,11 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 {
     private const byte Version = 1;
 
-    private readonly JsonSessionSerializerOptions _options;
+    private readonly SessionSerializerOptions _options;
     private readonly ISessionKeySerializer _serializer;
 
 #if NETFRAMEWORK
-    public BinarySessionSerializer(ISessionKeySerializer serializer, JsonSessionSerializerOptions options)
+    public BinarySessionSerializer(ISessionKeySerializer serializer, SessionSerializerOptions options)
     {
         _serializer = serializer;
         _options = options;
@@ -36,13 +34,12 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 #else
     private readonly ILogger<BinarySessionSerializer> _logger;
 
-    public BinarySessionSerializer(ISessionKeySerializer serializer, IOptions<JsonSessionSerializerOptions> options, ILogger<BinarySessionSerializer> logger)
+    public BinarySessionSerializer(ISessionKeySerializer serializer, IOptions<SessionSerializerOptions> options, ILogger<BinarySessionSerializer> logger)
     {
         _serializer = serializer;
         _options = options.Value;
         _logger = logger;
     }
-
 
     [LoggerMessage(EventId = 0, Level = LogLevel.Warning, Message = "Could not serialize unknown session key '{Key}'")]
     partial void LogSerialization(string key);
@@ -108,7 +105,6 @@ internal partial class BinarySessionSerializer : ISessionSerializer
             throw new UnknownSessionKeyException(unknownKeys);
         }
     }
-
 
     public ISessionState Read(BinaryReader reader)
     {

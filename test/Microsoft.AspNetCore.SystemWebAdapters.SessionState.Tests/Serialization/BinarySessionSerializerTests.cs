@@ -273,8 +273,8 @@ public class BinarySessionSerializerTests
 
         var logger = new Mock<ILogger<BinarySessionSerializer>>();
 
-        var optionContainer = new Mock<IOptions<JsonSessionSerializerOptions>>();
-        optionContainer.Setup(o => o.Value).Returns(new JsonSessionSerializerOptions());
+        var optionContainer = new Mock<IOptions<SessionSerializerOptions>>();
+        optionContainer.Setup(o => o.Value).Returns(new SessionSerializerOptions());
 
         return new BinarySessionSerializer(keySerializer, optionContainer.Object, logger.Object);
     }

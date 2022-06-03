@@ -7,21 +7,32 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Wrapped;
 
-internal sealed class AspNetCoreSessionState : ISessionState
+internal sealed partial class AspNetCoreSessionState : ISessionState
 {
     private readonly ISession _session;
     private readonly ISessionKeySerializer _serializer;
+    private readonly ILogger<AspNetCoreSessionState> _logger;
+    private readonly bool _throwOnUnknown;
 
-    public AspNetCoreSessionState(ISession session, ISessionKeySerializer serializer, bool isReadOnly)
+    public AspNetCoreSessionState(ISession session, ISessionKeySerializer serializer, ILoggerFactory factory, bool isReadOnly, bool throwOnUnknown)
     {
         _session = session;
         _serializer = serializer;
+        _throwOnUnknown = throwOnUnknown;
+        _logger = factory.CreateLogger<AspNetCoreSessionState>();
 
         IsReadOnly = isReadOnly;
     }
+
+    [LoggerMessage(EventId = 0, Level = LogLevel.Warning, Message = "Could not serialize unknown session key '{Key}'")]
+    partial void LogSerialization(string key);
+
+    [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Could not deserialize unknown session key '{Key}'")]
+    partial void LogDeserialization(string key);
 
     private void CheckReadOnly()
     {
@@ -35,7 +46,24 @@ internal sealed class AspNetCoreSessionState : ISessionState
     {
         get
         {
-            return _session.Get(key) is { } value && _serializer.TryDeserialize(key, value, out var result) ? result : null;
+            if (_session.Get(key) is { } value)
+            {
+                if (_serializer.TryDeserialize(key, value, out var result))
+                {
+                    return result;
+                }
+                else
+                {
+                    LogSerialization(key);
+
+                    if (_throwOnUnknown)
+                    {
+                        throw new UnknownSessionKeyException(key);
+                    }
+                }
+            }
+
+            return null;
         }
         set
         {
@@ -50,6 +78,15 @@ internal sealed class AspNetCoreSessionState : ISessionState
                 if (_serializer.TrySerialize(key, value, out var result))
                 {
                     _session.Set(key, result);
+                }
+                else
+                {
+                    LogSerialization(key);
+
+                    if (_throwOnUnknown)
+                    {
+                        throw new UnknownSessionKeyException(key);
+                    }
                 }
             }
         }
