@@ -7,22 +7,32 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Wrapped;
 
-internal class AspNetCoreSessionState : ISessionState
+internal sealed partial class AspNetCoreSessionState : ISessionState
 {
     private readonly ISession _session;
-    private readonly ISessionSerializer _serializer;
+    private readonly ISessionKeySerializer _serializer;
+    private readonly ILogger<AspNetCoreSessionState> _logger;
+    private readonly bool _throwOnUnknown;
 
-    public AspNetCoreSessionState(ISession session, ISessionSerializer serializer, bool isReadOnly)
+    public AspNetCoreSessionState(ISession session, ISessionKeySerializer serializer, ILoggerFactory factory, bool isReadOnly, bool throwOnUnknown)
     {
         _session = session;
         _serializer = serializer;
+        _throwOnUnknown = throwOnUnknown;
+        _logger = factory.CreateLogger<AspNetCoreSessionState>();
 
         IsReadOnly = isReadOnly;
     }
+
+    [LoggerMessage(EventId = 0, Level = LogLevel.Warning, Message = "Could not serialize unknown session key '{Key}'")]
+    partial void LogSerialization(string key);
+
+    [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Could not deserialize unknown session key '{Key}'")]
+    partial void LogDeserialization(string key);
 
     private void CheckReadOnly()
     {
@@ -34,7 +44,27 @@ internal class AspNetCoreSessionState : ISessionState
 
     public object? this[string key]
     {
-        get => _serializer.Deserialize(key, _session.Get(key));
+        get
+        {
+            if (_session.Get(key) is { } value)
+            {
+                if (_serializer.TryDeserialize(key, value, out var result))
+                {
+                    return result;
+                }
+                else
+                {
+                    LogSerialization(key);
+
+                    if (_throwOnUnknown)
+                    {
+                        throw new UnknownSessionKeyException(key);
+                    }
+                }
+            }
+
+            return null;
+        }
         set
         {
             CheckReadOnly();
@@ -45,7 +75,19 @@ internal class AspNetCoreSessionState : ISessionState
             }
             else
             {
-                _session.Set(key, _serializer.Serialize(key, value));
+                if (_serializer.TrySerialize(key, value, out var result))
+                {
+                    _session.Set(key, result);
+                }
+                else
+                {
+                    LogSerialization(key);
+
+                    if (_throwOnUnknown)
+                    {
+                        throw new UnknownSessionKeyException(key);
+                    }
+                }
             }
         }
     }
@@ -74,7 +116,7 @@ internal class AspNetCoreSessionState : ISessionState
         _session.Clear();
     }
 
-    public async ValueTask CommitAsync(CancellationToken token)
+    public Task CommitAsync(CancellationToken token)
     {
         CheckReadOnly();
 
@@ -83,10 +125,12 @@ internal class AspNetCoreSessionState : ISessionState
             _session.Clear();
         }
 
-        await _session.CommitAsync(token);
+        return _session.CommitAsync(token);
     }
 
-    public ValueTask DisposeAsync() => default;
+    public void Dispose()
+    {
+    }
 
     public void Remove(string key)
     {

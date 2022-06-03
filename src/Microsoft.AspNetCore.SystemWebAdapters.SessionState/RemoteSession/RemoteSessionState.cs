@@ -11,33 +11,33 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 internal class RemoteSessionState : DelegatingSessionState
 {
     private HttpResponseMessage? _response;
-    private Func<ISessionState?, CancellationToken, Task>? _commitOrRelease;
+    private Func<ISessionState?, CancellationToken, Task>? _onCommit;
 
-    public RemoteSessionState(ISessionState other, HttpResponseMessage response, Func<ISessionState?, CancellationToken, Task> commitOrRelease)
+    public RemoteSessionState(ISessionState other, HttpResponseMessage response, Func<ISessionState?, CancellationToken, Task> onCommit)
     {
         State = other;
         _response = response;
-        _commitOrRelease = commitOrRelease;
+        _onCommit = onCommit;
     }
 
     protected override ISessionState State { get; }
 
-    protected override async ValueTask DisposeAsyncCore()
+    protected override void Dispose(bool disposing)
     {
-        if (_response is not null)
+        base.Dispose(disposing);
+
+        if (disposing && _response is not null)
         {
             _response.Dispose();
             _response = null;
         }
-
-        await base.DisposeAsyncCore();
     }
 
-    public override async ValueTask CommitAsync(CancellationToken token)
+    public override async Task CommitAsync(CancellationToken token)
     {
-        if (_commitOrRelease is { } onCommit)
+        if (_onCommit is { } onCommit)
         {
-            _commitOrRelease = null;
+            _onCommit = null;
             await onCommit(State, token);
         }
     }

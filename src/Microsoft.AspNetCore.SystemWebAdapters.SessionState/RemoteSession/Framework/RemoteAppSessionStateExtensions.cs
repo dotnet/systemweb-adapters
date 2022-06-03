@@ -30,10 +30,11 @@ public static class RemoteAppSessionStateExtensions
         configureRemote(options);
 
         // We don't want to throw by default on the .NET Framework side as then the error won't be easily visible in the ASP.NET Core app
-        var serializerOptions = new JsonSessionSerializerOptions { ThrowOnUnknownSessionKey = false };
+        var serializerOptions = new JsonSessionSerializerOptions();
         configureSerializer(serializerOptions);
 
-        var serializer = new JsonSessionSerializer(serializerOptions);
+        var keySerializer = new JsonSessionKeySerializer(serializerOptions);
+        var serializer = new BinarySessionSerializer(keySerializer, new SessionSerializerOptions { ThrowOnUnknownSessionKey = false });
 
         builder.Modules.Add(new RemoteSessionModule(options, new InMemoryLockedSessions(serializer), serializer));
 

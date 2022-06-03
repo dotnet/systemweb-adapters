@@ -39,7 +39,7 @@ internal partial class SessionMiddleware
 
         var manager = context.RequestServices.GetRequiredService<ISessionManager>();
 
-        await using var state = metadata.Behavior switch
+        using var state = metadata.Behavior switch
         {
 #pragma warning disable CA2000 // False positive for CA2000 here
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -79,11 +79,13 @@ internal partial class SessionMiddleware
 
         protected override ISessionState State => _state.Value;
 
-        protected override async ValueTask DisposeAsyncCore()
+        protected override void Dispose(bool disposing)
         {
-            if (_state.IsValueCreated)
+            base.Dispose(disposing);
+
+            if (disposing && _state.IsValueCreated)
             {
-                await base.DisposeAsyncCore();
+                _state.Value.Dispose();
             }
         }
     }

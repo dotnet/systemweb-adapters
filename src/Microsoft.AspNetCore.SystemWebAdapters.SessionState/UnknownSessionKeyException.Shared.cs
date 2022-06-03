@@ -4,10 +4,15 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
+namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 
 internal sealed class UnknownSessionKeyException : InvalidOperationException
 {
+    public UnknownSessionKeyException(string unknownKey)
+        : this(new[] { unknownKey })
+    {
+    }
+
     public UnknownSessionKeyException(IReadOnlyCollection<string> unknownKeys)
         : base(CreateMessage(unknownKeys))
     {

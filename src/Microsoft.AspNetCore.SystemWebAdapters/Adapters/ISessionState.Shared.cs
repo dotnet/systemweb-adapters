@@ -12,7 +12,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 /// <summary>
 /// Represents the state of a session and is used to create a <see cref="HttpSessionState"/>.
 /// </summary>
-public interface ISessionState : IAsyncDisposable
+public interface ISessionState : IDisposable
 {
     string SessionID { get; }
 
@@ -38,5 +38,5 @@ public interface ISessionState : IAsyncDisposable
 
     IEnumerable<string> Keys { get; }
 
-    ValueTask CommitAsync(CancellationToken token);
+    Task CommitAsync(CancellationToken token);
 }

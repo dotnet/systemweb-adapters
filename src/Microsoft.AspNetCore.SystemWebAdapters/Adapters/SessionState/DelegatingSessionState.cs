@@ -10,6 +10,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 
 public abstract class DelegatingSessionState : ISessionState
 {
+    private bool _disposedValue;
+
     protected DelegatingSessionState()
     {
     }
@@ -48,18 +50,28 @@ public abstract class DelegatingSessionState : ISessionState
 
     public virtual void Clear() => State.Clear();
 
-    public async ValueTask DisposeAsync()
-    {
-        await DisposeAsyncCore();
-
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual ValueTask DisposeAsyncCore() => State.DisposeAsync();
-
     public virtual void Remove(string key) => State.Remove(key);
 
-    public virtual ValueTask CommitAsync(CancellationToken token) => State.CommitAsync(token);
+    public virtual Task CommitAsync(CancellationToken token) => State.CommitAsync(token);
 
     public virtual IEnumerable<string> Keys => State.Keys;
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                State.Dispose();
+            }
+
+            _disposedValue = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
 }
