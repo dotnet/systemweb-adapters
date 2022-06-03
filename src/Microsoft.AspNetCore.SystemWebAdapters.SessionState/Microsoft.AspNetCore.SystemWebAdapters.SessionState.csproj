@@ -6,6 +6,10 @@
     <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
 
+  <PropertyGroup Label="Package Information">
+    <Description>A collection of services to provide session support for the System.Web adapters.</Description>
+  </PropertyGroup>
+
   <ItemGroup>
     <InternalsVisibleTo Include="Microsoft.AspNetCore.SystemWebAdapters.SessionState.Tests" />
     <InternalsVisibleTo Include="Microsoft.AspNetCore.SystemWebAdapters.SessionState.Framework.Tests" />
