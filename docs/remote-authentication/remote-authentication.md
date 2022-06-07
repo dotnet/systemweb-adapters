@@ -8,7 +8,7 @@ There are just a few small code changes needed to enable remote authentication i
 
 ### ASP.NET app configuration
 
-First, the ASP.NET app needs configured to add the authentication endpoint. This is done by calling the `AddRemoteAuthentication` extension method on the `ISystemWebAdapterBuilder`:
+First, the ASP.NET app needs to be configured to add the authentication endpoint. This is done by calling the `AddRemoteAuthentication` extension method on the `ISystemWebAdapterBuilder`:
 
 ```CSharp
 Application.AddSystemWebAdapters()
