@@ -4,7 +4,7 @@ The System.Web adapter's remote authentication feature allows an ASP.NET Core ap
 
 ## Configuration
 
-There are just a few small code changes need to enable remote authentication in a solution that's already using System.Web adapters and has an ASP.NET Core app (with migrated endpoints) proxying requests to an existing ASP.NET app (when the requests go to endpoints that aren't migrated yet).
+There are just a few small code changes needed to enable remote authentication in a solution that's already set up according to the [Getting Started](../getting_started.md).
 
 ### ASP.NET app configuration
 
