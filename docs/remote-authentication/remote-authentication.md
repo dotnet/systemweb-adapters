@@ -22,7 +22,7 @@ In the options configuration method passed to the `AddRemoteAuthentication` call
 
 ### ASP.NET Core app configuration
 
-Next, the ASP.NET Core app needs configured to enable the authentication handler that will authenticate users by making an HTTP request to the ASP.NET app. This is done by calling `AddRemoteAppAuthentication` when registering System.Web adapters services:
+Next, the ASP.NET Core app needs to be configured to enable the authentication handler that will authenticate users by making an HTTP request to the ASP.NET app. This is done by calling `AddRemoteAppAuthentication` when registering System.Web adapters services:
 
 ```CSharp
 builder.Services.AddSystemWebAdapters()
