@@ -35,7 +35,6 @@
     <Compile Remove="**/*" />
     <Compile Include="@(FrameworkFiles)" />
     <Compile Include="**/*.Shared.cs" />
-    <Compile Include="RemoteSession/RemoteAppSessionStateOptions.cs" />
 
     <Reference Include="System.Web" />
 

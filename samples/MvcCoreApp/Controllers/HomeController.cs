@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MvcCoreApp.Models;
 using System.Diagnostics;
 
@@ -19,6 +20,12 @@ namespace MvcCoreApp.Controllers
         }
 
         public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [Authorize(AuthenticationSchemes = "Remote")]
+        public IActionResult UserInfo()
         {
             return View();
         }

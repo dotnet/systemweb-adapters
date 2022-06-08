@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ClassLibrary;
 
-public class SessionUtils
+public class RemoteServiceUtils
 {
     public static string ApiKey = "test-key";
 

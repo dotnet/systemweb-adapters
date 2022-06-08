@@ -39,6 +39,10 @@ This step may require a number of projects to change depending on your solution 
 
 Session is a commonly used feature of ASP.NET that shares a name with a feature in ASP.NET Core but that's where the similarity ends. Please see the documentation on [session support](session-state/session.md) to understand how to use it.
 
+## Enable shared authentication support
+
+It is possible to share authentication between the original ASP.NET app and the new ASP.NET Core app by using the System.Web adapters remote authentication feature. This feature allows the ASP.NET Core app to defer authentication to the ASP.NET app. Please see the [remote authentication docs]((remote-authentication/remote-authentication.md)) for more details.
+
 ## General Usage Guidance
 
 There are a number of differences between ASP.NET and ASP.NET Core that the adapters are able to smooth over. However, there are some features that require an opt-in as it will incur some cost. There are also behavior that cannot be adapted. Please see [usage guidance](usage_guidance.md) to see a list of these.

@@ -1,0 +1,9 @@
+<h1>User Info</h1>
+<h2>@User.Identity?.Name</h2>
+<h3>Claims</h3>
+<ul>
+@foreach(var c in User.Claims)
+{
+    <li>@c.Type: @c.Value</li>
+}
+</ul>

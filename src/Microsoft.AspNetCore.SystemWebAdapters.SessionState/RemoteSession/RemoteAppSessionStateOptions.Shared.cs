@@ -9,31 +9,11 @@ using System;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
-public class RemoteAppSessionStateOptions
+public class RemoteAppSessionStateOptions : RemoteServiceOptions
 {
-    internal const string ApiKeyHeaderName = "X-SystemWebAdapter-RemoteAppSession-Key";
     internal const string ReadOnlyHeaderName = "X-SystemWebAdapter-RemoteAppSession-ReadOnly";
 
-    /// <summary>
-    /// Gets or sets the header used to store the API key
-    /// </summary>
-    public string ApiKeyHeader { get; set; } = ApiKeyHeaderName;
-
-    /// <summary>
-    /// Gets or sets an API key used to secure the endpoint
-    /// </summary>
 #if !NETFRAMEWORK
-    [Required]
-#endif
-    public string ApiKey { get; set; } = null!;
-
-#if !NETFRAMEWORK
-    /// <summary>
-    /// Gets or sets the remote app url
-    /// </summary>
-    [Required]
-    public Uri RemoteApp { get; set; } = null!;
-
     [Required]
 #endif
     public string SessionEndpointPath { get; set; } = "/systemweb-adapters/session";

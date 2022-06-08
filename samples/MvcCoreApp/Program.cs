@@ -6,12 +6,15 @@ builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSecti
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSystemWebAdapters()
-    .AddJsonSessionSerializer(options => ClassLibrary.SessionUtils.RegisterSessionKeys(options.KnownKeys))
-    .AddRemoteAppSession(options =>
-    {
-        options.RemoteApp = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
-        options.ApiKey = ClassLibrary.SessionUtils.ApiKey;
-    });
+    .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys))
+    .AddRemoteAppSession(ConfigureRemoteServiceOptions)
+    .AddRemoteAppAuthentication(true, o => ConfigureRemoteServiceOptions(o.RemoteServiceOptions));
+
+void ConfigureRemoteServiceOptions(RemoteServiceOptions options)
+{
+    options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
+    options.ApiKey = ClassLibrary.RemoteServiceUtils.ApiKey;
+}
 
 var app = builder.Build();
 
@@ -28,6 +31,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSystemWebAdapters();

@@ -32,7 +32,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-        _client.BaseAddress = new Uri(_options.RemoteApp, _options.SessionEndpointPath);
+        _client.BaseAddress = new Uri(_options.RemoteAppUrl, _options.SessionEndpointPath);
         _client.DefaultRequestHeaders.Add(_options.ApiKeyHeader, _options.ApiKey);
     }
 

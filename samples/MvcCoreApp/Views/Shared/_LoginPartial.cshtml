@@ -1,0 +1,22 @@
+<ul class="nav navbar-nav navbar-right">
+@if (User.Identity?.IsAuthenticated ?? false)
+{
+    <li class="nav-item">
+        <span class="nav-link text-dark">Hello @(User.Identity?.Name)!</span>
+    </li>
+    <li class="nav-item">
+        <form class="form-inline" action="/Account/LogOff" method="POST" >
+            <button type="submit" class="nav-link btn btn-link text-dark">Log out</button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark" href="/Account/Register">Register</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" href="/Account/Login">Log in</a>
+    </li>
+}
+</ul>
