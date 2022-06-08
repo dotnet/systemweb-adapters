@@ -25,19 +25,19 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
     private readonly HttpClient _client;
     private readonly IAuthenticationResultFactory _resultFactory;
     private readonly ILogger<RemoteAppAuthenticationService> _logger;
-    private readonly IOptionsMonitor<RemoteAppAuthenticationOptions> _optionsMonitor;
+    private readonly IOptionsSnapshot<RemoteAppAuthenticationOptions> _optionsSnapshot;
     private RemoteAppAuthenticationOptions? _options;
 
     public RemoteAppAuthenticationService(
         HttpClient client,
         IAuthenticationResultFactory resultFactory,
-        IOptionsMonitor<RemoteAppAuthenticationOptions> options,
+        IOptionsSnapshot<RemoteAppAuthenticationOptions> options,
         ILogger<RemoteAppAuthenticationService> logger)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
         _resultFactory = resultFactory ?? throw new ArgumentNullException(nameof(resultFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _optionsMonitor = options ?? throw new ArgumentNullException(nameof(options));
+        _optionsSnapshot = options ?? throw new ArgumentNullException(nameof(options));
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
     {
         // Finish initializing the http client here since the scheme won't be known
         // until the owning authentication handler is initialized.
-        _options = _optionsMonitor.Get(scheme.Name);
+        _options = _optionsSnapshot.Get(scheme.Name);
         _client.BaseAddress = new Uri(_options.RemoteServiceOptions.RemoteAppUrl, _options.AuthenticationEndpointPath);
         _client.DefaultRequestHeaders.Add(_options.RemoteServiceOptions.ApiKeyHeader, _options.RemoteServiceOptions.ApiKey);
         _initialized = true;
@@ -97,8 +97,8 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
     private static void AddHeaders(IEnumerable<string> headersToForward, HttpRequest originalRequest, HttpRequestMessage authRequest)
     {
         // Add x-forwarded headers so that the authenticate API will
-        authRequest.Headers.Add("x-forwarded-host", originalRequest.Host.Value);
-        authRequest.Headers.Add("x-forwarded-proto", originalRequest.Scheme);
+        authRequest.Headers.Add(AuthenticationConstants.ForwardedHostHeaderName, originalRequest.Host.Value);
+        authRequest.Headers.Add(AuthenticationConstants.ForwardedProtoHeaderName, originalRequest.Scheme);
 
         IEnumerable<string> headerNames = originalRequest.Headers.Keys;
         if (headersToForward.Any())

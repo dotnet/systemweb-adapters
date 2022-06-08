@@ -5,7 +5,7 @@ using System;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal struct ForwardedHost
+internal readonly struct ForwardedHost
 {
     public ForwardedHost(string host)
     {

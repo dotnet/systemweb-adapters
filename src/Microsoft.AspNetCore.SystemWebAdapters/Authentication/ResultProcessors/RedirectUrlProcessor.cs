@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication.ResultProcessors;
@@ -21,16 +20,14 @@ internal class RedirectUrlProcessor : IRemoteAppAuthenticationResultProcessor
 {
     private const string LocationHeaderName = "Location";
     private const string ReturnUrlQueryStringName = "ReturnUrl";
-    private const string ForwardedHostHeaderName = "x-forwarded-host";
-    private const string ForwardedProtoHeaderName = "x-forwarded-proto";
 
     /// <summary>
     /// Updates response headers in a remote authentication result so that any
     /// 'Location' headers will include a ReturnUrl query string corresponding to the
     /// URL of the original request rather than the URL of the remote authentication endpoint.
     /// </summary>
-    /// <param name="result"></param>
-    /// <param name="context"></param>
+    /// <param name="result">The remote app authentication result to be updated so that redirects point to the right locations.</param>
+    /// <param name="context">The HTTP context containing the original request that prompted authentication.</param>
     public Task ProcessAsync(RemoteAppAuthenticationResult result, HttpContext context)
     {
         if (result.ResponseHeaders.TryGetValue(LocationHeaderName, out var locationHeaders))
@@ -90,8 +87,8 @@ internal class RedirectUrlProcessor : IRemoteAppAuthenticationResultProcessor
         }
 
         var redirectBuilder = new UriBuilder(redirectLocation);
-        authenticationRequest.Headers.TryGetValues(ForwardedHostHeaderName, out var forwardedHosts);
-        authenticationRequest.Headers.TryGetValues(ForwardedProtoHeaderName, out var forwardedProtos);
+        authenticationRequest.Headers.TryGetValues(AuthenticationConstants.ForwardedHostHeaderName, out var forwardedHosts);
+        authenticationRequest.Headers.TryGetValues(AuthenticationConstants.ForwardedProtoHeaderName, out var forwardedProtos);
 
         // Only apply if the authenticate request contains forwarded host or scheme
         var forwardedHostAndPort = forwardedHosts?.FirstOrDefault();

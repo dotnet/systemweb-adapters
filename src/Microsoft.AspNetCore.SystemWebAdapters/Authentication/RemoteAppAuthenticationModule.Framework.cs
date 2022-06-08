@@ -17,7 +17,7 @@ internal sealed class RemoteAppAuthenticationModule : IHttpModule
 
     public void Init(HttpApplication context)
     {
-        var handler = new RemoteAppAuthenticationHttpHandler(_options);
+        var handler = new RemoteAppAuthenticationHttpHandler();
 
         context.PostMapRequestHandler += MapRemoteAuthenticationHandler;
 

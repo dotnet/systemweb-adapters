@@ -11,7 +11,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication
     /// <summary>
     /// A service for authenticating an HTTP request with a remote service.
     /// </summary>
-    public interface IRemoteAppAuthenticationService
+    internal interface IRemoteAppAuthenticationService
     {
         /// <summary>
         /// Initializes the remote authentication service for the given scheme.

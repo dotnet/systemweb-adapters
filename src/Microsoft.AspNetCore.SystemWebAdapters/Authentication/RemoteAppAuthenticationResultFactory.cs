@@ -15,7 +15,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// Factory type for generating remote authentication results from HTTP responses
 /// from a remote app.
 /// </summary>
-public class RemoteAppAuthenticationResultFactory : IAuthenticationResultFactory
+internal class RemoteAppAuthenticationResultFactory : IAuthenticationResultFactory
 {
     public async Task<RemoteAppAuthenticationResult> CreateRemoteAppAuthenticationResultAsync(HttpResponseMessage response, RemoteAppAuthenticationOptions options)
     {

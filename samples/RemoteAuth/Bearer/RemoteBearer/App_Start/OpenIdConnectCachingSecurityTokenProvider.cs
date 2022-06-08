@@ -12,7 +12,7 @@ using Microsoft.Owin.Security.Jwt;
 namespace RemoteOAuth
 {
     // This class is necessary because the OAuthBearer Middleware does not leverage
-    // the OpenID Connect metadata endpoint exposed by the STS by default.
+    // the OpenID Connect metadata endpoint exposed by the security token service by default.
     public class OpenIdConnectCachingSecurityTokenProvider : IIssuerSecurityKeyProvider
     {
         private readonly TimeSpan _refreshInterval = new TimeSpan(1, 0, 0, 0);

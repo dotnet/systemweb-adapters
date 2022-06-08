@@ -13,19 +13,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// </summary>
 internal sealed class RemoteAppAuthenticationHttpHandler : IHttpHandler
 {
-    private readonly RemoteAppAuthenticationOptions _options;
-
     public bool IsReusable => true;
-
-    public RemoteAppAuthenticationHttpHandler(RemoteAppAuthenticationOptions options)
-    {
-        if (string.IsNullOrEmpty(options.RemoteServiceOptions.ApiKey))
-        {
-            throw new ArgumentException("API key must not be empty.");
-        }
-
-        _options = options;
-    }
 
     public void ProcessRequest(HttpContext context)
     {

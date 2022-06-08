@@ -12,11 +12,13 @@ First, the ASP.NET app needs to be configured to add the authentication endpoint
 
 ```CSharp
 Application.AddSystemWebAdapters()
-    .AddRemoteAuthentication(options =>
+    .AddRemoteAuthentication(true, options =>
     {
         options.RemoteServiceOptions.ApiKey = "MySecretKey";
     });
 ```
+
+The boolean that is passed to the `AddRemoteAuthentication` call specifies whether remote app authentication should be the default authentication scheme. Passing `true` will cause the user to be authenticated via remote app authentication for all requests, whereas passing `false` means that the user will only be authenticated with remote app authentication if the remote app scheme is specifically requested (with `[Authorize(AuthenticationSchemes = RemoteAppAuthenticationDefaults.AuthenticationScheme)]` on a controller or action method, for example). Passing false for this parameter has the advantage of only making HTTP requests to the original ASP.NET app for authentication for endpoints that require remote app authentication but has the disadvantage of requiring annotating all such endpoints to indicate that they will use remote app auth.
 
 In the options configuration method passed to the `AddRemoteAuthentication` call, you must specify an API key which is used to secure the endpoint so that only trusted callers can make requests to it (this same API key will be provided to the ASP.NET Core app when it is configured). In addition to setting the API key, these options can also be used to specify the path for the authenticate endpoint (defaults to `/systemweb-adapters/authenticate`).
 
@@ -35,25 +37,11 @@ builder.Services.AddSystemWebAdapters()
 
 In addition to configuring the remote app's URL and the shared secret API key, the callback passed to `AddRemoteAppAuthentication` can also optionally specify some aspects of the remote authentication process's behavior:
 
-* `RequestHeadersToForward`: This property contains headers that should be forwarded from a request when calling the authenticate API. By default, the only header forwarded is `Authorization`. If no headers are specified (including removing the default one), then all headers will be forwarded.
-* `ResponseHeadersToForward`: This property lists response headers that should be propagated back from the Authenticate request to the original call that prompted authentication in scenarios where identity is challenged. By default, this includes `Location`, `Set-Cookie`, and `WWW-Authenticate` headers.
-* `AuthenticationEndpointPath`: The endpoint on the ASP.NET app where authenticate requests should be made. This defaults to `/systemweb-adapters/authenticate` and must match the endpoint specified in ASP.NET authentication endpoint configuration.
+* `RequestHeadersToForward`: This property contains headers that should be forwarded from a request when calling the authenticate API. By default, the only headers forwarded are `Authorization` and `Cookie`. Additional headers can be forwarded by adding them to this list. Alternatively, if the list is cleared (so that no headers are specified), then all headers will be forwarded.
+* `ResponseHeadersToForward`: This property lists response headers that should be propagated back from the authenticate request to the original call that prompted authentication in scenarios where identity is challenged. By default, this includes `Location`, `Set-Cookie`, and `WWW-Authenticate` headers.
+* `AuthenticationEndpointPath`: The endpoint on the ASP.NET app where authenticate requests should be made. This defaults to `/systemweb-adapters/authenticate` and must match the endpoint specified in the ASP.NET authentication endpoint configuration.
 
 In addition to these options, `RemoteAuthenticationOptions` derives from `AuthenticationSchemeOptions`, so it can be used to optionally specify authentication schemes to forward to for different authentication actions.
-
-In addition to configuring services for the remote authentication handler, **endpoints must opt in to using remote authentication**. This can be done for an entire set of endpoints at once by calling `RequireRemoteAppAuthentication` while configuring the endpoints:
-
-```CSharp
-app.UseEndpoints(endpoints =>
-{
-    app.MapDefaultControllerRoute()
-       .RequireRemoteAppAuthentication();
-
-    app.MapReverseProxy();
-});
-```
-
-Alternatively, the `[RemoteAuthentication]` attribute can be applied to specific controller classes or action methods to enable remote authentication just for those endpoints.
 
 Finally, if the ASP.NET Core app didn't previously include authentication middleware, that will need to be enabled (after routing middleware, but before authorization middleware):
 
@@ -66,7 +54,7 @@ app.UseAuthentication();
 1. When requests are processed by the ASP.NET Core app, the `RemoteAuthenticationAuthHandler` will attempt to authenticate the user for the request.
     1. The handler will first check whether the endpoint the request is being routed to has remote authentication metadata enabled (via a `[RemoteAuthentication]` or a call to `RequireRemoteAuthentication`). If remote authentication is not enabled, the handler will exit with a result of `NoResult`.
     1. If remote authentication is enabled for the endpoint, the handler will make an HTTP request to the ASP.NET app's authenticate endpoint. It will copy configured headers and cookies from the current request onto this new one in order to forward auth-relevant data. As mentioned above, default behavior is to copy the `Authorize` header and all cookies. The API key header is also added for security purposes.
-1. The ASP.NET app's `RemoteAuthenticationHttpHandler` will serve requests sent to the authenticate endpoint. As long as the API keys match, the handler will return either the current user's ClaimsPrincipal serialized into the response body (the use should have already been logged in thanks to the forwarded headers and cookies) or it will return 401. ASP.NET authentication middleware will intercept the 401 response and either add relevant response headers (`WWW-Authenticate`, for example) or change the response to a 302 with a `Location` header to indicate where the requester should redirect to.
+1. The ASP.NET app will serve requests sent to the authenticate endpoint. As long as the API keys match, the ASP.NET app will return either the current user's ClaimsPrincipal serialized into the response body or it will return an HTTP status code (like 401 or 302) and response headers indicating failure.
 1. When the ASP.NET Core app's `RemoteAuthenticationAuthHandler` receives the response from the ASP.NET app.
     1. If a ClaimsPrincipal was successfully returned, the auth handler will deserialize it and use it as the current user's identity.
     1. If a ClaimsPrincipal was not successfully returned, the handler will store the result and if authentication is challenged (because the user is accessing a protected resource, for example), the request's response will be updated with the status code and selected response headers from the response from the authenticate endpoint. This enables challenge responses (like redirects to a login page) to be propagated to end users.
@@ -76,5 +64,5 @@ app.UseAuthentication();
 
 This remote authentication approach has a couple known limitations:
 
-1. Becausae Windows authentication depends on a handle to a Windows identity, Windows authentication is not supported by this feature. Future work is planned to explore how shared Windows authentication might work.
+1. Because Windows authentication depends on a handle to a Windows identity, Windows authentication is not supported by this feature. Future work is planned to explore how shared Windows authentication might work.
 1. This feature allows the ASP.NET Core app to make use of an identity authenticated by the ASP.NET app but all actions related to users (logging on, logging off, etc.) still need to be routed through the ASP.NET app.

@@ -41,7 +41,7 @@ Session is a commonly used feature of ASP.NET that shares a name with a feature 
 
 ## Enable shared authentication support
 
-While migrating endpoints from an ASP.NET app to an ASP.NET Core app, it is desirable to enable the user to log in to the application once (if authentication is supported) and for that identity to be available to both the ASP.NET and ASP.NET Core app so that the user's experience with the site works as it would if all endpoints were served from the same project. In order to enable this, the System.Web adapters expose [remote authentication features](remote-authentication/remote-authentication.md) for deferring authentication to the ASP.NET app and sharing the user's ClaimsPrincipal between both apps.
+It is possible to share authentication between the original ASP.NET app and the new ASP.NET Core app by using the System.Web adapters remote authentication feature. This feature allows the ASP.NET Core app to defer authentication to the ASP.NET app. Please see the [remote authentication docs]((remote-authentication/remote-authentication.md)) for more details.
 
 ## General Usage Guidance
 
