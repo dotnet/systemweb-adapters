@@ -1,12 +1,13 @@
+using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Owin.Security.Jwt;
 
-// Coped from https://github.com/Azure-Samples/active-directory-b2c-dotnet-webapp-and-webapi
+// Adapted from https://github.com/Azure-Samples/active-directory-b2c-dotnet-webapp-and-webapi
+// and https://github.com/aspnet/AspNetKatana/blob/main/src/Microsoft.Owin.Security.ActiveDirectory/WsFedCachingSecurityKeyProvider.cs
 
 namespace RemoteOAuth
 {
@@ -14,16 +15,15 @@ namespace RemoteOAuth
     // the OpenID Connect metadata endpoint exposed by the STS by default.
     public class OpenIdConnectCachingSecurityTokenProvider : IIssuerSecurityKeyProvider
     {
+        private readonly TimeSpan _refreshInterval = new TimeSpan(1, 0, 0, 0);
+
+        private DateTimeOffset _syncAfter = new DateTimeOffset(new DateTime(2001, 1, 1));
         public ConfigurationManager<OpenIdConnectConfiguration> _configManager;
         private string _issuer;
         private IEnumerable<SecurityKey> _keys;
-        private readonly string _metadataEndpoint;
-
-        private readonly ReaderWriterLockSlim _synclock = new ReaderWriterLockSlim();
 
         public OpenIdConnectCachingSecurityTokenProvider(string metadataEndpoint)
         {
-            _metadataEndpoint = metadataEndpoint;
             _configManager = new ConfigurationManager<OpenIdConnectConfiguration>(metadataEndpoint, new OpenIdConnectConfigurationRetriever());
 
             RetrieveMetadata();
@@ -39,16 +39,8 @@ namespace RemoteOAuth
         {
             get
             {
-                RetrieveMetadata();
-                _synclock.EnterReadLock();
-                try
-                {
-                    return _issuer;
-                }
-                finally
-                {
-                    _synclock.ExitReadLock();
-                }
+                RefreshMetadata();
+                return _issuer;
             }
         }
 
@@ -62,32 +54,30 @@ namespace RemoteOAuth
         {
             get
             {
-                RetrieveMetadata();
-                _synclock.EnterReadLock();
-                try
-                {
-                    return _keys;
-                }
-                finally
-                {
-                    _synclock.ExitReadLock();
-                }
+                RefreshMetadata();
+                return _keys;
             }
         }
 
+        private void RefreshMetadata()
+        {
+            if (_syncAfter >= DateTimeOffset.UtcNow)
+            {
+                return;
+            }
+
+            // Queue a refresh, but discourage other threads from doing so.
+            _syncAfter = DateTimeOffset.UtcNow + _refreshInterval;
+            Task.Run(() => RetrieveMetadata());
+        }
+
+
         private void RetrieveMetadata()
         {
-            _synclock.EnterWriteLock();
-            try
-            {
-                OpenIdConnectConfiguration config = Task.Run(_configManager.GetConfigurationAsync).Result;
-                _issuer = config.Issuer;
-                _keys = config.SigningKeys;
-            }
-            finally
-            {
-                _synclock.ExitWriteLock();
-            }
+            _syncAfter = DateTimeOffset.UtcNow + _refreshInterval;
+            OpenIdConnectConfiguration config = Task.Run(_configManager.GetConfigurationAsync).Result;
+            _issuer = config.Issuer;
+            _keys = config.SigningKeys;
         }
     }
 }
