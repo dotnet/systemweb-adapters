@@ -4,11 +4,11 @@ The System.Web adapter's remote authentication feature allows an ASP.NET Core ap
 
 ## Configuration
 
-There are just a few small code changes need to enable remote authentication in a solution that's already using System.Web adapters and has an ASP.NET Core app (with migrated endpoints) proxying requests to an existing ASP.NET app (when the requests go to endpoints that aren't migrated yet).
+There are just a few small code changes needed to enable remote authentication in a solution that's already set up according to the [Getting Started](../getting_started.md).
 
 ### ASP.NET app configuration
 
-First, the ASP.NET app needs configured to add the authentication endpoint. This is done by calling the `AddRemoteAuthentication` extension method on the `ISystemWebAdapterBuilder`:
+First, the ASP.NET app needs to be configured to add the authentication endpoint. This is done by calling the `AddRemoteAuthentication` extension method on the `ISystemWebAdapterBuilder`:
 
 ```CSharp
 Application.AddSystemWebAdapters()
@@ -22,7 +22,7 @@ In the options configuration method passed to the `AddRemoteAuthentication` call
 
 ### ASP.NET Core app configuration
 
-Next, the ASP.NET Core app needs configured to enable the authentication handler that will authenticate users by making an HTTP request to the ASP.NET app. This is done by calling `AddRemoteAppAuthentication` when registering System.Web adapters services:
+Next, the ASP.NET Core app needs to be configured to enable the authentication handler that will authenticate users by making an HTTP request to the ASP.NET app. This is done by calling `AddRemoteAppAuthentication` when registering System.Web adapters services:
 
 ```CSharp
 builder.Services.AddSystemWebAdapters()
@@ -33,7 +33,7 @@ builder.Services.AddSystemWebAdapters()
     });
 ```
 
-In addition to configuring the remote app's URL and the shared secret ApiKey, the callback passed to `AddRemoteAppAuthentication` can also optionally specify some aspects of the remote authentication process's behavior:
+In addition to configuring the remote app's URL and the shared secret API key, the callback passed to `AddRemoteAppAuthentication` can also optionally specify some aspects of the remote authentication process's behavior:
 
 * `RequestHeadersToForward`: This property contains headers that should be forwarded from a request when calling the authenticate API. By default, the only header forwarded is `Authorization`. If no headers are specified (including removing the default one), then all headers will be forwarded.
 * `ResponseHeadersToForward`: This property lists response headers that should be propagated back from the Authenticate request to the original call that prompted authentication in scenarios where identity is challenged. By default, this includes `Location`, `Set-Cookie`, and `WWW-Authenticate` headers.
