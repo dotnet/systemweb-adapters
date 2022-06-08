@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.SystemWebAdapters;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
-// Add services to the container.
-
 builder.Services.AddControllers();
 
 builder.Services.AddSystemWebAdapters()
