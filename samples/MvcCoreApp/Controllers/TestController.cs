@@ -18,6 +18,12 @@ namespace MvcCoreApp.Controllers
 
         [Route("/api/test/response/cookie")]
         [HttpGet]
-        public void TestResponseCookie() => CookieTests.ResponseCookies(HttpContext);
+        public void TestResponseCookie(bool shareable = false)
+        {
+            // Force public cache control for testing Shareable behavior
+            HttpContext.Response.Headers["Cache-Control"] = "public";
+
+            CookieTests.ResponseCookies(HttpContext, shareable);
+        }
     }
 }

@@ -26,6 +26,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
 
         public static void UseSystemWebAdapters(this IApplicationBuilder app)
         {
+            app.UseMiddleware<DefaultCacheControlMiddleware>();
             app.UseMiddleware<PreBufferRequestStreamMiddleware>();
             app.UseMiddleware<SessionMiddleware>();
             app.UseMiddleware<BufferResponseStreamMiddleware>();

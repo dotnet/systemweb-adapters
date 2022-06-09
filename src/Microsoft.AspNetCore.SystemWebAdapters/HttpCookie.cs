@@ -30,6 +30,17 @@ public sealed class HttpCookie
     public string Name { get; set; }
 
     /// <summary>
+    /// Gets or sets a subkey. Same as accessing the item from <see cref="Values"./>
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    public string? this[string key]
+    {
+        get => Values[key];
+        set => Values[key] = value;
+    }
+
+    /// <summary>
     /// Gets or sets an individual cookie value.
     public string? Value
     {
@@ -115,6 +126,17 @@ public sealed class HttpCookie
     /// Gets or sets the value for the SameSite attribute of the cookie.
     /// </summary>
     public SameSiteMode SameSite { get; set; } = SameSiteMode.Lax;
+
+    /// <summary>
+    /// Gets a value indicating whether the cookie has sub-keys.
+    /// </summary>
+    public bool HasKeys => Values?.HasKeys() ?? false;
+
+    /// <summary>
+    /// Gets a value indicating whether this cookie is allowed to participate in output caching.
+    /// </summary>
+    /// <remarks>
+    public bool Shareable { get; set; }
 
     /// <summary>
     /// Gets or sets the domain to associate the cookie with.

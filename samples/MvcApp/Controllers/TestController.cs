@@ -17,6 +17,10 @@ namespace MvcApp.Controllers
 
         [Route("response/cookie")]
         [HttpGet]
-        public void TestResponseCookie() => CookieTests.ResponseCookies(HttpContext.Current);
+        public void TestResponseCookie(bool shareable = false)
+        {
+            HttpContext.Current.Response.Cache.SetCacheability(HttpCacheability.Public);
+            CookieTests.ResponseCookies(HttpContext.Current, shareable);
+        }
     }
 }
