@@ -25,7 +25,7 @@ public class CookieTests
         context.Response.End();
     }
 
-    public static void ResponseCookies(HttpContext context)
+    public static void ResponseCookies(HttpContext context, bool shareable)
     {
         using (var writer = new SimpleJsonWriter(context.Response))
         {
@@ -33,7 +33,7 @@ public class CookieTests
             writer.Write("InitialHeader", context.Response.Headers["cookie"]);
 
             // Add cookie
-            context.Response.Cookies.Add(new HttpCookie("cookie1", "cookie1value"));
+            context.Response.Cookies.Add(new HttpCookie("cookie1", "cookie1value") { Shareable = shareable });
             writer.Write("AfterAddCount", context.Response.Cookies.Count);
             writer.Write("AfterAddHeader", context.Response.Headers["set-cookie"]);
         }

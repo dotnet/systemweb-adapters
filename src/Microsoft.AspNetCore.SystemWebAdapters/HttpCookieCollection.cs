@@ -4,6 +4,7 @@
 using System.Collections.Specialized;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.Net.Http.Headers;
 
 namespace System.Web;
 
@@ -30,13 +31,33 @@ public sealed class HttpCookieCollection : NameObjectCollectionBase
         {
             var response = (HttpResponse)state;
             var cookies = response.UnwrapAdapter().Cookies;
+            var isShareable = false;
 
             for (var i = 0; i < response.Cookies.Count; i++)
             {
                 if (response.Cookies[i] is { } cookie)
                 {
                     cookies.Append(cookie.Name, cookie.Value ?? string.Empty, cookie.ToCookieOptions());
+
+                    isShareable |= cookie.Shareable;
                 }
+            }
+
+            // We should suppress caching cookies if non-shareable cookies are
+            // present in the response. Since these cookies can cary sensitive information, 
+            // we should set Cache-Control: no-cache=set-cookie if there is such cookie
+            // This prevents all well-behaved caches (both intermediary proxies and any local caches
+            // on the client) from storing this sensitive information.
+            // 
+            // Additionally, we should not set this header during an SSL request, as certain versions
+            // of IE don't handle it properly and simply refuse to render the page. More info:
+            // http://blogs.msdn.com/b/ieinternals/archive/2009/10/02/internet-explorer-cannot-download-over-https-when-no-cache.aspx
+            if (!isShareable && !response.UnwrapAdapter().HttpContext.Request.IsHttps && response.TypedHeaders.CacheControl is { Public: true } cacheControl)
+            {
+                cacheControl.NoCache = true;
+                cacheControl.NoCacheHeaders.Add(HeaderNames.SetCookie);
+
+                response.TypedHeaders.CacheControl = cacheControl;
             }
 
             return Task.CompletedTask;

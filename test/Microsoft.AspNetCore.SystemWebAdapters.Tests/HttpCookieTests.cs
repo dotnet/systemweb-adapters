@@ -156,4 +156,44 @@ public class HttpCookieTests
         // Assert
         Assert.Equal(expires, cookie.Expires);
     }
+
+    [Fact]
+    public void HasKeysNoValue()
+    {
+        // Arrange
+        var cookie = new HttpCookie(_fixture.Create<string>());
+
+        // Act
+        var result = cookie.HasKeys;
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void HasKeysSingleValue()
+    {
+        // Arrange
+        var cookie = new HttpCookie(_fixture.Create<string>(), _fixture.Create<string>());
+
+        // Act
+        var result = cookie.HasKeys;
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void HasKeysAddSingleValue()
+    {
+        // Arrange
+        var cookie = new HttpCookie(_fixture.Create<string>());
+        cookie.Values.Add(_fixture.Create<string>(), _fixture.Create<string>());
+
+        // Act
+        var result = cookie.HasKeys;
+
+        // Assert
+        Assert.True(result);
+    }
 }
