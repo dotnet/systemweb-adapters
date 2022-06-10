@@ -15,9 +15,27 @@
 
 namespace System.Web
 {
-    public partial class HttpBrowserCapabilities
+    public partial class HttpBrowserCapabilities : System.Web.Configuration.HttpCapabilitiesBase
     {
-        public HttpBrowserCapabilities() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        internal HttpBrowserCapabilities() { }
+    }
+    public partial class HttpBrowserCapabilitiesBase
+    {
+        public HttpBrowserCapabilitiesBase() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public virtual string Browser { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public virtual int MajorVersion { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public virtual double MinorVersion { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public virtual string Platform { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public virtual string Version { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+    }
+    public partial class HttpBrowserCapabilitiesWrapper : System.Web.HttpBrowserCapabilitiesBase
+    {
+        public HttpBrowserCapabilitiesWrapper(System.Web.HttpBrowserCapabilities capabilities) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public override string Browser { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public override int MajorVersion { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public override double MinorVersion { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public override string Platform { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public override string Version { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
     }
     public partial class HttpContext : System.IServiceProvider
     {
@@ -60,6 +78,7 @@ namespace System.Web
         public System.DateTime Expires { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} [System.Runtime.CompilerServices.CompilerGeneratedAttribute]set { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public bool HasKeys { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public bool HttpOnly { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} [System.Runtime.CompilerServices.CompilerGeneratedAttribute]set { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public string this[string key] { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public string Name { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} [System.Runtime.CompilerServices.CompilerGeneratedAttribute]set { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public string Path { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} [System.Runtime.CompilerServices.CompilerGeneratedAttribute]set { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public System.Web.SameSiteMode SameSite { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} [System.Runtime.CompilerServices.CompilerGeneratedAttribute]set { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
@@ -81,6 +100,12 @@ namespace System.Web
         public string GetKey(int index) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void Remove(string name) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void Set(System.Web.HttpCookie cookie) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+    }
+    public partial class HttpException : System.SystemException
+    {
+        public HttpException() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public HttpException(string message) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public HttpException(string message, System.Exception innerException) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
     }
     public partial class HttpRequest
     {
@@ -120,7 +145,7 @@ namespace System.Web
         protected HttpRequestBase() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public string ApplicationPath { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public string AppRelativeCurrentExecutionFilePath { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
-        public System.Web.HttpBrowserCapabilities Browser { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public virtual System.Web.HttpBrowserCapabilitiesBase Browser { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public virtual System.Text.Encoding ContentEncoding { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public virtual int ContentLength { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public virtual string ContentType { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
@@ -150,6 +175,7 @@ namespace System.Web
     public partial class HttpRequestWrapper : System.Web.HttpRequestBase
     {
         public HttpRequestWrapper(System.Web.HttpRequest request) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public override System.Web.HttpBrowserCapabilitiesBase Browser { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public override System.Text.Encoding ContentEncoding { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public override int ContentLength { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public override string ContentType { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
@@ -307,6 +333,12 @@ namespace System.Web
         public override void Remove(string name) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public override void RemoveAll() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
     }
+    public sealed partial class HttpUnhandledException : System.Web.HttpException
+    {
+        public HttpUnhandledException() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public HttpUnhandledException(string message) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public HttpUnhandledException(string message, System.Exception innerException) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+    }
     public enum SameSiteMode
     {
         Lax = 1,
@@ -359,6 +391,18 @@ namespace System.Web.Caching
     {
         DependencyChanged = 2,
         Expired = 1,
+    }
+}
+namespace System.Web.Configuration
+{
+    public partial class HttpCapabilitiesBase
+    {
+        internal HttpCapabilitiesBase() { }
+        public string Browser { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public int MajorVersion { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public double MinorVersion { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public string Platform { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public string Version { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
     }
 }
 namespace System.Web.SessionState

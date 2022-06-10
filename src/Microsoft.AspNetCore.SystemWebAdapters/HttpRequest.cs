@@ -9,11 +9,13 @@ using System.IO;
 using System.Net;
 using System.Security.Principal;
 using System.Text;
+using System.Web.Configuration;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 
 namespace System.Web
@@ -170,7 +172,27 @@ namespace System.Web
 
         public string? UserHostName => _request.HttpContext.Connection.RemoteIpAddress?.ToString();
 
-        public HttpBrowserCapabilities Browser => _browser ??= new();
+        public HttpBrowserCapabilities Browser
+        {
+            get
+            {
+                if (_browser is not null)
+                {
+                    return _browser;
+                }
+
+                var factory = _request.HttpContext.RequestServices.GetService<BrowserCapabilitiesFactory>();
+
+                if (factory is null)
+                {
+                    throw new InvalidOperationException("Browser capabilities requires AddSystemWebAdapters() to be called on service collection");
+                }
+
+                _browser = new(factory, _request.Headers.UserAgent);
+
+                return _browser;
+            }
+        }
 
         public byte[] BinaryRead(int count)
         {
