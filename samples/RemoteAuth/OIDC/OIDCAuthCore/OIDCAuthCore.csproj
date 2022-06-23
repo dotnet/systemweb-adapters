@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SystemWebAdapters" Version="1.0.0-preview.1.22267.1" />
+    <PackageReference Include="Microsoft.AspNetCore.SystemWebAdapters.SessionState" Version="1.0.0-preview.1.22267.1" />
+    <PackageReference Include="Yarp.ReverseProxy" Version="1.1.0" />
+  </ItemGroup>
+
+</Project>
