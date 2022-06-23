@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace OIDCAuth
 {
@@ -16,6 +17,11 @@ namespace OIDCAuth
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            Application.AddSystemWebAdapters()
+                .AddRemoteAppAuthentication(options =>
+                    options.RemoteServiceOptions.ApiKey = "test-key");
+
         }
     }
 }

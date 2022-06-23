@@ -1,7 +1,15 @@
 using Microsoft.AspNetCore.SystemWebAdapters;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddSystemWebAdapters();
+
+builder.Services.AddSystemWebAdapters()
+    .AddRemoteAppAuthentication(true, options =>
+    {
+        options.RemoteServiceOptions.RemoteAppUrl =
+           new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
+        options.RemoteServiceOptions.ApiKey = "test-key";
+    });
+
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 // Add services to the container.
@@ -18,10 +26,11 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 app.UseSystemWebAdapters();
 
-app.MapControllers();
+app.MapDefaultControllerRoute();
 app.MapReverseProxy();
 
 app.Run();
