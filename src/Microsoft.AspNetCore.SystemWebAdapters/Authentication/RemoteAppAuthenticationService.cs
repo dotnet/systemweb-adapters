@@ -86,7 +86,7 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
         // that may matter for authentication. Also include the original request URL as
         // as query parameter so that the ASP.NET app can redirect back to it if an
         // authentication provider attempts to redirect back to the authenticate URL.
-        using var authRequest = new HttpRequestMessage(HttpMethod.Get, $"?{AuthenticationConstants.OriginalUrlQueryParamName}={originalRequest.GetEncodedUrl()}");
+        using var authRequest = new HttpRequestMessage(HttpMethod.Get, $"?{AuthenticationConstants.OriginalUrlQueryParamName}={WebUtility.UrlEncode(originalRequest.GetEncodedUrl())}");
         AddHeaders(_options.RequestHeadersToForward, originalRequest, authRequest);
 
         // Get the response from the remote app and convert the response into a remote authentication result
