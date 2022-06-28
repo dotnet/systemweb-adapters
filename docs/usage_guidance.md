@@ -17,12 +17,6 @@ There are two ways to convert an `Microsoft.AspNetCore.Http.HttpContext` to a `S
 
 **Recommendation**: For the most cases, implicit casting should be preferred as this will cache the created instance and ensure only a single `System.Web.HttpContext` per request.
 
-## `System.Threading.Thread.CurrentPrincipal` not supported
-
-In ASP.NET Framework, `System.Threading.Thread.CurrentPrincipal` would be set to the current user. This is not available on ASP.NET Core.
-
-**Recommendation**: Use the property `HttpContext.User` instead.
-
 ## `CultureInfo.CurrentCulture` is not set by default
 
 In ASP.NET Framework, `CultureInfo.Current` was set for a request, but this is not done automatically in ASP.NET Core. Instead, you must add the appropriate middleware to your pipeline.
