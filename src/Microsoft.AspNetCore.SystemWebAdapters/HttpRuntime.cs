@@ -9,9 +9,9 @@ public sealed class HttpRuntime
 {
     static HttpRuntime()
     {
-        var properties = NativeMethods.HttpGetApplicationProperties();
-
-        AppDomainAppVirtualPath = NativeMethods.IsAspNetCoreModuleLoaded() ? properties.pwzVirtualApplicationPath : "/";
+        AppDomainAppVirtualPath = NativeMethods.IsAspNetCoreModuleLoaded()
+            ? NativeMethods.HttpGetApplicationProperties().pwzVirtualApplicationPath
+            : "/";
     }
 
     private HttpRuntime()

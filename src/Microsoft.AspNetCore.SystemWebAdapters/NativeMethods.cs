@@ -13,9 +13,11 @@ internal static class NativeMethods
     private const string KERNEL32 = "kernel32.dll";
 
     [DllImport(KERNEL32, EntryPoint = "GetModuleHandleW")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     private static extern IntPtr GetModuleHandle([MarshalAs(UnmanagedType.LPWStr)] string lpModuleName);
 
     [DllImport(AspNetCoreModuleDll)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.UserDirectories)]
     private static extern int http_get_application_properties(ref IISConfigurationData iiConfigData);
 
     internal static bool IsAspNetCoreModuleLoaded()
