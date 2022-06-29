@@ -9,13 +9,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 internal class SingleThreadedRequestMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ConcurrentExclusiveSchedulerPair _schedule;
 
-    public SingleThreadedRequestMiddleware(RequestDelegate next)
-    {
-        _next = next;
-        _schedule = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, 1);
-    }
+    public SingleThreadedRequestMiddleware(RequestDelegate next) => _next = next;
 
     public Task InvokeAsync(HttpContextCore context)
         => context.GetEndpoint()?.Metadata.GetMetadata<ISingleThreadedRequestMetadata>() is { IsEnabled: true }
@@ -23,5 +18,9 @@ internal class SingleThreadedRequestMiddleware
             : _next(context);
 
     private Task EnsureSingleThreaded(HttpContextCore context)
-        => Task.Factory.StartNew(() => _next(context), context.RequestAborted, TaskCreationOptions.DenyChildAttach, _schedule.ExclusiveScheduler).Unwrap();
+    {
+        var schedule = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, 1);
+
+        return Task.Factory.StartNew(() => _next(context), context.RequestAborted, TaskCreationOptions.DenyChildAttach, schedule.ExclusiveScheduler).Unwrap();
+    }
 }
