@@ -67,7 +67,7 @@ namespace System.Web
 
         public virtual string? UserHostName => throw new NotImplementedException();
 
-        public HttpBrowserCapabilities Browser => throw new NotImplementedException();
+        public virtual HttpBrowserCapabilitiesBase Browser => throw new NotImplementedException();
 
         public virtual byte[] BinaryRead(int count) => throw new NotImplementedException();
 

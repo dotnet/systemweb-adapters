@@ -49,6 +49,8 @@ namespace System.Web
 
         public override NameValueCollection QueryString => _request.QueryString;
 
+        public override HttpBrowserCapabilitiesBase Browser => new HttpBrowserCapabilitiesWrapper(_request.Browser);
+
         public override string? RawUrl => _request.RawUrl;
 
         public override string RequestType => _request.RequestType;

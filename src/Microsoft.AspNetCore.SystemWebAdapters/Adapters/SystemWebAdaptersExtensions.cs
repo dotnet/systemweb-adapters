@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Web;
 using System.Web.Caching;
+using System.Web.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -23,6 +24,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         {
             services.AddHttpContextAccessor();
             services.AddSingleton<Cache>();
+            services.AddSingleton<BrowserCapabilitiesFactory>();
 
             return new Builder(services);
         }
