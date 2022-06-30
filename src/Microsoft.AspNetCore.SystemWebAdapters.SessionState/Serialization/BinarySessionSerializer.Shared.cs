@@ -46,7 +46,10 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 
     [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Could not deserialize unknown session key '{Key}'")]
     partial void LogDeserialization(string key);
+
+    [LoggerMessage(EventId = 2, Level = LogLevel.Warning, Message = "Invalid version marker in session stream. Found '{ActualVersion}' but expected '{ExpectedVersion}'. At position {Position} in stream")]
 #endif
+    partial void InvalidVersion(int expectedVersion, int actualVersion, long position);
 
     public void Write(ISessionState state, BinaryWriter writer)
     {
@@ -113,8 +116,11 @@ internal partial class BinarySessionSerializer : ISessionSerializer
             throw new ArgumentNullException(nameof(reader));
         }
 
-        if (reader.ReadByte() != Version)
+        var version = reader.ReadByte();
+
+        if (version != Version)
         {
+            InvalidVersion(Version, version, reader.BaseStream.Position);
             throw new InvalidOperationException("Serialized session state has different version than expected");
         }
 
