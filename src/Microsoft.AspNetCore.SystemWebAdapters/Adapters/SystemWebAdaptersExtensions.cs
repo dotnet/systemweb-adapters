@@ -33,6 +33,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             app.UseMiddleware<PreBufferRequestStreamMiddleware>();
             app.UseMiddleware<SessionMiddleware>();
             app.UseMiddleware<BufferResponseStreamMiddleware>();
+            app.UseMiddleware<SingleThreadedRequestMiddleware>();
+            app.UseMiddleware<SingleThreadedRequestMiddleware>();
             app.UseCurrentPrincipal();
         }
 
