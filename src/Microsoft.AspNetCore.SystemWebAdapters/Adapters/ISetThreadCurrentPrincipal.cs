@@ -5,4 +5,5 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public interface ISetThreadCurrentPrincipal
 {
+    bool IsEnabled { get; }
 }
