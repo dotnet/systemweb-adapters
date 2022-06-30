@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Security.Claims;
 using System.Web;
 using System.Web.Caching;
 using System.Web.Configuration;
@@ -14,7 +13,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters
 {
@@ -38,25 +36,6 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             app.UseMiddleware<SingleThreadedRequestMiddleware>();
             app.UseMiddleware<SingleThreadedRequestMiddleware>();
             app.UseCurrentPrincipal();
-        }
-
-        [LoggerMessage(0, LogLevel.Warning, "ClaimsPrincipal.Current was accessed")]
-        private static partial void LogClaimsPrincipalAccess(ILogger logger);
-
-        private static void UseCurrentPrincipal(this IApplicationBuilder app)
-        {
-            app.UseMiddleware<CurrentPrincipalMiddleware>();
-
-            var accessor = app.ApplicationServices.GetRequiredService<IHttpContextAccessor>();
-            var logger = app.ApplicationServices.GetRequiredService<ILogger<ClaimsPrincipal>>();
-
-            ClaimsPrincipal.ClaimsPrincipalSelector = ClaimsPrincipleAccessor!;
-
-            ClaimsPrincipal? ClaimsPrincipleAccessor()
-            {
-                LogClaimsPrincipalAccess(logger);
-                return accessor.HttpContext?.User;
-            }
         }
 
         /// <summary>
