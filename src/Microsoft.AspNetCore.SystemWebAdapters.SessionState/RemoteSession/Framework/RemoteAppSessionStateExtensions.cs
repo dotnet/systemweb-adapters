@@ -9,7 +9,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public static class RemoteAppSessionStateExtensions
 {
-    public static ISystemWebAdapterBuilder AddRemoteAppSession(this ISystemWebAdapterBuilder builder, Action<RemoteAppSessionStateOptions> configureRemote, Action<JsonSessionSerializerOptions> configureSerializer)
+    public static ISystemWebAdapterBuilder AddRemoteAppSession(this ISystemWebAdapterBuilder builder, Action<RemoteAppSessionStateOptions> configureRemote, ISessionKeySerializer keySerializer)
     {
         if (builder is null)
         {
@@ -21,22 +21,19 @@ public static class RemoteAppSessionStateExtensions
             throw new ArgumentNullException(nameof(configureRemote));
         }
 
-        if (configureSerializer is null)
+        if (keySerializer is null)
         {
-            throw new ArgumentNullException(nameof(configureSerializer));
+            throw new ArgumentNullException(nameof(keySerializer));
         }
 
-        var options = new RemoteAppSessionStateOptions();
-        configureRemote(options);
+        var remoteOptions = new RemoteAppSessionStateOptions();
+        configureRemote(remoteOptions);
 
         // We don't want to throw by default on the .NET Framework side as then the error won't be easily visible in the ASP.NET Core app
-        var serializerOptions = new JsonSessionSerializerOptions();
-        configureSerializer(serializerOptions);
+        var serializerOptions = new SessionSerializerOptions { ThrowOnUnknownSessionKey = false };
+        var serializer = new BinarySessionSerializer(keySerializer, serializerOptions);
 
-        var keySerializer = new JsonSessionKeySerializer(serializerOptions);
-        var serializer = new BinarySessionSerializer(keySerializer, new SessionSerializerOptions { ThrowOnUnknownSessionKey = false });
-
-        builder.Modules.Add(new RemoteSessionModule(options, new InMemoryLockedSessions(serializer), serializer));
+        builder.Modules.Add(new RemoteSessionModule(remoteOptions, new InMemoryLockedSessions(serializer), serializer));
 
         return builder;
     }
