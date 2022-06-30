@@ -29,11 +29,17 @@ Simplest way to enable this with similar behavior as ASP.NET Framework would be 
 app.UseRequestLocalization();
 ```
 
+## `System.Threading.Thread.CurrentPrincipal` not supported
+
+In ASP.NET Framework, `System.Threading.Thread.CurrentPrincipal` and `System.Security.Claims.ClaimsPrincipal.Current` would be set to the current user. This is not available on ASP.NET Core. Support for this is available with these adapters by adding the `ICurrentPrincipalMetadata` to the endpoint. However, it should only be used if the code cannot be refactored to remove usage.
+
+**Recommendation**: If possible, use the property `HttpContext.User` instead by passing it through to the call site. If not possible, enable setting the current user and also consider setting the request to be a logical single thread (see below for details).
+
 ## Request thread does not exist in ASP.NET Core
 
 In ASP.NET Framework, a request had thread-affinity and `HttpContext.Current` would only be available if on that thread. ASP.NET Core does not have this guarantee so `HttpContext.Current` will be available within the same async context, but no guarantees about threads are made.
 
-**Recommendation**: If reading/writing to the `HttpContext`, you must ensure you are doing so in a single-threaded way. You can force a request to never run concurrently on any async context by setting the `ISingleThreadedRequestMetadata`. There is an implementation available to add to controllers with `SingleThreadedRequestAttribute`:
+**Recommendation**: If reading/writing to the `HttpContext`, you must ensure you are doing so in a single-threaded way. You can force a request to never run concurrently on any async context by setting the `ISingleThreadedRequestMetadata`. This will have performance implications and should only be used if you can't refactor usage to ensure non-concurrent access. There is an implementation available to add to controllers with `SingleThreadedRequestAttribute`:
 
 
 ```csharp
