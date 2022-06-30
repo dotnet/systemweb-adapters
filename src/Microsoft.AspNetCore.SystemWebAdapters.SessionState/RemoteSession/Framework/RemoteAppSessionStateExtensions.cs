@@ -26,12 +26,32 @@ public static class RemoteAppSessionStateExtensions
             throw new ArgumentNullException(nameof(keySerializer));
         }
 
-        var remoteOptions = new RemoteAppSessionStateOptions();
-        configureRemote(remoteOptions);
-
         // We don't want to throw by default on the .NET Framework side as then the error won't be easily visible in the ASP.NET Core app
         var serializerOptions = new SessionSerializerOptions { ThrowOnUnknownSessionKey = false };
         var serializer = new BinarySessionSerializer(keySerializer, serializerOptions);
+
+        return builder.AddRemoteAppSession(configureRemote, serializer);
+    }
+
+    public static ISystemWebAdapterBuilder AddRemoteAppSession(this ISystemWebAdapterBuilder builder, Action<RemoteAppSessionStateOptions> configureRemote, ISessionSerializer serializer)
+    {
+        if (builder is null)
+        {
+            throw new ArgumentNullException(nameof(builder));
+        }
+
+        if (configureRemote is null)
+        {
+            throw new ArgumentNullException(nameof(configureRemote));
+        }
+
+        if (serializer is null)
+        {
+            throw new ArgumentNullException(nameof(serializer));
+        }
+
+        var remoteOptions = new RemoteAppSessionStateOptions();
+        configureRemote(remoteOptions);
 
         builder.Modules.Add(new RemoteSessionModule(remoteOptions, new InMemoryLockedSessions(serializer), serializer));
 
