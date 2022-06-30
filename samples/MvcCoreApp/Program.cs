@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.SystemWebAdapters;
 
 var builder = WebApplication.CreateBuilder();
@@ -35,6 +36,23 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSystemWebAdapters();
+
+app.MapGet("/current-principals-with-metadata", (HttpContext ctx) =>
+{
+    var user1 = Thread.CurrentPrincipal;
+    var user2 = ClaimsPrincipal.Current;
+
+    return "done";
+}).WithMetadata(new SetThreadCurrentPrincipalAttribute());
+
+
+app.MapGet("/current-principals-no-metadata", (HttpContext ctx) =>
+{
+    var user1 = Thread.CurrentPrincipal;
+    var user2 = ClaimsPrincipal.Current;
+
+    return "done";
+});
 
 app.UseEndpoints(endpoints =>
 {

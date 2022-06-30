@@ -1,91 +1,25 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Runtime.CompilerServices;
-using System.Security.Claims;
-using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal static partial class CurrentPrincipalExtensions
+internal partial class CurrentPrincipalMiddleware
 {
-    [LoggerMessage(0, LogLevel.Warning, "ClaimsPrincipal.Current was accessed")]
-    private static partial void LogClaimsPrincipalAccess(ILogger logger);
+    [LoggerMessage(0, LogLevel.Warning, "Requests should be limited to a single logical thread using ISingleThreadedRequestMetadata when using Thread.CurrentPrincipal or ClaimsPrincipal.Current")]
+    private partial void LogShouldBeSingleThreaded();
 
-    [LoggerMessage(1, LogLevel.Warning, "ClaimsPrincipal.Current will only be set if ISetThreadCurrentPrincipal is set on the endpoint")]
-    private static partial void LogClaimsPrincipalAccessNoEndpoint(ILogger logger);
-
-    public static void UseCurrentPrincipal(this IApplicationBuilder app)
-    {
-        app.UseMiddleware<CurrentPrincipalMiddleware>();
-
-        var accessor = app.ApplicationServices.GetRequiredService<IHttpContextAccessor>();
-        var logger = app.ApplicationServices.GetRequiredService<ILogger<ClaimsPrincipal>>();
-
-        ClaimsPrincipal.ClaimsPrincipalSelector = ClaimsPrincipleAccessor!;
-
-        ClaimsPrincipal? ClaimsPrincipleAccessor()
-        {
-            var context = accessor.HttpContext;
-
-            if (context?.GetEndpoint()?.Metadata.GetMetadata<ISetThreadCurrentPrincipal>() is { IsEnabled: true })
-            {
-                LogClaimsPrincipalAccess(logger);
-                return accessor.HttpContext?.User;
-            }
-
-            LogClaimsPrincipalAccessNoEndpoint(logger);
-            return null;
-        }
-    }
-
-    public static IPrincipal WrapUserWithWarning(this HttpContext context)
-        => new PrincipalAccessor(context.User, context.RequestServices.GetRequiredService<ILogger<PrincipalAccessor>>());
-
-    private partial class PrincipalAccessor : IPrincipal
-    {
-        [LoggerMessage(0, LogLevel.Warning, "Thread.Current was accessed via {Method}")]
-        private partial void LogAccess([CallerMemberName] string? method = null);
-
-        private readonly IPrincipal _other;
-        private readonly ILogger _logger;
-
-        public PrincipalAccessor(IPrincipal other, ILogger logger)
-        {
-            _other = other;
-            _logger = logger;
-        }
-
-        public IIdentity? Identity
-        {
-            get
-            {
-                LogAccess();
-                return _other.Identity;
-            }
-        }
-
-        public bool IsInRole(string role)
-        {
-            LogAccess();
-            return _other.IsInRole(role);
-        }
-    }
-}
-
-internal class CurrentPrincipalMiddleware
-{
     private readonly RequestDelegate _next;
+    private readonly ILogger<CurrentPrincipalMiddleware> _logger;
 
-    public CurrentPrincipalMiddleware(RequestDelegate next)
+    public CurrentPrincipalMiddleware(RequestDelegate next, ILogger<CurrentPrincipalMiddleware> logger)
     {
         _next = next;
+        _logger = logger;
     }
 
     public Task InvokeAsync(HttpContext context)
@@ -93,6 +27,11 @@ internal class CurrentPrincipalMiddleware
 
     private async Task SetUserAsync(HttpContext context)
     {
+        if (context.GetEndpoint()?.Metadata.GetMetadata<ISingleThreadedRequestMetadata>() is not { IsEnabled: true })
+        {
+            LogShouldBeSingleThreaded();
+        }
+
         var current = Thread.CurrentPrincipal;
 
         try

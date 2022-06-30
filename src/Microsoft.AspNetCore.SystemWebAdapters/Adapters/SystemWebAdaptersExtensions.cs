@@ -9,7 +9,6 @@ using System.Web;
 using System.Web.Caching;
 using System.Web.Configuration;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
 using Microsoft.Extensions.DependencyInjection;
