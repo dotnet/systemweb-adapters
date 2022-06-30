@@ -270,6 +270,11 @@ namespace System.Web
         public override void Write(object obj) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public override void Write(string s) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
     }
+    public sealed partial class HttpRuntime
+    {
+        internal HttpRuntime() { }
+        public static string AppDomainAppVirtualPath { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+    }
     public partial class HttpServerUtility
     {
         internal HttpServerUtility() { }
