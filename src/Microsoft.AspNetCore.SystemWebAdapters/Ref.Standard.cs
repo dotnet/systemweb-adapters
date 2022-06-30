@@ -23,6 +23,7 @@ namespace System.Web
     {
         public HttpBrowserCapabilitiesBase() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public virtual string Browser { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public virtual bool Crawler { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public virtual int MajorVersion { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public virtual double MinorVersion { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public virtual string Platform { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
@@ -32,6 +33,7 @@ namespace System.Web
     {
         public HttpBrowserCapabilitiesWrapper(System.Web.HttpBrowserCapabilities capabilities) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public override string Browser { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public override bool Crawler { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public override int MajorVersion { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public override double MinorVersion { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public override string Platform { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
@@ -404,6 +406,7 @@ namespace System.Web.Configuration
     {
         internal HttpCapabilitiesBase() { }
         public string Browser { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public bool Crawler { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public int MajorVersion { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public double MinorVersion { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public string Platform { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }

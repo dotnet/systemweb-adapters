@@ -116,14 +116,7 @@ namespace System.Web
             {
                 if (_serverVariables is null)
                 {
-                    if (_request.HttpContext.Features.Get<IServerVariablesFeature>() is IServerVariablesFeature feature)
-                    {
-                        _serverVariables = feature.ToNameValueCollection();
-                    }
-                    else
-                    {
-                        throw new PlatformNotSupportedException("IServerVariablesFeature is not available.");
-                    }
+                    _serverVariables = _request.HttpContext.Features.GetRequired<IServerVariablesFeature>().ToNameValueCollection();
                 }
 
                 return _serverVariables;
@@ -176,19 +169,17 @@ namespace System.Web
         {
             get
             {
-                if (_browser is not null)
+                if (_browser is null)
                 {
-                    return _browser;
+                    var factory = _request.HttpContext.RequestServices.GetService<BrowserCapabilitiesFactory>();
+
+                    if (factory is null)
+                    {
+                        throw new InvalidOperationException("Browser capabilities requires AddSystemWebAdapters() to be called on service collection");
+                    }
+
+                    _browser = new(factory, _request.Headers.UserAgent);
                 }
-
-                var factory = _request.HttpContext.RequestServices.GetService<BrowserCapabilitiesFactory>();
-
-                if (factory is null)
-                {
-                    throw new InvalidOperationException("Browser capabilities requires AddSystemWebAdapters() to be called on service collection");
-                }
-
-                _browser = new(factory, _request.Headers.UserAgent);
 
                 return _browser;
             }
