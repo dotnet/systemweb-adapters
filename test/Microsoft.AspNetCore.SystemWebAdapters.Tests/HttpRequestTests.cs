@@ -687,7 +687,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             var request = new HttpRequest(requestCore.Object);
 
             // Act
-            Assert.Throws<PlatformNotSupportedException>(() => request.ServerVariables);
+            Assert.Throws<InvalidOperationException>(() => request.ServerVariables);
         }
 
         [Fact]
