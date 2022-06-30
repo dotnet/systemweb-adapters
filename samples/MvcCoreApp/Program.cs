@@ -43,7 +43,7 @@ app.MapGet("/current-principals-with-metadata", (HttpContext ctx) =>
     var user2 = ClaimsPrincipal.Current;
 
     return "done";
-}).WithMetadata(new SetThreadCurrentPrincipalAttribute());
+}).WithMetadata(new SetThreadCurrentPrincipalAttribute(), new SingleThreadedRequestAttribute());
 
 
 app.MapGet("/current-principals-no-metadata", (HttpContext ctx) =>
