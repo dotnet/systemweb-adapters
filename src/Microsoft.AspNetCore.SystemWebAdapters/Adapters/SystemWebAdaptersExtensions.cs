@@ -34,7 +34,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             app.UseMiddleware<BufferResponseStreamMiddleware>();
             app.UseMiddleware<SingleThreadedRequestMiddleware>();
             app.UseMiddleware<SingleThreadedRequestMiddleware>();
-            app.UseCurrentPrincipal();
+            app.UseMiddleware<CurrentPrincipalMiddleware>();
         }
 
         /// <summary>

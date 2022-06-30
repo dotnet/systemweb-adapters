@@ -10,7 +10,10 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal partial class CurrentPrincipalMiddleware
 {
-    [LoggerMessage(0, LogLevel.Warning, "Requests should be limited to a single logical thread using ISingleThreadedRequestMetadata when using Thread.CurrentPrincipal or ClaimsPrincipal.Current")]
+    [LoggerMessage(0, LogLevel.Warning, "Using Thread.CurrentPrincipal or ClaimsPrincipal.Current has potential issues and should not be used")]
+    private partial void LogCurrentPrincipalWarning();
+
+    [LoggerMessage(1, LogLevel.Warning, "Requests should be limited to a single logical thread using ISingleThreadedRequestMetadata when using Thread.CurrentPrincipal or ClaimsPrincipal.Current")]
     private partial void LogShouldBeSingleThreaded();
 
     private readonly RequestDelegate _next;
@@ -27,6 +30,8 @@ internal partial class CurrentPrincipalMiddleware
 
     private async Task SetUserAsync(HttpContext context)
     {
+        LogCurrentPrincipalWarning();
+
         if (context.GetEndpoint()?.Metadata.GetMetadata<ISingleThreadedRequestMetadata>() is not { IsEnabled: true })
         {
             LogShouldBeSingleThreaded();
@@ -36,7 +41,7 @@ internal partial class CurrentPrincipalMiddleware
 
         try
         {
-            Thread.CurrentPrincipal = context.WrapUserWithWarning();
+            Thread.CurrentPrincipal = context.User;
 
             await _next(context);
         }
