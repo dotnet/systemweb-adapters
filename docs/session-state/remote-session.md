@@ -2,6 +2,18 @@
 
 Remote app session state will enable communication between the ASP.NET Core and ASP.NET app and to retrieve the session state. This is enabled by exposing an endpoint on the ASP.NET app that can be queried to retrieve and set the session state.
 
+# HttpSessionState serialization
+
+The `System.Web.SessionState.HttpSessionState` object must be serialized for remote app session state to be enabled. This is accomplished through implementation of the type `Microsoft.AspNetCore.SysteWebAdapters.SessionState.Serialization.ISessionSerializer`, of which a default binary writer implementation is provided. This is added by the following code:
+
+```csharp
+builder.Services.AddSystemWebAdapters()
+    .AddSessionSerializer(options =>
+    {
+        // Customize session serialization here
+    });
+```
+
 ## Configuration
 
 In order to configure it, both the framework and core app must set an API key as well as register known app settings types. These properties are:
@@ -52,7 +64,7 @@ The framework equivalent would look like the following change in `Global.asax.cs
 
 ```csharp
 Application.AddSystemWebAdapters()
-    .AddRemoteAppSession(
+    .AddJsonRemoteAppSession(
         // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
         options => options.ApiKey = "strong-api-key",
         options =>
