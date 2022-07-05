@@ -31,7 +31,7 @@ app.UseRequestLocalization();
 
 ## `System.Threading.Thread.CurrentPrincipal`
 
-In ASP.NET Framework, `System.Threading.Thread.CurrentPrincipal` and `System.Security.Claims.ClaimsPrincipal.Current` would be set to the current user. This is not available on ASP.NET Core out of the box. Support for this is available with these adapters by adding the `ICurrentPrincipalMetadata` to the endpoint. However, it should only be used if the code cannot be refactored to remove usage.
+In ASP.NET Framework, `System.Threading.Thread.CurrentPrincipal` and `System.Security.Claims.ClaimsPrincipal.Current` would be set to the current user. This is not available on ASP.NET Core out of the box. Support for this is available with these adapters by adding the `ISetThreadCurrentPrincipal` to the endpoint (available to controllers via the `SetThreadCurrentPrincipalAttribute`). However, it should only be used if the code cannot be refactored to remove usage.
 
 **Recommendation**: If possible, use the property `HttpContext.User` instead by passing it through to the call site. If not possible, enable setting the current user and also consider setting the request to be a logical single thread (see below for details).
 
