@@ -17,12 +17,6 @@ There are two ways to convert an `Microsoft.AspNetCore.Http.HttpContext` to a `S
 
 **Recommendation**: For the most cases, implicit casting should be preferred as this will cache the created instance and ensure only a single `System.Web.HttpContext` per request.
 
-## `System.Threading.Thread.CurrentPrincipal` not supported
-
-In ASP.NET Framework, `System.Threading.Thread.CurrentPrincipal` would be set to the current user. This is not available on ASP.NET Core.
-
-**Recommendation**: Use the property `HttpContext.User` instead.
-
 ## `CultureInfo.CurrentCulture` is not set by default
 
 In ASP.NET Framework, `CultureInfo.Current` was set for a request, but this is not done automatically in ASP.NET Core. Instead, you must add the appropriate middleware to your pipeline.
@@ -35,12 +29,26 @@ Simplest way to enable this with similar behavior as ASP.NET Framework would be 
 app.UseRequestLocalization();
 ```
 
+## `System.Threading.Thread.CurrentPrincipal`
+
+In ASP.NET Framework, `System.Threading.Thread.CurrentPrincipal` and `System.Security.Claims.ClaimsPrincipal.Current` would be set to the current user. This is not available on ASP.NET Core out of the box. Support for this is available with these adapters by adding the `ISetThreadCurrentPrincipal` to the endpoint (available to controllers via the `SetThreadCurrentPrincipalAttribute`). However, it should only be used if the code cannot be refactored to remove usage.
+
+**Recommendation**: If possible, use the property `HttpContext.User` instead by passing it through to the call site. If not possible, enable setting the current user and also consider setting the request to be a logical single thread (see below for details).
+
 ## Request thread does not exist in ASP.NET Core
 
 In ASP.NET Framework, a request had thread-affinity and `HttpContext.Current` would only be available if on that thread. ASP.NET Core does not have this guarantee so `HttpContext.Current` will be available within the same async context, but no guarantees about threads are made.
 
-**Recommendation**: If reading/writing to the `HttpContext`, you must ensure you are doing so in a single-threaded way.
+**Recommendation**: If reading/writing to the `HttpContext`, you must ensure you are doing so in a single-threaded way. You can force a request to never run concurrently on any async context by setting the `ISingleThreadedRequestMetadata`. This will have performance implications and should only be used if you can't refactor usage to ensure non-concurrent access. There is an implementation available to add to controllers with `SingleThreadedRequestAttribute`:
 
+
+```csharp
+[SingleThreadedRequest]
+public class SomeController : Controller
+{
+    ...
+} 
+```
 
 ## `HttpContext.Request` may need to be prebuffered
 
