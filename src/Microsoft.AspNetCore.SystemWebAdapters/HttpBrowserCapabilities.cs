@@ -10,6 +10,5 @@ public class HttpBrowserCapabilities : HttpCapabilitiesBase
     internal HttpBrowserCapabilities(BrowserCapabilitiesFactory factory, string userAgent)
         : base(factory, userAgent)
     {
-
     }
 }

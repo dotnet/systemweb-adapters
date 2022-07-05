@@ -18,6 +18,14 @@ namespace System.Web
 
         public override void AddHeader(string name, string value) => _response.AddHeader(name, value);
 
+        public override void AppendHeader(string name, string value) => _response.AppendHeader(name, value);
+
+        public override string Charset
+        {
+            get => base.Charset;
+            set => base.Charset = value;
+        }
+
         public override string? ContentType
         {
             get => _response.ContentType;
@@ -78,5 +86,11 @@ namespace System.Web
         public override void Write(object obj) => _response.Write(obj);
 
         public override void Write(string s) => _response.Write(s);
+
+        public override void Clear() => _response.Clear();
+
+        public override void ClearContent() => _response.ClearContent();
+
+        public override void End() => _response.End();
     }
 }

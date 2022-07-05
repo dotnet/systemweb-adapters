@@ -151,7 +151,7 @@ namespace System.Web
 
         public string AppRelativeCurrentExecutionFilePath => $"~{_request.Path.Value}";
 
-        public string? ApplicationPath => _request.PathBase.Value;
+        public string ApplicationPath => HttpRuntime.AppDomainAppVirtualPath;
 
         public Uri? UrlReferrer => TypedHeaders.Referer;
 
