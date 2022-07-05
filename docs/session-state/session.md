@@ -11,11 +11,10 @@ The adapter infrastructure exposes two interfaces that can be used to implement 
 - `Microsoft.AspNetCore.SystemWebAdapters.ISessionState`: This describes the state of a session object. It is used as the backing of the `System.Web.SessionState.HttpSessionState` type.
 
 ## Serialization
-Since the adapters provide the ability to work with strongly-typed session state, we must be able to serialize and deserialize types. This is accomplished through implementation of the type `Microsoft.AspnetCore.SysteWebAdapters.SessionState.Serialization.ISessionSerializer`, of which a JSON implementation is provided.
+Since the adapters provide the ability to work with strongly-typed session state, we must be able to serialize and deserialize types. This is customized through the `Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization.ISessionKeySerializer`.
 
-Serialization and deserialization of session keys requires additional information which is configured via the `JsonSessionSerializerOptions`:
+A default JSON implementation is provided that is configured via the `JsonSessionSerializerOptions`:
 
-- `ThrowOnUnknownSessionKey` - Gets or sets if an unknown key should cause serialization to fail or if it will log a warning and ignore it.
 - `RegisterKey<T>(string)` - Registers a session key to a known type. This is required in order to serialize/deserialize the session state correctly. If a key is found that there is no registration for, an error will be thrown and session will not be available.
 
 To use the default JSON backed implementation, add a package reference to [Microsoft.AspNetCore.SystemWebAdapters.SessionState](https://www.nuget.org/packages/Microsoft.AspNetCore.SystemWebAdapters.SessionState) and add the following to the startup:

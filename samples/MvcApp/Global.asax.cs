@@ -18,7 +18,7 @@ namespace MvcApp
 
             Application.AddSystemWebAdapters()
                 .AddProxySupport(options => options.UseForwardedHeaders = true)
-                .AddRemoteAppSession(
+                .AddJsonRemoteAppSession(
                     ConfigureRemoteServiceOptions,
                     options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys))
                 .AddRemoteAppAuthentication(o => ConfigureRemoteServiceOptions(o.RemoteServiceOptions));
