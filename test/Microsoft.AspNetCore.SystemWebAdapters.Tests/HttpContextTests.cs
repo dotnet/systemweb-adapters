@@ -152,5 +152,93 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Assert
             Assert.Same(cache, result);
         }
+
+        [Fact]
+        public void DisposeOnPipelineCompleted()
+        {
+            // Arrange
+            var coreContext = new Mock<HttpContextCore>();
+            var coreResponse = new Mock<HttpResponseCore>();
+
+            coreContext.Setup(c => c.Response).Returns(coreResponse.Object);
+
+            var context = new HttpContext(coreContext.Object);
+            var disposable = new Mock<IDisposable>();
+
+            // Act
+            var token = context.DisposeOnPipelineCompleted(disposable.Object);
+
+            // Assert
+            Assert.True(token.IsActive);
+        }
+
+        [Fact]
+        public void DisposeOnPipelineCompletedUnsubscribed()
+        {
+            // Arrange
+            var coreContext = new Mock<HttpContextCore>();
+            var coreResponse = new Mock<HttpResponseCore>();
+
+            coreContext.Setup(c => c.Response).Returns(coreResponse.Object);
+
+            var context = new HttpContext(coreContext.Object);
+            var disposable = new Mock<IDisposable>();
+
+            // Act
+            var token = context.DisposeOnPipelineCompleted(disposable.Object);
+
+            token.Unsubscribe();
+
+            // Assert
+            Assert.False(token.IsActive);
+        }
+
+        [Fact]
+        public void DisposeOnPipelineCompletedUnsubscribedDisposed()
+        {
+            // Arrange
+            IDisposable registeredDisposable = null!;
+
+            var coreContext = new Mock<HttpContextCore>();
+            var coreResponse = new Mock<HttpResponseCore>();
+            coreResponse.Setup(c => c.RegisterForDispose(It.IsAny<IDisposable>()))
+                .Callback((IDisposable disposable) => registeredDisposable = disposable);
+
+            coreContext.Setup(c => c.Response).Returns(coreResponse.Object);
+
+            var context = new HttpContext(coreContext.Object);
+            var disposable = new Mock<IDisposable>();
+
+            // Act
+            var token = context.DisposeOnPipelineCompleted(disposable.Object);
+            token.Unsubscribe();
+            registeredDisposable.Dispose();
+
+            // Assert
+            Assert.False(token.IsActive);
+            disposable.Verify(d => d.Dispose(), Times.Never);
+        }
+
+        [Fact]
+        public void DisposeOnPipelineCompletedDisposed()
+        {
+            // Arrange
+            var coreContext = new Mock<HttpContextCore>();
+            var coreResponse = new Mock<HttpResponseCore>();
+            coreResponse.Setup(c => c.RegisterForDispose(It.IsAny<IDisposable>()))
+                .Callback((IDisposable disposable) => disposable.Dispose());
+
+            coreContext.Setup(c => c.Response).Returns(coreResponse.Object);
+
+            var context = new HttpContext(coreContext.Object);
+            var disposable = new Mock<IDisposable>();
+
+            // Act
+            var token = context.DisposeOnPipelineCompleted(disposable.Object);
+
+            // Assert
+            Assert.False(token.IsActive);
+            disposable.Verify(d => d.Dispose(), Times.Once);
+        }
     }
 }
