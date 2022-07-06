@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -21,7 +20,6 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// </summary>
 internal partial class RemoteAppAuthenticationService : IRemoteAppAuthenticationService
 {
-    private bool _initialized;
     private readonly HttpClient _client;
     private readonly IAuthenticationResultFactory _resultFactory;
     private readonly ILogger<RemoteAppAuthenticationService> _logger;
@@ -51,13 +49,9 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
         _options = _optionsSnapshot.Get(scheme.Name);
         _client.BaseAddress = new Uri(_options.RemoteServiceOptions.RemoteAppUrl, _options.AuthenticationEndpointPath);
         _client.DefaultRequestHeaders.Add(_options.RemoteServiceOptions.ApiKeyHeader, _options.RemoteServiceOptions.ApiKey);
-        _initialized = true;
 
         return Task.CompletedTask;
     }
-
-    [MemberNotNullWhen(true, nameof(_options))]
-    private bool Initialized => _initialized;
 
     /// <summary>
     /// Authenticate the user of a request by making a request to a remote app using configured
@@ -75,7 +69,7 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
     /// </exception>
     public async Task<RemoteAppAuthenticationResult> AuthenticateAsync(HttpRequest originalRequest, CancellationToken cancellationToken)
     {
-        if (!Initialized)
+        if (_options is null)
         {
             LogHandlerNotInitialized();
             throw new InvalidOperationException("Remote authentication handler must be initialized before authenticating");

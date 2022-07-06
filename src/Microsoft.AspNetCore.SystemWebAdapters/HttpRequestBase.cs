@@ -43,17 +43,17 @@ namespace System.Web
 
         public virtual Stream InputStream => throw new NotImplementedException();
 
-        public NameValueCollection ServerVariables => throw new NotImplementedException();
+        public virtual NameValueCollection ServerVariables => throw new NotImplementedException();
 
-        public bool IsSecureConnection => throw new NotImplementedException();
+        public virtual bool IsSecureConnection => throw new NotImplementedException();
 
         public virtual NameValueCollection QueryString => throw new NotImplementedException();
 
         public virtual bool IsLocal => throw new NotImplementedException();
 
-        public string AppRelativeCurrentExecutionFilePath => throw new NotImplementedException();
+        public virtual string AppRelativeCurrentExecutionFilePath => throw new NotImplementedException();
 
-        public string ApplicationPath => throw new NotImplementedException();
+        public virtual string ApplicationPath => throw new NotImplementedException();
 
         public virtual Uri? UrlReferrer => throw new NotImplementedException();
 

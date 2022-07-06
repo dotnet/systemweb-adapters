@@ -68,5 +68,13 @@ namespace System.Web
         public override string? UserHostName => _request.UserHostName;
 
         public override string[] UserLanguages => _request.UserLanguages;
+
+        public override string ApplicationPath => _request.ApplicationPath;
+
+        public override string AppRelativeCurrentExecutionFilePath => _request.AppRelativeCurrentExecutionFilePath;
+
+        public override bool IsSecureConnection => _request.IsSecureConnection;
+
+        public override NameValueCollection ServerVariables => _request.ServerVariables;
     }
 }

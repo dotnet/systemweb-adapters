@@ -56,7 +56,7 @@ namespace System.Web
             set => throw new NotImplementedException();
         }
 
-        public string Charset
+        public virtual string Charset
         {
             get => throw new NotImplementedException();
             set => throw new NotImplementedException();
@@ -72,11 +72,12 @@ namespace System.Web
 
         public virtual void AddHeader(string name, string value) => throw new NotImplementedException();
 
-        public void AppendHeader(string name, string value) => throw new NotImplementedException();
+        public virtual void AppendHeader(string name, string value) => throw new NotImplementedException();
 
         public virtual void SetCookie(HttpCookie cookie) => throw new NotImplementedException();
 
-        public void End() => throw new NotImplementedException();
+        [SuppressMessage("Naming", "CA1716:Using a reserved keyword as the name of a virtual/interface member makes it harder for consumers in other languages to override/implement the member", Justification = Constants.ApiFromAspNet)]
+        public virtual void End() => throw new NotImplementedException();
 
         public virtual void Write(char ch) => throw new NotImplementedException();
 
@@ -84,8 +85,8 @@ namespace System.Web
 
         public virtual void Write(object obj) => throw new NotImplementedException();
 
-        public void Clear() => throw new NotImplementedException();
+        public virtual void Clear() => throw new NotImplementedException();
 
-        public void ClearContent() => throw new NotImplementedException();
+        public virtual void ClearContent() => throw new NotImplementedException();
     }
 }

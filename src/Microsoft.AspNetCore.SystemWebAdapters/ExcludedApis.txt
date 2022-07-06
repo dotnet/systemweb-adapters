@@ -52,3 +52,9 @@ T:Microsoft.AspNetCore.SystemWebAdapters.Authentication.IRemoteAppAuthentication
 T:Microsoft.AspNetCore.SystemWebAdapters.Authentication.RemoteAppAuthenticationDefaults
 T:Microsoft.AspNetCore.SystemWebAdapters.Authentication.RemoteAppAuthenticationOptions
 T:Microsoft.AspNetCore.SystemWebAdapters.Authentication.RemoteAppAuthenticationResult
+
+# Additionl Metadata
+T:Microsoft.AspNetCore.SystemWebAdapters.ISetThreadCurrentPrincipal
+T:Microsoft.AspNetCore.SystemWebAdapters.SetThreadCurrentPrincipalAttribute
+T:Microsoft.AspNetCore.SystemWebAdapters.ISingleThreadedRequestMetadata
+T:Microsoft.AspNetCore.SystemWebAdapters.SingleThreadedRequestAttribute
