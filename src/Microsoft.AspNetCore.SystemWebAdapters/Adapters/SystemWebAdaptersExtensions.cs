@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Web;
 using System.Web.Caching;
+using System.Web.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
@@ -20,6 +21,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         {
             services.AddHttpContextAccessor();
             services.AddSingleton<Cache>();
+            services.AddSingleton<BrowserCapabilitiesFactory>();
 
             return new Builder(services);
         }
@@ -30,6 +32,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             app.UseMiddleware<PreBufferRequestStreamMiddleware>();
             app.UseMiddleware<SessionMiddleware>();
             app.UseMiddleware<BufferResponseStreamMiddleware>();
+            app.UseMiddleware<SingleThreadedRequestMiddleware>();
+            app.UseMiddleware<CurrentPrincipalMiddleware>();
         }
 
         /// <summary>

@@ -12,6 +12,7 @@ public class RequestInfo
 
         using (var writer = new SimpleJsonWriter(context.Response))
         {
+            writer.Write("VirtualDirectory", HttpRuntime.AppDomainAppVirtualPath);
             writer.Write("RawUrl", context.Request.RawUrl);
             writer.Write("Path", context.Request.Path);
             writer.Write("Length", context.Request.InputStream.Length);

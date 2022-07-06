@@ -45,7 +45,7 @@ M:System.Web.Caching.Cache.#ctor(Microsoft.AspNetCore.Http.HttpContext)
 
 M:System.Web.Caching.Cache.#ctor(Microsoft.Extensions.Caching.Memory.IMemoryCache)
 
-# Remote app
+# Authentication
 T:Microsoft.AspNetCore.SystemWebAdapters.RemoteAppAuthenticationExtensions
 T:Microsoft.AspNetCore.SystemWebAdapters.RemoteServiceOptions
 T:Microsoft.AspNetCore.SystemWebAdapters.Authentication.IRemoteAppAuthenticationResultProcessor
