@@ -76,6 +76,7 @@ namespace System.Web
 
         public virtual void SetCookie(HttpCookie cookie) => throw new NotImplementedException();
 
+        [SuppressMessage("Naming", "CA1716:Using a reserved keyword as the name of a virtual/interface member makes it harder for consumers in other languages to override/implement the member", Justification = Constants.ApiFromAspNet)]
         public virtual void End() => throw new NotImplementedException();
 
         public virtual void Write(char ch) => throw new NotImplementedException();

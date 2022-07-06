@@ -110,18 +110,7 @@ namespace System.Web
             ? _request.Body
             : throw new InvalidOperationException("Input stream must be seekable. Ensure your endpoints are either annotated with BufferRequestStreamAttribute or you've called .RequireRequestStreamBuffering() on them.");
 
-        public NameValueCollection ServerVariables
-        {
-            get
-            {
-                if (_serverVariables is null)
-                {
-                    _serverVariables = _request.HttpContext.Features.GetRequired<IServerVariablesFeature>().ToNameValueCollection();
-                }
-
-                return _serverVariables;
-            }
-        }
+        public NameValueCollection ServerVariables => _serverVariables ??= _request.HttpContext.Features.GetRequired<IServerVariablesFeature>().ToNameValueCollection();
 
         public bool IsSecureConnection => _request.IsHttps;
 
@@ -151,6 +140,7 @@ namespace System.Web
 
         public string AppRelativeCurrentExecutionFilePath => $"~{_request.Path.Value}";
 
+        [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = Constants.ApiFromAspNet)]
         public string ApplicationPath => HttpRuntime.AppDomainAppVirtualPath;
 
         public Uri? UrlReferrer => TypedHeaders.Referer;
