@@ -19,6 +19,7 @@ namespace OIDCAuth
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             Application.AddSystemWebAdapters()
+                .AddProxySupport(options => options.UseForwardedHeaders = true)
                 .AddRemoteAppAuthentication(options =>
                     options.RemoteServiceOptions.ApiKey = "test-key");
 
