@@ -22,8 +22,8 @@ namespace System.Web
 
         public override string Charset
         {
-            get => base.Charset;
-            set => base.Charset = value;
+            get => _response.Charset;
+            set => _response.Charset = value;
         }
 
         public override string? ContentType
