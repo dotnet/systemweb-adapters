@@ -41,9 +41,11 @@ internal partial class SessionMiddleware
 
         using var state = metadata.Behavior switch
         {
+#pragma warning disable CA2000 // False positive for CA2000 here
 #pragma warning disable CS0618 // Type or member is obsolete
             SessionBehavior.OnDemand => new LazySessionState(context, LogOnDemand, metadata, manager),
 #pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CA2000 // Dispose objects before losing scope
 
             SessionBehavior.PreLoad => await manager.CreateAsync(context, metadata),
             var behavior => throw new InvalidOperationException($"Unknown session behavior {behavior}"),
