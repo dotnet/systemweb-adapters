@@ -58,13 +58,13 @@ internal class ProxyHeaderModule : IHttpModule
 
         var proto = requestHeaders[ForwardedProto];
 
-        if (requestHeaders[Host] is { } originalHost)
-        {
-            requestHeaders[_options.OriginalHostHeaderName] = originalHost;
-        }
-
         if (requestHeaders[ForwardedHost] is { } host)
         {
+            if (requestHeaders[Host] is { } originalHost)
+            {
+                requestHeaders[_options.OriginalHostHeaderName] = originalHost;
+            }
+
             var value = new ForwardedHost(host, proto);
 
             serverVariables.Set(ServerName, value.ServerName);
