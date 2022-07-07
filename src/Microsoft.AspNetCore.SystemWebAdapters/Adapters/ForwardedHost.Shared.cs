@@ -7,14 +7,14 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal readonly struct ForwardedHost
 {
-    public ForwardedHost(string host)
+    public ForwardedHost(string host, string? proto)
     {
         var idx = host.IndexOf(":", 0, StringComparison.Ordinal);
 
         if (idx < 0)
         {
             ServerName = host;
-            Port = null;
+            Port = GetDefaultPort(proto);
         }
         else
         {
@@ -23,7 +23,10 @@ internal readonly struct ForwardedHost
         }
     }
 
+    private static string GetDefaultPort(string? proto)
+        => string.Equals("https", proto, StringComparison.OrdinalIgnoreCase) ? "443" : "80";
+
     public string ServerName { get; }
 
-    public string? Port { get; }
+    public string Port { get; }
 }

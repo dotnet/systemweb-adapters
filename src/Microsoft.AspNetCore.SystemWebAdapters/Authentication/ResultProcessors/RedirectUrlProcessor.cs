@@ -96,7 +96,7 @@ internal class RedirectUrlProcessor : IRemoteAppAuthenticationResultProcessor
 
         if (!string.IsNullOrEmpty(forwardedHostAndPort))
         {
-            var forwardedHost = new ForwardedHost(forwardedHostAndPort);
+            var forwardedHost = new ForwardedHost(forwardedHostAndPort, forwardedProto);
 
             // If the result's redirect goes to the same host and port as the authentication request went to,
             // replace the host with the forwarded host value.
