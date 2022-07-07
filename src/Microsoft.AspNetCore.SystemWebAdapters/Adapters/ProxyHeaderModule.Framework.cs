@@ -70,7 +70,7 @@ internal class ProxyHeaderModule : IHttpModule
             serverVariables.Set(ServerName, value.ServerName);
             serverVariables.Set(ServerPort, value.Port);
 
-            requestHeaders[Host] = value.ServerName;
+            requestHeaders[Host] = host;
         }
 
         if (proto is { })
@@ -86,7 +86,7 @@ internal class ProxyHeaderModule : IHttpModule
         serverVariables.Set(ServerName, _options.ServerName);
         serverVariables.Set(ServerPort, _options.ServerPortString);
         serverVariables.Set(ServerProtocol, _options.Scheme);
-        requestHeaders[Host] = _options.ServerName;
+        requestHeaders[Host] = _options.ServerHostString;
     }
 
     private static void UseForwardedFor(NameValueCollection requestHeaders, NameValueCollection serverVariables)

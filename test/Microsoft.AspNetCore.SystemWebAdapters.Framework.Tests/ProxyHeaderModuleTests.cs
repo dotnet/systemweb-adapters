@@ -54,7 +54,7 @@ public class ProxyHeaderModuleTests
         Assert.Equal("81", serverVariables[ServerPort]);
         Assert.Null(serverVariables[RemoteAddress]);
         Assert.Null(serverVariables[RemoteHost]);
-        Assert.Equal("localhost", requestHeaders[Host]);
+        Assert.Equal("localhost:81", requestHeaders[Host]);
         Assert.Null(requestHeaders[options.OriginalHostHeaderName]);
     }
 
@@ -113,7 +113,7 @@ public class ProxyHeaderModuleTests
         // Arrange
         var requestHeaders = new NameValueCollection
         {
-            { Host, "localhost2" },
+            { Host, "localhost2:90" },
             { ForwardedHost, "localhost" },
             { ForwardedProto, "http" }
         };
@@ -130,7 +130,7 @@ public class ProxyHeaderModuleTests
         Assert.Null(serverVariables[RemoteAddress]);
         Assert.Null(serverVariables[RemoteHost]);
         Assert.Equal("localhost", requestHeaders[Host]);
-        Assert.Equal("localhost2", requestHeaders[options.OriginalHostHeaderName]);
+        Assert.Equal("localhost2:90", requestHeaders[options.OriginalHostHeaderName]);
     }
 
     [Fact]

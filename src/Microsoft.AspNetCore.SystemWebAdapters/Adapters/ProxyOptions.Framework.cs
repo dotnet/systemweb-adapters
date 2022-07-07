@@ -34,5 +34,5 @@ public class ProxyOptions
 
     internal string ServerPortString => _port ??= ServerPort.ToString(CultureInfo.InvariantCulture);
 
-    internal string ServerHost => _serverHost ??= $"{ServerName}:{ServerPortString}";
+    internal string ServerHostString => _serverHost ??= $"{ServerName}:{ServerPortString}";
 }
