@@ -55,10 +55,6 @@
     <Reference Include="System.Web" />
   </ItemGroup>
 
-  <ItemGroup>
-    <SharedFiles Remove="Constants.Shared.cs" />
-  </ItemGroup>
-
   <Import Condition=" '$(TargetFramework)' == 'net6.0' " Project="GenerateApis.targets" />
 
 </Project>

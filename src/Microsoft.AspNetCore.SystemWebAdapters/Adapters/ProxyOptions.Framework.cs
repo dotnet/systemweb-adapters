@@ -8,7 +8,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 public class ProxyOptions
 {
     private string? _port;
-    private string? _serverHost;
+    private string? _serverHostString;
 
     /// <summary>
     /// Gets or sets whether the X-Forwarded-* headers should be used for incoming requests.
@@ -34,5 +34,5 @@ public class ProxyOptions
 
     internal string ServerPortString => _port ??= ServerPort.ToString(CultureInfo.InvariantCulture);
 
-    internal string ServerHostString => _serverHost ??= $"{ServerName}:{ServerPortString}";
+    internal string ServerHostString => _serverHostString ??= $"{ServerName}:{ServerPortString}";
 }
