@@ -274,6 +274,7 @@ public class AspNetCoreSessionStateTests
 
         return new AspNetCoreSessionState(session.Object, serializer.Object, loggerFactory.Object, isReadOnly: isReadOnly, throwOnUnknown: throwOnUnknown);
     }
+
     private static async Task<ISessionState> CreateSessionStateFromSessionManager(Mock<ISession>? session = null, Mock<ISessionKeySerializer>? serializer = null, bool isReadOnly = false, bool throwOnUnknown = false)
     {
         session ??= new Mock<ISession>();
