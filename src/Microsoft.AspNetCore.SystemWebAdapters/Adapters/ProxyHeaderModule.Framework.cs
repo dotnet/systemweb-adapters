@@ -9,6 +9,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal class ProxyHeaderModule : IHttpModule
 {
+    private const string Host = "Host";
     private const string ServerName = "SERVER_NAME";
     private const string ServerPort = "SERVER_PORT";
     private const string ServerProtocol = "SERVER_PROTOCOL";
@@ -30,7 +31,7 @@ internal class ProxyHeaderModule : IHttpModule
     {
         if (_options.UseForwardedHeaders)
         {
-            context.BeginRequest += static (s, e) =>
+            context.BeginRequest += (s, e) =>
             {
                 var request = ((HttpApplication)s).Context.Request;
                 UseHeaders(request.Headers, request.ServerVariables);
@@ -51,11 +52,16 @@ internal class ProxyHeaderModule : IHttpModule
         }
     }
 
-    public static void UseHeaders(NameValueCollection requestHeaders, NameValueCollection serverVariables)
+    public void UseHeaders(NameValueCollection requestHeaders, NameValueCollection serverVariables)
     {
         UseForwardedFor(requestHeaders, serverVariables);
 
         var proto = requestHeaders[ForwardedProto];
+
+        if (requestHeaders[Host] is { } originalHost)
+        {
+            requestHeaders[_options.OriginalHostHeaderName] = originalHost;
+        }
 
         if (requestHeaders[ForwardedHost] is { } host)
         {
@@ -63,6 +69,8 @@ internal class ProxyHeaderModule : IHttpModule
 
             serverVariables.Set(ServerName, value.ServerName);
             serverVariables.Set(ServerPort, value.Port);
+
+            requestHeaders[Host] = value.ServerName;
         }
 
         if (proto is { })
@@ -78,6 +86,7 @@ internal class ProxyHeaderModule : IHttpModule
         serverVariables.Set(ServerName, _options.ServerName);
         serverVariables.Set(ServerPort, _options.ServerPortString);
         serverVariables.Set(ServerProtocol, _options.Scheme);
+        requestHeaders[Host] = _options.ServerName;
     }
 
     private static void UseForwardedFor(NameValueCollection requestHeaders, NameValueCollection serverVariables)
