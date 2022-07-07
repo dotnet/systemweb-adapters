@@ -72,9 +72,33 @@ public class HttpContext : IServiceProvider
         return null;
     }
 
+    public ISubscriptionToken DisposeOnPipelineCompleted(IDisposable target)
+    {
+        var token = new DisposeOnPipelineSubscriptionToken(target);
+        _context.Response.RegisterForDispose(token);
+        return token;
+    }
+
     [return: NotNullIfNotNull("context")]
     public static implicit operator HttpContext?(HttpContextCore? context) => context?.GetAdapter();
 
     [return: NotNullIfNotNull("context")]
     public static implicit operator HttpContextCore?(HttpContext? context) => context?._context;
+
+    private sealed class DisposeOnPipelineSubscriptionToken : ISubscriptionToken, IDisposable
+    {
+        private IDisposable? _other;
+
+        public DisposeOnPipelineSubscriptionToken(IDisposable other) => _other = other;
+
+        bool ISubscriptionToken.IsActive => _other is not null;
+
+        void ISubscriptionToken.Unsubscribe() => _other = null;
+
+        void IDisposable.Dispose()
+        {
+            _other?.Dispose();
+            _other = null;
+        }
+    }
 }
