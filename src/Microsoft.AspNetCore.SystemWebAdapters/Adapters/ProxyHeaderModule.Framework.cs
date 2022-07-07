@@ -133,11 +133,16 @@ internal class ProxyHeaderModule : IHttpModule
             return port;
         }
 
-        return protocol.ToUpperInvariant() switch
+        if ("HTTPS".Equals(protocol, StringComparison.OrdinalIgnoreCase))
         {
-            "HTTPS" => 443,
-            "HTTP" => 80,
-            _ => null
-        };
+            return 443;
+        }
+
+        if ("HTTP".Equals(protocol, StringComparison.OrdinalIgnoreCase))
+        {
+            return 80;
+        }
+
+        return null;
     }
 }
