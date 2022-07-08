@@ -10,4 +10,15 @@
       </add>
     </modules>
   </system.webServer>
+
+  <system.webServer>
+    <handlers>
+      <remove xdt:Transform="Remove"
+          xdt:Locator="Condition(./@name='ExtensionlessUrlHandler-Integrated-4.0')" >
+      </remove>
+      <add xdt:Transform="Remove"
+          xdt:Locator="Condition(./@name='ExtensionlessUrlHandler-Integrated-4.0')" >
+      </add>
+    </handlers>
+  </system.webServer>
 </configuration>
