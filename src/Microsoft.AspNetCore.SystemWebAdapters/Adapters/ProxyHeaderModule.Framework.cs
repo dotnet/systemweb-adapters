@@ -2,12 +2,20 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Specialized;
 using System.Web;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal class ProxyHeaderModule : IHttpModule
 {
+    private const string Host = "Host";
+    private const string ServerName = "SERVER_NAME";
+    private const string ServerPort = "SERVER_PORT";
+    private const string ServerProtocol = "SERVER_PROTOCOL";
+    private const string ForwardedProto = "x-forwarded-proto";
+    private const string ForwardedHost = "x-forwarded-host";
+
     private readonly ProxyOptions _options;
 
     public ProxyHeaderModule(ProxyOptions options)
@@ -23,7 +31,11 @@ internal class ProxyHeaderModule : IHttpModule
     {
         if (_options.UseForwardedHeaders)
         {
-            context.BeginRequest += static (s, e) => UseHeaders(((HttpApplication)s).Context.Request);
+            context.BeginRequest += (s, e) =>
+            {
+                var request = ((HttpApplication)s).Context.Request;
+                UseHeaders(request.Headers, request.ServerVariables);
+            };
         }
         else
         {
@@ -32,47 +44,57 @@ internal class ProxyHeaderModule : IHttpModule
                 throw new InvalidOperationException("Server name must be set for proxy options.");
             }
 
-            context.BeginRequest += (s, e) => UseOptions(((HttpApplication)s).Context.Request);
-        }
-    }
-
-    private void UseOptions(HttpRequest request)
-    {
-        UseForwardedFor(request);
-
-        request.ServerVariables.Set("SERVER_NAME", _options.ServerName);
-        request.ServerVariables.Set("SERVER_PORT", _options.ServerPortString);
-        request.ServerVariables.Set("SERVER_PROTOCOL", _options.Scheme);
-    }
-
-    private static void UseHeaders(HttpRequest request)
-    {
-        UseForwardedFor(request);
-
-        if (request.Headers["x-forwarded-host"] is { } host)
-        {
-            var value = new ForwardedHost(host);
-
-            request.ServerVariables.Set("SERVER_NAME", value.ServerName);
-
-            if (value.Port is { })
+            context.BeginRequest += (s, e) =>
             {
-                request.ServerVariables.Set("SERVER_PORT", value.Port);
-            }
-        }
-
-        if (request.Headers["x-forwarded-proto"] is { } proto)
-        {
-            request.ServerVariables.Set("SERVER_PROTOCOL", proto);
+                var request = ((HttpApplication)s).Context.Request;
+                UseOptions(request.Headers, request.ServerVariables);
+            };
         }
     }
 
-    private static void UseForwardedFor(HttpRequest request)
+    public void UseHeaders(NameValueCollection requestHeaders, NameValueCollection serverVariables)
     {
-        if (request.Headers["x-forwarded-for"] is { } remote)
+        UseForwardedFor(requestHeaders, serverVariables);
+
+        var proto = requestHeaders[ForwardedProto];
+
+        if (requestHeaders[ForwardedHost] is { } host)
         {
-            request.ServerVariables.Set("REMOTE_ADDR", remote);
-            request.ServerVariables.Set("REMOTE_HOST", remote);
+            if (requestHeaders[Host] is { } originalHost)
+            {
+                requestHeaders[_options.OriginalHostHeaderName] = originalHost;
+            }
+
+            var value = new ForwardedHost(host, proto);
+
+            serverVariables.Set(ServerName, value.ServerName);
+            serverVariables.Set(ServerPort, value.Port);
+
+            requestHeaders[Host] = host;
+        }
+
+        if (proto is { })
+        {
+            serverVariables.Set(ServerProtocol, proto);
+        }
+    }
+
+    private void UseOptions(NameValueCollection requestHeaders, NameValueCollection serverVariables)
+    {
+        UseForwardedFor(requestHeaders, serverVariables);
+
+        serverVariables.Set(ServerName, _options.ServerName);
+        serverVariables.Set(ServerPort, _options.ServerPortString);
+        serverVariables.Set(ServerProtocol, _options.Scheme);
+        requestHeaders[Host] = _options.ServerHostString;
+    }
+
+    private static void UseForwardedFor(NameValueCollection requestHeaders, NameValueCollection serverVariables)
+    {
+        if (requestHeaders["x-forwarded-for"] is { } remote)
+        {
+            serverVariables.Set("REMOTE_ADDR", remote);
+            serverVariables.Set("REMOTE_HOST", remote);
         }
     }
 }

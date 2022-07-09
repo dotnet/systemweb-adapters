@@ -8,11 +8,14 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 public class ProxyOptions
 {
     private string? _port;
+    private string? _serverHostString;
 
     /// <summary>
     /// Gets or sets whether the X-Forwarded-* headers should be used for incoming requests.
     /// </summary>
     public bool UseForwardedHeaders { get; set; }
+
+    public string OriginalHostHeaderName { get; set; } = "X-Original-Host";
 
     /// <summary>
     /// Gets or sets the server name.
@@ -30,4 +33,6 @@ public class ProxyOptions
     public string Scheme { get; set; } = "https";
 
     internal string ServerPortString => _port ??= ServerPort.ToString(CultureInfo.InvariantCulture);
+
+    internal string ServerHostString => _serverHostString ??= $"{ServerName}:{ServerPortString}";
 }
