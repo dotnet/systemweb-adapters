@@ -11,6 +11,7 @@ namespace System.Web
     [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1065:Do not raise exceptions in unexpected locations", Justification = Constants.ApiFromAspNet)]
     public abstract class HttpRequestBase
     {
+        [Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = Constants.ApiFromAspNet)]
         public virtual string[] AcceptTypes => throw new NotImplementedException();
 
         public virtual string? Path => throw new NotImplementedException();
