@@ -30,6 +30,7 @@ namespace System.Web
         private NameValueCollection? _serverVariables;
         private NameValueCollection? _form;
         private NameValueCollection? _query;
+        private HttpFileCollection? _files;
         private HttpCookieCollection? _cookies;
         private HttpBrowserCapabilities? _browser;
 
@@ -97,6 +98,8 @@ namespace System.Web
         public NameValueCollection Form => _form ??= _request.Form.ToNameValueCollection();
 
         public HttpCookieCollection Cookies => _cookies ??= new(this);
+
+        public HttpFileCollection Files => _files ??= new(_request.Form.Files);
 
         public int ContentLength => (int)(_request.ContentLength ?? 0);
 

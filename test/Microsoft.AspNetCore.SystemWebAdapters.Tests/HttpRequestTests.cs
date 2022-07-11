@@ -811,5 +811,27 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Arrange
             Assert.True(bytes.SequenceEqual(bytesRead));
         }
+
+        [Fact]
+        public void Files()
+        {
+            // Arrange
+            var formFiles = new Mock<IFormFileCollection>();
+            var form = new Mock<IFormCollection>();
+            form.Setup(f => f.Files).Returns(formFiles.Object);
+
+            var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.Form).Returns(form.Object);
+
+            var request = new HttpRequest(requestCore.Object);
+
+            // Act
+            var files1 = request.Files;
+            var files2 = request.Files;
+
+            // Assert
+            Assert.Same(files1, files2);
+            Assert.Same(files1.FormFiles, formFiles.Object);
+        }
     }
 }
