@@ -17,6 +17,8 @@ namespace System.Web
             _request = request;
         }
 
+        public override string[] AcceptTypes => _request.AcceptTypes;
+
         public override void Abort() => _request.Abort();
 
         public override byte[] BinaryRead(int count) => _request.BinaryRead(count);

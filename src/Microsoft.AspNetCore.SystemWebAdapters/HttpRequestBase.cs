@@ -11,6 +11,8 @@ namespace System.Web
     [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1065:Do not raise exceptions in unexpected locations", Justification = Constants.ApiFromAspNet)]
     public abstract class HttpRequestBase
     {
+        public virtual string[] AcceptTypes => throw new NotImplementedException();
+
         public virtual string? Path => throw new NotImplementedException();
 
         public virtual NameValueCollection Headers => throw new NotImplementedException();
