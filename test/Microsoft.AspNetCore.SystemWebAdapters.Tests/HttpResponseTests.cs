@@ -380,9 +380,47 @@ public class HttpResponseTests
     }
 
     [Fact]
+    public void ClearHeaders()
+    {
+        // Arrange
+        var context = new DefaultHttpContext();
+
+        var response = new HttpResponse(context.Response)
+        {
+            StatusCode = _fixture.Create<int>(),
+            SubStatusCode = _fixture.Create<int>(),
+            StatusDescription = _fixture.Create<string>(),
+            ContentType = "application/json",
+        };
+
+        response.Headers.Add(_fixture.Create<string>(), _fixture.Create<string>());
+        response.Cookies.Add(new(_fixture.Create<string>()));
+
+        // Ensure IsRequestBeingRedirected is set to true
+        response.RedirectPermanent(_fixture.Create<string>(), false);
+
+        // Act
+        response.ClearHeaders();
+
+        // Assert
+        Assert.Equal(200, response.StatusCode);
+        Assert.Equal(0, response.SubStatusCode);
+        Assert.Equal("OK", response.StatusDescription);
+        Assert.Equal("text/html", response.ContentType);
+        Assert.False(response.IsRequestBeingRedirected);
+        Assert.Equal(Encoding.UTF8.WebName, response.Charset);
+        Assert.Empty(response.Cookies);
+        Assert.Collection(context.Response.Headers, h =>
+        {
+            Assert.Equal(HeaderNames.ContentType, h.Key);
+            Assert.Equal("text/html; charset=utf-8", h.Value);
+        });
+    }
+
+    [Fact]
     public void WriteFile()
         => SendFileTest((response, file) => response.WriteFile(file));
-    
+
     [Fact]
     public void TransmitFile()
         => SendFileTest((response, file) => response.TransmitFile(file));
@@ -418,4 +456,44 @@ public class HttpResponseTests
         // Assert
         responsebody.Verify(r => r.SendFileAsync(FileName, offset, length, default), Times.Once);
     }
+
+    [InlineData(null)]
+    [InlineData(false)]
+    [InlineData(true)]
+    [Theory]
+    public void RedirectPermanent(bool? endResponse)
+    {
+        // Arrange
+        var isEndCalled = endResponse.HasValue ? endResponse.Value : true;
+        var url = _fixture.Create<string>();
+        var features = new FeatureCollection();
+
+        var bufferedBody = new Mock<IBufferedResponseFeature>();
+        bufferedBody.SetupAllProperties();
+        features.Set(bufferedBody.Object);
+
+        var context = new Mock<HttpContextCore>();
+        context.Setup(c => c.Features).Returns(features);
+
+        var responseCore = new Mock<HttpResponseCore>();
+        responseCore.Setup(r => r.HttpContext).Returns(context.Object);
+
+        var response = new HttpResponse(responseCore.Object);
+
+        // Act
+        if (endResponse.HasValue)
+        {
+            response.RedirectPermanent(url, endResponse.Value);
+        }
+        else
+        {
+            response.RedirectPermanent(url);
+        }
+
+        // Assert
+        Assert.True(response.IsRequestBeingRedirected);
+        responseCore.Verify(r => r.Redirect(url, true), Times.Once);
+        bufferedBody.Verify(b => b.End(), isEndCalled ? Times.Once : Times.Never);
+    }
+
 }

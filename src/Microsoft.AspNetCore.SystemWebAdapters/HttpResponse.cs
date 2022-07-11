@@ -57,14 +57,15 @@ namespace System.Web
 
         public void ClearHeaders()
         {
+            _response.Headers.Clear();
+            _cookies?.Clear();
+
             StatusCode = 200;
             SubStatusCode = 0;
             StatusDescription = null;
             ContentType = "text/html";
+            IsRequestBeingRedirected = false;
             Charset = Encoding.UTF8.WebName;
-
-            _response.Headers.Clear();
-            _cookies?.Clear();
         }
 
         public bool TrySkipIisCustomErrors
@@ -177,6 +178,24 @@ namespace System.Web
             else
             {
                 _response.Headers.Add(name, value);
+            }
+        }
+
+        public bool IsRequestBeingRedirected { get; private set; }
+
+        public void RedirectPermanent(string url) => RedirectPermanent(url, true, true);
+
+        public void RedirectPermanent(string url, bool endResponse) => RedirectPermanent(url, endResponse, true);
+
+        private void RedirectPermanent(string url, bool endResponse, bool permanent)
+        {
+            IsRequestBeingRedirected = true;
+
+            _response.Redirect(url, permanent);
+
+            if (endResponse)
+            {
+                End();
             }
         }
 

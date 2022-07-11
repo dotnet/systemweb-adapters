@@ -217,6 +217,7 @@ namespace System.Web
         public System.Web.HttpCookieCollection Cookies { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public System.Collections.Specialized.NameValueCollection Headers { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public bool IsClientConnected { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public bool IsRequestBeingRedirected { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public System.IO.TextWriter Output { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public System.IO.Stream OutputStream { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public int StatusCode { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
@@ -232,6 +233,8 @@ namespace System.Web
         public void ClearContent() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void ClearHeaders() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void End() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public void RedirectPermanent(string url) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public void RedirectPermanent(string url, bool endResponse) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void SetCookie(System.Web.HttpCookie cookie) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void TransmitFile(string filename) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void TransmitFile(string filename, long offset, long length) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
