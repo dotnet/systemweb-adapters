@@ -221,17 +221,24 @@ namespace System.Web
         public System.IO.Stream OutputStream { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public int StatusCode { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public string StatusDescription { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public int SubStatusCode { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} [System.Runtime.CompilerServices.CompilerGeneratedAttribute]set { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public bool SuppressContent { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public bool TrySkipIisCustomErrors { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public void AddHeader(string name, string value) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public void AppendCookie(System.Web.HttpCookie cookie) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void AppendHeader(string name, string value) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public void BinaryWrite(byte[] buffer) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void Clear() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void ClearContent() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public void ClearHeaders() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void End() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void SetCookie(System.Web.HttpCookie cookie) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public void TransmitFile(string filename) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public void TransmitFile(string filename, long offset, long length) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void Write(char ch) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void Write(object obj) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void Write(string s) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public void WriteFile(string filename) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
     }
     public partial class HttpResponseBase
     {

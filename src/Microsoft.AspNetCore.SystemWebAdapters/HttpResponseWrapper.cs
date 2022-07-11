@@ -63,7 +63,7 @@ namespace System.Web
             set => _response.StatusCode = value;
         }
 
-        public override string StatusDescription
+        public override string? StatusDescription
         {
             get => _response.StatusDescription;
             set => _response.StatusDescription = value;

@@ -378,4 +378,44 @@ public class HttpResponseTests
         // Assert
         Assert.Same(cookies1, cookies2);
     }
+
+    [Fact]
+    public void WriteFile()
+        => SendFileTest((response, file) => response.WriteFile(file));
+    
+    [Fact]
+    public void TransmitFile()
+        => SendFileTest((response, file) => response.TransmitFile(file));
+
+    [Fact]
+    public void TransmitFileArgs()
+        => SendFileTest((response, file, offset, length) => response.TransmitFile(file, offset, length!.Value), 30, 3);
+
+    private static void SendFileTest(Action<HttpResponse, string> action)
+        => SendFileTest((response, file, offset, length) => action(response, file), 0, default);
+
+    private static void SendFileTest(Action<HttpResponse, string, long, long?> action, long offset, long? length)
+    {
+        // Arrange
+        const string FileName = "somefile.txt";
+
+        var responsebody = new Mock<IHttpResponseBodyFeature>();
+
+        var features = new Mock<IFeatureCollection>();
+        features.Setup(f => f.Get<IHttpResponseBodyFeature>()).Returns(responsebody.Object);
+
+        var context = new Mock<HttpContextCore>();
+        context.Setup(c => c.Features).Returns(features.Object);
+
+        var responseCore = new Mock<HttpResponseCore>();
+        responseCore.Setup(r => r.HttpContext).Returns(context.Object);
+
+        var response = new HttpResponse(responseCore.Object);
+
+        // Act
+        action(response, FileName, offset, length);
+
+        // Assert
+        responsebody.Verify(r => r.SendFileAsync(FileName, offset, length, default), Times.Once);
+    }
 }

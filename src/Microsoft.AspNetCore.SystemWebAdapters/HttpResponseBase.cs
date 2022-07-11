@@ -17,7 +17,7 @@ namespace System.Web
             set => throw new NotImplementedException();
         }
 
-        public virtual string StatusDescription
+        public virtual string? StatusDescription
         {
             get => throw new NotImplementedException();
             set => throw new NotImplementedException();

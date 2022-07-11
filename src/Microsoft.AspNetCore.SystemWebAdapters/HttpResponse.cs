@@ -45,13 +45,27 @@ namespace System.Web
             set => _response.StatusCode = value;
         }
 
-        public string StatusDescription
+        public int SubStatusCode { get; set; } = -1;
+
+        public string? StatusDescription
         {
             get => _response.HttpContext.Features.GetRequired<IHttpResponseFeature>().ReasonPhrase ?? ReasonPhrases.GetReasonPhrase(_response.StatusCode);
             set => _response.HttpContext.Features.GetRequired<IHttpResponseFeature>().ReasonPhrase = value;
         }
 
         public NameValueCollection Headers => _headers ??= _response.Headers.ToNameValueCollection();
+
+        public void ClearHeaders()
+        {
+            StatusCode = 200;
+            SubStatusCode = 0;
+            StatusDescription = null;
+            ContentType = "text/html";
+            Charset = Encoding.UTF8.WebName;
+
+            _response.Headers.Clear();
+            _cookies?.Clear();
+        }
 
         public bool TrySkipIisCustomErrors
         {
@@ -61,10 +75,9 @@ namespace System.Web
 
         public Stream OutputStream => _response.Body;
 
-        public HttpCookieCollection Cookies
-        {
-            get => _cookies ??= new(this);
-        }
+        public HttpCookieCollection Cookies => _cookies ??= new(this);
+
+        public void AppendCookie(HttpCookie cookie) => Cookies.Add(cookie);
 
         public bool SuppressContent
         {
@@ -177,6 +190,16 @@ namespace System.Web
 
         public void Write(object obj) => Output.Write(obj);
 
+        public void BinaryWrite(byte[] buffer)
+        {
+            if (buffer is null)
+            {
+                throw new ArgumentNullException(nameof(buffer));
+            }
+
+            OutputStream.Write(buffer, 0, buffer.Length);
+        }
+
         public void Clear()
         {
             _response.Clear();
@@ -194,6 +217,15 @@ namespace System.Web
                 BufferedFeature.ClearContent();
             }
         }
+
+        public void WriteFile(string filename)
+            => TransmitFile(filename);
+
+        public void TransmitFile(string filename)
+            => TransmitFile(filename, 0, -1);
+
+        public void TransmitFile(string filename, long offset, long length)
+            => _response.SendFileAsync(filename, offset, length >= 0 ? length : null).GetAwaiter().GetResult();
 
         [return: NotNullIfNotNull("response")]
         public static implicit operator HttpResponse?(HttpResponseCore? response) => response?.GetAdapter();
