@@ -183,8 +183,10 @@ namespace System.Web
 
         public bool IsRequestBeingRedirected { get; private set; }
 
+        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = "_writer is registered to be disposed by the owning HttpContext")]
         public void RedirectPermanent(string url) => RedirectPermanent(url, true, true);
 
+        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = "_writer is registered to be disposed by the owning HttpContext")]
         public void RedirectPermanent(string url, bool endResponse) => RedirectPermanent(url, endResponse, true);
 
         private void RedirectPermanent(string url, bool endResponse, bool permanent)

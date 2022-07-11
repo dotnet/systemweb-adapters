@@ -13,6 +13,7 @@
 #pragma warning disable CA1024 // Use properties where appropriate
 #pragma warning disable CA1724 // Type names should not match namespaces
 #pragma warning disable CA1716 // Using a reserved keyword as the name of a virtual/interface member makes it harder for consumers in other languages to override/implement the member.
+#pragma warning disable CA1054 // URI parameters should not be strings
 
 namespace System.Web
 {
