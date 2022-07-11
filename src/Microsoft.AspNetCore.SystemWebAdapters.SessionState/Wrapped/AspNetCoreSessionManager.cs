@@ -22,5 +22,5 @@ internal class AspNetCoreSessionManager : ISessionManager
     }
 
     public Task<ISessionState> CreateAsync(HttpContextCore context, ISessionMetadata metadata)
-        => Task.FromResult<ISessionState>(new AspNetCoreSessionState(context.Session, _serializer, _loggerFactory, _options.Value.ThrowOnUnknownSessionKey, metadata.IsReadOnly));
+        => Task.FromResult<ISessionState>(new AspNetCoreSessionState(context.Session, _serializer, _loggerFactory, metadata.IsReadOnly, _options.Value.ThrowOnUnknownSessionKey));
 }

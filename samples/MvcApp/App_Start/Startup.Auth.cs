@@ -34,6 +34,18 @@ namespace MvcApp
                         regenerateIdentity: (manager, user) => user.GenerateUserIdentityAsync(manager))
                 }
             });
+
+            app.Map("/owin-info", app2 =>
+            {
+                app2.Run(ctx =>
+                {
+                    var host = ctx.Request.Host;
+                    var port = ctx.Request.LocalPort;
+
+                    return ctx.Response.WriteAsync($"host: '{host}'; Port: '{port}'");
+                });
+            });
+
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
 
             // Enables the application to temporarily store user information when they are verifying the second factor in the two-factor authentication process.

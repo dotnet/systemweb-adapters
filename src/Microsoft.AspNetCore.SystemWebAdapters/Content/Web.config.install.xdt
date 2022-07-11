@@ -7,7 +7,7 @@
     </modules>
   </system.webServer>
 
-  <!-- If system.webServer tag is present, but modules tag is absent -->
+  <!-- Set up SystemWebAdapterModule -->
   <system.webServer>
     <modules xdt:Transform="InsertIfMissing">
     </modules>
@@ -25,11 +25,36 @@
     </modules>
   </system.webServer>
 
-  <!-- Insert the module -->
   <system.webServer>
     <modules>
       <remove xdt:Transform="Insert" name="SystemWebAdapterModule" />
       <add xdt:Transform="Insert" name="SystemWebAdapterModule" type="Microsoft.AspNetCore.SystemWebAdapters.SystemWebAdapterModule, Microsoft.AspNetCore.SystemWebAdapters" preCondition="managedHandler" />
     </modules>
   </system.webServer>
+
+  <!-- Set up ExtensionlessUrlHandler -->
+
+  <system.webServer>
+    <handlers xdt:Transform="InsertIfMissing">
+    </handlers>
+  </system.webServer>
+
+  <system.webServer>
+    <handlers>
+      <remove xdt:Transform="Remove"
+          xdt:Locator="Condition(./@name='ExtensionlessUrlHandler-Integrated-4.0')" >
+      </remove>
+      <add xdt:Transform="Remove"
+          xdt:Locator="Condition(./@name='ExtensionlessUrlHandler-Integrated-4.0')" >
+      </add>
+    </handlers>
+  </system.webServer>
+
+  <system.webServer>
+    <handlers>
+      <remove xdt:Transform="Insert" name="ExtensionlessUrlHandler-Integrated-4.0" />
+      <add xdt:Transform="Insert" name="ExtensionlessUrlHandler-Integrated-4.0" path="*." verb="*" type="System.Web.Handlers.TransferRequestHandler" preCondition="integratedMode,runtimeVersionv4.0" />
+    </handlers>
+  </system.webServer>
+
 </configuration>

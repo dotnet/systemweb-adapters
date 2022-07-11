@@ -6,7 +6,7 @@ using System.Web;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-public sealed class SystemWebAdapterModule : IHttpModule
+internal sealed class SystemWebAdapterModule : IHttpModule
 {
     private ISystemWebAdapterBuilder? _builder;
 

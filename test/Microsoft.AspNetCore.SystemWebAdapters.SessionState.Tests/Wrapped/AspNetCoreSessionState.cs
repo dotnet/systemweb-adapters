@@ -6,7 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -104,6 +106,21 @@ public class AspNetCoreSessionStateTests
     {
         // Arrange
         using var state = CreateSesionState(isReadOnly: isReadOnly);
+
+        // Act
+        var result = state.IsReadOnly;
+
+        // Assert
+        Assert.Equal(isReadOnly, result);
+    }
+
+    [InlineData(true)]
+    [InlineData(false)]
+    [Theory]
+    public async Task IsReadOnlySessionManager(bool isReadOnly)
+    {
+        // Arrange
+        using var state = await CreateSessionStateFromSessionManager(isReadOnly: isReadOnly);
 
         // Act
         var result = state.IsReadOnly;
@@ -256,5 +273,19 @@ public class AspNetCoreSessionStateTests
         var loggerFactory = new Mock<ILoggerFactory>();
 
         return new AspNetCoreSessionState(session.Object, serializer.Object, loggerFactory.Object, isReadOnly: isReadOnly, throwOnUnknown: throwOnUnknown);
+    }
+
+    private static async Task<ISessionState> CreateSessionStateFromSessionManager(Mock<ISession>? session = null, Mock<ISessionKeySerializer>? serializer = null, bool isReadOnly = false, bool throwOnUnknown = false)
+    {
+        session ??= new Mock<ISession>();
+        serializer ??= new Mock<ISessionKeySerializer>();
+        var loggerFactory = new Mock<ILoggerFactory>();
+        var httpContextCore = new Mock<HttpContextCore>();
+        httpContextCore.Setup(s => s.Session).Returns(session.Object);
+        var sessionSerializerOptions = new SessionSerializerOptions() {ThrowOnUnknownSessionKey = throwOnUnknown};
+        var options = Options.Create(sessionSerializerOptions);
+
+        var aspNetCoreSessionManager = new AspNetCoreSessionManager(serializer.Object, loggerFactory.Object, options);
+        return await aspNetCoreSessionManager.CreateAsync(httpContextCore.Object, new SessionAttribute(){IsReadOnly = isReadOnly});
     }
 }

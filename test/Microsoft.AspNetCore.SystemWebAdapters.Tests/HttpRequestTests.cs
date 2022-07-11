@@ -414,22 +414,14 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         [Fact]
         public void ApplicationPath()
         {
-            // Arrange
             var coreRequest = new Mock<HttpRequestCore>();
-            coreRequest.Setup(c => c.Scheme).Returns("http");
-            coreRequest.Setup(c => c.Host).Returns(new HostString("www.A.com"));
-            coreRequest.Setup(c => c.Path).Returns("/B/C");
-            coreRequest.Setup(c => c.QueryString).Returns(new QueryString("?D=E"));
-            coreRequest.Setup(c => c.PathBase).Returns("/F/ C");
-
             var request = new HttpRequest(coreRequest.Object);
 
             // Act
-            var url = request.Url;
             var result = request.ApplicationPath;
 
             // Assert
-            Assert.Equal("/F/ C", result);
+            Assert.Equal(System.Web.HttpRuntime.AppDomainAppVirtualPath, result);
         }
 
         [Fact]
