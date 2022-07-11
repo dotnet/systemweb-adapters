@@ -57,11 +57,21 @@ namespace System.Web
 
         public override void SetCookie(HttpCookie cookie) => _response.SetCookie(cookie);
 
+        public override void AppendCookie(HttpCookie cookie) => _response.AppendCookie(cookie);
+
         public override int StatusCode
         {
             get => _response.StatusCode;
             set => _response.StatusCode = value;
         }
+
+        public override int SubStatusCode
+        {
+            get => _response.SubStatusCode;
+            set => _response.SubStatusCode = value;
+        }
+
+        public override bool IsRequestBeingRedirected => _response.IsRequestBeingRedirected;
 
         public override string? StatusDescription
         {
@@ -87,10 +97,20 @@ namespace System.Web
 
         public override void Write(string s) => _response.Write(s);
 
+        public override void BinaryWrite(byte[] buffer) => _response.BinaryWrite(buffer);
+
         public override void Clear() => _response.Clear();
 
         public override void ClearContent() => _response.ClearContent();
 
+        public override void ClearHeaders() => _response.ClearHeaders();
+
         public override void End() => _response.End();
+
+        public override void TransmitFile(string filename) => _response.TransmitFile(filename);
+
+        public override void TransmitFile(string filename, long offset, long length) => _response.TransmitFile(filename, offset, length);
+
+        public override void WriteFile(string filename) => _response.WriteFile(filename);
     }
 }
