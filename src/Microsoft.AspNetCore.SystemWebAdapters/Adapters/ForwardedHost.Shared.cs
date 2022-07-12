@@ -1,7 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#if !NETSTANDARD
+
+#pragma warning disable CA2234 // Pass System.Uri objects instead of strings
+
 using System;
+using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
@@ -9,24 +14,17 @@ internal readonly struct ForwardedHost
 {
     public ForwardedHost(string host, string? proto)
     {
-        var idx = host.IndexOf(":", 0, StringComparison.Ordinal);
+        var hostString = HostString.FromUriComponent(host);
 
-        if (idx < 0)
-        {
-            ServerName = host;
-            Port = GetDefaultPort(proto);
-        }
-        else
-        {
-            ServerName = host.Substring(0, idx);
-            Port = host.Substring(idx + 1);
-        }
+        ServerName = hostString.Host;
+        Port = hostString.Port is int p ? p : GetDefaultPort(proto);
     }
 
-    private static string GetDefaultPort(string? proto)
-        => string.Equals("https", proto, StringComparison.OrdinalIgnoreCase) ? "443" : "80";
+    private static int GetDefaultPort(string? proto)
+        => string.Equals("https", proto, StringComparison.OrdinalIgnoreCase) ? 443 : 80;
 
     public string ServerName { get; }
 
-    public string Port { get; }
+    public int Port { get; }
 }
+#endif
