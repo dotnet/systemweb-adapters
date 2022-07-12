@@ -104,10 +104,7 @@ internal class RedirectUrlProcessor : IRemoteAppAuthenticationResultProcessor
                 && redirectLocation.Port.Equals(authenticationRequest.RequestUri?.Port))
             {
                 redirectBuilder.Host = forwardedHost.ServerName;
-                if (int.TryParse(forwardedHost.Port, out var port))
-                {
-                    redirectBuilder.Port = port;
-                }
+                redirectBuilder.Port = forwardedHost.Port;
 
                 // Also replace the scheme if a forwarded scheme was provided
                 if (!string.IsNullOrEmpty(forwardedProto))

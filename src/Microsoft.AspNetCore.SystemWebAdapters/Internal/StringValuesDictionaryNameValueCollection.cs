@@ -5,7 +5,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
 {
-    internal class StringValuesDictionaryNameValueCollection : WrappingNameValueCollection
+    internal class StringValuesDictionaryNameValueCollection : NoGetByIntNameValueCollection
     {
         private readonly IDictionary<string, StringValues> _values;
 
