@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http.Features;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
 {
-    internal class ServerVariablesNameValueCollection : WrappingNameValueCollection
+    internal class ServerVariablesNameValueCollection : NoGetByIntNameValueCollection
     {
         private const string EnumerationErrorMessage = "ASP.NET Core doesn't support enumerating server variables.";
         private const string SerializationErrorMessage = "ASP.NET Core doesn't support serialization of server variables.";

@@ -32,6 +32,7 @@ namespace System.Web
         private NameValueCollection? _query;
         private HttpFileCollection? _files;
         private HttpCookieCollection? _cookies;
+        private NameValueCollection? _params;
         private HttpBrowserCapabilities? _browser;
 
         public HttpRequest(HttpRequestCore request)
@@ -97,7 +98,7 @@ namespace System.Web
 
         public NameValueCollection Form => _form ??= _request.Form.ToNameValueCollection();
 
-        public HttpCookieCollection Cookies => _cookies ??= new(this);
+        public HttpCookieCollection Cookies => _cookies ??= new(_request.Cookies);
 
         public HttpFileCollection Files => _files ??= new(_request.Form.Files);
 
@@ -177,6 +178,10 @@ namespace System.Web
                 return _browser;
             }
         }
+
+        public string? this[string key] => Params[key];
+
+        public NameValueCollection Params => _params ??= new ParamsCollection(_request);
 
         public byte[] BinaryRead(int count)
         {
