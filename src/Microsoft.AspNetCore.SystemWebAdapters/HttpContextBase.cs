@@ -21,6 +21,8 @@ namespace System.Web
 
         public virtual IDictionary Items => throw new NotImplementedException();
 
+        public virtual DateTime Timestamp => throw new NotImplementedException();
+
         public virtual IPrincipal User
         {
             get => throw new NotImplementedException();

@@ -49,6 +49,8 @@ public class HttpContext : IServiceProvider
 
     public HttpSessionState? Session => _context.Features.Get<HttpSessionState>();
 
+    public DateTime Timestamp { get; } = DateTime.UtcNow.ToLocalTime();
+
     [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = Constants.ApiFromAspNet)]
     object? IServiceProvider.GetService(Type service)
     {
