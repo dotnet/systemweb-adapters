@@ -836,5 +836,22 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
                 a => Assert.Equal("*/*", a),
                 a => Assert.Equal("application/xhtml+xml", a));
         }
+
+        [Fact]
+        public void AcceptTypesEmpty()
+        {
+            // Arrange
+            var headers = new HeaderDictionary();
+            var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.Headers).Returns(headers);
+
+            var request = new HttpRequest(requestCore.Object);
+
+            // Act
+            var acceptTypes = request.AcceptTypes;
+
+            // Assert
+            Assert.Same(Array.Empty<string>(), acceptTypes);
+        }
     }
 }
