@@ -27,6 +27,8 @@ namespace System.Web
             set => throw new NotImplementedException();
         }
 
+        public virtual bool IsDebuggingEnabled => throw new NotImplementedException();
+
         public virtual HttpServerUtilityBase Server => throw new NotImplementedException();
 
         public virtual HttpSessionStateBase? Session => throw new NotImplementedException();
