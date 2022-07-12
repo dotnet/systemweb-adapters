@@ -45,7 +45,7 @@ namespace System.Web
             set => _response.StatusCode = value;
         }
 
-        public int SubStatusCode { get; set; } = -1;
+        public int SubStatusCode { get; set; }
 
         public string? StatusDescription
         {
@@ -184,12 +184,12 @@ namespace System.Web
         public bool IsRequestBeingRedirected { get; private set; }
 
         [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = "_writer is registered to be disposed by the owning HttpContext")]
-        public void RedirectPermanent(string url) => RedirectPermanent(url, true, true);
+        public void RedirectPermanent(string url) => Redirect(url, true, true);
 
         [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = "_writer is registered to be disposed by the owning HttpContext")]
-        public void RedirectPermanent(string url, bool endResponse) => RedirectPermanent(url, endResponse, true);
+        public void RedirectPermanent(string url, bool endResponse) => Redirect(url, endResponse, true);
 
-        private void RedirectPermanent(string url, bool endResponse, bool permanent)
+        private void Redirect(string url, bool endResponse, bool permanent)
         {
             IsRequestBeingRedirected = true;
 
