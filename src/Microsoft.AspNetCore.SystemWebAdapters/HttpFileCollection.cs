@@ -33,7 +33,13 @@ public sealed class HttpFileCollection : NameObjectCollectionBase
     public override KeysCollection Keys => throw new PlatformNotSupportedException();
 #pragma warning restore CS0809 // Obsolete member overrides non-obsolete member
 
-    public override IEnumerator GetEnumerator() => AllKeys.GetEnumerator();
+    public override IEnumerator GetEnumerator()
+    {
+        foreach (var file in FormFiles)
+        {
+            yield return file.Name;
+        }
+    }
 
     public HttpPostedFile? Get(string name) => FormFiles.GetFile(name) is { } file ? new(file) : null;
 
