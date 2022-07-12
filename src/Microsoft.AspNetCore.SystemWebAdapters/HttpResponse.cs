@@ -47,7 +47,8 @@ namespace System.Web
 
         public int SubStatusCode { get; set; }
 
-        public string? StatusDescription
+        [AllowNull]
+        public string StatusDescription
         {
             get => _response.HttpContext.Features.GetRequired<IHttpResponseFeature>().ReasonPhrase ?? ReasonPhrases.GetReasonPhrase(_response.StatusCode);
             set => _response.HttpContext.Features.GetRequired<IHttpResponseFeature>().ReasonPhrase = value;
