@@ -13,6 +13,7 @@
 #pragma warning disable CA1024 // Use properties where appropriate
 #pragma warning disable CA1724 // Type names should not match namespaces
 #pragma warning disable CA1716 // Using a reserved keyword as the name of a virtual/interface member makes it harder for consumers in other languages to override/implement the member.
+#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
 
 namespace System.Web
 {
@@ -114,6 +115,26 @@ namespace System.Web
         public HttpException(string message) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public HttpException(string message, System.Exception innerException) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
     }
+    public sealed partial class HttpFileCollection : System.Collections.Specialized.NameObjectCollectionBase
+    {
+        internal HttpFileCollection() { }
+        public string[] AllKeys { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public override int Count { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public System.Web.HttpPostedFile this[string name] { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        [System.ObsoleteAttribute("Retrieving Keys is not supported on .NET 6+. Please use the enumerator instead.")]
+        public override System.Collections.Specialized.NameObjectCollectionBase.KeysCollection Keys { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public System.Web.HttpPostedFile Get(string name) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public override System.Collections.IEnumerator GetEnumerator() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public System.Collections.Generic.IList<System.Web.HttpPostedFile> GetMultiple(string name) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+    }
+    public sealed partial class HttpPostedFile
+    {
+        internal HttpPostedFile() { }
+        public int ContentLength { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public string ContentType { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public string FileName { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public System.IO.Stream InputStream { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+    }
     public partial class HttpRequest
     {
         internal HttpRequest() { }
@@ -125,6 +146,7 @@ namespace System.Web
         public int ContentLength { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public string ContentType { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public System.Web.HttpCookieCollection Cookies { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
+        public System.Web.HttpFileCollection Files { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public System.Collections.Specialized.NameValueCollection Form { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public System.Collections.Specialized.NameValueCollection Headers { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public string HttpMethod { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
