@@ -65,7 +65,6 @@ namespace System.Web
             SubStatusCode = 0;
             StatusDescription = null;
             ContentType = "text/html";
-            IsRequestBeingRedirected = false;
             Charset = Encoding.UTF8.WebName;
         }
 
@@ -182,7 +181,7 @@ namespace System.Web
             }
         }
 
-        public bool IsRequestBeingRedirected { get; private set; }
+        public bool IsRequestBeingRedirected => StatusCode is >= 300 and < 400;
 
         [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = "_writer is registered to be disposed by the owning HttpContext")]
         public void RedirectPermanent(string url) => Redirect(url, true, true);
@@ -192,8 +191,6 @@ namespace System.Web
 
         private void Redirect(string url, bool endResponse, bool permanent)
         {
-            IsRequestBeingRedirected = true;
-
             _response.Redirect(url, permanent);
 
             if (endResponse)

@@ -457,6 +457,28 @@ public class HttpResponseTests
         responsebody.Verify(r => r.SendFileAsync(FileName, offset, length, default), Times.Once);
     }
 
+    [InlineData(200, false)]
+    [InlineData(299, false)]
+    [InlineData(300, true)]
+    [InlineData(301, true)]
+    [InlineData(399, true)]
+    [InlineData(400, false)]
+    [Theory]
+    public void IsRequestBeingRedirected(int statusCode, bool isRequestBeingRedirected)
+    {
+        // Arrange
+        var responseCore = new Mock<HttpResponseCore>();
+        responseCore.Setup(r => r.StatusCode).Returns(statusCode);
+
+        var response = new HttpResponse(responseCore.Object);
+
+        // Act
+        var result = response.IsRequestBeingRedirected;
+
+        // Assert
+        Assert.Equal(isRequestBeingRedirected, result);
+    }
+
     [InlineData(null)]
     [InlineData(false)]
     [InlineData(true)]
@@ -464,7 +486,7 @@ public class HttpResponseTests
     public void RedirectPermanent(bool? endResponse)
     {
         // Arrange
-        var isEndCalled = endResponse.HasValue ? endResponse.Value : true;
+        var isEndCalled = endResponse ?? true;
         var url = _fixture.Create<string>();
         var features = new FeatureCollection();
 
@@ -476,6 +498,7 @@ public class HttpResponseTests
         context.Setup(c => c.Features).Returns(features);
 
         var responseCore = new Mock<HttpResponseCore>();
+        responseCore.SetupProperty(r => r.StatusCode);
         responseCore.Setup(r => r.HttpContext).Returns(context.Object);
 
         var response = new HttpResponse(responseCore.Object);
@@ -491,9 +514,7 @@ public class HttpResponseTests
         }
 
         // Assert
-        Assert.True(response.IsRequestBeingRedirected);
         responseCore.Verify(r => r.Redirect(url, true), Times.Once);
         bufferedBody.Verify(b => b.End(), isEndCalled ? Times.Once : Times.Never);
     }
-
 }
