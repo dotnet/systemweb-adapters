@@ -78,5 +78,9 @@ namespace System.Web
         public override bool IsSecureConnection => _request.IsSecureConnection;
 
         public override NameValueCollection ServerVariables => _request.ServerVariables;
+
+        public override NameValueCollection Params => _request.Params;
+
+        public override string? this[string key] => _request[key];
     }
 }

@@ -36,6 +36,10 @@ namespace System.Web
 
         public virtual HttpCookieCollection Cookies => throw new NotImplementedException();
 
+        public virtual string? this[string key] => throw new NotImplementedException();
+
+        public virtual NameValueCollection Params => throw new NotImplementedException();
+
         public virtual int ContentLength => throw new NotImplementedException();
 
         public virtual string? ContentType
