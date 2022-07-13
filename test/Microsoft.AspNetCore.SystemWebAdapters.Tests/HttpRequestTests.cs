@@ -903,6 +903,48 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             Assert.True(bytes.SequenceEqual(bytesRead));
         }
 
+        [Fact]
+        public void AcceptTypes()
+        {
+            // Arrange
+            var headers = new HeaderDictionary
+            {
+                { HeaderNames.Accept, "text/html, application/xml;q=0.9, */*;q=0.8, application/xhtml+xml" }
+            };
+
+            var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.Headers).Returns(headers);
+
+            var request = new HttpRequest(requestCore.Object);
+
+            // Act
+            var acceptTypes = request.AcceptTypes;
+
+            // Assert
+            Assert.Collection(acceptTypes,
+                a => Assert.Equal("text/html", a),
+                a => Assert.Equal("application/xml", a),
+                a => Assert.Equal("*/*", a),
+                a => Assert.Equal("application/xhtml+xml", a));
+        }
+
+        [Fact]
+        public void AcceptTypesEmpty()
+        {
+            // Arrange
+            var headers = new HeaderDictionary();
+            var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.Headers).Returns(headers);
+
+            var request = new HttpRequest(requestCore.Object);
+
+            // Act
+            var acceptTypes = request.AcceptTypes;
+
+            // Assert
+            Assert.Same(Array.Empty<string>(), acceptTypes);
+        }
+
         private class RequestCookies : Dictionary<string, string>, IRequestCookieCollection
         {
             ICollection<string> IRequestCookieCollection.Keys => Keys;
