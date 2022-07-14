@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.Web;
 using Microsoft.Extensions.Options;
 
@@ -69,7 +70,7 @@ internal class ProxyHeaderModule : IHttpModule
             var value = new ForwardedHost(host, proto);
 
             serverVariables.Set(ServerName, value.ServerName);
-            serverVariables.Set(ServerPort, value.Port);
+            serverVariables.Set(ServerPort, value.Port.ToString(CultureInfo.InvariantCulture));
 
             requestHeaders[Host] = host;
         }

@@ -17,6 +17,8 @@ namespace System.Web
             _request = request;
         }
 
+        public override string[] AcceptTypes => _request.AcceptTypes;
+
         public override void Abort() => _request.Abort();
 
         public override byte[] BinaryRead(int count) => _request.BinaryRead(count);
@@ -76,5 +78,9 @@ namespace System.Web
         public override bool IsSecureConnection => _request.IsSecureConnection;
 
         public override NameValueCollection ServerVariables => _request.ServerVariables;
+
+        public override NameValueCollection Params => _request.Params;
+
+        public override string? this[string key] => _request[key];
     }
 }

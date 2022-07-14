@@ -3,6 +3,7 @@
 
 using System.Collections.Specialized;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Net.Http.Headers;
 
@@ -15,9 +16,9 @@ public sealed class HttpCookieCollection : NameObjectCollectionBase
     {
     }
 
-    internal HttpCookieCollection(HttpRequestCore request)
+    internal HttpCookieCollection(IRequestCookieCollection cookies)
     {
-        foreach (var (name, value) in request.Cookies)
+        foreach (var (name, value) in cookies)
         {
 #pragma warning disable CA5396
             Add(new HttpCookie(name, value));

@@ -58,3 +58,7 @@ T:Microsoft.AspNetCore.SystemWebAdapters.ISetThreadCurrentPrincipal
 T:Microsoft.AspNetCore.SystemWebAdapters.SetThreadCurrentPrincipalAttribute
 T:Microsoft.AspNetCore.SystemWebAdapters.ISingleThreadedRequestMetadata
 T:Microsoft.AspNetCore.SystemWebAdapters.SingleThreadedRequestAttribute
+
+# Files
+M:System.Web.HttpFileCollection.#ctor(Microsoft.AspNetCore.Http.IFormFileCollection)
+M:System.Web.HttpPostedFile.#ctor(Microsoft.AspNetCore.Http.IFormFile)

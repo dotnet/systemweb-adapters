@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -442,7 +444,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Act
             var result = request.UrlReferrer;
 
-            // Assert
+            // AssertexpectedResult
             Assert.Equal(new Uri(referrer), result);
         }
 
@@ -776,6 +778,95 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             Assert.Same(cookies1, cookies2);
         }
 
+        public enum ParamSource
+        {
+            None,
+            Query,
+            Form,
+            Cookie,
+            ServerVariable,
+        }
+
+        [InlineData(ParamSource.None)]
+        [InlineData(ParamSource.Query)]
+        [InlineData(ParamSource.Form)]
+        [InlineData(ParamSource.Cookie)]
+        [InlineData(ParamSource.ServerVariable)]
+        [Theory]
+        public void Indexer(ParamSource source)
+            => GetParam((key, request) => request[key], source);
+
+        [InlineData(ParamSource.None)]
+        [InlineData(ParamSource.Query)]
+        [InlineData(ParamSource.Form)]
+        [InlineData(ParamSource.Cookie)]
+        [InlineData(ParamSource.ServerVariable)]
+        [Theory]
+        public void Params(ParamSource source)
+            => GetParam((key, request) => request.Params[key], source);
+
+        private void GetParam(Func<string, HttpRequest, string?> getParam, ParamSource source)
+        {
+            // Arrange
+            var key = _fixture.Create<string>();
+            var expectedResult = source is ParamSource.None ? null : _fixture.Create<string>();
+            var otherResult = _fixture.Create<string>();
+
+            void Set(Action<string> action, ParamSource current)
+            {
+                if (source is ParamSource.None)
+                {
+                    return;
+                }
+
+                if (current == source)
+                {
+                    if (expectedResult is not null)
+                    {
+                        action(expectedResult);
+                    }
+                }
+                else if (current > source)
+                {
+                    action(otherResult);
+                }
+            }
+
+            var queryBacking = new Dictionary<string, StringValues>();
+            var queryCollection = new QueryCollection(queryBacking);
+            Set(v => queryBacking.Add(key, v), ParamSource.Query);
+
+            var formBacking = new Dictionary<string, StringValues>();
+            var formCollection = new FormCollection(formBacking);
+            Set(v => formBacking.Add(key, v), ParamSource.Form);
+
+            var cookies = new RequestCookies();
+            Set(v => cookies.Add(key, v), ParamSource.Cookie);
+
+            var serverVariables = new Mock<IServerVariablesFeature>();
+            Set(v => serverVariables.Setup(c => c[key]).Returns(v), ParamSource.ServerVariable);
+
+            var features = new FeatureCollection();
+            features.Set(serverVariables.Object);
+
+            var contextCore = new Mock<HttpContextCore>();
+            contextCore.Setup(c => c.Features).Returns(features);
+
+            var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.HttpContext).Returns(contextCore.Object);
+            requestCore.Setup(r => r.Query).Returns(queryCollection);
+            requestCore.Setup(r => r.Form).Returns(formCollection);
+            requestCore.Setup(r => r.Cookies).Returns(cookies);
+
+            var request = new HttpRequest(requestCore.Object);
+
+            // Act
+            var result = getParam(key, request);
+
+            // Assert
+            Assert.Equal(expectedResult, result);
+        }
+
         [Fact]
         public void ReadLessBytes()
         {
@@ -810,6 +901,75 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
 
             // Arrange
             Assert.True(bytes.SequenceEqual(bytesRead));
+        }
+
+        [Fact]
+        public void AcceptTypes()
+        {
+            // Arrange
+            var headers = new HeaderDictionary
+            {
+                { HeaderNames.Accept, "text/html, application/xml;q=0.9, */*;q=0.8, application/xhtml+xml" }
+            };
+
+            var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.Headers).Returns(headers);
+
+            var request = new HttpRequest(requestCore.Object);
+
+            // Act
+            var acceptTypes = request.AcceptTypes;
+
+            // Assert
+            Assert.Collection(acceptTypes,
+                a => Assert.Equal("text/html", a),
+                a => Assert.Equal("application/xml", a),
+                a => Assert.Equal("*/*", a),
+                a => Assert.Equal("application/xhtml+xml", a));
+        }
+
+        [Fact]
+        public void AcceptTypesEmpty()
+        {
+            // Arrange
+            var headers = new HeaderDictionary();
+            var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.Headers).Returns(headers);
+
+            var request = new HttpRequest(requestCore.Object);
+
+            // Act
+            var acceptTypes = request.AcceptTypes;
+
+            // Assert
+            Assert.Same(Array.Empty<string>(), acceptTypes);
+        }
+
+        private class RequestCookies : Dictionary<string, string>, IRequestCookieCollection
+        {
+            ICollection<string> IRequestCookieCollection.Keys => Keys;
+        }
+
+        [Fact]
+        public void Files()
+        {
+            // Arrange
+            var formFiles = new Mock<IFormFileCollection>();
+            var form = new Mock<IFormCollection>();
+            form.Setup(f => f.Files).Returns(formFiles.Object);
+
+            var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.Form).Returns(form.Object);
+
+            var request = new HttpRequest(requestCore.Object);
+
+            // Act
+            var files1 = request.Files;
+            var files2 = request.Files;
+
+            // Assert
+            Assert.Same(files1, files2);
+            Assert.Same(files1.FormFiles, formFiles.Object);
         }
     }
 }

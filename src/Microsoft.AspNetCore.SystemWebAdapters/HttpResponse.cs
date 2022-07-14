@@ -45,6 +45,9 @@ namespace System.Web
             set => _response.StatusCode = value;
         }
 
+        public int SubStatusCode { get; set; }
+
+        [AllowNull]
         public string StatusDescription
         {
             get => _response.HttpContext.Features.GetRequired<IHttpResponseFeature>().ReasonPhrase ?? ReasonPhrases.GetReasonPhrase(_response.StatusCode);
@@ -52,6 +55,18 @@ namespace System.Web
         }
 
         public NameValueCollection Headers => _headers ??= _response.Headers.ToNameValueCollection();
+
+        public void ClearHeaders()
+        {
+            _response.Headers.Clear();
+            _cookies?.Clear();
+
+            StatusCode = 200;
+            SubStatusCode = 0;
+            StatusDescription = null;
+            ContentType = "text/html";
+            Charset = Encoding.UTF8.WebName;
+        }
 
         public bool TrySkipIisCustomErrors
         {
@@ -61,10 +76,9 @@ namespace System.Web
 
         public Stream OutputStream => _response.Body;
 
-        public HttpCookieCollection Cookies
-        {
-            get => _cookies ??= new(this);
-        }
+        public HttpCookieCollection Cookies => _cookies ??= new(this);
+
+        public void AppendCookie(HttpCookie cookie) => Cookies.Add(cookie);
 
         public bool SuppressContent
         {
@@ -167,6 +181,24 @@ namespace System.Web
             }
         }
 
+        public bool IsRequestBeingRedirected => StatusCode is >= 300 and < 400;
+
+        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = "_writer is registered to be disposed by the owning HttpContext")]
+        public void RedirectPermanent(string url) => Redirect(url, true, true);
+
+        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = "_writer is registered to be disposed by the owning HttpContext")]
+        public void RedirectPermanent(string url, bool endResponse) => Redirect(url, endResponse, true);
+
+        private void Redirect(string url, bool endResponse, bool permanent)
+        {
+            _response.Redirect(url, permanent);
+
+            if (endResponse)
+            {
+                End();
+            }
+        }
+
         public void SetCookie(HttpCookie cookie) => Cookies.Set(cookie);
 
         public void End() => BufferedFeature.End();
@@ -176,6 +208,16 @@ namespace System.Web
         public void Write(string s) => Output.Write(s);
 
         public void Write(object obj) => Output.Write(obj);
+
+        public void BinaryWrite(byte[] buffer)
+        {
+            if (buffer is null)
+            {
+                throw new ArgumentNullException(nameof(buffer));
+            }
+
+            OutputStream.Write(buffer, 0, buffer.Length);
+        }
 
         public void Clear()
         {
@@ -194,6 +236,15 @@ namespace System.Web
                 BufferedFeature.ClearContent();
             }
         }
+
+        public void WriteFile(string filename)
+            => TransmitFile(filename);
+
+        public void TransmitFile(string filename)
+            => TransmitFile(filename, 0, -1);
+
+        public void TransmitFile(string filename, long offset, long length)
+            => _response.SendFileAsync(filename, offset, length >= 0 ? length : null).GetAwaiter().GetResult();
 
         [return: NotNullIfNotNull("response")]
         public static implicit operator HttpResponse?(HttpResponseCore? response) => response?.GetAdapter();

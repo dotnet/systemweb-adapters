@@ -7,9 +7,11 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Web.Caching;
 using System.Web.SessionState;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace System.Web;
 
@@ -41,6 +43,11 @@ public class HttpContext : IServiceProvider
 
     public Cache Cache => _context.RequestServices.GetRequiredService<Cache>();
 
+    /// <summary>
+    /// Gets whether the current request is running in the development environment.
+    /// </summary>
+    public bool IsDebuggingEnabled => _context.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment();
+
     public IPrincipal User
     {
         get => _context.User;
@@ -48,6 +55,8 @@ public class HttpContext : IServiceProvider
     }
 
     public HttpSessionState? Session => _context.Features.Get<HttpSessionState>();
+
+    public DateTime Timestamp { get; } = DateTime.UtcNow.ToLocalTime();
 
     [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = Constants.ApiFromAspNet)]
     object? IServiceProvider.GetService(Type service)

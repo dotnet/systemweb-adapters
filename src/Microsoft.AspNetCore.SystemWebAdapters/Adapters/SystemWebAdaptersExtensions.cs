@@ -9,6 +9,7 @@ using System.Web;
 using System.Web.Caching;
 using System.Web.Configuration;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             services.AddHttpContextAccessor();
             services.AddSingleton<Cache>();
             services.AddSingleton<BrowserCapabilitiesFactory>();
+            services.AddTransient<IStartupFilter, HttpContextStartupFilter>();
 
             return new SystemWebAdapterBuilder(services);
         }
@@ -134,6 +136,16 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             }
 
             throw new InvalidOperationException($"Feature {typeof(TFeature)} is not available");
+        }
+
+        internal class HttpContextStartupFilter : IStartupFilter
+        {
+            public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
+                => builder =>
+                {
+                    builder.UseMiddleware<SetHttpContextTimestampMiddleware>();
+                    next(builder);
+                };
         }
     }
 }

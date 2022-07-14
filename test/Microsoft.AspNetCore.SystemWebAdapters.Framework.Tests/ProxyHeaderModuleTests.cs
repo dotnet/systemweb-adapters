@@ -160,6 +160,56 @@ public class ProxyHeaderModuleTests
     }
 
     [Fact]
+    public void IPv6NoPort()
+    {
+        // Arrange
+        var requestHeaders = new NameValueCollection
+        {
+            { ForwardedHost, "::1" },
+            { ForwardedProto, "https" }
+        };
+        var serverVariables = new NameValueCollection();
+        var options = new ProxyOptions();
+        var module = new ProxyHeaderModule(Options.Create(options));
+
+        // Act
+        module.UseHeaders(requestHeaders, serverVariables);
+
+        // Assert
+        Assert.Equal("[::1]", serverVariables[ServerName]);
+        Assert.Equal("443", serverVariables[ServerPort]);
+        Assert.Null(serverVariables[RemoteAddress]);
+        Assert.Null(serverVariables[RemoteHost]);
+        Assert.Equal("::1", requestHeaders[Host]);
+        Assert.Null(requestHeaders[options.OriginalHostHeaderName]);
+    }
+
+    [Fact]
+    public void IPv6WithPort()
+    {
+        // Arrange
+        var requestHeaders = new NameValueCollection
+        {
+            { ForwardedHost, "[::1]:81" },
+            { ForwardedProto, "https" }
+        };
+        var serverVariables = new NameValueCollection();
+        var options = new ProxyOptions();
+        var module = new ProxyHeaderModule(Options.Create(options));
+
+        // Act
+        module.UseHeaders(requestHeaders, serverVariables);
+
+        // Assert
+        Assert.Equal("[::1]", serverVariables[ServerName]);
+        Assert.Equal("81", serverVariables[ServerPort]);
+        Assert.Null(serverVariables[RemoteAddress]);
+        Assert.Null(serverVariables[RemoteHost]);
+        Assert.Equal("[::1]:81", requestHeaders[Host]);
+        Assert.Null(requestHeaders[options.OriginalHostHeaderName]);
+    }
+
+    [Fact]
     public void ForwardedForSet()
     {
         const string ForwardedForValue = "something";
