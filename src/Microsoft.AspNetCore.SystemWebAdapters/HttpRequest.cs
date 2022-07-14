@@ -36,7 +36,7 @@ namespace System.Web
         private NameValueCollection? _params;
         private HttpBrowserCapabilities? _browser;
 
-        public HttpRequest(HttpRequestCore request)
+        internal HttpRequest(HttpRequestCore request)
         {
             _request = request;
         }

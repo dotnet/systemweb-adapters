@@ -25,10 +25,9 @@ public class PreBufferRequestStreamMiddlewareTests
 
         var logger = new Mock<ILogger<PreBufferRequestStreamMiddleware>>();
 
-        var metadata = new Mock<IPreBufferRequestStreamMetadata>();
-        metadata.Setup(m => m.IsEnabled).Returns(isEnabled);
+        var metadata = new PreBufferRequestStreamAttribute { IsEnabled = isEnabled };
 
-        var metadataCollection = new EndpointMetadataCollection(metadata.Object);
+        var metadataCollection = new EndpointMetadataCollection(metadata);
 
         var endpointFeature = new Mock<IEndpointFeature>();
         endpointFeature.Setup(e => e.Endpoint).Returns(new Endpoint(null, metadataCollection, null));

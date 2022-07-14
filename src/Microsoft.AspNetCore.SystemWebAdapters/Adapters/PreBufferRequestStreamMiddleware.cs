@@ -23,12 +23,12 @@ internal partial class PreBufferRequestStreamMiddleware
     }
 
     public Task InvokeAsync(HttpContextCore context)
-        => context.GetEndpoint()?.Metadata.GetMetadata<IPreBufferRequestStreamMetadata>() is { IsEnabled: true } metadata
+        => context.GetEndpoint()?.Metadata.GetMetadata<PreBufferRequestStreamAttribute>() is { IsEnabled: true } metadata
             ? PreBufferAsync(context, metadata)
             : _next(context);
 
 
-    private async Task PreBufferAsync(HttpContextCore context, IPreBufferRequestStreamMetadata metadata)
+    private async Task PreBufferAsync(HttpContextCore context, PreBufferRequestStreamAttribute metadata)
     {
         // TODO: Should this enforce MaxRequestBodySize? https://github.com/aspnet/AspLabs/pull/447#discussion_r827314309
         LogMessage();

@@ -29,7 +29,7 @@ namespace System.Web
         private TextWriter? _writer;
         private HttpCookieCollection? _cookies;
 
-        public HttpResponse(HttpResponseCore response)
+        internal HttpResponse(HttpResponseCore response)
         {
             _response = response;
         }

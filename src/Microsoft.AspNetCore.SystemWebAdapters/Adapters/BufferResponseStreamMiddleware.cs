@@ -23,11 +23,11 @@ internal partial class BufferResponseStreamMiddleware
     }
 
     public Task InvokeAsync(HttpContextCore context)
-        => context.GetEndpoint()?.Metadata.GetMetadata<IBufferResponseStreamMetadata>() is { IsEnabled: true } metadata && context.Features.Get<IHttpResponseBodyFeature>() is { } feature
+        => context.GetEndpoint()?.Metadata.GetMetadata<BufferResponseStreamAttribute>() is { IsEnabled: true } metadata && context.Features.Get<IHttpResponseBodyFeature>() is { } feature
             ? BufferResponseStreamAsync(context, feature, metadata)
             : _next(context);
 
-    private async Task BufferResponseStreamAsync(HttpContextCore context, IHttpResponseBodyFeature feature, IBufferResponseStreamMetadata metadata)
+    private async Task BufferResponseStreamAsync(HttpContextCore context, IHttpResponseBodyFeature feature, BufferResponseStreamAttribute metadata)
     {
         LogBuffering(metadata.BufferLimit, metadata.MemoryThreshold);
 

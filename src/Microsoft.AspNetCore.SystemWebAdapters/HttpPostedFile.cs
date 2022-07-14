@@ -8,7 +8,7 @@ namespace System.Web;
 
 public sealed class HttpPostedFile
 {
-    public HttpPostedFile(IFormFile file) => File = file;
+    internal HttpPostedFile(IFormFile file) => File = file;
 
     internal IFormFile File { get; }
 

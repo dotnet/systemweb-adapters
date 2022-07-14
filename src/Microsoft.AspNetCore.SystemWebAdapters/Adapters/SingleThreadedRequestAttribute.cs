@@ -6,7 +6,7 @@ using System;
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public sealed class SingleThreadedRequestAttribute : Attribute, ISingleThreadedRequestMetadata
+public sealed class SingleThreadedRequestAttribute : Attribute
 {
     public bool IsEnabled { get; set; } = true;
 }
