@@ -47,7 +47,7 @@ internal partial class SessionMiddleware
 #pragma warning restore CS0618 // Type or member is obsolete
 #pragma warning restore CA2000 // Dispose objects before losing scope
 
-            SessionBehavior.PreLoad => await manager.CreateAsync(context, metadata),
+            SessionBehavior.Preload => await manager.CreateAsync(context, metadata),
             var behavior => throw new InvalidOperationException($"Unknown session behavior {behavior}"),
         };
 

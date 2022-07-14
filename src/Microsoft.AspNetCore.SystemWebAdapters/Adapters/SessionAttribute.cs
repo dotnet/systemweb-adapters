@@ -8,7 +8,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public sealed class SessionAttribute : Attribute
 {
-    public SessionBehavior Behavior { get; set; } = SessionBehavior.PreLoad;
+    public SessionBehavior Behavior { get; set; } = SessionBehavior.Preload;
 
     public bool IsReadOnly { get; set; }
 }
