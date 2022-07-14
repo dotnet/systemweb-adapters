@@ -23,7 +23,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             services.AddSingleton<Cache>();
             services.AddSingleton<BrowserCapabilitiesFactory>();
 
-            return new Builder(services);
+            return new SystemWebAdapterBuilder(services);
         }
 
         public static void UseSystemWebAdapters(this IApplicationBuilder app)
@@ -134,16 +134,6 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             }
 
             throw new InvalidOperationException($"Feature {typeof(TFeature)} is not available");
-        }
-
-        private class Builder : ISystemWebAdapterBuilder
-        {
-            public Builder(IServiceCollection services)
-            {
-                Services = services;
-            }
-
-            public IServiceCollection Services { get; }
         }
     }
 }

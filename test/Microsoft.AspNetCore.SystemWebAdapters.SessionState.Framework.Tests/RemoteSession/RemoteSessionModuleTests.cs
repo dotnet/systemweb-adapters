@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.Web;
 using AutoFixture;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -29,12 +30,13 @@ public class RemoteSessionModuleTests
     public void VeriyApiKeyIsNotNullOrEmpty(string apiKey)
     {
         // Arrange
-        var options = new RemoteAppSessionStateOptions { ApiKey = apiKey };
+        var sessionOptions = Options.Create(new RemoteAppSessionStateOptions());
+        var remoteAppOptions = Options.Create(new RemoteAppOptions { ApiKey = apiKey });
         var sessions = new Mock<ILockedSessionCache>();
         var serializer = new Mock<ISessionSerializer>();
 
         // Act/Assert
-        Assert.Throws<ArgumentOutOfRangeException>(() => new RemoteSessionModule(options, sessions.Object, serializer.Object));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new RemoteSessionModule(sessionOptions, remoteAppOptions, sessions.Object, serializer.Object));
     }
 
     [InlineData("GET", "true", 401, ApiKey1, ApiKey2, null)]
@@ -53,17 +55,17 @@ public class RemoteSessionModuleTests
     public void VerifyCorrectHandler(string method, string readOnlyHeaderValue, int statusCode, string expectedApiKey, string apiKey, Type handlerType)
     {
         // Arrange
-        var options = _fixture.Create<RemoteAppSessionStateOptions>();
-        options.ApiKey = expectedApiKey;
+        var sessionOptions = Options.Create(new RemoteAppSessionStateOptions());
+        var remoteAppOptions = Options.Create(new RemoteAppOptions { ApiKey = expectedApiKey });
 
         var sessions = new Mock<ILockedSessionCache>();
         var serializer = new Mock<ISessionSerializer>();
 
-        var module = new RemoteSessionModule(options, sessions.Object, serializer.Object);
+        var module = new RemoteSessionModule(sessionOptions, remoteAppOptions, sessions.Object, serializer.Object);
 
         var headers = new NameValueCollection
         {
-            { options.ApiKeyHeader, apiKey },
+            { remoteAppOptions.Value.ApiKeyHeader, apiKey },
             { RemoteAppSessionStateOptions.ReadOnlyHeaderName, readOnlyHeaderValue }
         };
 

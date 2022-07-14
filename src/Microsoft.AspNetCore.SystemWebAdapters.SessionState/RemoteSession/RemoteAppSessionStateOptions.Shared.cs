@@ -9,7 +9,7 @@ using System;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
-public class RemoteAppSessionStateOptions : RemoteServiceOptions
+public class RemoteAppSessionStateOptions
 {
     internal const string ReadOnlyHeaderName = "X-SystemWebAdapter-RemoteAppSession-ReadOnly";
 

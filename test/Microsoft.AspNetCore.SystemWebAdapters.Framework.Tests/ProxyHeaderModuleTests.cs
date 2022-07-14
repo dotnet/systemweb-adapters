@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Specialized;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.FrameworkTests;
@@ -24,7 +25,7 @@ public class ProxyHeaderModuleTests
         var requestHeaders = new NameValueCollection();
         var serverVariables = new NameValueCollection();
         var options = new ProxyOptions();
-        var module = new ProxyHeaderModule(options);
+        var module = new ProxyHeaderModule(Options.Create(options));
 
         // Act
         module.UseHeaders(requestHeaders, serverVariables);
@@ -44,7 +45,7 @@ public class ProxyHeaderModuleTests
         };
         var serverVariables = new NameValueCollection();
         var options = new ProxyOptions();
-        var module = new ProxyHeaderModule(options);
+        var module = new ProxyHeaderModule(Options.Create(options));
 
         // Act
         module.UseHeaders(requestHeaders, serverVariables);
@@ -68,7 +69,7 @@ public class ProxyHeaderModuleTests
         };
         var serverVariables = new NameValueCollection();
         var options = new ProxyOptions();
-        var module = new ProxyHeaderModule(options);
+        var module = new ProxyHeaderModule(Options.Create(options));
 
         // Act
         module.UseHeaders(requestHeaders, serverVariables);
@@ -93,7 +94,7 @@ public class ProxyHeaderModuleTests
         };
         var serverVariables = new NameValueCollection();
         var options = new ProxyOptions();
-        var module = new ProxyHeaderModule(options);
+        var module = new ProxyHeaderModule(Options.Create(options));
 
         // Act
         module.UseHeaders(requestHeaders, serverVariables);
@@ -119,7 +120,7 @@ public class ProxyHeaderModuleTests
         };
         var serverVariables = new NameValueCollection();
         var options = new ProxyOptions();
-        var module = new ProxyHeaderModule(options);
+        var module = new ProxyHeaderModule(Options.Create(options));
 
         // Act
         module.UseHeaders(requestHeaders, serverVariables);
@@ -144,7 +145,7 @@ public class ProxyHeaderModuleTests
         };
         var serverVariables = new NameValueCollection();
         var options = new ProxyOptions();
-        var module = new ProxyHeaderModule(options);
+        var module = new ProxyHeaderModule(Options.Create(options));
 
         // Act
         module.UseHeaders(requestHeaders, serverVariables);
@@ -170,7 +171,7 @@ public class ProxyHeaderModuleTests
         };
         var serverVariables = new NameValueCollection();
         var options = new ProxyOptions();
-        var module = new ProxyHeaderModule(options);
+        var module = new ProxyHeaderModule(Options.Create(options));
 
         // Act
         module.UseHeaders(requestHeaders, serverVariables);

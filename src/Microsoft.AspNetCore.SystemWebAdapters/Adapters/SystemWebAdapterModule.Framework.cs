@@ -2,24 +2,25 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Web;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal sealed class SystemWebAdapterModule : IHttpModule
 {
-    private ISystemWebAdapterBuilder? _builder;
+    private IEnumerable<IHttpModule>? _modules;
 
     public void Dispose()
     {
-        if (_builder is { } builder)
+        if (_modules != null)
         {
-            foreach (var module in builder.Modules)
+            foreach (var module in _modules)
             {
                 module.Dispose();
             }
-
-            _builder = null;
+            _modules = null;
         }
     }
 
@@ -30,11 +31,10 @@ internal sealed class SystemWebAdapterModule : IHttpModule
             throw new ArgumentNullException(nameof(context));
         }
 
-        _builder = context.Application.GetSystemWebBuilder();
-
-        if (_builder is { } builder)
+        _modules = context.Application.GetServiceProvider()?.GetRequiredService<IEnumerable<IHttpModule>>();
+        if (_modules is not null)
         {
-            foreach (var module in builder.Modules)
+            foreach (var module in _modules)
             {
                 module.Init(context);
             }

@@ -10,23 +10,18 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public static class RemoteAppSessionStateExtensions
 {
-    public static ISystemWebAdapterBuilder AddRemoteAppSession(this ISystemWebAdapterBuilder builder, Action<RemoteAppSessionStateOptions> configure)
+    public static ISystemWebAdapterBuilder AddRemoteAppSession(this ISystemWebAdapterBuilder builder, Action<RemoteAppSessionStateOptions>? configure = null)
     {
         if (builder is null)
         {
             throw new ArgumentNullException(nameof(builder));
         }
 
-        if (configure is null)
-        {
-            throw new ArgumentNullException(nameof(configure));
-        }
-
         builder.Services.AddHttpClient<ISessionManager, RemoteAppSessionStateManager>()
             // Disable cookies in the HTTP client because the service will manage the cookie header directly
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { UseCookies = false });
         builder.Services.AddOptions<RemoteAppSessionStateOptions>()
-            .Configure(configure)
+            .Configure(configure ?? (_ => { }))
             .ValidateDataAnnotations();
 
         return builder;

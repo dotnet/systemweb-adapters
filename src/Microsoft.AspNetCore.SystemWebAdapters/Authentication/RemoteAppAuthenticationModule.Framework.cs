@@ -3,16 +3,19 @@
 
 using System;
 using System.Web;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
 internal sealed class RemoteAppAuthenticationModule : IHttpModule
 {
-    private readonly RemoteAppAuthenticationOptions _options;
+    private readonly RemoteAppAuthenticationOptions _authOptions;
+    private readonly RemoteAppOptions _remoteAppOptions;
 
-    public RemoteAppAuthenticationModule(RemoteAppAuthenticationOptions options)
+    public RemoteAppAuthenticationModule(IOptions<RemoteAppAuthenticationOptions> authOptions, IOptions<RemoteAppOptions> remoteAppOptions)
     {
-        _options = options;
+        _authOptions = authOptions?.Value ?? throw new ArgumentNullException(nameof(authOptions));
+        _remoteAppOptions = remoteAppOptions?.Value ?? throw new ArgumentNullException(nameof(remoteAppOptions));
     }
 
     public void Init(HttpApplication context)
@@ -25,10 +28,10 @@ internal sealed class RemoteAppAuthenticationModule : IHttpModule
         {
             var context = ((HttpApplication)sender).Context;
 
-            if (string.Equals(context.Request.Path, _options.AuthenticationEndpointPath, StringComparison.OrdinalIgnoreCase)
+            if (string.Equals(context.Request.Path, _authOptions.AuthenticationEndpointPath, StringComparison.OrdinalIgnoreCase)
                 && context.Request.HttpMethod.Equals("GET", StringComparison.OrdinalIgnoreCase))
             {
-                if (!string.Equals(_options.RemoteServiceOptions.ApiKey, context.Request.Headers.Get(_options.RemoteServiceOptions.ApiKeyHeader), StringComparison.Ordinal))
+                if (!string.Equals(_remoteAppOptions.ApiKey, context.Request.Headers.Get(_remoteAppOptions.ApiKeyHeader), StringComparison.Ordinal))
                 {
                     // Using 407 here (proxy authentication required) to differentiate from the scenario of
                     // a valid API key but no authenticated user.

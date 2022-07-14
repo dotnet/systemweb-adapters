@@ -2,14 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections.Generic;
 using System.Web;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public static class SystemWebAdaptersExtensions
 {
-    private const string Key = "system-web-adapter-builder";
+    private const string BuilderKey = "system-web-adapter-builder";
+    private const string ServicesKey = "system-web-adapter-services";
 
     public static ISystemWebAdapterBuilder AddSystemWebAdapters(this HttpApplicationState state)
     {
@@ -18,10 +19,10 @@ public static class SystemWebAdaptersExtensions
             throw new ArgumentNullException(nameof(state));
         }
 
-        if (state[Key] is not ISystemWebAdapterBuilder builder)
+        if (state[BuilderKey] is not ISystemWebAdapterBuilder builder)
         {
-            builder = new Builder();
-            state[Key] = builder;
+            builder = new SystemWebAdapterBuilder(new ServiceCollection());
+            state[BuilderKey] = builder;
         }
 
         return builder;
@@ -29,34 +30,45 @@ public static class SystemWebAdaptersExtensions
 
     public static ISystemWebAdapterBuilder AddProxySupport(this ISystemWebAdapterBuilder builder, Action<ProxyOptions> configure)
     {
+        if (builder is null)
+        {
+            throw new ArgumentNullException(nameof(builder));
+        }
+
         if (configure is null)
         {
             throw new ArgumentNullException(nameof(configure));
         }
 
-        return builder.AddModule(configure, static options => new ProxyHeaderModule(options));
-    }
+        builder.Services.AddSingleton<IHttpModule, ProxyHeaderModule>();
+        builder.Services.AddOptions<ProxyOptions>()
+            .Configure(configure);
 
-    internal static ISystemWebAdapterBuilder? GetSystemWebBuilder(this HttpApplicationState state)
-        => state[Key] as ISystemWebAdapterBuilder;
-
-    private static ISystemWebAdapterBuilder AddModule<TOptions>(this ISystemWebAdapterBuilder builder, Action<TOptions> configure, Func<TOptions, IHttpModule> factory)
-        where TOptions : class, new()
-    {
-        var options = new TOptions();
-        configure(options);
-
-        return builder.AddModule(factory(options));
-    }
-
-    private static ISystemWebAdapterBuilder AddModule(this ISystemWebAdapterBuilder builder, IHttpModule module)
-    {
-        builder.Modules.Add(module);
         return builder;
     }
 
-    private class Builder : ISystemWebAdapterBuilder
+    internal static IServiceProvider? GetServiceProvider(this HttpApplicationState state)
     {
-        public ICollection<IHttpModule> Modules { get; } = new List<IHttpModule>();
+        var serviceProvider = state[ServicesKey] as IServiceProvider;
+
+        if (serviceProvider is null)
+        {
+            state.Lock();
+            try
+            {
+                serviceProvider = state[ServicesKey] as IServiceProvider;
+                if (serviceProvider is null)
+                {
+                    var builder = state[BuilderKey] as ISystemWebAdapterBuilder;
+                    state[ServicesKey] = serviceProvider = builder?.Services.BuildServiceProvider();
+                }
+            }
+            finally
+            {
+                state.UnLock();
+            }
+        }
+
+        return serviceProvider;
     }
 }
