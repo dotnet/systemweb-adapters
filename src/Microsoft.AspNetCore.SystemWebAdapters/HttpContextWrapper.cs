@@ -29,6 +29,8 @@ namespace System.Web
 
         public override IDictionary Items => _context.Items;
 
+        public override bool IsDebuggingEnabled => _context.IsDebuggingEnabled;
+
         public override HttpRequestBase Request
         {
             get

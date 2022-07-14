@@ -7,9 +7,11 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Web.Caching;
 using System.Web.SessionState;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace System.Web;
 
@@ -40,6 +42,11 @@ public class HttpContext : IServiceProvider
     public HttpServerUtility Server => _server ??= new(_context);
 
     public Cache Cache => _context.RequestServices.GetRequiredService<Cache>();
+
+    /// <summary>
+    /// Gets whether the current request is running in the development environment.
+    /// </summary>
+    public bool IsDebuggingEnabled => _context.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment();
 
     public IPrincipal User
     {
