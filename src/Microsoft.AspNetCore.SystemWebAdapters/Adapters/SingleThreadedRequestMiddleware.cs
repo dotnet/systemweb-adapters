@@ -13,7 +13,7 @@ internal class SingleThreadedRequestMiddleware
     public SingleThreadedRequestMiddleware(RequestDelegate next) => _next = next;
 
     public Task InvokeAsync(HttpContextCore context)
-        => context.GetEndpoint()?.Metadata.GetMetadata<SingleThreadedRequestAttribute>() is { IsEnabled: true }
+        => context.GetEndpoint()?.Metadata.GetMetadata<SingleThreadedRequestAttribute>() is { IsDisabled: false }
             ? EnsureSingleThreaded(context)
             : _next(context);
 

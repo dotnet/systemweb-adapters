@@ -8,5 +8,5 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public sealed class SetThreadCurrentPrincipalAttribute : Attribute
 {
-    public bool IsEnabled { get; set; } = true;
+    public bool IsDisabled { get; set; }
 }

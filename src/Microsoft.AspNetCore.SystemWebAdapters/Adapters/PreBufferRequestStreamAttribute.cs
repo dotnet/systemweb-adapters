@@ -11,7 +11,7 @@ public sealed class PreBufferRequestStreamAttribute : Attribute
     // Same limit as the default: https://source.dot.net/#Microsoft.AspNetCore.Http/Internal/BufferingHelper.cs,47b7015acb14f2a4
     private const int DefaultBufferThreshold = 1024 * 30;
 
-    public bool IsEnabled { get; set; } = true;
+    public bool IsDisabled { get; set; }
 
     public int BufferThreshold { get; set; } = DefaultBufferThreshold;
 

@@ -23,7 +23,7 @@ internal partial class CurrentPrincipalMiddleware
     }
 
     public Task InvokeAsync(HttpContext context)
-        => context.GetEndpoint()?.Metadata.GetMetadata<SetThreadCurrentPrincipalAttribute>() is { IsEnabled: true } ? SetUserAsync(context) : _next(context);
+        => context.GetEndpoint()?.Metadata.GetMetadata<SetThreadCurrentPrincipalAttribute>() is { IsDisabled: false } ? SetUserAsync(context) : _next(context);
 
     private async Task SetUserAsync(HttpContext context)
     {

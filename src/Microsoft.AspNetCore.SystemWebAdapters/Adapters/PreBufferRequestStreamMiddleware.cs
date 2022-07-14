@@ -23,7 +23,7 @@ internal partial class PreBufferRequestStreamMiddleware
     }
 
     public Task InvokeAsync(HttpContextCore context)
-        => context.GetEndpoint()?.Metadata.GetMetadata<PreBufferRequestStreamAttribute>() is { IsEnabled: true } metadata
+        => context.GetEndpoint()?.Metadata.GetMetadata<PreBufferRequestStreamAttribute>() is { IsDisabled: false } metadata
             ? PreBufferAsync(context, metadata)
             : _next(context);
 

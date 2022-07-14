@@ -17,7 +17,7 @@ public class PreBufferRequestStreamMiddlewareTests
     [InlineData(true)]
     [InlineData(false)]
     [Theory]
-    public async Task RequestBuffering(bool isEnabled)
+    public async Task RequestBuffering(bool isDisabled)
     {
         // Arrange
         var next = new Mock<RequestDelegate>();
@@ -25,7 +25,7 @@ public class PreBufferRequestStreamMiddlewareTests
 
         var logger = new Mock<ILogger<PreBufferRequestStreamMiddleware>>();
 
-        var metadata = new PreBufferRequestStreamAttribute { IsEnabled = isEnabled };
+        var metadata = new PreBufferRequestStreamAttribute { IsDisabled = isDisabled };
 
         var metadataCollection = new EndpointMetadataCollection(metadata);
 
@@ -51,6 +51,6 @@ public class PreBufferRequestStreamMiddlewareTests
         await mock.Create<PreBufferRequestStreamMiddleware>().InvokeAsync(context);
 
         // Assert
-        Assert.Equal(isEnabled, context.Request.Body.CanSeek);
+        Assert.Equal(!isDisabled, context.Request.Body.CanSeek);
     }
 }
