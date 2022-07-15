@@ -23,12 +23,12 @@ internal class BufferedHttpResponseFeature : Stream, IHttpResponseBodyFeature, I
     }
 
     private readonly IHttpResponseBodyFeature _other;
-    private readonly IBufferResponseStreamMetadata _metadata;
+    private readonly BufferResponseStreamAttribute _metadata;
 
     private FileBufferingWriteStream? _bufferedStream;
     private PipeWriter? _pipeWriter;
 
-    public BufferedHttpResponseFeature(IHttpResponseBodyFeature other, IBufferResponseStreamMetadata metadata)
+    public BufferedHttpResponseFeature(IHttpResponseBodyFeature other, BufferResponseStreamAttribute metadata)
     {
         _other = other;
         _metadata = metadata;

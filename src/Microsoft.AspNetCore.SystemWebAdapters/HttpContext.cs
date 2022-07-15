@@ -28,7 +28,7 @@ public class HttpContext : IServiceProvider
 
     public static HttpContext? Current => _accessor.HttpContext;
 
-    public HttpContext(HttpContextCore context)
+    internal HttpContext(HttpContextCore context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }

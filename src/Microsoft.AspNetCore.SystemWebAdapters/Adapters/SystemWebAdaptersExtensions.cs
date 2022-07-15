@@ -41,21 +41,21 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         /// <summary>
         /// Adds request stream buffering to the endpoint(s)
         /// </summary>
-        public static TBuilder PreBufferRequestStream<TBuilder>(this TBuilder builder, IPreBufferRequestStreamMetadata? metadata = null)
+        public static TBuilder PreBufferRequestStream<TBuilder>(this TBuilder builder, PreBufferRequestStreamAttribute? metadata = null)
             where TBuilder : IEndpointConventionBuilder
             => builder.WithMetadata(metadata ?? new PreBufferRequestStreamAttribute());
 
         /// <summary>
         /// Adds session support for System.Web adapters for the endpoint(s)
         /// </summary>
-        public static TBuilder RequireSystemWebAdapterSession<TBuilder>(this TBuilder builder, ISessionMetadata? metadata = null)
+        public static TBuilder RequireSystemWebAdapterSession<TBuilder>(this TBuilder builder, SessionAttribute? metadata = null)
             where TBuilder : IEndpointConventionBuilder
             => builder.WithMetadata(metadata ?? new SessionAttribute());
 
         /// <summary>
         /// Ensure response stream is buffered to enable synchronous actions on it for the endpoint(s)
         /// </summary>
-        public static TBuilder BufferResponseStream<TBuilder>(this TBuilder builder, IBufferResponseStreamMetadata? metadata = null)
+        public static TBuilder BufferResponseStream<TBuilder>(this TBuilder builder, BufferResponseStreamAttribute? metadata = null)
             where TBuilder : IEndpointConventionBuilder
             => builder.WithMetadata(metadata ?? new BufferResponseStreamAttribute());
 
