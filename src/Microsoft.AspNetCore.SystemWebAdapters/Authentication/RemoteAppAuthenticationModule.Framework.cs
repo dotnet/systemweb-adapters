@@ -63,6 +63,9 @@ internal sealed class RemoteAppAuthenticationModule : IHttpModule
             // Requests to the authentication endpoint must include a valid API key.
             // Requests without an API key or with an invalid API key are considered malformed.
             context.Response.StatusCode = 400;
+
+            // Clear any existing handler as this endpoint shouldn't respond with a valid API key
+            context.Handler = null;
         }
         else
         {
