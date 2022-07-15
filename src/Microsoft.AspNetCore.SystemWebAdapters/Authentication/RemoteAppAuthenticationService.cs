@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -77,10 +76,8 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
         }
 
         // Create a new HTTP request, but propagate along configured headers or cookies
-        // that may matter for authentication. Also include the original request URL as
-        // as query parameter so that the ASP.NET app can redirect back to it if an
-        // authentication provider attempts to redirect back to the authenticate URL.
-        using var authRequest = new HttpRequestMessage(HttpMethod.Get, $"?{AuthenticationConstants.OriginalUrlQueryParamName}={WebUtility.UrlEncode(originalRequest.GetEncodedUrl())}");
+        // that may matter for authentication
+        using var authRequest = new HttpRequestMessage();
         AddHeaders(_options.RequestHeadersToForward, originalRequest, authRequest);
 
         // Get the response from the remote app and convert the response into a remote authentication result
@@ -98,6 +95,7 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
         // correct host.
         authRequest.Headers.Add(AuthenticationConstants.ForwardedHostHeaderName, originalRequest.Host.Value);
         authRequest.Headers.Add(AuthenticationConstants.ForwardedProtoHeaderName, originalRequest.Scheme);
+        authRequest.Headers.Referrer = new Uri(originalRequest.Path, UriKind.Relative);
 
         IEnumerable<string> headerNames = originalRequest.Headers.Keys;
         if (headersToForward.Any())

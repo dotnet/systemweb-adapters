@@ -48,12 +48,11 @@ public class RemoteAppAuthenticationModuleTests
         }
     }
 
-    [InlineData("original url", GoodKey, 0, null, typeof(RemoteAppAuthenticationHttpHandler))]
-    [InlineData("original url", BadKey, 407, null, null)]
-    [InlineData(null, null, 400, null, null)]
-    [InlineData("original url", null, 302, "original url", null)]
+    [InlineData(GoodKey, 0, typeof(RemoteAppAuthenticationHttpHandler))]
+    [InlineData(BadKey, 400, null)]
+    [InlineData(null, 400, null)]
     [Theory]
-    public void VerifyAuthenticationRequestHandling(string queryParamValue, string apiKey, int expectedStatusCode, string expectedRedirect, Type expectedHandlerType)
+    public void VerifyAuthenticationRequestHandling(string apiKey, int expectedStatusCode, Type expectedHandlerType)
     {
         // Arrange
 
@@ -68,17 +67,11 @@ public class RemoteAppAuthenticationModuleTests
             { options.RemoteServiceOptions.ApiKeyHeader, apiKey }
         };
 
-        var queryStrings = new NameValueCollection
-        {
-            { AuthenticationConstants.OriginalUrlQueryParamName, queryParamValue }
-        };
-
         var responseHeaders = new NameValueCollection();
 
         // Mock request, response, and context
         var request = new Mock<HttpRequestBase>();
         request.Setup(r => r.Headers).Returns(headers);
-        request.Setup(r => r.QueryString).Returns(queryStrings);
 
         var response = new Mock<HttpResponseBase>();
         response.SetupProperty(r => r.StatusCode);
@@ -94,7 +87,7 @@ public class RemoteAppAuthenticationModuleTests
 
         // Assert
         Assert.Equal(expectedStatusCode, response.Object.StatusCode);
-        Assert.Equal(expectedRedirect, responseHeaders["Location"]);
+        Assert.Null(responseHeaders["Location"]);
 
         if (expectedHandlerType is null)
         {
