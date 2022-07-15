@@ -60,12 +60,16 @@ internal sealed class RemoteAppAuthenticationHttpHandler : IHttpHandler
             // Get the URI that should be redirected to (current (forwarded) host plus referer path)
             var redirectPath = new Uri(context.Request.Url, context.Request.UrlReferrer);
 
+            // Get the OWIN challenge settings from the environment or, if they don't exist,
+            // create new challenge settings,
             if (!owinEnvironment.TryGetValue(OwinChallengeKey, out var owinChallengeSettings))
             {
+                // The typle is an array of authentication types and a dictionary of authentication properties
                 owinChallengeSettings = new Tuple<string[], IDictionary<string, string>>(Array.Empty<string>(), new Dictionary<string, string>());
                 owinEnvironment[OwinChallengeKey] = owinChallengeSettings;
             }
 
+            // Set the .redirect authentication property to the correct redirect path
             ((Tuple<string[], IDictionary<string, string>>)owinChallengeSettings).Item2[RedirectUriKey] = redirectPath.ToString();
         }
     }

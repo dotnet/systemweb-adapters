@@ -95,6 +95,9 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
         // correct host.
         authRequest.Headers.Add(AuthenticationConstants.ForwardedHostHeaderName, originalRequest.Host.Value);
         authRequest.Headers.Add(AuthenticationConstants.ForwardedProtoHeaderName, originalRequest.Scheme);
+
+        // Set the referer header to this path so that the Authenticate service can build a correct
+        // redirect path to return to the current URL after authentication
         authRequest.Headers.Referrer = new Uri(originalRequest.Path, UriKind.Relative);
 
         IEnumerable<string> headerNames = originalRequest.Headers.Keys;
