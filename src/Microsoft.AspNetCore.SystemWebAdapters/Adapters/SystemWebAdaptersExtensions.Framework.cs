@@ -41,7 +41,7 @@ public static class SystemWebAdaptersExtensions
             throw new ArgumentNullException(nameof(configure));
         }
 
-        builder.Services.AddSingleton<IHttpModule, ProxyHeaderModule>();
+        builder.Services.AddScoped<IHttpModule, ProxyHeaderModule>();
         builder.Services.AddOptions<ProxyOptions>()
             .Configure(configure);
 

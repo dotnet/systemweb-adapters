@@ -10,18 +10,11 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal sealed class SystemWebAdapterModule : IHttpModule
 {
-    private IEnumerable<IHttpModule>? _modules;
+    private IServiceScope? _scope;
 
     public void Dispose()
     {
-        if (_modules != null)
-        {
-            foreach (var module in _modules)
-            {
-                module.Dispose();
-            }
-            _modules = null;
-        }
+        _scope?.Dispose();
     }
 
     public void Init(HttpApplication context)
@@ -31,10 +24,11 @@ internal sealed class SystemWebAdapterModule : IHttpModule
             throw new ArgumentNullException(nameof(context));
         }
 
-        _modules = context.Application.GetServiceProvider()?.GetRequiredService<IEnumerable<IHttpModule>>();
-        if (_modules is not null)
+        var serviceProvider = context.Application.GetServiceProvider();
+        if (serviceProvider is not null)
         {
-            foreach (var module in _modules)
+            _scope = serviceProvider.CreateScope();
+            foreach (var module in _scope.ServiceProvider.GetRequiredService<IEnumerable<IHttpModule>>())
             {
                 module.Init(context);
             }

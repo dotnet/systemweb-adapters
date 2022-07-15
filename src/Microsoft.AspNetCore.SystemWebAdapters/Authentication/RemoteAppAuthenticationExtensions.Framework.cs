@@ -25,7 +25,7 @@ public static class RemoteAppAuthenticationExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
-        builder.Services.AddSingleton<IHttpModule, RemoteAppAuthenticationModule>();
+        builder.Services.AddScoped<IHttpModule, RemoteAppAuthenticationModule>();
         var options = builder.Services.AddOptions<RemoteAppAuthenticationOptions>();
 
         if (configure is not null)

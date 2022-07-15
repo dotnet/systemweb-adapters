@@ -17,7 +17,7 @@ public static class RemoteAppSessionStateExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
-        builder.Services.AddSingleton<IHttpModule, RemoteSessionModule>();
+        builder.Services.AddScoped<IHttpModule, RemoteSessionModule>();
         builder.Services.AddSingleton<ILockedSessionCache, InMemoryLockedSessions>();
         builder.Services.AddSingleton<ISessionSerializer, BinarySessionSerializer>();
         builder.Services.AddOptions<SessionSerializerOptions>()
