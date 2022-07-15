@@ -4,11 +4,12 @@
 using System;
 using System.Net.Http;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters.Authentication.ResultProcessors;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+namespace Microsoft.AspNetCore.Builder;
 
 /// <summary>
 /// Helper methods for registering remote authentication services

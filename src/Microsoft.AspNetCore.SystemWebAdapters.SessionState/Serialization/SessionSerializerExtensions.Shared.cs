@@ -2,11 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+#if NETFRAMEWORK
+namespace System.Web;
+#else
+namespace Microsoft.AspNetCore.Builder;
+#endif
 
 public static class SessionSerializerExtensions
 {

@@ -3,10 +3,11 @@
 
 using System;
 using System.Net.Http;
+using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+namespace Microsoft.AspNetCore.Builder;
 
 public static class RemoteAppSessionStateExtensions
 {

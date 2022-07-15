@@ -2,8 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.DependencyInjection;
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+
+#if NETFRAMEWORK
+namespace System.Web;
+#else
+namespace Microsoft.AspNetCore.Builder;
+#endif
 
 public static class RemoteAppExtensions
 {
@@ -24,11 +30,10 @@ public static class RemoteAppExtensions
         }
 
         var options = builder.Services.AddOptions<RemoteAppOptions>()
+    #if NET6_0_OR_GREATER
+            .ValidateDataAnnotations()
+    #endif
             .Configure(configure);
-
-#if NET6_0_OR_GREATER
-        options.ValidateDataAnnotations();
-#endif
 
         return builder;
     }

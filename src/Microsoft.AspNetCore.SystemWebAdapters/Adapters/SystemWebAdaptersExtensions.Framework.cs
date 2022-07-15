@@ -3,9 +3,10 @@
 
 using System;
 using System.Web;
+using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+namespace System.Web;
 
 public static class SystemWebAdaptersExtensions
 {
