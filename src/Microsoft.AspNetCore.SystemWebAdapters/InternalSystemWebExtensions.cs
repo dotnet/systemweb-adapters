@@ -13,7 +13,6 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal static class InternalSystemWebExtensions
 {
-
     [return: NotNullIfNotNull("request")]
     internal static HttpRequest? GetAdapter(this HttpRequestCore? request)
         => request?.HttpContext.GetAdapter().Request;
