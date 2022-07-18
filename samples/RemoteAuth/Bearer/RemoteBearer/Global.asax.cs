@@ -11,7 +11,7 @@ namespace RemoteOAuth
             GlobalConfiguration.Configure(WebApiConfig.Register);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
 
-            Application.AddSystemWebAdapters()
+            this.AddSystemWebAdapters()
                 .AddRemoteApp(options =>
                 {
                     // A real application would not hard code this, but load it

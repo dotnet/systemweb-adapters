@@ -13,18 +13,23 @@ public static class SystemWebAdaptersExtensions
     private const string BuilderKey = "system-web-adapter-builder";
     private const string ServicesKey = "system-web-adapter-services";
 
-    public static ISystemWebAdapterBuilder AddSystemWebAdapters(this HttpApplicationState state)
+    public static ISystemWebAdapterBuilder AddSystemWebAdapters(this HttpApplication application)
     {
-        if (state is null)
+        if (application is null)
         {
-            throw new ArgumentNullException(nameof(state));
+            throw new ArgumentNullException(nameof(application));
         }
 
-        if (state[BuilderKey] is not ISystemWebAdapterBuilder builder)
+        if (application.Application[BuilderKey] is not ISystemWebAdapterBuilder builder)
         {
             builder = new SystemWebAdapterBuilder(new ServiceCollection());
-            state[BuilderKey] = builder;
+            application.Application[BuilderKey] = builder;
         }
+
+        // If a service provider has been created, ensure it's disposed at
+        // application shutdown.
+        application.Disposed += (sender, args) =>
+            (application.Application[ServicesKey] as ServiceProvider)?.Dispose();
 
         return builder;
     }

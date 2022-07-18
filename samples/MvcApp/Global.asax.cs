@@ -16,7 +16,7 @@ namespace MvcApp
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            Application.AddSystemWebAdapters()
+            this.AddSystemWebAdapters()
                 .AddProxySupport(options => options.UseForwardedHeaders = true)
                 .AddRemoteApp(options =>
                 {
