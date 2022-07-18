@@ -64,7 +64,7 @@ internal sealed class RemoteAppAuthenticationHttpHandler : IHttpHandler
             // create new challenge settings,
             if (!owinEnvironment.TryGetValue(OwinChallengeKey, out var owinChallengeSettings))
             {
-                // The typle is an array of authentication types and a dictionary of authentication properties
+                // The tuple is an array of authentication types and a dictionary of authentication properties
                 owinChallengeSettings = new Tuple<string[], IDictionary<string, string>>(Array.Empty<string>(), new Dictionary<string, string>());
                 owinEnvironment[OwinChallengeKey] = owinChallengeSettings;
             }
