@@ -14,7 +14,7 @@ namespace FormsAuth
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            this.AddSystemWebAdapters()
+            SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
                 .AddProxySupport(options => options.UseForwardedHeaders = true)
                 .AddRemoteApp(options =>
                 {
