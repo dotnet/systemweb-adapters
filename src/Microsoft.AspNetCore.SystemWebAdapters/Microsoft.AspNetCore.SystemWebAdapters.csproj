@@ -33,6 +33,10 @@
     <Compile Include="@(StandardFiles)" />
     <Compile Include="@(SharedFiles)" />
 
+    <!-- RemoteAppExtensions has a different namespace in net6.0 and netfx, so it can't be
+         included in .NET Standard builds. -->
+    <Compile Remove="Adapters/RemoteAppExtensions.Shared.cs" />
+    
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
   </ItemGroup>
