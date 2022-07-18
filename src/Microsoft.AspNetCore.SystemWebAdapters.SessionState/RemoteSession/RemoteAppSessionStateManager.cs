@@ -51,7 +51,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
     [LoggerMessage(EventId = 3, Level = LogLevel.Trace, Message = "Received {StatusCode} response committing remote session state")]
     private partial void LogCommitResponse(HttpStatusCode statusCode);
 
-    public async Task<ISessionState> CreateAsync(HttpContextCore context, ISessionMetadata metadata)
+    public async Task<ISessionState> CreateAsync(HttpContextCore context, SessionAttribute metadata)
     {
         using var timeout = new CancellationTokenSource(_options.NetworkTimeout);
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, context.RequestAborted, context.RequestAborted);

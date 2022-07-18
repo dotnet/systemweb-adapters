@@ -29,11 +29,11 @@ internal partial class SessionMiddleware
     }
 
     public Task InvokeAsync(HttpContextCore context)
-        => context.GetEndpoint()?.Metadata.GetMetadata<ISessionMetadata>() is { Behavior: not SessionBehavior.None } metadata
+        => context.GetEndpoint()?.Metadata.GetMetadata<SessionAttribute>() is { Behavior: not SessionBehavior.None } metadata
             ? ManageStateAsync(context, metadata)
             : _next(context);
 
-    private async Task ManageStateAsync(HttpContextCore context, ISessionMetadata metadata)
+    private async Task ManageStateAsync(HttpContextCore context, SessionAttribute metadata)
     {
         LogMessage(metadata.Behavior);
 
@@ -47,7 +47,7 @@ internal partial class SessionMiddleware
 #pragma warning restore CS0618 // Type or member is obsolete
 #pragma warning restore CA2000 // Dispose objects before losing scope
 
-            SessionBehavior.PreLoad => await manager.CreateAsync(context, metadata),
+            SessionBehavior.Preload => await manager.CreateAsync(context, metadata),
             var behavior => throw new InvalidOperationException($"Unknown session behavior {behavior}"),
         };
 
@@ -68,7 +68,7 @@ internal partial class SessionMiddleware
     {
         private readonly Lazy<ISessionState> _state;
 
-        public LazySessionState(HttpContextCore context, Action log, ISessionMetadata metadata, ISessionManager manager)
+        public LazySessionState(HttpContextCore context, Action log, SessionAttribute metadata, ISessionManager manager)
         {
             _state = new Lazy<ISessionState>(() =>
             {

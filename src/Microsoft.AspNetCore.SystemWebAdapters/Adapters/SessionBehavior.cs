@@ -15,7 +15,7 @@ public enum SessionBehavior
     /// <summary>
     /// Asynchronously loads the session for controllers with this attribute before running the controller.
     /// </summary>
-    PreLoad,
+    Preload,
 
     /// <summary>
     /// Synchronously loads the session for controllers with this attribute on first use.

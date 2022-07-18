@@ -14,7 +14,7 @@ public sealed class HttpFileCollection : NameObjectCollectionBase
 {
     private string[]? _keys;
 
-    public HttpFileCollection(IFormFileCollection files)
+    internal HttpFileCollection(IFormFileCollection files)
     {
         FormFiles = files;
 
