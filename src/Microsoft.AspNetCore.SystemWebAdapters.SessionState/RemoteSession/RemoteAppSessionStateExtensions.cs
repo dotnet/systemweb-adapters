@@ -5,9 +5,8 @@ using System;
 using System.Net.Http;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.AspNetCore.Builder;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class RemoteAppSessionStateExtensions
 {
