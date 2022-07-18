@@ -8,11 +8,12 @@ builder.Services.AddControllersWithViews();
 
 // Add System.Web adapter services, including registering remote app authentication
 builder.Services.AddSystemWebAdapters()
-    .AddRemoteAppAuthentication(true, options =>
+    .AddRemoteApp(options =>
     {
-        options.RemoteServiceOptions.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
-        options.RemoteServiceOptions.ApiKey = "FormsAuthSampleKey";
-    });
+        options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
+        options.ApiKey = "FormsAuthSampleKey";
+    })
+    .AddRemoteAppAuthentication(true);
 
 var app = builder.Build();
 

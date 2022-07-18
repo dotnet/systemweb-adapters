@@ -1,6 +1,6 @@
+using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
-using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace RemoteOAuth
 {
@@ -11,13 +11,14 @@ namespace RemoteOAuth
             GlobalConfiguration.Configure(WebApiConfig.Register);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
 
-            Application.AddSystemWebAdapters()
-                .AddRemoteAppAuthentication(options =>
+            SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
+                .AddRemoteApp(options =>
                 {
                     // A real application would not hard code this, but load it
                     // securely from environment or configuration
-                    options.RemoteServiceOptions.ApiKey = "TopSecretString";
-                });
+                    options.ApiKey = "TopSecretString";
+                })
+                .AddRemoteAppAuthentication();
         }
     }
 }

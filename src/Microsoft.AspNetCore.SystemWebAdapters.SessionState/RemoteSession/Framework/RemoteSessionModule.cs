@@ -4,28 +4,31 @@
 using System;
 using System.Web;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
 internal sealed class RemoteSessionModule : IHttpModule
 {
-    private readonly RemoteAppSessionStateOptions _options;
+    private readonly RemoteAppOptions _remoteAppOptions;
+    private readonly RemoteAppSessionStateOptions _sessionOptions;
     private readonly ReadOnlySessionHandler _readonlyHandler;
     private readonly GetWriteableSessionHandler _writeableHandler;
     private readonly StoreSessionStateHandler _saveHandler;
 
-    public RemoteSessionModule(RemoteAppSessionStateOptions options, ILockedSessionCache cache, ISessionSerializer serializer)
+    public RemoteSessionModule(IOptions<RemoteAppSessionStateOptions> sessionOptions, IOptions<RemoteAppOptions> remoteAppOptions, ILockedSessionCache cache, ISessionSerializer serializer)
     {
-        if (string.IsNullOrEmpty(options.ApiKey))
-        {
-            throw new ArgumentOutOfRangeException(nameof(options.ApiKey), "API key must not be empty.");
-        }
+        _sessionOptions = sessionOptions?.Value ?? throw new ArgumentNullException(nameof(sessionOptions));
+        _remoteAppOptions = remoteAppOptions?.Value ?? throw new ArgumentNullException(nameof(remoteAppOptions));
 
-        _options = options;
+        if (string.IsNullOrEmpty(_remoteAppOptions.ApiKey))
+        {
+            throw new ArgumentOutOfRangeException(nameof(_remoteAppOptions.ApiKey), "API key must not be empty.");
+        }
 
         _readonlyHandler = new ReadOnlySessionHandler(serializer);
         _writeableHandler = new GetWriteableSessionHandler(serializer, cache);
-        _saveHandler = new StoreSessionStateHandler(cache, options.CookieName);
+        _saveHandler = new StoreSessionStateHandler(cache, _sessionOptions.CookieName);
     }
 
     public void Init(HttpApplication context)
@@ -35,7 +38,7 @@ internal sealed class RemoteSessionModule : IHttpModule
             var context = ((HttpApplication)s).Context;
 
             // Filter out requests that are not the correct path so we don't create a wrapper for every request
-            if (!string.Equals(context.Request.Path, _options.SessionEndpointPath, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(context.Request.Path, _sessionOptions.SessionEndpointPath, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
@@ -51,7 +54,7 @@ internal sealed class RemoteSessionModule : IHttpModule
 
     public void MapRemoteSessionHandler(HttpContextBase context)
     {
-        if (!string.Equals(_options.ApiKey, context.Request.Headers.Get(_options.ApiKeyHeader), StringComparison.Ordinal))
+        if (!string.Equals(_remoteAppOptions.ApiKey, context.Request.Headers.Get(_remoteAppOptions.ApiKeyHeader), StringComparison.Ordinal))
         {
             context.Response.StatusCode = 401;
         }

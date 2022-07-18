@@ -1,11 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 using System.Web.Optimization;
 using System.Web.Routing;
-using System.Web.Security;
-using System.Web.SessionState;
 using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace FormsAuth
@@ -18,12 +14,13 @@ namespace FormsAuth
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            Application.AddSystemWebAdapters()
+            SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
                 .AddProxySupport(options => options.UseForwardedHeaders = true)
-                .AddRemoteAppAuthentication(options =>
+                .AddRemoteApp(options =>
                 {
-                    options.RemoteServiceOptions.ApiKey = "FormsAuthSampleKey";
-                });
+                    options.ApiKey = "FormsAuthSampleKey";
+                })
+                .AddRemoteAppAuthentication();
         }
     }
 }

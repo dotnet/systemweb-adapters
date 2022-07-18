@@ -25,15 +25,18 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
     public RemoteAppSessionStateManager(
         HttpClient client,
         ISessionSerializer serializer,
-        IOptions<RemoteAppSessionStateOptions> options,
+        IOptions<RemoteAppSessionStateOptions> sessionOptions,
+        IOptions<RemoteAppOptions> remoteAppOptions,
         ILogger<RemoteAppSessionStateManager> logger)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+        _options = sessionOptions?.Value ?? throw new ArgumentNullException(nameof(sessionOptions));
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-        _client.BaseAddress = new Uri(_options.RemoteAppUrl, _options.SessionEndpointPath);
-        _client.DefaultRequestHeaders.Add(_options.ApiKeyHeader, _options.ApiKey);
+
+        var remoteOptions = remoteAppOptions?.Value ?? throw new ArgumentNullException(nameof(remoteAppOptions));
+        _client.BaseAddress = new Uri(remoteOptions.RemoteAppUrl, _options.SessionEndpointPath);
+        _client.DefaultRequestHeaders.Add(remoteOptions.ApiKeyHeader, remoteOptions.ApiKey);
     }
 
     [LoggerMessage(EventId = 0, Level = LogLevel.Debug, Message = "Loaded {Count} items from remote session state for session {SessionId}")]

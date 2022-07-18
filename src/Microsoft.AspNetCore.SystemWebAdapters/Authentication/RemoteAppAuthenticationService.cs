@@ -23,19 +23,22 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
     private readonly HttpClient _client;
     private readonly IAuthenticationResultFactory _resultFactory;
     private readonly ILogger<RemoteAppAuthenticationService> _logger;
-    private readonly IOptionsSnapshot<RemoteAppAuthenticationOptions> _optionsSnapshot;
+    private readonly IOptionsSnapshot<RemoteAppAuthenticationOptions> _authOptionsSnapshot;
+    private readonly RemoteAppOptions _remoteAppOptions;
     private RemoteAppAuthenticationOptions? _options;
 
     public RemoteAppAuthenticationService(
         HttpClient client,
         IAuthenticationResultFactory resultFactory,
-        IOptionsSnapshot<RemoteAppAuthenticationOptions> options,
+        IOptionsSnapshot<RemoteAppAuthenticationOptions> authOptions,
+        IOptions<RemoteAppOptions> remoteAppOptions,
         ILogger<RemoteAppAuthenticationService> logger)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
         _resultFactory = resultFactory ?? throw new ArgumentNullException(nameof(resultFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _optionsSnapshot = options ?? throw new ArgumentNullException(nameof(options));
+        _remoteAppOptions = remoteAppOptions?.Value ?? throw new ArgumentNullException(nameof(remoteAppOptions));
+        _authOptionsSnapshot = authOptions ?? throw new ArgumentNullException(nameof(authOptions));
     }
 
     /// <summary>
@@ -46,9 +49,9 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
     {
         // Finish initializing the http client here since the scheme won't be known
         // until the owning authentication handler is initialized.
-        _options = _optionsSnapshot.Get(scheme.Name);
-        _client.BaseAddress = new Uri(_options.RemoteServiceOptions.RemoteAppUrl, _options.AuthenticationEndpointPath);
-        _client.DefaultRequestHeaders.Add(_options.RemoteServiceOptions.ApiKeyHeader, _options.RemoteServiceOptions.ApiKey);
+        _options = _authOptionsSnapshot.Get(scheme.Name);
+        _client.BaseAddress = new Uri(_remoteAppOptions.RemoteAppUrl, _options.AuthenticationEndpointPath);
+        _client.DefaultRequestHeaders.Add(_remoteAppOptions.ApiKeyHeader, _remoteAppOptions.ApiKey);
 
         return Task.CompletedTask;
     }

@@ -11,7 +11,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 /// <summary>
 /// Options for connecting to a remote app.
 /// </summary>
-public class RemoteServiceOptions
+public class RemoteAppOptions
 {
     internal const string ApiKeyHeaderName = "X-SystemWebAdapter-RemoteAppAuthentication-Key";
 

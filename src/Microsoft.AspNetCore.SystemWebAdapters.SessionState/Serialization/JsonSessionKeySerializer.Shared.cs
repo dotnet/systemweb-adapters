@@ -3,10 +3,7 @@
 
 using System;
 using System.Text.Json;
-
-#if !NETFRAMEWORK
 using Microsoft.Extensions.Options;
-#endif
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
@@ -14,17 +11,10 @@ internal class JsonSessionKeySerializer : ISessionKeySerializer
 {
     private readonly JsonSessionSerializerOptions _options;
 
-#if NETFRAMEWORK
-    public JsonSessionKeySerializer(JsonSessionSerializerOptions options)
-    {
-        _options = options;
-    }
-#else
     public JsonSessionKeySerializer(IOptions<JsonSessionSerializerOptions> options)
     {
-        _options = options.Value;
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
-#endif
 
     public bool TryDeserialize(string key, byte[] bytes, out object? obj)
     {

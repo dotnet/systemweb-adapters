@@ -2,14 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Wrapped;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class ISystemWebAdapterBuilderSessionExtensions
 {
-    public static ISystemWebAdapterBuilder WrapAspNetCoreSession(this ISystemWebAdapterBuilder builder, Action<Builder.SessionOptions>? options = null)
+    public static ISystemWebAdapterBuilder WrapAspNetCoreSession(this ISystemWebAdapterBuilder builder, Action<SessionOptions>? options = null)
     {
         if (builder is null)
         {
