@@ -82,7 +82,13 @@ internal sealed class RemoteAppAuthenticationModule : IHttpModule
             {
                 context.Response.StatusCode = 302;
 
-                // Redirect back to the provider path relative to the current host
+                // Redirect back to the provided path relative to the host used to
+                // access this endpoint (the host from the current request's URL).
+                //
+                // Because external identity providers will call back to this endpoint
+                // via the ASP.NET Core app (which then proxies to here), this will
+                // create a redirect that uses the original request's path with the
+                // ASP.NET Core app's host/port.
                 var redirect = new Uri(context.Request.Url, originalUrlPath);
                 context.Response.Headers["Location"] = redirect.ToString();
             }
