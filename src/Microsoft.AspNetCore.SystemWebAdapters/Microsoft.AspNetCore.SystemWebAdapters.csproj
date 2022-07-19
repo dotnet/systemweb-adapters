@@ -39,6 +39,7 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <Compile Remove="**/*" />
+    <Compile Include="Properties/PropertyInfo.cs" />
     <Compile Include="Ref.Standard.cs" />
   </ItemGroup>
 
@@ -56,6 +57,7 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <Compile Remove="**/*" />
+    <Compile Include="Properties/PropertyInfo.cs" />
     <Compile Include="@(FrameworkFiles)" />
     <Compile Include="@(SharedFiles)" />
 
