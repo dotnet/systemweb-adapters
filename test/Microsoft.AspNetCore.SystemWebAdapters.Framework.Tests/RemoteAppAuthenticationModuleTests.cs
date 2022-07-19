@@ -2,6 +2,7 @@ using System;
 using System.Collections.Specialized;
 using System.Web;
 using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -12,10 +13,14 @@ public class RemoteAppAuthenticationModuleTests
     private const string GoodKey = "Key1";
     private const string BadKey = "key1";
 
-    [Fact]
-    public void VerifyOptionsIsNotNull()
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [Theory]
+    public void VerifyOptionsIsNotNull(bool remoteAppOptionsValid, bool authOptionsValid)
     {
-        Assert.Throws<ArgumentNullException>(() => new RemoteAppAuthenticationModule(null!));
+        Assert.Throws<ArgumentNullException>(() => new RemoteAppAuthenticationModule(
+            remoteAppOptionsValid ? Options.Create(new RemoteAppOptions()) : null!,
+            authOptionsValid ? Options.Create(new RemoteAppAuthenticationOptions()) : null!));
     }
 
     [InlineData("AuthEndpoint", "HeaderName", "MyKey", true)]
@@ -28,23 +33,24 @@ public class RemoteAppAuthenticationModuleTests
     [Theory]
     public void VerifyOptionsMembersAreNotNullOrEmpty(string authEndpoint, string apiKeyHeader, string apiKey, bool shouldSucceed)
     {
-        var options = new RemoteAppAuthenticationOptions
+        var authOptions = new RemoteAppAuthenticationOptions
         {
-            AuthenticationEndpointPath = authEndpoint,
-            RemoteServiceOptions = new RemoteServiceOptions
-            {
-                ApiKeyHeader = apiKeyHeader,
-                ApiKey = apiKey
-            }
+            AuthenticationEndpointPath = authEndpoint
+        };
+
+        var remoteAppOptions = new RemoteAppOptions
+        {
+            ApiKeyHeader = apiKeyHeader,
+            ApiKey = apiKey
         };
 
         if (shouldSucceed)
         {
-            _ = new RemoteAppAuthenticationModule(options);
+            _ = new RemoteAppAuthenticationModule(Options.Create(remoteAppOptions), Options.Create(authOptions));
         }
         else
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => new RemoteAppAuthenticationModule(options));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new RemoteAppAuthenticationModule(Options.Create(remoteAppOptions), Options.Create(authOptions)));
         }
     }
 
@@ -66,14 +72,16 @@ public class RemoteAppAuthenticationModuleTests
         // Arrange
 
         // Create module and options to test
-        var options = new RemoteAppAuthenticationOptions();
-        options.RemoteServiceOptions.ApiKey = GoodKey;
+        var remoteAppOptions = new RemoteAppOptions();
+        remoteAppOptions.ApiKey = GoodKey;
 
-        var module = new RemoteAppAuthenticationModule(options);
+        var authOptions = new RemoteAppAuthenticationOptions();
+
+        var module = new RemoteAppAuthenticationModule(Options.Create(remoteAppOptions), Options.Create(authOptions));
 
         var headers = new NameValueCollection
         {
-            { options.RemoteServiceOptions.ApiKeyHeader, apiKey },
+            { remoteAppOptions.ApiKeyHeader, apiKey },
             { AuthenticationConstants.MigrationAuthenticateRequestHeaderName, authMigrationHeader }
         };
 

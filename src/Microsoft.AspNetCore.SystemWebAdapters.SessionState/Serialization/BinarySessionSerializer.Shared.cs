@@ -8,10 +8,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 
 #if !NETFRAMEWORK
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+
 #endif
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
@@ -24,10 +25,10 @@ internal partial class BinarySessionSerializer : ISessionSerializer
     private readonly ISessionKeySerializer _serializer;
 
 #if NETFRAMEWORK
-    public BinarySessionSerializer(ISessionKeySerializer serializer, SessionSerializerOptions options)
+    public BinarySessionSerializer(ISessionKeySerializer serializer, IOptions<SessionSerializerOptions> options)
     {
-        _serializer = serializer;
-        _options = options;
+        _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
     partial void LogSerialization(string key);

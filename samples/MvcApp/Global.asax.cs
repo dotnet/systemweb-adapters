@@ -1,8 +1,8 @@
+using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
-using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace MvcApp
 {
@@ -16,17 +16,15 @@ namespace MvcApp
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            Application.AddSystemWebAdapters()
+            SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
                 .AddProxySupport(options => options.UseForwardedHeaders = true)
-                .AddJsonRemoteAppSession(
-                    ConfigureRemoteServiceOptions,
-                    options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys))
-                .AddRemoteAppAuthentication(o => ConfigureRemoteServiceOptions(o.RemoteServiceOptions));
-        }
-
-        private void ConfigureRemoteServiceOptions(RemoteServiceOptions options)
-        {
-            options.ApiKey = ClassLibrary.RemoteServiceUtils.ApiKey;
+                .AddRemoteApp(options =>
+                {
+                    options.ApiKey = ClassLibrary.RemoteServiceUtils.ApiKey;
+                })
+                .AddRemoteAppSession()
+                .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys))
+                .AddRemoteAppAuthentication();
         }
     }
 }

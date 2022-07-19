@@ -17,6 +17,12 @@ namespace System.Web
             set => throw new NotImplementedException();
         }
 
+        public virtual int SubStatusCode
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
+
         public virtual string StatusDescription
         {
             get => throw new NotImplementedException();
@@ -34,6 +40,8 @@ namespace System.Web
             set => throw new NotImplementedException();
         }
 
+        public virtual bool IsRequestBeingRedirected => throw new NotImplementedException();
+
         public virtual string? ContentType
         {
             get => throw new NotImplementedException();
@@ -49,6 +57,8 @@ namespace System.Web
         public virtual Stream OutputStream => throw new NotImplementedException();
 
         public virtual HttpCookieCollection Cookies => throw new NotImplementedException();
+
+        public virtual void AppendCookie(HttpCookie cookie) => throw new NotImplementedException();
 
         public virtual bool SuppressContent
         {
@@ -85,8 +95,18 @@ namespace System.Web
 
         public virtual void Write(object obj) => throw new NotImplementedException();
 
+        public virtual void BinaryWrite(byte[] buffer) => throw new NotImplementedException();
+
         public virtual void Clear() => throw new NotImplementedException();
 
         public virtual void ClearContent() => throw new NotImplementedException();
+
+        public virtual void ClearHeaders() => throw new NotImplementedException();
+
+        public virtual void WriteFile(string filename) => throw new NotImplementedException();
+
+        public virtual void TransmitFile(string filename) => throw new NotImplementedException();
+
+        public virtual void TransmitFile(string filename, long offset, long length) => throw new NotImplementedException();
     }
 }

@@ -4,37 +4,45 @@
 using System;
 using System.Security.Policy;
 using System.Web;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
 internal sealed class RemoteAppAuthenticationModule : IHttpModule
 {
-    private readonly RemoteAppAuthenticationOptions _options;
+    private readonly RemoteAppOptions _remoteAppOptions;
+    private readonly RemoteAppAuthenticationOptions _authOptions;
     private readonly RemoteAppAuthenticationHttpHandler _remoteAppAuthHandler;
 
-    public RemoteAppAuthenticationModule(RemoteAppAuthenticationOptions options)
+    public RemoteAppAuthenticationModule(IOptions<RemoteAppOptions> remoteAppOptions, IOptions<RemoteAppAuthenticationOptions> authOptions)
     {
-        if (options is null)
+        if (authOptions is null)
         {
-            throw new ArgumentNullException(nameof(options));
+            throw new ArgumentNullException(nameof(authOptions));
         }
 
-        if (string.IsNullOrEmpty(options.AuthenticationEndpointPath))
+        if (remoteAppOptions is null)
         {
-            throw new ArgumentOutOfRangeException(nameof(options.AuthenticationEndpointPath), "Options must specify remote authentication path.");
+            throw new ArgumentNullException(nameof(remoteAppOptions));
         }
 
-        if (string.IsNullOrEmpty(options.RemoteServiceOptions.ApiKey))
+        if (string.IsNullOrEmpty(authOptions.Value.AuthenticationEndpointPath))
         {
-            throw new ArgumentOutOfRangeException(nameof(options.RemoteServiceOptions.ApiKey), "Options must specify API key.");
+            throw new ArgumentOutOfRangeException(nameof(authOptions.Value.AuthenticationEndpointPath), "Options must specify remote authentication path.");
         }
 
-        if (string.IsNullOrEmpty(options.RemoteServiceOptions.ApiKeyHeader))
+        if (string.IsNullOrEmpty(remoteAppOptions.Value.ApiKey))
         {
-            throw new ArgumentOutOfRangeException(nameof(options.RemoteServiceOptions.ApiKeyHeader), "Options must specify API key header name.");
+            throw new ArgumentOutOfRangeException(nameof(remoteAppOptions.Value.ApiKey), "Options must specify API key.");
         }
 
-        _options = options;
+        if (string.IsNullOrEmpty(remoteAppOptions.Value.ApiKeyHeader))
+        {
+            throw new ArgumentOutOfRangeException(nameof(remoteAppOptions.Value.ApiKeyHeader), "Options must specify API key header name.");
+        }
+
+        _authOptions = authOptions.Value;
+        _remoteAppOptions = remoteAppOptions.Value;
         _remoteAppAuthHandler = new RemoteAppAuthenticationHttpHandler();
     }
 
@@ -43,7 +51,7 @@ internal sealed class RemoteAppAuthenticationModule : IHttpModule
         context.PostMapRequestHandler += (s, _) =>
         {
             var context = ((HttpApplication)s).Context;
-            if (string.Equals(context.Request.Path, _options.AuthenticationEndpointPath, StringComparison.OrdinalIgnoreCase)
+            if (string.Equals(context.Request.Path, _authOptions.AuthenticationEndpointPath, StringComparison.OrdinalIgnoreCase)
                 && context.Request.HttpMethod.Equals("GET", StringComparison.OrdinalIgnoreCase))
             {
                 MapRemoteAuthenticationHandler(new HttpContextWrapper(context));
@@ -58,7 +66,7 @@ internal sealed class RemoteAppAuthenticationModule : IHttpModule
 
     public void MapRemoteAuthenticationHandler(HttpContextBase context)
     {
-        var apiKey = context.Request.Headers.Get(_options.RemoteServiceOptions.ApiKeyHeader);
+        var apiKey = context.Request.Headers.Get(_remoteAppOptions.ApiKeyHeader);
         var migrationAuthenticateHeader = context.Request.Headers.Get(AuthenticationConstants.MigrationAuthenticateRequestHeaderName);
 
         if (migrationAuthenticateHeader is null)
@@ -88,7 +96,7 @@ internal sealed class RemoteAppAuthenticationModule : IHttpModule
             // Clear any existing handler as this request is now completely handled
             context.Handler = null;
         }
-        else if (apiKey is null || !string.Equals(_options.RemoteServiceOptions.ApiKey, apiKey, StringComparison.Ordinal))
+        else if (apiKey is null || !string.Equals(_remoteAppOptions.ApiKey, apiKey, StringComparison.Ordinal))
         {
             // Requests to the authentication endpoint must include a valid API key.
             // Requests without an API key or with an invalid API key are considered malformed.

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Specialized;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Tests;
@@ -24,7 +25,7 @@ public class ProxyHeaderModuleTests
         var requestHeaders = new NameValueCollection();
         var serverVariables = new NameValueCollection();
         var options = new ProxyOptions();
-        var module = new ProxyHeaderModule(options);
+        var module = new ProxyHeaderModule(Options.Create(options));
 
         // Act
         module.UseHeaders(requestHeaders, serverVariables);
@@ -44,7 +45,7 @@ public class ProxyHeaderModuleTests
         };
         var serverVariables = new NameValueCollection();
         var options = new ProxyOptions();
-        var module = new ProxyHeaderModule(options);
+        var module = new ProxyHeaderModule(Options.Create(options));
 
         // Act
         module.UseHeaders(requestHeaders, serverVariables);
@@ -68,7 +69,7 @@ public class ProxyHeaderModuleTests
         };
         var serverVariables = new NameValueCollection();
         var options = new ProxyOptions();
-        var module = new ProxyHeaderModule(options);
+        var module = new ProxyHeaderModule(Options.Create(options));
 
         // Act
         module.UseHeaders(requestHeaders, serverVariables);
@@ -93,7 +94,7 @@ public class ProxyHeaderModuleTests
         };
         var serverVariables = new NameValueCollection();
         var options = new ProxyOptions();
-        var module = new ProxyHeaderModule(options);
+        var module = new ProxyHeaderModule(Options.Create(options));
 
         // Act
         module.UseHeaders(requestHeaders, serverVariables);
@@ -119,7 +120,7 @@ public class ProxyHeaderModuleTests
         };
         var serverVariables = new NameValueCollection();
         var options = new ProxyOptions();
-        var module = new ProxyHeaderModule(options);
+        var module = new ProxyHeaderModule(Options.Create(options));
 
         // Act
         module.UseHeaders(requestHeaders, serverVariables);
@@ -144,7 +145,7 @@ public class ProxyHeaderModuleTests
         };
         var serverVariables = new NameValueCollection();
         var options = new ProxyOptions();
-        var module = new ProxyHeaderModule(options);
+        var module = new ProxyHeaderModule(Options.Create(options));
 
         // Act
         module.UseHeaders(requestHeaders, serverVariables);
@@ -155,6 +156,56 @@ public class ProxyHeaderModuleTests
         Assert.Null(serverVariables[RemoteAddress]);
         Assert.Null(serverVariables[RemoteHost]);
         Assert.Equal("localhost", requestHeaders[Host]);
+        Assert.Null(requestHeaders[options.OriginalHostHeaderName]);
+    }
+
+    [Fact]
+    public void IPv6NoPort()
+    {
+        // Arrange
+        var requestHeaders = new NameValueCollection
+        {
+            { ForwardedHost, "::1" },
+            { ForwardedProto, "https" }
+        };
+        var serverVariables = new NameValueCollection();
+        var options = new ProxyOptions();
+        var module = new ProxyHeaderModule(Options.Create(options));
+
+        // Act
+        module.UseHeaders(requestHeaders, serverVariables);
+
+        // Assert
+        Assert.Equal("[::1]", serverVariables[ServerName]);
+        Assert.Equal("443", serverVariables[ServerPort]);
+        Assert.Null(serverVariables[RemoteAddress]);
+        Assert.Null(serverVariables[RemoteHost]);
+        Assert.Equal("::1", requestHeaders[Host]);
+        Assert.Null(requestHeaders[options.OriginalHostHeaderName]);
+    }
+
+    [Fact]
+    public void IPv6WithPort()
+    {
+        // Arrange
+        var requestHeaders = new NameValueCollection
+        {
+            { ForwardedHost, "[::1]:81" },
+            { ForwardedProto, "https" }
+        };
+        var serverVariables = new NameValueCollection();
+        var options = new ProxyOptions();
+        var module = new ProxyHeaderModule(Options.Create(options));
+
+        // Act
+        module.UseHeaders(requestHeaders, serverVariables);
+
+        // Assert
+        Assert.Equal("[::1]", serverVariables[ServerName]);
+        Assert.Equal("81", serverVariables[ServerPort]);
+        Assert.Null(serverVariables[RemoteAddress]);
+        Assert.Null(serverVariables[RemoteHost]);
+        Assert.Equal("[::1]:81", requestHeaders[Host]);
         Assert.Null(requestHeaders[options.OriginalHostHeaderName]);
     }
 
@@ -170,7 +221,7 @@ public class ProxyHeaderModuleTests
         };
         var serverVariables = new NameValueCollection();
         var options = new ProxyOptions();
-        var module = new ProxyHeaderModule(options);
+        var module = new ProxyHeaderModule(Options.Create(options));
 
         // Act
         module.UseHeaders(requestHeaders, serverVariables);

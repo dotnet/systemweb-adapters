@@ -18,7 +18,6 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication.ResultProcessors
 internal class RedirectUrlProcessor : IRemoteAppAuthenticationResultProcessor
 {
     private const string LocationHeaderName = "Location";
-    private const string ReturnUrlQueryStringName = "ReturnUrl";
 
     /// <summary>
     /// Updates response headers in a remote authentication result so that any
@@ -78,10 +77,7 @@ internal class RedirectUrlProcessor : IRemoteAppAuthenticationResultProcessor
                 && redirectLocation.Port.Equals(authenticationRequest.RequestUri?.Port))
             {
                 redirectBuilder.Host = forwardedHost.ServerName;
-                if (int.TryParse(forwardedHost.Port, out var port))
-                {
-                    redirectBuilder.Port = port;
-                }
+                redirectBuilder.Port = forwardedHost.Port;
 
                 // Also replace the scheme if a forwarded scheme was provided
                 if (!string.IsNullOrEmpty(forwardedProto))

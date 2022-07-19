@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.Web;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
@@ -18,9 +20,9 @@ internal class ProxyHeaderModule : IHttpModule
 
     private readonly ProxyOptions _options;
 
-    public ProxyHeaderModule(ProxyOptions options)
+    public ProxyHeaderModule(IOptions<ProxyOptions> options)
     {
-        _options = options;
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
     public void Dispose()
@@ -68,7 +70,7 @@ internal class ProxyHeaderModule : IHttpModule
             var value = new ForwardedHost(host, proto);
 
             serverVariables.Set(ServerName, value.ServerName);
-            serverVariables.Set(ServerPort, value.Port);
+            serverVariables.Set(ServerPort, value.Port.ToString(CultureInfo.InvariantCulture));
 
             requestHeaders[Host] = host;
         }

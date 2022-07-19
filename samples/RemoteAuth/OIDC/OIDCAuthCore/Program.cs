@@ -1,14 +1,13 @@
-using Microsoft.AspNetCore.SystemWebAdapters;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSystemWebAdapters()
-    .AddRemoteAppAuthentication(true, options =>
+    .AddRemoteApp(options =>
     {
-        options.RemoteServiceOptions.RemoteAppUrl =
-           new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
-        options.RemoteServiceOptions.ApiKey = "test-key";
-    });
+        options.RemoteAppUrl =
+            new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
+        options.ApiKey = "test-key";
+    })
+    .AddRemoteAppAuthentication(true);
 
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 

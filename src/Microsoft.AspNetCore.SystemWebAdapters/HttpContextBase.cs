@@ -21,11 +21,15 @@ namespace System.Web
 
         public virtual IDictionary Items => throw new NotImplementedException();
 
+        public virtual DateTime Timestamp => throw new NotImplementedException();
+
         public virtual IPrincipal User
         {
             get => throw new NotImplementedException();
             set => throw new NotImplementedException();
         }
+
+        public virtual bool IsDebuggingEnabled => throw new NotImplementedException();
 
         public virtual HttpServerUtilityBase Server => throw new NotImplementedException();
 

@@ -26,14 +26,17 @@ namespace System.Web
 
         private RequestHeaders? _typedHeaders;
         private string[]? _userLanguages;
+        private string[]? _acceptTypes;
         private NameValueCollection? _headers;
         private NameValueCollection? _serverVariables;
         private NameValueCollection? _form;
         private NameValueCollection? _query;
+        private HttpFileCollection? _files;
         private HttpCookieCollection? _cookies;
+        private NameValueCollection? _params;
         private HttpBrowserCapabilities? _browser;
 
-        public HttpRequest(HttpRequestCore request)
+        internal HttpRequest(HttpRequestCore request)
         {
             _request = request;
         }
@@ -96,9 +99,39 @@ namespace System.Web
 
         public NameValueCollection Form => _form ??= _request.Form.ToNameValueCollection();
 
-        public HttpCookieCollection Cookies => _cookies ??= new(this);
+        public HttpCookieCollection Cookies => _cookies ??= new(_request.Cookies);
+
+        public HttpFileCollection Files => _files ??= new(_request.Form.Files);
 
         public int ContentLength => (int)(_request.ContentLength ?? 0);
+
+        [SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = Constants.ApiFromAspNet)]
+        public string[] AcceptTypes
+        {
+            get
+            {
+                if (_acceptTypes is null)
+                {
+                    var accept = TypedHeaders.Accept;
+
+                    if (accept.Count == 0)
+                    {
+                        _acceptTypes = Array.Empty<string>();
+                    }
+                    else
+                    {
+                        _acceptTypes = new string[accept.Count];
+
+                        for (var i = 0; i < accept.Count; i++)
+                        {
+                            _acceptTypes[i] = accept[i].MediaType.Value;
+                        }
+                    }
+                }
+
+                return _acceptTypes;
+            }
+        }
 
         public string? ContentType
         {
@@ -174,6 +207,10 @@ namespace System.Web
                 return _browser;
             }
         }
+
+        public string? this[string key] => Params[key];
+
+        public NameValueCollection Params => _params ??= new ParamsCollection(_request);
 
         public byte[] BinaryRead(int count)
         {

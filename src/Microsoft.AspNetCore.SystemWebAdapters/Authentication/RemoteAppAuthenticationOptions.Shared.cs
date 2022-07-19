@@ -57,9 +57,4 @@ public class RemoteAppAuthenticationOptions
     [Required]
 #endif
     public string AuthenticationEndpointPath { get; set; } = "/systemweb-adapters/authenticate";
-
-    /// <summary>
-    /// Gets or sets the remote service options used to connect with the remote authentication service.
-    /// </summary>
-    public RemoteServiceOptions RemoteServiceOptions { get; set; } = new RemoteServiceOptions();
 }

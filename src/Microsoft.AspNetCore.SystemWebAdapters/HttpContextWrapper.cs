@@ -25,7 +25,11 @@ namespace System.Web
             _context = httpContext;
         }
 
+        public override DateTime Timestamp => _context.Timestamp;
+
         public override IDictionary Items => _context.Items;
+
+        public override bool IsDebuggingEnabled => _context.IsDebuggingEnabled;
 
         public override HttpRequestBase Request
         {
