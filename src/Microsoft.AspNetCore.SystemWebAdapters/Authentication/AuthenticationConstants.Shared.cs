@@ -7,4 +7,6 @@ internal static class AuthenticationConstants
 {
     public const string ForwardedHostHeaderName = "x-forwarded-host";
     public const string ForwardedProtoHeaderName = "x-forwarded-proto";
+    public const string MigrationAuthenticateRequestHeaderName = "x-migration-authenticate";
+    public const string OriginalUrlQueryParamName = "original-url";
 }

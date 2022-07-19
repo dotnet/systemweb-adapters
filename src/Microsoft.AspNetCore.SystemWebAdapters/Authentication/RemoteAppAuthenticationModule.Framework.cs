@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Security.Policy;
 using System.Web;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
@@ -58,13 +59,42 @@ internal sealed class RemoteAppAuthenticationModule : IHttpModule
     public void MapRemoteAuthenticationHandler(HttpContextBase context)
     {
         var apiKey = context.Request.Headers.Get(_options.RemoteServiceOptions.ApiKeyHeader);
-        if (apiKey is null || !string.Equals(_options.RemoteServiceOptions.ApiKey, apiKey, StringComparison.Ordinal))
+        var migrationAuthenticateHeader = context.Request.Headers.Get(AuthenticationConstants.MigrationAuthenticateRequestHeaderName);
+
+        if (migrationAuthenticateHeader is null)
+        {
+            // If no migration authentication header is present, then this request was not initiated by the ASP.NET Core app
+            // for authentication purposes (though, of course, the request likely did proxy through that app).
+            //
+            // This most likely indicates that an identity provider is redirecting back to the application after
+            // authenticating the user. In that case, the original-url query string will indicate the path
+            // that the user should be redirected back to.
+            var originalUrlPath = context.Request.QueryString[AuthenticationConstants.OriginalUrlQueryParamName];
+            if (originalUrlPath is not null)
+            {
+                context.Response.StatusCode = 302;
+
+                // Redirect back to the provider path relative to the current host
+                var redirect = new Uri(context.Request.Url, originalUrlPath);
+                context.Response.Headers["Location"] = redirect.ToString();
+            }
+            else
+            {
+                // A request without a migration authentication header and without an original URL to redirect
+                // back to is invalid. Return 400 to indicate that the request was malformed.
+                context.Response.StatusCode = 400;
+            }
+
+            // Clear any existing handler as this request is now completely handled
+            context.Handler = null;
+        }
+        else if (apiKey is null || !string.Equals(_options.RemoteServiceOptions.ApiKey, apiKey, StringComparison.Ordinal))
         {
             // Requests to the authentication endpoint must include a valid API key.
             // Requests without an API key or with an invalid API key are considered malformed.
             context.Response.StatusCode = 400;
 
-            // Clear any existing handler as this endpoint shouldn't respond with a valid API key
+            // Clear any existing handler as this request is now completely handled
             context.Handler = null;
         }
         else

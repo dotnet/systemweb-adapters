@@ -48,11 +48,20 @@ public class RemoteAppAuthenticationModuleTests
         }
     }
 
-    [InlineData(GoodKey, 0, typeof(RemoteAppAuthenticationHttpHandler))]
-    [InlineData(BadKey, 400, null)]
-    [InlineData(null, 400, null)]
+    [InlineData(GoodKey, "true", null, 0, null, typeof(RemoteAppAuthenticationHttpHandler))]
+    [InlineData(GoodKey, "true", "/a", 0, null, typeof(RemoteAppAuthenticationHttpHandler))]
+    [InlineData(null, "true", "/a", 400, null, null)]
+    [InlineData(null, "true", null, 400, null, null)]
+    [InlineData(BadKey, "true", "/a", 400, null, null)]
+    [InlineData(BadKey, "true", null, 400, null, null)]
+    [InlineData(GoodKey, null, null, 400, null, null)]
+    [InlineData(GoodKey, null, "/a", 302, "http://localhost:8080/a", null)]
+    [InlineData(BadKey, null, null, 400, null, null)]
+    [InlineData(BadKey, null, "/a", 302, "http://localhost:8080/a", null)]
+    [InlineData(null, null, null, 400, null, null)]
+    [InlineData(null, null, "/a", 302, "http://localhost:8080/a", null)]
     [Theory]
-    public void VerifyAuthenticationRequestHandling(string apiKey, int expectedStatusCode, Type expectedHandlerType)
+    public void VerifyAuthenticationRequestHandling(string apiKey, string authMigrationHeader, string originalPath, int expectedStatusCode, string expectedRedirect, Type expectedHandlerType)
     {
         // Arrange
 
@@ -64,7 +73,13 @@ public class RemoteAppAuthenticationModuleTests
 
         var headers = new NameValueCollection
         {
-            { options.RemoteServiceOptions.ApiKeyHeader, apiKey }
+            { options.RemoteServiceOptions.ApiKeyHeader, apiKey },
+            { AuthenticationConstants.MigrationAuthenticateRequestHeaderName, authMigrationHeader }
+        };
+
+        var queryStrings = new NameValueCollection
+        {
+            { AuthenticationConstants.OriginalUrlQueryParamName, originalPath }
         };
 
         var responseHeaders = new NameValueCollection();
@@ -72,6 +87,8 @@ public class RemoteAppAuthenticationModuleTests
         // Mock request, response, and context
         var request = new Mock<HttpRequestBase>();
         request.Setup(r => r.Headers).Returns(headers);
+        request.Setup(r => r.QueryString).Returns(queryStrings);
+        request.Setup(r => r.Url).Returns(new Uri("http://localhost:8080"));
 
         var response = new Mock<HttpResponseBase>();
         response.SetupProperty(r => r.StatusCode);
@@ -87,7 +104,7 @@ public class RemoteAppAuthenticationModuleTests
 
         // Assert
         Assert.Equal(expectedStatusCode, response.Object.StatusCode);
-        Assert.Null(responseHeaders["Location"]);
+        Assert.Equal(expectedRedirect, responseHeaders["Location"]);
 
         if (expectedHandlerType is null)
         {
