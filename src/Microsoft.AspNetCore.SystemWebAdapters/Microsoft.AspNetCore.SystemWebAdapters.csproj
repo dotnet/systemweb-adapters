@@ -23,27 +23,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <FrameworkFiles Include="**/*.Framework.cs" />
-    <StandardFiles Include="**/*.Standard.cs" />
+    <Compile Remove="Ref.Standard.cs" />
+    <Compile Remove="TypeForwards.Framework.cs" />
+  </ItemGroup>
+
+  <!-- Files in the project will be by default ASP.NET Core only. However, suffixes can change that:
+
+       - *.Framework.cs: These will only be in the .NET Framework build
+       - *.Shared.cs: These will be available in both
+  -->
+  <ItemGroup>
     <SharedFiles Include="**/*.Shared.cs" />
+    <FrameworkFiles Include="**/*.Framework.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <Compile Remove="**/*" />
-    <Compile Include="@(StandardFiles)" />
-    <Compile Include="@(SharedFiles)" />
-
-    <!-- RemoteAppExtensions has a different namespace in net6.0 and netfx, so it can't be
-         included in .NET Standard builds. -->
-    <Compile Remove="Adapters/RemoteAppExtensions.Shared.cs" />
-    
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+    <Compile Include="Properties/PropertyInfo.cs" />
+    <Compile Include="Ref.Standard.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <Compile Remove="@(FrameworkFiles)" />
-    <Compile Remove="@(StandardFiles)" />
 
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
 
@@ -56,6 +57,7 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <Compile Remove="**/*" />
+    <Compile Include="Properties/PropertyInfo.cs" />
     <Compile Include="@(FrameworkFiles)" />
     <Compile Include="@(SharedFiles)" />
 
