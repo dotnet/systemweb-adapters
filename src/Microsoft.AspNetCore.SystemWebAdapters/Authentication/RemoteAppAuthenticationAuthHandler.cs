@@ -51,7 +51,7 @@ internal partial class RemoteAppAuthenticationAuthHandler : AuthenticationHandle
                 await processor.ProcessAsync(_remoteAppAuthResult, Context);
             }
 
-            if (_remoteAppAuthResult.StatusCode == 407)
+            if (_remoteAppAuthResult.StatusCode == 400)
             {
                 LogInvalidApiKey();
                 throw new InvalidOperationException("Failed to authenticate using the remote app due to invalid or missing API key");

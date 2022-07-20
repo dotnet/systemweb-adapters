@@ -61,11 +61,13 @@ public class RemoteAppAuthenticationModuleTests
     [InlineData(BadKey, "true", "/a", 400, null, null)]
     [InlineData(BadKey, "true", null, 400, null, null)]
     [InlineData(GoodKey, null, null, 400, null, null)]
-    [InlineData(GoodKey, null, "/a", 302, "http://localhost:8080/a", null)]
+    [InlineData(GoodKey, null, "/a", 302, "/a", null)]
     [InlineData(BadKey, null, null, 400, null, null)]
-    [InlineData(BadKey, null, "/a", 302, "http://localhost:8080/a", null)]
+    [InlineData(BadKey, null, "/a", 302, "/a", null)]
     [InlineData(null, null, null, 400, null, null)]
-    [InlineData(null, null, "/a", 302, "http://localhost:8080/a", null)]
+    [InlineData(null, null, "/a", 302, "/a", null)]
+    [InlineData(null, null, "", 400, null, null)]
+    [InlineData(null, null, "http://a", 400, null, null)]
     [Theory]
     public void VerifyAuthenticationRequestHandling(string apiKey, string authMigrationHeader, string originalPath, int expectedStatusCode, string expectedRedirect, Type expectedHandlerType)
     {

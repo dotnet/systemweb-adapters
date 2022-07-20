@@ -78,23 +78,18 @@ internal sealed class RemoteAppAuthenticationModule : IHttpModule
             // authenticating the user. In that case, the original-url query string will indicate the path
             // that the user should be redirected back to.
             var originalUrlPath = context.Request.QueryString[AuthenticationConstants.OriginalUrlQueryParamName];
-            if (originalUrlPath is not null)
+
+            // To redirect, an original URL must be present and it must be a relative path
+            if (!string.IsNullOrEmpty(originalUrlPath) && originalUrlPath.StartsWith("/", StringComparison.Ordinal))
             {
                 context.Response.StatusCode = 302;
 
-                // Redirect back to the provided path relative to the host used to
-                // access this endpoint (the host from the current request's URL).
-                //
-                // Because external identity providers will call back to this endpoint
-                // via the ASP.NET Core app (which then proxies to here), this will
-                // create a redirect that uses the original request's path with the
-                // ASP.NET Core app's host/port.
-                var redirect = new Uri(context.Request.Url, originalUrlPath);
-                context.Response.Headers["Location"] = redirect.ToString();
+                // Redirect back to the provided relative path.
+                context.Response.Headers["Location"] = originalUrlPath;
             }
             else
             {
-                // A request without a migration authentication header and without an original URL to redirect
+                // A request without a migration authentication header and without a valid original URL to redirect
                 // back to is invalid. Return 400 to indicate that the request was malformed.
                 context.Response.StatusCode = 400;
             }
