@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -251,9 +251,9 @@
     <Content Include="Scripts\jquery-3.4.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.SessionState\Microsoft.AspNetCore.SystemWebAdapters.SessionState.csproj">
-      <Project>{2029d409-07e3-49f8-bb6a-77114de7b337}</Project>
-      <Name>Microsoft.AspNetCore.SystemWebAdapters.SessionState</Name>
+    <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.SystemTextJson\Microsoft.AspNetCore.SystemWebAdapters.SystemTextJson.csproj">
+      <Project>{a01ba50e-e4c8-4eea-a4e2-c2312bc6b02e}</Project>
+      <Name>Microsoft.AspNetCore.SystemWebAdapters.SystemTextJson</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj">
       <Project>{55c1bbe0-b922-46b0-8f2c-8472bc9a5f33}</Project>

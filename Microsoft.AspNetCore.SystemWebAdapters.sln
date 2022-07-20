@@ -27,12 +27,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F9DB9323-C91
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A1BDA50C-D70B-416C-97F1-74B0649797C5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.SessionState", "src\Microsoft.AspNetCore.SystemWebAdapters.SessionState\Microsoft.AspNetCore.SystemWebAdapters.SessionState.csproj", "{2029D409-07E3-49F8-BB6A-77114DE7B337}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.SessionState.Tests", "test\Microsoft.AspNetCore.SystemWebAdapters.SessionState.Tests\Microsoft.AspNetCore.SystemWebAdapters.SessionState.Tests.csproj", "{9AFF3DCE-5DEF-4337-B5BC-C98ABEA6BEDC}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.SessionState.Framework.Tests", "test\Microsoft.AspNetCore.SystemWebAdapters.SessionState.Framework.Tests\Microsoft.AspNetCore.SystemWebAdapters.SessionState.Framework.Tests.csproj", "{FE535287-999D-4D43-B41C-22AB4A6E2D15}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteBearer", "samples\RemoteAuth\Bearer\RemoteBearer\RemoteBearer.csproj", "{898C9B2C-E43A-434F-9927-F6697C0ACE40}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemoteBearerCore", "samples\RemoteAuth\Bearer\RemoteBearerCore\RemoteBearerCore.csproj", "{6ECC8509-2937-4667-AECC-C20BA62D3FC5}"
@@ -42,6 +36,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FormsAuthCore", "samples\RemoteAuth\Forms\FormsAuthCore\FormsAuthCore.csproj", "{EB87A63B-D71F-43E3-B0B7-588B4BED3BE3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.Framework.Tests", "test\Microsoft.AspNetCore.SystemWebAdapters.Framework.Tests\Microsoft.AspNetCore.SystemWebAdapters.Framework.Tests.csproj", "{23036CE4-A4D7-4A42-868A-1FB5211A41F0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.SystemTextJson", "src\Microsoft.AspNetCore.SystemWebAdapters.SystemTextJson\Microsoft.AspNetCore.SystemWebAdapters.SystemTextJson.csproj", "{A01BA50E-E4C8-4EEA-A4E2-C2312BC6B02E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,18 +65,6 @@ Global
 		{B1D06F62-B315-4ED8-8109-168B4D4E4B86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1D06F62-B315-4ED8-8109-168B4D4E4B86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B1D06F62-B315-4ED8-8109-168B4D4E4B86}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2029D409-07E3-49F8-BB6A-77114DE7B337}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2029D409-07E3-49F8-BB6A-77114DE7B337}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2029D409-07E3-49F8-BB6A-77114DE7B337}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2029D409-07E3-49F8-BB6A-77114DE7B337}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9AFF3DCE-5DEF-4337-B5BC-C98ABEA6BEDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9AFF3DCE-5DEF-4337-B5BC-C98ABEA6BEDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9AFF3DCE-5DEF-4337-B5BC-C98ABEA6BEDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9AFF3DCE-5DEF-4337-B5BC-C98ABEA6BEDC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FE535287-999D-4D43-B41C-22AB4A6E2D15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FE535287-999D-4D43-B41C-22AB4A6E2D15}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FE535287-999D-4D43-B41C-22AB4A6E2D15}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FE535287-999D-4D43-B41C-22AB4A6E2D15}.Release|Any CPU.Build.0 = Release|Any CPU
 		{898C9B2C-E43A-434F-9927-F6697C0ACE40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{898C9B2C-E43A-434F-9927-F6697C0ACE40}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{898C9B2C-E43A-434F-9927-F6697C0ACE40}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -101,6 +85,10 @@ Global
 		{23036CE4-A4D7-4A42-868A-1FB5211A41F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23036CE4-A4D7-4A42-868A-1FB5211A41F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23036CE4-A4D7-4A42-868A-1FB5211A41F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A01BA50E-E4C8-4EEA-A4E2-C2312BC6B02E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A01BA50E-E4C8-4EEA-A4E2-C2312BC6B02E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A01BA50E-E4C8-4EEA-A4E2-C2312BC6B02E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A01BA50E-E4C8-4EEA-A4E2-C2312BC6B02E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,14 +99,12 @@ Global
 		{11DD4D64-7A95-4635-A273-775715E18852} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 		{174A36F1-27ED-43FC-A3A1-00DA58C4E30C} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 		{B1D06F62-B315-4ED8-8109-168B4D4E4B86} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
-		{2029D409-07E3-49F8-BB6A-77114DE7B337} = {F9DB9323-C919-49E8-8F96-B923D2F42E60}
-		{9AFF3DCE-5DEF-4337-B5BC-C98ABEA6BEDC} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
-		{FE535287-999D-4D43-B41C-22AB4A6E2D15} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
 		{898C9B2C-E43A-434F-9927-F6697C0ACE40} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 		{6ECC8509-2937-4667-AECC-C20BA62D3FC5} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 		{87223E5F-A0B2-4827-A4A4-B4C40BEAFBE8} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 		{EB87A63B-D71F-43E3-B0B7-588B4BED3BE3} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 		{23036CE4-A4D7-4A42-868A-1FB5211A41F0} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
+		{A01BA50E-E4C8-4EEA-A4E2-C2312BC6B02E} = {F9DB9323-C919-49E8-8F96-B923D2F42E60}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DABA3C65-9D74-4EB6-9B1C-730328710EAD}

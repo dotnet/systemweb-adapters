@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.SessionState\Microsoft.AspNetCore.SystemWebAdapters.SessionState.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.SystemTextJson\Microsoft.AspNetCore.SystemWebAdapters.SystemTextJson.csproj" />
     <ProjectReference Include="..\ClassLibrary\ClassLibrary.csproj" />
   </ItemGroup>
 

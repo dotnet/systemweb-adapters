@@ -4,9 +4,8 @@
     "projects": [
       "src\\Microsoft.AspNetCore.SystemWebAdapters\\Microsoft.AspNetCore.SystemWebAdapters.csproj",
       "test\\Microsoft.AspNetCore.SystemWebAdapters.Tests\\Microsoft.AspNetCore.SystemWebAdapters.Tests.csproj",
-      "src\\Microsoft.AspNetCore.SystemWebAdapters.SessionState\\Microsoft.AspNetCore.SystemWebAdapters.SessionState.csproj",
-      "test\\Microsoft.AspNetCore.SystemWebAdapters.SessionState.Framework.Tests\\Microsoft.AspNetCore.SystemWebAdapters.SessionState.Framework.Tests.csproj",
-      "test\\Microsoft.AspNetCore.SystemWebAdapters.SessionState.Tests\\Microsoft.AspNetCore.SystemWebAdapters.SessionState.Tests.csproj"
+      "test\\Microsoft.AspNetCore.SystemWebAdapters.Framework.Tests\\Microsoft.AspNetCore.SystemWebAdapters.Framework.Tests.csproj",
+      "src\\Microsoft.AspNetCore.SystemWebAdapters.SystemTextJson\\Microsoft.AspNetCore.SystemWebAdapters.SystemTextJson.csproj",
     ]
   }
 }
