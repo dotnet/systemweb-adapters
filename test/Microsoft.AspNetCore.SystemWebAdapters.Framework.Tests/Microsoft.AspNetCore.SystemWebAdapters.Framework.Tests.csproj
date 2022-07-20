@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net48</TargetFrameworks>
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>Microsoft.AspNetCore.SystemWebAdapters.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,4 +15,7 @@
     <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="System.Web" />
+  </ItemGroup>
 </Project>
