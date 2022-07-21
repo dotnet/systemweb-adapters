@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
@@ -48,5 +49,5 @@ public class RemoteAppAuthenticationClientOptions : AuthenticationSchemeOptions
     /// services. Requests to authenticate are sent to this endpoint.
     /// </summary>
     [Required]
-    public string AuthenticationEndpointPath { get; set; } = AuthenticationConstants.DefaultEndpoint;
+    public PathString AuthenticationEndpointPath { get; set; } = AuthenticationConstants.DefaultEndpoint;
 }
