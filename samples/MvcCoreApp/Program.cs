@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SystemWebAdapters;
@@ -12,7 +11,7 @@ builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo("C:\\keyDirectory"))
     .SetApplicationName("CommonMvcAppName");
 
-builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
+builder.Services.AddAuthentication()
     .AddCookie(IdentityConstants.ApplicationScheme, options =>
     {
         options.Cookie.Name = ".AspNet.ApplicationCookie";
@@ -33,7 +32,7 @@ builder.Services.AddSystemWebAdapters()
     })
     .AddRemoteAppSession()
     .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys))
-    .AddRemoteAppAuthentication(false);
+    .AddRemoteAppAuthentication(true);
 
 var app = builder.Build();
 
