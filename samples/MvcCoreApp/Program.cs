@@ -13,8 +13,8 @@ builder.Services.AddSystemWebAdapters()
             options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
             options.ApiKey = ClassLibrary.RemoteServiceUtils.ApiKey;
         })
-        .AddRemoteAppClientAuthentication(true))
-    .AddRemoteAppSession()
+        .AddRemoteAppClientAuthentication(true)
+        .AddRemoteAppSession())
     .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys));
 
 var app = builder.Build();

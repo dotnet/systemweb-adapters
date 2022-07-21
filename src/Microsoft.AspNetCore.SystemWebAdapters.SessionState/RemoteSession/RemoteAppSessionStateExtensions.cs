@@ -10,7 +10,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class RemoteAppSessionStateExtensions
 {
-    public static ISystemWebAdapterBuilder AddRemoteAppSession(this ISystemWebAdapterBuilder builder, Action<RemoteAppSessionStateOptions>? configure = null)
+    public static ISystemWebAdapterRemoteAppBuilder AddRemoteAppSession(this ISystemWebAdapterRemoteAppBuilder builder, Action<RemoteAppSessionStateOptions>? configure = null)
     {
         if (builder is null)
         {
