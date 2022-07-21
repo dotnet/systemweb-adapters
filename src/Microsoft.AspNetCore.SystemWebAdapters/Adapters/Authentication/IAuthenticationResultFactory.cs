@@ -19,5 +19,5 @@ internal interface IAuthenticationResultFactory
     /// <param name="response">The HTTP response from the remote authentication service.</param>
     /// <param name="options">Configuration for remote authentication, including response headers to be propagated to the caller.</param>
     /// <returns>The result of authenticaiton, including a user identity and/or an HTTP status code and response headers.</returns>
-    Task<RemoteAppAuthenticationResult> CreateRemoteAppAuthenticationResultAsync(HttpResponseMessage response, RemoteAppAuthenticationOptions options);
+    Task<RemoteAppAuthenticationResult> CreateRemoteAppAuthenticationResultAsync(HttpResponseMessage response, RemoteAppAuthenticationClientOptions options);
 }

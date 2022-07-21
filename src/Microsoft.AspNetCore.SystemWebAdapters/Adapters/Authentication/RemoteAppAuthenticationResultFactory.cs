@@ -17,7 +17,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// </summary>
 internal class RemoteAppAuthenticationResultFactory : IAuthenticationResultFactory
 {
-    public async Task<RemoteAppAuthenticationResult> CreateRemoteAppAuthenticationResultAsync(HttpResponseMessage response, RemoteAppAuthenticationOptions options)
+    public async Task<RemoteAppAuthenticationResult> CreateRemoteAppAuthenticationResultAsync(HttpResponseMessage response, RemoteAppAuthenticationClientOptions options)
     {
         if (response is null)
         {

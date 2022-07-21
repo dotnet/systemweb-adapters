@@ -18,6 +18,9 @@ public class RemoteAppOptions
     /// <summary>
     /// Gets or sets the header used to store the API key
     /// </summary>
+#if NET6_0_OR_GREATER
+    [Required]
+#endif
     public string ApiKeyHeader { get; set; } = ApiKeyHeaderName;
 
     /// <summary>

@@ -18,7 +18,7 @@ public static class RemoteAppAuthenticationExtensions
     /// <param name="builder">The System.Web adapter builder to modify.</param>
     /// <param name="configure">Configuration to use when registering the remote authentication module.</param>
     /// <returns>The System.Web adapter builder updated to include the remote authentication module.</returns>
-    public static ISystemWebAdapterBuilder AddRemoteAppAuthentication(this ISystemWebAdapterBuilder builder, Action<RemoteAppAuthenticationOptions>? configure = null)
+    public static ISystemWebAdapterBuilder AddRemoteAppAuthentication(this ISystemWebAdapterBuilder builder, Action<RemoteAppAuthenticationServerOptions>? configure = null)
     {
         if (builder is null)
         {
@@ -26,7 +26,8 @@ public static class RemoteAppAuthenticationExtensions
         }
 
         builder.Services.AddScoped<IHttpModule, RemoteAppAuthenticationModule>();
-        var options = builder.Services.AddOptions<RemoteAppAuthenticationOptions>();
+        var options = builder.Services.AddOptions<RemoteAppAuthenticationServerOptions>()
+            .Validate(options => !string.IsNullOrEmpty(options.AuthenticationEndpointPath), "AuthenticationEndpointPath must be set");
 
         if (configure is not null)
         {

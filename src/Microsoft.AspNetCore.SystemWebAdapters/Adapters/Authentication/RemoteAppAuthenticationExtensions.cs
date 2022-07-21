@@ -38,7 +38,7 @@ public static class RemoteAppAuthenticationExtensions
     /// <param name="authenticationBuilder">The authentication builder to register the remote authentication handler with.</param>
     /// <param name="configureOptions">Configuration options for the remote authentication handler.</param>
     /// <returns>The authentication builder updated with the remote authentication handler added using the given configuration.</returns>
-    public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder, Action<RemoteAppAuthenticationOptions>? configureOptions = null)
+    public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder, Action<RemoteAppAuthenticationClientOptions>? configureOptions = null)
         => AddRemoteAppAuthentication(authenticationBuilder, RemoteAppAuthenticationDefaults.AuthenticationScheme, configureOptions);
 
     /// <summary>
@@ -48,7 +48,7 @@ public static class RemoteAppAuthenticationExtensions
     /// <param name="scheme">The scheme name for the remote authentication handler.</param>
     /// <param name="configureOptions">Configuration options for the remote authentication handler.</param>
     /// <returns>The authentication builder updated with the remote authentication handler added using the given scheme and configuration.</returns>
-    public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder, string scheme, Action<RemoteAppAuthenticationOptions>? configureOptions = null)
+    public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder, string scheme, Action<RemoteAppAuthenticationClientOptions>? configureOptions = null)
     {
         if (authenticationBuilder is null)
         {
@@ -61,10 +61,10 @@ public static class RemoteAppAuthenticationExtensions
             // Disable cookies in the HTTP client because the service will manage the cookie header directly
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { UseCookies = false, AllowAutoRedirect = false });
 
-        authenticationBuilder.Services.AddOptions<RemoteAppAuthenticationOptions>(scheme)
+        authenticationBuilder.Services.AddOptions<RemoteAppAuthenticationClientOptions>(scheme)
             .Configure(configureOptions ?? (_ => { }))
             .ValidateDataAnnotations();
-        return authenticationBuilder.AddScheme<RemoteAppAuthenticationOptions, RemoteAppAuthenticationAuthHandler>(scheme, configureOptions);
+        return authenticationBuilder.AddScheme<RemoteAppAuthenticationClientOptions, RemoteAppAuthenticationAuthHandler>(scheme, configureOptions);
     }
 
     /// <summary>
@@ -72,7 +72,7 @@ public static class RemoteAppAuthenticationExtensions
     /// </summary>
     /// <param name="isDefaultScheme">Specifies whether the remote authentication scheme should be the default authentication scheme. If false, remote authentication will only be used for endpoints specifically requiring the remote authentication scheme.</param>
     /// <param name="configureOptions">Configuration options for the remote authentication handler.</param>
-    public static ISystemWebAdapterBuilder AddRemoteAppAuthentication(this ISystemWebAdapterBuilder systemWebAdapterBuilder, bool isDefaultScheme, Action<RemoteAppAuthenticationOptions>? configureOptions = null)
+    public static ISystemWebAdapterBuilder AddRemoteAppAuthentication(this ISystemWebAdapterBuilder systemWebAdapterBuilder, bool isDefaultScheme, Action<RemoteAppAuthenticationClientOptions>? configureOptions = null)
     {
         if (systemWebAdapterBuilder is null)
         {

@@ -24,14 +24,14 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
     private readonly HttpClient _client;
     private readonly IAuthenticationResultFactory _resultFactory;
     private readonly ILogger<RemoteAppAuthenticationService> _logger;
-    private readonly IOptionsSnapshot<RemoteAppAuthenticationOptions> _authOptionsSnapshot;
+    private readonly IOptionsSnapshot<RemoteAppAuthenticationClientOptions> _authOptionsSnapshot;
     private readonly RemoteAppOptions _remoteAppOptions;
-    private RemoteAppAuthenticationOptions? _options;
+    private RemoteAppAuthenticationClientOptions? _options;
 
     public RemoteAppAuthenticationService(
         HttpClient client,
         IAuthenticationResultFactory resultFactory,
-        IOptionsSnapshot<RemoteAppAuthenticationOptions> authOptions,
+        IOptionsSnapshot<RemoteAppAuthenticationClientOptions> authOptions,
         IOptions<RemoteAppOptions> remoteAppOptions,
         ILogger<RemoteAppAuthenticationService> logger)
     {

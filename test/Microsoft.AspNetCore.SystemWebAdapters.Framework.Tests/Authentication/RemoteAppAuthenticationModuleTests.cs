@@ -13,47 +13,6 @@ public class RemoteAppAuthenticationModuleTests
     private const string GoodKey = "Key1";
     private const string BadKey = "key1";
 
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [Theory]
-    public void VerifyOptionsIsNotNull(bool remoteAppOptionsValid, bool authOptionsValid)
-    {
-        Assert.Throws<ArgumentNullException>(() => new RemoteAppAuthenticationModule(
-            remoteAppOptionsValid ? Options.Create(new RemoteAppOptions()) : null!,
-            authOptionsValid ? Options.Create(new RemoteAppAuthenticationOptions()) : null!));
-    }
-
-    [InlineData("AuthEndpoint", "HeaderName", "MyKey", true)]
-    [InlineData(null, "HeaderName", "MyKey", false)]
-    [InlineData("", "HeaderName", "MyKey", false)]
-    [InlineData("AuthEndpoint", null, "MyKey", false)]
-    [InlineData("AuthEndpoint", "", "MyKey", false)]
-    [InlineData("AuthEndpoint", "HeaderName", null, false)]
-    [InlineData("AuthEndpoint", "HeaderName", "", false)]
-    [Theory]
-    public void VerifyOptionsMembersAreNotNullOrEmpty(string authEndpoint, string apiKeyHeader, string apiKey, bool shouldSucceed)
-    {
-        var authOptions = new RemoteAppAuthenticationOptions
-        {
-            AuthenticationEndpointPath = authEndpoint
-        };
-
-        var remoteAppOptions = new RemoteAppOptions
-        {
-            ApiKeyHeader = apiKeyHeader,
-            ApiKey = apiKey
-        };
-
-        if (shouldSucceed)
-        {
-            _ = new RemoteAppAuthenticationModule(Options.Create(remoteAppOptions), Options.Create(authOptions));
-        }
-        else
-        {
-            Assert.Throws<ArgumentOutOfRangeException>(() => new RemoteAppAuthenticationModule(Options.Create(remoteAppOptions), Options.Create(authOptions)));
-        }
-    }
-
     [InlineData(GoodKey, "true", null, 0, null, typeof(RemoteAppAuthenticationHttpHandler))]
     [InlineData(GoodKey, "true", "/a", 0, null, typeof(RemoteAppAuthenticationHttpHandler))]
     [InlineData(null, "true", "/a", 400, null, null)]
@@ -74,10 +33,11 @@ public class RemoteAppAuthenticationModuleTests
         // Arrange
 
         // Create module and options to test
-        var remoteAppOptions = new RemoteAppOptions();
-        remoteAppOptions.ApiKey = GoodKey;
-
-        var authOptions = new RemoteAppAuthenticationOptions();
+        var authOptions = new RemoteAppAuthenticationServerOptions();
+        var remoteAppOptions = new RemoteAppOptions
+        {
+            ApiKey = GoodKey
+        };
 
         var module = new RemoteAppAuthenticationModule(Options.Create(remoteAppOptions), Options.Create(authOptions));
 
