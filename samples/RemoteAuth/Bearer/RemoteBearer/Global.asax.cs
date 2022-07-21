@@ -12,13 +12,14 @@ namespace RemoteOAuth
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
 
             SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
-                .AddRemoteApp(options =>
-                {
-                    // A real application would not hard code this, but load it
-                    // securely from environment or configuration
-                    options.ApiKey = "TopSecretString";
-                })
-                .AddRemoteAppServerAuthentication();
+                .AddRemoteApp(remote => remote
+                    .Configure(options =>
+                    {
+                        // A real application would not hard code this, but load it
+                        // securely from environment or configuration
+                        options.ApiKey = "TopSecretString";
+                    })
+                    .AddRemoteAppServerAuthentication());
         }
     }
 }

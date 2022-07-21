@@ -22,11 +22,12 @@ public class RemoteAppOptionsTests
         var services = new ServiceCollection();
         var builder = new TestBuilder { Services = services };
 
-        builder.AddRemoteApp(options =>
-        {
-            options.ApiKey = apiKey;
-            options.ApiKeyHeader = apiKeyHeader;
-        });
+        builder.AddRemoteApp(remote => remote
+            .Configure(options =>
+            {
+                options.ApiKey = apiKey;
+                options.ApiKeyHeader = apiKeyHeader;
+            }));
 
         using var serviceProvider = services.BuildServiceProvider();
 

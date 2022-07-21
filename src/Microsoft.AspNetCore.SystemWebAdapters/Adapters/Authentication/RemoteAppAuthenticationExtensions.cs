@@ -72,14 +72,14 @@ public static class RemoteAppAuthenticationExtensions
     /// </summary>
     /// <param name="isDefaultScheme">Specifies whether the remote authentication scheme should be the default authentication scheme. If false, remote authentication will only be used for endpoints specifically requiring the remote authentication scheme.</param>
     /// <param name="configureOptions">Configuration options for the remote authentication handler.</param>
-    public static ISystemWebAdapterBuilder AddRemoteAppClientAuthentication(this ISystemWebAdapterBuilder systemWebAdapterBuilder, bool isDefaultScheme, Action<RemoteAppAuthenticationClientOptions>? configureOptions = null)
+    public static ISystemWebAdapterRemoteAppBuilder AddRemoteAppClientAuthentication(this ISystemWebAdapterRemoteAppBuilder builder, bool isDefaultScheme, Action<RemoteAppAuthenticationClientOptions>? configureOptions = null)
     {
-        if (systemWebAdapterBuilder is null)
+        if (builder is null)
         {
-            throw new ArgumentNullException(nameof(systemWebAdapterBuilder));
+            throw new ArgumentNullException(nameof(builder));
         }
 
-        systemWebAdapterBuilder.Services.AddAuthentication(options =>
+        builder.Services.AddAuthentication(options =>
         {
             if (isDefaultScheme)
             {
@@ -87,6 +87,6 @@ public static class RemoteAppAuthenticationExtensions
             }
         }).AddRemoteClientAuthentication(configureOptions);
 
-        return systemWebAdapterBuilder;
+        return builder;
     }
 }

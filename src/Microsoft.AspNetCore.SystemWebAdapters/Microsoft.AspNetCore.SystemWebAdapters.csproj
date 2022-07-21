@@ -66,6 +66,10 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <SharedFiles Remove="Adapters\ISystemWebAdapterRemoteAppBuilder.Shared.cs" />
+  </ItemGroup>
+
   <Import Condition=" '$(TargetFramework)' == 'net6.0' " Project="GenerateApis.targets" />
 
 </Project>

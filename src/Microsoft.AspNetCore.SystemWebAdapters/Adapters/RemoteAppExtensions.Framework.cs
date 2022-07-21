@@ -12,7 +12,7 @@ public static class RemoteAppExtensions
     /// Add configuration for connecting to a remote app for System.Web extensions that require a remote
     /// ASP.NET app such as remote app authentication or remote app session sharing.
     /// </summary>
-    public static ISystemWebAdapterBuilder AddRemoteApp(this ISystemWebAdapterBuilder builder, Action<RemoteAppOptions> configure)
+    public static ISystemWebAdapterBuilder AddRemoteApp(this ISystemWebAdapterBuilder builder, Action<ISystemWebAdapterRemoteAppBuilder> configure)
     {
         if (builder is null)
         {
@@ -26,9 +26,28 @@ public static class RemoteAppExtensions
 
         var options = builder.Services.AddOptions<RemoteAppOptions>()
             .Validate(options => !string.IsNullOrEmpty(options.ApiKey), "ApiKey must be set")
-            .Validate(options => !string.IsNullOrEmpty(options.ApiKeyHeader), "ApiKeyHeader must be set")
+            .Validate(options => !string.IsNullOrEmpty(options.ApiKeyHeader), "ApiKeyHeader must be set");
+
+        configure(new Builder(builder.Services));
+
+        return builder;
+    }
+
+    public static ISystemWebAdapterRemoteAppBuilder Configure(this ISystemWebAdapterRemoteAppBuilder builder, Action<RemoteAppOptions> configure)
+    {
+        builder.Services.AddOptions<RemoteAppOptions>()
             .Configure(configure);
 
         return builder;
+    }
+
+    private class Builder : ISystemWebAdapterRemoteAppBuilder
+    {
+        public Builder(IServiceCollection services)
+        {
+            Services = services;
+        }
+
+        public IServiceCollection Services { get; }
     }
 }

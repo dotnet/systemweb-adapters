@@ -1,13 +1,14 @@
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSystemWebAdapters()
-    .AddRemoteApp(options =>
-    {
-        options.RemoteAppUrl =
-            new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
-        options.ApiKey = "test-key";
-    })
-    .AddRemoteAppClientAuthentication(true);
+    .AddRemoteApp(remote => remote
+        .Configure(options =>
+        {
+            options.RemoteAppUrl =
+                new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
+            options.ApiKey = "test-key";
+        })
+        .AddRemoteAppClientAuthentication(true));
 
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
