@@ -10,7 +10,7 @@ namespace System.Web;
 
 public static class RemoteAppSessionStateExtensions
 {
-    public static ISystemWebAdapterRemoteAppBuilder AddRemoteAppSession(this ISystemWebAdapterRemoteAppBuilder builder, Action<RemoteAppSessionStateOptions>? configureRemote = null)
+    public static ISystemWebAdapterRemoteAppBuilder AddRemoteAppServerSession(this ISystemWebAdapterRemoteAppBuilder builder, Action<RemoteAppSessionStateOptions>? configureRemote = null)
     {
         if (builder is null)
         {

@@ -7,7 +7,7 @@ builder.Services.AddControllersWithViews();
 
 // Add System.Web adapter services, including registering remote app authentication
 builder.Services.AddSystemWebAdapters()
-    .AddRemoteApp(remote => remote
+    .AddRemoteAppClient(remote => remote
         .Configure(options =>
         {
             options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);

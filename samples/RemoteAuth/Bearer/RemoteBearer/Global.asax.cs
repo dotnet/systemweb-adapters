@@ -12,7 +12,7 @@ namespace RemoteOAuth
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
 
             SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
-                .AddRemoteApp(remote => remote
+                .AddRemoteAppServer(remote => remote
                     .Configure(options =>
                     {
                         // A real application would not hard code this, but load it

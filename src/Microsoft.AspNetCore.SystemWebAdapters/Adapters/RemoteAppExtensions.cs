@@ -12,7 +12,7 @@ public static class RemoteAppExtensions
     /// Add configuration for connecting to a remote app for System.Web extensions that require a remote
     /// ASP.NET app such as remote app authentication or remote app session sharing.
     /// </summary>
-    public static ISystemWebAdapterBuilder AddRemoteApp(this ISystemWebAdapterBuilder builder, Action<ISystemWebAdapterRemoteAppBuilder> configure)
+    public static ISystemWebAdapterBuilder AddRemoteAppClient(this ISystemWebAdapterBuilder builder, Action<ISystemWebAdapterRemoteAppBuilder> configure)
     {
         if (builder is null)
         {
