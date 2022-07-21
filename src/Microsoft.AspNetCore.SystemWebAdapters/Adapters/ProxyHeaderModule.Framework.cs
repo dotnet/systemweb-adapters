@@ -9,20 +9,25 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
+/// <summary>
+/// Updates server and request variables based on proxy headers. See https://docs.microsoft.com/en-us/iis/web-dev-reference/server-variables for reference on what server variables should be used.
+/// </summary>
 internal class ProxyHeaderModule : IHttpModule
 {
     private const string Host = "Host";
+    private const string ServerHttps = "HTTPS";
     private const string ServerName = "SERVER_NAME";
     private const string ServerPort = "SERVER_PORT";
-    private const string ServerProtocol = "SERVER_PROTOCOL";
     private const string ForwardedProto = "x-forwarded-proto";
     private const string ForwardedHost = "x-forwarded-host";
+    private const string On = "ON";
+    private const string Off = "OFF";
 
-    private readonly ProxyOptions _options;
+    private readonly IOptions<ProxyOptions> _options;
 
     public ProxyHeaderModule(IOptions<ProxyOptions> options)
     {
-        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+        _options = options ?? throw new ArgumentNullException(nameof(options));
     }
 
     public void Dispose()
@@ -31,7 +36,9 @@ internal class ProxyHeaderModule : IHttpModule
 
     public void Init(HttpApplication context)
     {
-        if (_options.UseForwardedHeaders)
+        var options = _options.Value;
+
+        if (options.UseForwardedHeaders)
         {
             context.BeginRequest += (s, e) =>
             {
@@ -41,15 +48,12 @@ internal class ProxyHeaderModule : IHttpModule
         }
         else
         {
-            if (_options.ServerName is null)
-            {
-                throw new InvalidOperationException("Server name must be set for proxy options.");
-            }
+            var values = new ServerValues(options);
 
             context.BeginRequest += (s, e) =>
             {
                 var request = ((HttpApplication)s).Context.Request;
-                UseOptions(request.Headers, request.ServerVariables);
+                UseOptions(values, request.Headers, request.ServerVariables);
             };
         }
     }
@@ -64,32 +68,29 @@ internal class ProxyHeaderModule : IHttpModule
         {
             if (requestHeaders[Host] is { } originalHost)
             {
-                requestHeaders[_options.OriginalHostHeaderName] = originalHost;
+                requestHeaders[_options.Value.OriginalHostHeaderName] = originalHost;
             }
 
             var value = new ForwardedHost(host, proto);
 
             serverVariables.Set(ServerName, value.ServerName);
             serverVariables.Set(ServerPort, value.Port.ToString(CultureInfo.InvariantCulture));
+            serverVariables.Set(ServerHttps, value.IsSecure ? On : Off);
 
             requestHeaders[Host] = host;
         }
-
-        if (proto is { })
-        {
-            serverVariables.Set(ServerProtocol, proto);
-        }
     }
 
-    private void UseOptions(NameValueCollection requestHeaders, NameValueCollection serverVariables)
+    private static void UseOptions(ServerValues values, NameValueCollection requestHeaders, NameValueCollection serverVariables)
     {
         UseForwardedFor(requestHeaders, serverVariables);
 
-        serverVariables.Set(ServerName, _options.ServerName);
-        serverVariables.Set(ServerPort, _options.ServerPortString);
-        serverVariables.Set(ServerProtocol, _options.Scheme);
-        requestHeaders[Host] = _options.ServerHostString;
+        serverVariables.Set(ServerName, values.Name);
+        serverVariables.Set(ServerPort, values.Port);
+        serverVariables.Set(ServerHttps, values.Https);
+        requestHeaders[Host] = values.Host;
     }
+
 
     private static void UseForwardedFor(NameValueCollection requestHeaders, NameValueCollection serverVariables)
     {
@@ -98,5 +99,29 @@ internal class ProxyHeaderModule : IHttpModule
             serverVariables.Set("REMOTE_ADDR", remote);
             serverVariables.Set("REMOTE_HOST", remote);
         }
+    }
+
+    private class ServerValues
+    {
+        public ServerValues(ProxyOptions options)
+        {
+            if (options.ServerName is null)
+            {
+                throw new InvalidOperationException("Server name must be set for proxy options.");
+            }
+
+            Name = options.ServerName;
+            Port = options.ServerPort.ToString(CultureInfo.InvariantCulture);
+            Https = string.Equals("https", options.Scheme, StringComparison.OrdinalIgnoreCase) ? On : Off;
+            Host = $"{Name}:{Port}";
+        }
+
+        public string Name { get; }
+
+        public string Port { get; }
+
+        public string Https { get; }
+
+        public string Host { get; }
     }
 }

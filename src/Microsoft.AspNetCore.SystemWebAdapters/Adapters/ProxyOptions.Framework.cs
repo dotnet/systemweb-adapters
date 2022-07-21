@@ -1,15 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Globalization;
-
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public class ProxyOptions
 {
-    private string? _port;
-    private string? _serverHostString;
-
     /// <summary>
     /// Gets or sets whether the X-Forwarded-* headers should be used for incoming requests.
     /// </summary>
@@ -31,8 +26,4 @@ public class ProxyOptions
     /// Gets or sets the scheme.
     /// </summary>
     public string Scheme { get; set; } = "https";
-
-    internal string ServerPortString => _port ??= ServerPort.ToString(CultureInfo.InvariantCulture);
-
-    internal string ServerHostString => _serverHostString ??= $"{ServerName}:{ServerPortString}";
 }
