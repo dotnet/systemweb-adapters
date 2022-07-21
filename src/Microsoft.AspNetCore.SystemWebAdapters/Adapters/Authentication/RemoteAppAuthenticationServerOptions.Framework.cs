@@ -5,5 +5,5 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
 public class RemoteAppAuthenticationServerOptions
 {
-    public string AuthenticationEndpointPath { get; set; } = DefaultPaths.Authenticate;
+    public string AuthenticationEndpointPath { get; set; } = AuthenticationConstants.DefaultEndpoint;
 }
