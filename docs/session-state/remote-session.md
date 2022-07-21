@@ -25,19 +25,20 @@ Configuration for ASP.NET Core would look similar to the following:
 
 ```csharp
 builder.Services.AddSystemWebAdapters()
-    .AddJsonSessionSerializer(options =>
-    {
-        // Serialization/deserialization requires each session key to be registered to a type
-        options.RegisterKey<int>("test-value");
-        options.RegisterKey<SessionDemoModel>("SampleSessionItem");
-    })
-    .AddRemoteAppSession(options =>
+    .AddRemoteApp(options =>
     {
         // Provide the URL for the remote app that has enabled session querying
         options.RemoteApp = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
 
         // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
         options.ApiKey = "strong-api-key";
+    })
+    .AddRemoteAppSession()
+    .AddJsonSessionSerializer(options =>
+    {
+        // Serialization/deserialization requires each session key to be registered to a type
+        options.RegisterKey<int>("test-value");
+        options.RegisterKey<SessionDemoModel>("SampleSessionItem");
     });
 ```
 
@@ -63,16 +64,16 @@ app.MapDefaultControllerRoute()
 The framework equivalent would look like the following change in `Global.asax.cs`:
 
 ```csharp
-Application.AddSystemWebAdapters()
-    .AddJsonRemoteAppSession(
-        // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
-        options => options.ApiKey = "strong-api-key",
-        options =>
-        {
-            // Serialization/deserialization requires each session key to be registered to a type
-            options.RegisterKey<int>("test-value");
-            options.RegisterKey<SessionDemoModel>("SampleSessionItem");
-        });
+SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
+    // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
+    .AddRemoteApp(options => options.ApiKey = "strong-api-key")
+    .AddRemoteAppSession()
+    .AddJsonSessionSerializer(options =>
+    {
+        // Serialization/deserialization requires each session key to be registered to a type
+        options.RegisterKey<int>("test-value");
+        options.RegisterKey<SessionDemoModel>("SampleSessionItem");
+    });
 ```
 # Protocol
 
