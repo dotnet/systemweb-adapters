@@ -14,7 +14,7 @@ builder.Services.AddSystemWebAdapters()
             options.ApiKey = ClassLibrary.RemoteServiceUtils.ApiKey;
         })
         .AddRemoteAppClientAuthentication(true)
-        .AddRemoteAppSession())
+        .AddRemoteAppClientSession())
     .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys));
 
 var app = builder.Build();

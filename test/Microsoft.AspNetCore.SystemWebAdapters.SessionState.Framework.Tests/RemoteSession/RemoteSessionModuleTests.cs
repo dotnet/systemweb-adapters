@@ -30,7 +30,7 @@ public class RemoteSessionModuleTests
     public void VeriyApiKeyIsNotNullOrEmpty(string apiKey)
     {
         // Arrange
-        var sessionOptions = Options.Create(new RemoteAppSessionStateOptions());
+        var sessionOptions = Options.Create(new RemoteAppSessionStateServerOptions());
         var remoteAppOptions = Options.Create(new RemoteAppOptions { ApiKey = apiKey });
         var sessions = new Mock<ILockedSessionCache>();
         var serializer = new Mock<ISessionSerializer>();
@@ -55,7 +55,7 @@ public class RemoteSessionModuleTests
     public void VerifyCorrectHandler(string method, string readOnlyHeaderValue, int statusCode, string expectedApiKey, string apiKey, Type handlerType)
     {
         // Arrange
-        var sessionOptions = Options.Create(new RemoteAppSessionStateOptions());
+        var sessionOptions = Options.Create(new RemoteAppSessionStateServerOptions());
         var remoteAppOptions = Options.Create(new RemoteAppOptions { ApiKey = expectedApiKey });
 
         var sessions = new Mock<ILockedSessionCache>();
@@ -66,7 +66,7 @@ public class RemoteSessionModuleTests
         var headers = new NameValueCollection
         {
             { remoteAppOptions.Value.ApiKeyHeader, apiKey },
-            { RemoteAppSessionStateOptions.ReadOnlyHeaderName, readOnlyHeaderValue }
+            { SessionConstants.ReadOnlyHeaderName, readOnlyHeaderValue }
         };
 
         var response = new Mock<HttpResponseBase>();

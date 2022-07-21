@@ -10,7 +10,7 @@ namespace System.Web;
 
 public static class RemoteAppSessionStateExtensions
 {
-    public static ISystemWebAdapterRemoteAppBuilder AddRemoteAppServerSession(this ISystemWebAdapterRemoteAppBuilder builder, Action<RemoteAppSessionStateOptions>? configureRemote = null)
+    public static ISystemWebAdapterRemoteAppBuilder AddRemoteAppServerSession(this ISystemWebAdapterRemoteAppBuilder builder, Action<RemoteAppSessionStateServerOptions>? configureRemote = null)
     {
         if (builder is null)
         {
@@ -23,7 +23,7 @@ public static class RemoteAppSessionStateExtensions
         builder.Services.AddOptions<SessionSerializerOptions>()
             // We don't want to throw by default on the .NET Framework side as then the error won't be easily visible in the ASP.NET Core app
             .Configure(options => options.ThrowOnUnknownSessionKey = false);
-        var options = builder.Services.AddOptions<RemoteAppSessionStateOptions>();
+        var options = builder.Services.AddOptions<RemoteAppSessionStateServerOptions>();
 
         if (configureRemote is not null)
         {
