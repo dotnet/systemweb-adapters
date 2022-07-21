@@ -20,7 +20,7 @@ namespace OIDCAuth
             SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
                 .AddProxySupport(options => options.UseForwardedHeaders = true)
                 .AddRemoteApp(options => options.ApiKey = "test-key")
-                .AddRemoteAppAuthentication();
+                .AddRemoteAppServerAuthentication();
 
         }
     }

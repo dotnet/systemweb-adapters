@@ -18,7 +18,7 @@ namespace RemoteOAuth
                     // securely from environment or configuration
                     options.ApiKey = "TopSecretString";
                 })
-                .AddRemoteAppAuthentication();
+                .AddRemoteAppServerAuthentication();
         }
     }
 }

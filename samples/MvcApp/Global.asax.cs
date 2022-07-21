@@ -24,7 +24,7 @@ namespace MvcApp
                 })
                 .AddRemoteAppSession()
                 .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys))
-                .AddRemoteAppAuthentication();
+                .AddRemoteAppServerAuthentication();
         }
     }
 }

@@ -20,7 +20,7 @@ namespace FormsAuth
                 {
                     options.ApiKey = "FormsAuthSampleKey";
                 })
-                .AddRemoteAppAuthentication();
+                .AddRemoteAppServerAuthentication();
         }
     }
 }
