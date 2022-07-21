@@ -1,8 +1,11 @@
 using System;
+using System.IO;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.Interop;
 using MvcApp.Models;
 using Owin;
 
@@ -24,7 +27,23 @@ namespace MvcApp
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+                CookieName = ".AspNet.ApplicationCookie",
+                CookieSameSite = SameSiteMode.Lax,
+                SlidingExpiration = true,
+                ExpireTimeSpan = TimeSpan.FromMinutes(120),
                 LoginPath = new PathString("/Account/Login"),
+                TicketDataFormat = new AspNetTicketDataFormat(
+                    new DataProtectorShim(
+                        // This directory is used to share dataprotection keys between MvcApp and MvcCoreApp
+                        DataProtectionProvider.Create(new DirectoryInfo("C:\\keyDirectory"),
+                        (builder) =>
+                        {
+                            builder.SetApplicationName("CommonMvcAppName");
+                        })
+                        .CreateProtector(
+                            "Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationMiddleware",
+                            "Identity.Application",
+                            "v2"))),
                 Provider = new CookieAuthenticationProvider
                 {
                     // Enables the application to validate the security stamp when the user logs in.

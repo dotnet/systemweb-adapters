@@ -1,8 +1,27 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SystemWebAdapters;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+
+// These must match the data protection settings in MvcApp Startup.Auth.cs for cookie sharing to work
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("C:\\keyDirectory"))
+    .SetApplicationName("CommonMvcAppName");
+
+builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
+    .AddCookie(IdentityConstants.ApplicationScheme, options =>
+    {
+        options.Cookie.Name = ".AspNet.ApplicationCookie";
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.Path = "/";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(120);
+    });
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -14,7 +33,7 @@ builder.Services.AddSystemWebAdapters()
     })
     .AddRemoteAppSession()
     .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys))
-    .AddRemoteAppAuthentication(true);
+    .AddRemoteAppAuthentication(false);
 
 var app = builder.Build();
 
