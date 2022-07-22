@@ -3,7 +3,7 @@
 This project provides a collection of adapters that help migrating from `System.Web.dll` based ASP.NET projects to ASP.NET Core projects. The adapters currently include:
 
 - `Microsoft.AspNetCore.SystemWebAdapters`: Subset of the APIs from `System.Web.dll` backed by `Microsoft.AspNetCore.Http` types
-- `Microsoft.AspNetCore.SystemWebAdapters.SessionState`: Support for `System.Web.HttpContext.Session` usage
+- `Microsoft.AspNetCore.SystemWebAdapters.SystemTextJson`: Support for serialization using `System.Text.Json` where needed
 
 These adapters help enable large scale, incremental migration from ASP.NET to ASP.NET Core. For more details on incremental migration from ASP.NET to ASP.NET Core, please see the [documentation](docs).
 
@@ -28,7 +28,7 @@ Below are the steps needed to start using the System.Web adapters with your ASP.
    </configuration>
    ```
 2. Install `Microsoft.AspNetCore.SystemWebAdapters`
-3. If you use `HttpContext.Session`, install `Microsoft.AspNetCore.SystemWebAdapters.SessionState`
+3. If you want to use JSON serialization, install `Microsoft.AspNetCore.SystemWebAdapters.SystemTextJson`
 4. In your framework application:
    - The package installation will add a new module to your `web.config`. This module handles any customizations that are required to help migrate to .NET Core. See [this](docs/framework.md) for details on what is available here.
 5. In your class libraries:
