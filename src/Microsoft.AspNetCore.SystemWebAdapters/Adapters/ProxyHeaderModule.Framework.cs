@@ -20,6 +20,8 @@ internal class ProxyHeaderModule : IHttpModule
     private const string ServerPort = "SERVER_PORT";
     private const string ForwardedProto = "x-forwarded-proto";
     private const string ForwardedHost = "x-forwarded-host";
+    
+    // ASP.NET expects lowercase values for HTTPS, not uppercase as the docs may indicate
     private const string On = "on";
     private const string Off = "off";
 
