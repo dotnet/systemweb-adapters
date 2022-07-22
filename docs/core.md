@@ -12,7 +12,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSystemWebAdapters()
     .AddRemoteApp(options =>
     {
-        options.RemoteApp = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
+        options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
         options.ApiKey = ClassLibrary.SessionUtils.ApiKey;
     })
     .AddRemoteAppSession()
