@@ -20,7 +20,7 @@ builder.Services.AddSystemWebAdapters()
         // should be the default scheme. If it is set to false, HTTP requests to authenticate will only be made for
         // endpoints that actually need that behavior, but it is then necessary to annotate endpoints requiring remote app
         // auth with [Authorize(AuthenticationSchemes = RemoteAppAuthenticationDefaults.AuthenticationScheme)] or something similar.
-        .AddRemoteAppClientAuthentication(isDefaultScheme: true));
+        .AddAuthentication(isDefaultScheme: true));
 
 var app = builder.Build();
 

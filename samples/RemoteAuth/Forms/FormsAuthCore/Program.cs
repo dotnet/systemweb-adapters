@@ -13,7 +13,7 @@ builder.Services.AddSystemWebAdapters()
             options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
             options.ApiKey = "FormsAuthSampleKey";
         })
-        .AddRemoteAppClientAuthentication(true));
+        .AddAuthentication(true));
 
 var app = builder.Build();
 

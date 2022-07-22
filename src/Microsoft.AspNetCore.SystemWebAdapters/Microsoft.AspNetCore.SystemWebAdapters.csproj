@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net6.0;netstandard2.0;net472</TargetFrameworks>
@@ -64,10 +64,6 @@
     <Reference Include="System.Web" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <SharedFiles Remove="Adapters\ISystemWebAdapterRemoteAppBuilder.Shared.cs" />
   </ItemGroup>
 
   <Import Condition=" '$(TargetFramework)' == 'net6.0' " Project="GenerateApis.targets" />

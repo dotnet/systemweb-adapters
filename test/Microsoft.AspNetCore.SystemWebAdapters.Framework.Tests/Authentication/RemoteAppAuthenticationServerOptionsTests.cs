@@ -21,7 +21,7 @@ public class RemoteAppAuthenticationServerOptionsTests
         var services = new ServiceCollection();
         var builder = new TestBuilder { Services = services };
 
-        builder.AddRemoteAppServerAuthentication(options =>
+        builder.AddAuthentication(options =>
         {
             options.AuthenticationEndpointPath = endpoint;
         });
@@ -41,7 +41,7 @@ public class RemoteAppAuthenticationServerOptionsTests
         }
     }
 
-    private class TestBuilder : ISystemWebAdapterRemoteAppBuilder
+    private class TestBuilder : ISystemWebAdapterRemoteServerAppBuilder
     {
         public IServiceCollection Services { get; set; } = null!;
     }
