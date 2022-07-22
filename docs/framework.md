@@ -26,11 +26,12 @@ protected void Application_Start()
     RouteConfig.RegisterRoutes(RouteTable.Routes);
     BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-    Application.AddSystemWebAdapters()
+    SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
         .AddProxySupport(options => options.UseForwardedHeaders = true)
-        .AddRemoteAppSession(
-            options => options.ApiKey = ClassLibrary.SessionUtils.ApiKey,
-            options => ClassLibrary.SessionUtils.RegisterSessionKeys(options));
+        .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys))
+        .AddRemoteAppServer(remote => remote
+            .Configure(options => options.ApiKey = ClassLibrary.RemoteServiceUtils.ApiKey)
+            .AddSession());
 }
 ```
 

@@ -8,14 +8,13 @@ There are just a few small code changes needed to enable remote authentication i
 
 ### ASP.NET app configuration
 
-First, the ASP.NET app needs to be configured to add the authentication endpoint. This is done by calling the `AddRemoteAuthentication` extension method on the `ISystemWebAdapterBuilder`:
+First, the ASP.NET app needs to be configured to add the authentication endpoint. This is done by calling the `AddRemoteAppServer` extension method on the `ISystemWebAdapterBuilder`:
 
 ```CSharp
-Application.AddSystemWebAdapters()
-    .AddRemoteAuthentication(true, options =>
-    {
-        options.RemoteServiceOptions.ApiKey = "MySecretKey";
-    });
+SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
+    .AddRemoteAppServer(remote => remote
+        .Configure(options => options.ApiKey = ClassLibrary.RemoteServiceUtils.ApiKey)
+        .AddAuthentication());
 ```
 
 The boolean that is passed to the `AddRemoteAuthentication` call specifies whether remote app authentication should be the default authentication scheme. Passing `true` will cause the user to be authenticated via remote app authentication for all requests, whereas passing `false` means that the user will only be authenticated with remote app authentication if the remote app scheme is specifically requested (with `[Authorize(AuthenticationSchemes = RemoteAppAuthenticationDefaults.AuthenticationScheme)]` on a controller or action method, for example). Passing false for this parameter has the advantage of only making HTTP requests to the original ASP.NET app for authentication for endpoints that require remote app authentication but has the disadvantage of requiring annotating all such endpoints to indicate that they will use remote app auth.
@@ -24,15 +23,17 @@ In the options configuration method passed to the `AddRemoteAuthentication` call
 
 ### ASP.NET Core app configuration
 
-Next, the ASP.NET Core app needs to be configured to enable the authentication handler that will authenticate users by making an HTTP request to the ASP.NET app. This is done by calling `AddRemoteAppAuthentication` when registering System.Web adapters services:
+Next, the ASP.NET Core app needs to be configured to enable the authentication handler that will authenticate users by making an HTTP request to the ASP.NET app. This is done by calling `AddRemoteAppClient` when registering System.Web adapters services:
 
 ```CSharp
 builder.Services.AddSystemWebAdapters()
-    .AddRemoteAppAuthentication(options =>
-    {
-        options.RemoteServiceOptions.RemoteAppUrl = new("http://URL-for-the-ASPNet-app");
-        options.RemoteServiceOptions.ApiKey = "MySecretKey";
-    });
+    .AddRemoteAppClient(remote => remote
+        .Configure(options =>
+        {
+            options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
+            options.ApiKey = "MySecretKey";
+        })
+        .AddAuthentication(true));
 ```
 
 In addition to configuring the remote app's URL and the shared secret API key, the callback passed to `AddRemoteAppAuthentication` can also optionally specify some aspects of the remote authentication process's behavior:
