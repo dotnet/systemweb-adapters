@@ -3,8 +3,7 @@
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
-internal static class AuthenticationConstants
+public class RemoteAppAuthenticationServerOptions
 {
-    public const string ForwardedHostHeaderName = "x-forwarded-host";
-    public const string ForwardedProtoHeaderName = "x-forwarded-proto";
+    public string AuthenticationEndpointPath { get; set; } = AuthenticationConstants.DefaultEndpoint;
 }

@@ -18,13 +18,11 @@ namespace MvcApp
 
             SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
                 .AddProxySupport(options => options.UseForwardedHeaders = true)
-                .AddRemoteApp(options =>
-                {
-                    options.ApiKey = ClassLibrary.RemoteServiceUtils.ApiKey;
-                })
-                .AddRemoteAppSession()
                 .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys))
-                .AddRemoteAppAuthentication();
+                .AddRemoteAppServer(remote => remote
+                    .Configure(options => options.ApiKey = ClassLibrary.RemoteServiceUtils.ApiKey)
+                    .AddAuthentication()
+                    .AddSession());
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Collections.Specialized;
 using Microsoft.Extensions.Options;
 using Xunit;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters.FrameworkTests;
+namespace Microsoft.AspNetCore.SystemWebAdapters.Tests;
 
 public class ProxyHeaderModuleTests
 {

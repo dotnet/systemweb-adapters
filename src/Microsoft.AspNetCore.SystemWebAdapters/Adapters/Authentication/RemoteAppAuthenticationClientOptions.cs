@@ -1,30 +1,24 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#if NET6_0_OR_GREATER
-using Microsoft.AspNetCore.Authentication;
-using System.ComponentModel.DataAnnotations;
-using System.Collections.Immutable;
-#endif
-
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
-public class RemoteAppAuthenticationOptions
-#if NET6_0_OR_GREATER
-    : AuthenticationSchemeOptions
-#endif
+public class RemoteAppAuthenticationClientOptions : AuthenticationSchemeOptions
 {
-#if NET6_0_OR_GREATER
-    public static readonly IEnumerable<string> DefaultRequestHeadersToForward = ImmutableArray.CreateRange(new[]
+    private static readonly ImmutableArray<string> DefaultRequestHeadersToForward = ImmutableArray.CreateRange(new[]
     {
         "Authorization",
         "Cookie"
     });
 
-    public static readonly IEnumerable<string> DefaultResponseHeadersToForward = ImmutableArray.CreateRange(new[]
+    private static readonly ImmutableArray<string> DefaultResponseHeadersToForward = ImmutableArray.CreateRange(new[]
     {
         "Location",
         "Set-Cookie",
@@ -55,6 +49,5 @@ public class RemoteAppAuthenticationOptions
     /// services. Requests to authenticate are sent to this endpoint.
     /// </summary>
     [Required]
-#endif
-    public string AuthenticationEndpointPath { get; set; } = "/systemweb-adapters/authenticate";
+    public PathString AuthenticationEndpointPath { get; set; } = AuthenticationConstants.DefaultEndpoint;
 }

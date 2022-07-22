@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.IO;
 using System.Security.Claims;
 using System.Web;
@@ -33,6 +32,9 @@ internal sealed class RemoteAppAuthenticationHttpHandler : IHttpHandler
         }
         else
         {
+            // Setting 401 signals to other components (such as OWIN auth handlers) that authentication is required.
+            // Those components can make updates, as needed, based on the specific auth process being used (such as
+            // changing to a 302 status code or adding WWW-Authenticate or Location headers.
             context.Response.StatusCode = 401;
         }
 
