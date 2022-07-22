@@ -7,7 +7,7 @@
   <PropertyGroup>
     <MajorVersion>1</MajorVersion>
     <MinorVersion>0</MinorVersion>
-    <PreReleaseVersionLabel>preview.3</PreReleaseVersionLabel>
+    <PreReleaseVersionLabel>rc.1</PreReleaseVersionLabel>
     <DotNetFinalVersionKind Condition="'$(PreReleaseVersionLabel)' == 'rtw'">release</DotNetFinalVersionKind>
   </PropertyGroup>
   <PropertyGroup>
