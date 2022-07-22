@@ -28,7 +28,7 @@ builder.Services.AddSystemWebAdapters()
     .AddRemoteApp(options =>
     {
         // Provide the URL for the remote app that has enabled session querying
-        options.RemoteApp = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
+        options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
 
         // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
         options.ApiKey = "strong-api-key";
