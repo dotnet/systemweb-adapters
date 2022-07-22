@@ -17,6 +17,9 @@ public class ProxyHeaderModuleTests
     private const string RemoteHost = "REMOTE_HOST";
     private const string ServerName = "SERVER_NAME";
     private const string ServerPort = "SERVER_PORT";
+    private const string ServerHttps = "HTTPS";
+    private const string On = "ON";
+    private const string Off = "OFF";
 
     [Fact]
     public void NoHeaderChange()
@@ -57,6 +60,7 @@ public class ProxyHeaderModuleTests
         Assert.Null(serverVariables[RemoteHost]);
         Assert.Equal("localhost:81", requestHeaders[Host]);
         Assert.Null(requestHeaders[options.OriginalHostHeaderName]);
+        Assert.Equal(Off, serverVariables[ServerHttps]);
     }
 
     [Fact]
@@ -81,6 +85,7 @@ public class ProxyHeaderModuleTests
         Assert.Null(serverVariables[RemoteHost]);
         Assert.Equal("localhost", requestHeaders[Host]);
         Assert.Null(requestHeaders[options.OriginalHostHeaderName]);
+        Assert.Equal(Off, serverVariables[ServerHttps]);
     }
 
     [Fact]
@@ -106,6 +111,7 @@ public class ProxyHeaderModuleTests
         Assert.Null(serverVariables[RemoteHost]);
         Assert.Equal("localhost", requestHeaders[Host]);
         Assert.Null(requestHeaders[options.OriginalHostHeaderName]);
+        Assert.Equal(Off, serverVariables[ServerHttps]);
     }
 
     [Fact]
@@ -132,6 +138,7 @@ public class ProxyHeaderModuleTests
         Assert.Null(serverVariables[RemoteHost]);
         Assert.Equal("localhost", requestHeaders[Host]);
         Assert.Equal("localhost2:90", requestHeaders[options.OriginalHostHeaderName]);
+        Assert.Equal(Off, serverVariables[ServerHttps]);
     }
 
     [Fact]
@@ -157,6 +164,7 @@ public class ProxyHeaderModuleTests
         Assert.Null(serverVariables[RemoteHost]);
         Assert.Equal("localhost", requestHeaders[Host]);
         Assert.Null(requestHeaders[options.OriginalHostHeaderName]);
+        Assert.Equal(On, serverVariables[ServerHttps]);
     }
 
     [Fact]
@@ -182,6 +190,7 @@ public class ProxyHeaderModuleTests
         Assert.Null(serverVariables[RemoteHost]);
         Assert.Equal("::1", requestHeaders[Host]);
         Assert.Null(requestHeaders[options.OriginalHostHeaderName]);
+        Assert.Equal(On, serverVariables[ServerHttps]);
     }
 
     [Fact]
@@ -207,6 +216,7 @@ public class ProxyHeaderModuleTests
         Assert.Null(serverVariables[RemoteHost]);
         Assert.Equal("[::1]:81", requestHeaders[Host]);
         Assert.Null(requestHeaders[options.OriginalHostHeaderName]);
+        Assert.Equal(On, serverVariables[ServerHttps]);
     }
 
     [Fact]
@@ -230,6 +240,7 @@ public class ProxyHeaderModuleTests
         Assert.Null(requestHeaders[Host]);
         Assert.Null(serverVariables[ServerName]);
         Assert.Null(serverVariables[ServerPort]);
+        Assert.Null(serverVariables[ServerHttps]);
         Assert.Equal(ForwardedForValue, serverVariables[RemoteAddress]);
         Assert.Equal(ForwardedForValue, serverVariables[RemoteHost]);
         Assert.Null(requestHeaders[options.OriginalHostHeaderName]);
