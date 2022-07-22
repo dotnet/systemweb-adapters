@@ -18,8 +18,8 @@ public class ProxyHeaderModuleTests
     private const string ServerName = "SERVER_NAME";
     private const string ServerPort = "SERVER_PORT";
     private const string ServerHttps = "HTTPS";
-    private const string On = "ON";
-    private const string Off = "OFF";
+    private const string On = "on";
+    private const string Off = "off";
 
     [Fact]
     public void NoHeaderChange()
