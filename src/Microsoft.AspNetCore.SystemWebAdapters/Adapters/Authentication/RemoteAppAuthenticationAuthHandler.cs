@@ -18,7 +18,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// Authentication handler that authenticates users by making requests to a remote app
 /// for authentication via a remote authentication service.
 /// </summary>
-internal partial class RemoteAppAuthenticationAuthHandler : AuthenticationHandler<RemoteAppAuthenticationOptions>
+internal partial class RemoteAppAuthenticationAuthHandler : AuthenticationHandler<RemoteAppAuthenticationClientOptions>
 {
     private readonly IRemoteAppAuthenticationService _authService;
     private readonly IEnumerable<IRemoteAppAuthenticationResultProcessor> _resultProcessors;
@@ -27,7 +27,7 @@ internal partial class RemoteAppAuthenticationAuthHandler : AuthenticationHandle
 
     public RemoteAppAuthenticationAuthHandler(IRemoteAppAuthenticationService authService,
                                            IEnumerable<IRemoteAppAuthenticationResultProcessor> resultProcessors,
-                                           IOptionsMonitor<RemoteAppAuthenticationOptions> options,
+                                           IOptionsMonitor<RemoteAppAuthenticationClientOptions> options,
                                            ILoggerFactory loggerFactory,
                                            UrlEncoder encoder,
                                            ISystemClock clock)

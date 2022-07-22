@@ -10,7 +10,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class RemoteAppSessionStateExtensions
 {
-    public static ISystemWebAdapterBuilder AddRemoteAppSession(this ISystemWebAdapterBuilder builder, Action<RemoteAppSessionStateOptions>? configure = null)
+    public static ISystemWebAdapterRemoteClientAppBuilder AddSession(this ISystemWebAdapterRemoteClientAppBuilder builder, Action<RemoteAppSessionStateClientOptions>? configure = null)
     {
         if (builder is null)
         {
@@ -20,7 +20,7 @@ public static class RemoteAppSessionStateExtensions
         builder.Services.AddHttpClient<ISessionManager, RemoteAppSessionStateManager>()
             // Disable cookies in the HTTP client because the service will manage the cookie header directly
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { UseCookies = false });
-        builder.Services.AddOptions<RemoteAppSessionStateOptions>()
+        builder.Services.AddOptions<RemoteAppSessionStateClientOptions>()
             .Configure(configure ?? (_ => { }))
             .ValidateDataAnnotations();
 

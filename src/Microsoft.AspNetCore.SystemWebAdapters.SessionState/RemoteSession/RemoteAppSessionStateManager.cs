@@ -20,12 +20,12 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
     private readonly HttpClient _client;
     private readonly ISessionSerializer _serializer;
     private readonly ILogger<RemoteAppSessionStateManager> _logger;
-    private readonly RemoteAppSessionStateOptions _options;
+    private readonly RemoteAppSessionStateClientOptions _options;
 
     public RemoteAppSessionStateManager(
         HttpClient client,
         ISessionSerializer serializer,
-        IOptions<RemoteAppSessionStateOptions> sessionOptions,
+        IOptions<RemoteAppSessionStateClientOptions> sessionOptions,
         IOptions<RemoteAppOptions> remoteAppOptions,
         ILogger<RemoteAppSessionStateManager> logger)
     {
@@ -154,7 +154,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
     }
 
     private static void AddReadOnlyHeader(HttpRequestMessage req, bool readOnly)
-        => req.Headers.Add(RemoteAppSessionStateOptions.ReadOnlyHeaderName, readOnly.ToString());
+        => req.Headers.Add(SessionConstants.ReadOnlyHeaderName, readOnly.ToString());
 
     private class SerializedSessionHttpContent : HttpContent
     {
