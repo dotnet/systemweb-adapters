@@ -35,11 +35,8 @@ namespace MvcApp
                 TicketDataFormat = new AspNetTicketDataFormat(
                     new DataProtectorShim(
                         // This directory is used to share dataprotection keys between MvcApp and MvcCoreApp
-                        DataProtectionProvider.Create(new DirectoryInfo("C:\\keyDirectory"),
-                        (builder) =>
-                        {
-                            builder.SetApplicationName("CommonMvcAppName");
-                        })
+                        DataProtectionProvider.Create(new DirectoryInfo(Path.Combine(Path.GetTempPath(), "sharedkeys", "mvcapp")),
+                        builder => builder.SetApplicationName("CommonMvcAppName"))
                         .CreateProtector(
                             "Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationMiddleware",
                             "Identity.Application",

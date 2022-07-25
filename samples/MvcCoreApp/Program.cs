@@ -8,7 +8,7 @@ builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSecti
 
 // These must match the data protection settings in MvcApp Startup.Auth.cs for cookie sharing to work
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo("C:\\keyDirectory"))
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Path.GetTempPath(), "sharedkeys", "mvcapp")))
     .SetApplicationName("CommonMvcAppName");
 
 builder.Services.AddAuthentication()
