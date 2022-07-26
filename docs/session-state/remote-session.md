@@ -25,15 +25,6 @@ Configuration for ASP.NET Core would look similar to the following:
 
 ```csharp
 builder.Services.AddSystemWebAdapters()
-<<<<<<< HEAD
-    .AddRemoteAppClient(remote => remote
-        .Configure(options =>
-        {
-            options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
-            options.ApiKey = ClassLibrary.RemoteServiceUtils.ApiKey;
-        })
-        .AddSession())
-=======
     .AddRemoteApp(options =>
     {
         // Provide the URL for the remote app that has enabled session querying
@@ -43,7 +34,6 @@ builder.Services.AddSystemWebAdapters()
         options.ApiKey = "strong-api-key";
     })
     .AddRemoteAppSession()
->>>>>>> origin/main
     .AddJsonSessionSerializer(options =>
     {
         // Serialization/deserialization requires each session key to be registered to a type
@@ -75,26 +65,15 @@ The framework equivalent would look like the following change in `Global.asax.cs
 
 ```csharp
 SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
-<<<<<<< HEAD
-    .AddProxySupport(options => options.UseForwardedHeaders = true)
-=======
     // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
     .AddRemoteApp(options => options.ApiKey = "strong-api-key")
     .AddRemoteAppSession()
->>>>>>> origin/main
     .AddJsonSessionSerializer(options =>
     {
         // Serialization/deserialization requires each session key to be registered to a type
         options.RegisterKey<int>("test-value");
         options.RegisterKey<SessionDemoModel>("SampleSessionItem");
-<<<<<<< HEAD
-    })
-    .AddRemoteAppServer(remote => remote
-        .Configure(options => options.ApiKey = ClassLibrary.RemoteServiceUtils.ApiKey)
-        .AddSession());
-=======
     });
->>>>>>> origin/main
 ```
 # Protocol
 
