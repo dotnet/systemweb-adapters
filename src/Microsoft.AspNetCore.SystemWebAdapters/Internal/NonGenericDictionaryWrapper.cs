@@ -59,7 +59,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
 
         public bool IsSynchronized => false;
 
-        public object SyncRoot => null!;
+        public object SyncRoot => _original;
 
         public void Add(object key, object? value) => _original.Add(key, value);
 

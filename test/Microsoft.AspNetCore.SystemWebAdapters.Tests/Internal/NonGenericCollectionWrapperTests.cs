@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AutoFixture;
@@ -37,10 +39,11 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
         [Fact]
         public void SyncProperties()
         {
-            var wrapped = new NonGenericCollectionWrapper<object>(Array.Empty<object>());
+            var list = new List<object>();
+            var wrapped = new NonGenericCollectionWrapper<object>(list);
 
             Assert.False(wrapped.IsSynchronized);
-            Assert.Null(wrapped.SyncRoot);
+            Assert.Equal(((ICollection)list).SyncRoot, wrapped.SyncRoot);
         }
 
         [Fact]

@@ -20,7 +20,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
 
         public bool IsSynchronized => false;
 
-        public object SyncRoot => null!;
+        public object SyncRoot => _collection;
 
         public void CopyTo(Array array, int index)
         {

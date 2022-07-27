@@ -18,6 +18,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
             _fixture = new Fixture();
         }
 
+
         [Fact]
         public void IsFixedSize()
         {
@@ -42,7 +43,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
             var dictionary = new Dictionary<object, object?>();
             var wrapped = new NonGenericDictionaryWrapper(dictionary);
 
-            Assert.Null(wrapped.SyncRoot);
+            Assert.Equal(((ICollection)dictionary).SyncRoot, wrapped.SyncRoot);
         }
 
         [Theory]
