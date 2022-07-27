@@ -13,13 +13,6 @@ namespace MvcApp
 {
     public partial class Startup
     {
-        public static CookieAuthenticationOptions ConfigureSharedCookieAuthentication(string applicationName, CookieAuthenticationOptions cookieOptions)
-        {
-
-            return cookieOptions;
-        }
-
-
         // For more information on configuring authentication, please visit https://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
