@@ -13,6 +13,13 @@ namespace MvcApp
 {
     public partial class Startup
     {
+        public static CookieAuthenticationOptions ConfigureSharedCookieAuthentication(string applicationName, CookieAuthenticationOptions cookieOptions)
+        {
+
+            return cookieOptions;
+        }
+
+
         // For more information on configuring authentication, please visit https://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
@@ -21,26 +28,25 @@ namespace MvcApp
             app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
             app.CreatePerOwinContext<ApplicationSignInManager>(ApplicationSignInManager.Create);
 
+            // These must match the data protection settings in MvcCoreApp Program.cs for cookie sharing to work
+            var sharedApplicationName = "CommonMvcAppName";
+            var sharedDataProtectionProvider = DataProtectionProvider.Create(
+                // This directory is used to share dataprotection keys between MvcApp and MvcCoreApp
+                new DirectoryInfo(Path.Combine(Path.GetTempPath(), "sharedkeys", sharedApplicationName)),
+                    builder => builder.SetApplicationName(sharedApplicationName))
+                    .CreateProtector(
+                        "Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationMiddleware",
+                        // Must match the Scheme name on the MvcCoreApp, i.e. IdentityConstants.ApplicationScheme
+                        "SharedCookie",
+                        "v2");
+
             // Enable the application to use a cookie to store information for the signed in user
             // and to use a cookie to temporarily store information about a user logging in with a third party login provider
             // Configure the sign in cookie
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
-                CookieName = ".AspNet.ApplicationCookie",
-                CookieSameSite = SameSiteMode.Lax,
-                SlidingExpiration = true,
-                ExpireTimeSpan = TimeSpan.FromMinutes(120),
                 LoginPath = new PathString("/Account/Login"),
-                TicketDataFormat = new AspNetTicketDataFormat(
-                    new DataProtectorShim(
-                        // This directory is used to share dataprotection keys between MvcApp and MvcCoreApp
-                        DataProtectionProvider.Create(new DirectoryInfo(Path.Combine(Path.GetTempPath(), "sharedkeys", "mvcapp")),
-                        builder => builder.SetApplicationName("CommonMvcAppName"))
-                        .CreateProtector(
-                            "Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationMiddleware",
-                            "Identity.Application",
-                            "v2"))),
                 Provider = new CookieAuthenticationProvider
                 {
                     // Enables the application to validate the security stamp when the user logs in.
@@ -48,7 +54,11 @@ namespace MvcApp
                     OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser>(
                         validateInterval: TimeSpan.FromMinutes(30),
                         regenerateIdentity: (manager, user) => user.GenerateUserIdentityAsync(manager))
-                }
+                },
+
+                // Settings to configure shared cookie with MvcCoreApp
+                CookieName = ".AspNet.ApplicationCookie",
+                TicketDataFormat = new AspNetTicketDataFormat(new DataProtectorShim(sharedDataProtectionProvider))
             });
 
             app.Map("/owin-info", app2 =>

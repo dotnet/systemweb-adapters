@@ -1,9 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MvcCoreApp.Models;
-using System.Diagnostics;
 
 namespace MvcCoreApp.Controllers
 {
@@ -19,7 +15,7 @@ namespace MvcCoreApp.Controllers
         [HttpPost]
         public IActionResult Logout()
         {
-            HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+            HttpContext.SignOutAsync("SharedCookie");
             return Redirect("/");
         }
 

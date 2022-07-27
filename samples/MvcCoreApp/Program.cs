@@ -1,26 +1,18 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SystemWebAdapters;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 // These must match the data protection settings in MvcApp Startup.Auth.cs for cookie sharing to work
+var sharedApplicationName = "CommonMvcAppName";
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Path.GetTempPath(), "sharedkeys", "mvcapp")))
-    .SetApplicationName("CommonMvcAppName");
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Path.GetTempPath(), "sharedkeys", sharedApplicationName)))
+    .SetApplicationName(sharedApplicationName);
 
 builder.Services.AddAuthentication()
-    .AddCookie(IdentityConstants.ApplicationScheme, options =>
-    {
-        options.Cookie.Name = ".AspNet.ApplicationCookie";
-        options.Cookie.SameSite = SameSiteMode.Lax;
-        options.Cookie.Path = "/";
-        options.Cookie.HttpOnly = true;
-        options.Cookie.IsEssential = true;
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(120);
-    });
+    .AddCookie("SharedCookie", options => options.Cookie.Name = ".AspNet.ApplicationCookie");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
