@@ -47,6 +47,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OIDCAuthCore", "samples\Rem
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.Framework.Tests", "test\Microsoft.AspNetCore.SystemWebAdapters.Framework.Tests\Microsoft.AspNetCore.SystemWebAdapters.Framework.Tests.csproj", "{23036CE4-A4D7-4A42-868A-1FB5211A41F0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAuth", "samples\RemoteAuth\Windows\WindowsAuth\WindowsAuth.csproj", "{E891991A-5261-4A31-B061-FEFD5E17D851}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAuthCore", "samples\RemoteAuth\Windows\WindowsAuthCore\WindowsAuthCore.csproj", "{660484BE-CBF5-4A1C-ABA2-FC5140BAC5E0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -113,6 +117,14 @@ Global
 		{23036CE4-A4D7-4A42-868A-1FB5211A41F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23036CE4-A4D7-4A42-868A-1FB5211A41F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23036CE4-A4D7-4A42-868A-1FB5211A41F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E891991A-5261-4A31-B061-FEFD5E17D851}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E891991A-5261-4A31-B061-FEFD5E17D851}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E891991A-5261-4A31-B061-FEFD5E17D851}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E891991A-5261-4A31-B061-FEFD5E17D851}.Release|Any CPU.Build.0 = Release|Any CPU
+		{660484BE-CBF5-4A1C-ABA2-FC5140BAC5E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{660484BE-CBF5-4A1C-ABA2-FC5140BAC5E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{660484BE-CBF5-4A1C-ABA2-FC5140BAC5E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{660484BE-CBF5-4A1C-ABA2-FC5140BAC5E0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -133,6 +145,8 @@ Global
 		{0BA8335A-9F56-4439-9A71-4BD5B58C2273} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 		{32192715-5F15-4E11-B96F-971468DA33E6} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 		{23036CE4-A4D7-4A42-868A-1FB5211A41F0} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
+		{E891991A-5261-4A31-B061-FEFD5E17D851} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
+		{660484BE-CBF5-4A1C-ABA2-FC5140BAC5E0} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DABA3C65-9D74-4EB6-9B1C-730328710EAD}

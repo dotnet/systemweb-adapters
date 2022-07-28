@@ -1,0 +1,30 @@
+{
+  "iisSettings": {
+    "windowsAuthentication": true,
+    "anonymousAuthentication": false,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:64474",
+      "sslPort": 44397
+    }
+  },
+  "profiles": {
+    "WindowsAuthCore": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "https://localhost:7289;http://localhost:5295",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ReverseProxy__Clusters__fallbackCluster__Destinations__fallbackApp__Address": "https://localhost:44347"
+      }
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ReverseProxy__Clusters__fallbackCluster__Destinations__fallbackApp__Address": "https://localhost:44347"
+      }
+    }
+  }
+}
