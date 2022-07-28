@@ -9,6 +9,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
 {
     internal class NonGenericCollectionWrapper<T> : ICollection
     {
+        private object? _syncRoot;
         private readonly ICollection<T> _collection;
 
         public NonGenericCollectionWrapper(ICollection<T> collection)
@@ -18,9 +19,9 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
 
         public int Count => _collection.Count;
 
-        public bool IsSynchronized => false;
+        public bool IsSynchronized => (_collection as ICollection)?.IsSynchronized ?? false;
 
-        public object SyncRoot => null!;
+        public object SyncRoot => _syncRoot ??= (_collection as ICollection)?.SyncRoot ?? new object();
 
         public void CopyTo(Array array, int index)
         {
