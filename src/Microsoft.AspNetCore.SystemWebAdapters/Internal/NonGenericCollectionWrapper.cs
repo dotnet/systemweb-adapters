@@ -19,9 +19,9 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
 
         public int Count => _collection.Count;
 
-        public bool IsSynchronized => false;
+        public bool IsSynchronized => (_collection as ICollection)?.IsSynchronized ?? false;
 
-        public object SyncRoot => _syncRoot ??= ((ICollection)_collection).SyncRoot ?? new object();
+        public object SyncRoot => _syncRoot ??= (_collection as ICollection)?.SyncRoot ?? new object();
 
         public void CopyTo(Array array, int index)
         {

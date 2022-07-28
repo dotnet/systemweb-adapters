@@ -58,9 +58,9 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
 
         public int Count => _original.Count;
 
-        public bool IsSynchronized => false;
+        public bool IsSynchronized => (_original as ICollection)?.IsSynchronized ?? false;
 
-        public object SyncRoot => _syncRoot ??= ((ICollection)_original).SyncRoot ?? new object();
+        public object SyncRoot => _syncRoot ??= (_original as ICollection)?.SyncRoot ?? new object();
 
         public void Add(object key, object? value) => _original.Add(key, value);
 

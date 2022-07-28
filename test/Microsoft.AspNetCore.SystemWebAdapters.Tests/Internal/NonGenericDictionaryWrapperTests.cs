@@ -28,22 +28,64 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
             Assert.False(wrapped.IsFixedSize);
         }
 
-        [Fact]
-        public void IsSynchronized()
+        [Theory]
+        [InlineData(null)]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void IsSynchronized(bool? isSynchronized)
         {
-            var dictionary = new Dictionary<object, object?>();
-            var wrapped = new NonGenericDictionaryWrapper(dictionary);
+            // Arrange
+            var dictionary = new Mock<IDictionary<object, object?>>();
 
-            Assert.False(wrapped.IsSynchronized);
+            if (isSynchronized.HasValue)
+            {
+                var collection = dictionary.As<ICollection>();
+                collection.Setup(c => c.IsSynchronized).Returns(isSynchronized.Value);
+            }
+
+            var wrapped = new NonGenericDictionaryWrapper(dictionary.Object);
+
+            // Act
+            var result = wrapped.IsSynchronized;
+
+            // Assert
+            Assert.Equal(isSynchronized ?? false, result);
         }
 
         [Fact]
-        public void SyncRoot()
+        public void NoSyncRoot()
         {
-            var dictionary = new Dictionary<object, object?>();
-            var wrapped = new NonGenericDictionaryWrapper(dictionary);
+            // Arrange
+            var dictionary = new Mock<IDictionary<object, object?>>();
+            var wrapped = new NonGenericDictionaryWrapper(dictionary.Object);
 
-            Assert.Equal(((ICollection)dictionary).SyncRoot, wrapped.SyncRoot);
+            // Act
+            var result1 = wrapped.SyncRoot;
+            var result2 = wrapped.SyncRoot;
+
+            // Assert
+            Assert.Same(result1, result2);
+        }
+
+        [Fact]
+        public void HasSyncRoot()
+        {
+            // Arrange
+            var dictionary = new Mock<IDictionary<object, object?>>();
+            var syncRoot = new object();
+
+            var collection = dictionary.As<ICollection>();
+            collection.Setup(c => c.SyncRoot).Returns(syncRoot);
+
+            var wrapped = new NonGenericDictionaryWrapper(dictionary.Object);
+
+            // Act
+            var result1 = wrapped.SyncRoot;
+            var result2 = wrapped.SyncRoot;
+
+            // Assert
+            Assert.Same(syncRoot, result1);
+            Assert.Same(syncRoot, result2);
         }
 
         [Theory]
