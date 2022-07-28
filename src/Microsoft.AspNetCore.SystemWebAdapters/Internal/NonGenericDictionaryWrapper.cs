@@ -11,6 +11,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
     {
         private readonly IDictionary<object, object?> _original;
 
+        private object? _syncRoot;
         private ICollection? _keys;
         private ICollection? _values;
 
@@ -59,7 +60,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
 
         public bool IsSynchronized => false;
 
-        public object SyncRoot => _original;
+        public object SyncRoot => _syncRoot ??= ((ICollection)_original).SyncRoot ?? new object();
 
         public void Add(object key, object? value) => _original.Add(key, value);
 
