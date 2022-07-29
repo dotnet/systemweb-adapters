@@ -208,6 +208,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters.Extensions\Microsoft.AspNetCore.SystemWebAdapters.Extensions.csproj">
+      <Project>{a01ba50e-e4c8-4eea-a4e2-c2312bc6b02e}</Project>
+      <Name>Microsoft.AspNetCore.SystemWebAdapters.Extensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj">
       <Project>{55c1bbe0-b922-46b0-8f2c-8472bc9a5f33}</Project>
       <Name>Microsoft.AspNetCore.SystemWebAdapters</Name>

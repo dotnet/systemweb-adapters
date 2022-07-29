@@ -3,7 +3,7 @@
 This project provides a collection of adapters that help migrating from `System.Web.dll` based ASP.NET projects to ASP.NET Core projects. The adapters currently include:
 
 - `Microsoft.AspNetCore.SystemWebAdapters`: Subset of the APIs from `System.Web.dll` backed by `Microsoft.AspNetCore.Http` types
-- `Microsoft.AspNetCore.SystemWebAdapters.SessionState`: Support for `System.Web.HttpContext.Session` usage
+- `Microsoft.AspNetCore.SystemWebAdapters.Extensions`: Support for adding services to ASP.NET Core and Framework applications to enable migration efforts
 
 These adapters help enable large scale, incremental migration from ASP.NET to ASP.NET Core. For more details on incremental migration from ASP.NET to ASP.NET Core, please see the [documentation](docs).
 
@@ -27,15 +27,13 @@ Below are the steps needed to start using the System.Web adapters with your ASP.
      </packageSources>
    </configuration>
    ```
-2. Install `Microsoft.AspNetCore.SystemWebAdapters`
-3. If you use `HttpContext.Session`, install `Microsoft.AspNetCore.SystemWebAdapters.SessionState`
-4. In your framework application:
-   - The package installation will add a new module to your `web.config`. This module handles any customizations that are required to help migrate to .NET Core. See [this](docs/framework.md) for details on what is available here.
-5. In your class libraries:
+2. Install `Microsoft.AspNetCore.SystemWebAdapters` to supporting libraries
    - Class libraries can target .NET Standard 2.0 if desired which will ensure you are using the shared surface area
    - If you find that there's still some missing APIs, you may cross-compile with .NET Framework to maintain that behavior and handle it in .NET core in some other way
    - There should be no manual changes to enable using supported surface area of the adapters. If a member is not found, it is not currently supported on ASP.NET Core
-6. For your ASP.NET Core application:
+3. Install `Microsoft.AspNetCore.SystemWebAdapters.Extensions` to your ASP.NET Core and Framework applications
+   - In your framework application the package installation will add a new module to your `web.config`. This module handles any customizations that are required to help migrate to .NET Core. See [this](docs/framework.md) for details on what is available here.
+4. For your ASP.NET Core application:
    - Register the adapter services:
      ```csharp
      builder.Services.AddSystemWebAdapters();

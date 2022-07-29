@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 
-public abstract class DelegatingSessionState : ISessionState
+internal abstract class DelegatingSessionState : ISessionState
 {
     private bool _disposedValue;
 

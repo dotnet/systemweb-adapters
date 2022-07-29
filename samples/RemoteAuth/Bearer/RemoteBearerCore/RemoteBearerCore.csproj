@@ -1,17 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Yarp.ReverseProxy" Version="1.1.0" />
   </ItemGroup>
-
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters.Extensions\Microsoft.AspNetCore.SystemWebAdapters.Extensions.csproj" />
     <ProjectReference Include="..\..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj" />
   </ItemGroup>
-
 </Project>
