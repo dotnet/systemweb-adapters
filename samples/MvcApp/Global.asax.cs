@@ -17,6 +17,12 @@ namespace MvcApp
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
+                .AddSessionKeyTracker(options =>
+                {
+                    options.OnRequest = result =>
+                    {
+                    };
+                })
                 .AddProxySupport(options => options.UseForwardedHeaders = true)
                 .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys))
                 .AddRemoteAppServer(remote => remote

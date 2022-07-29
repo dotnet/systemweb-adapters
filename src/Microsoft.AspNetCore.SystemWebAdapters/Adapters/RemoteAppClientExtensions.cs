@@ -5,7 +5,6 @@ using System;
 using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace Microsoft.Extensions.DependencyInjection;
-
 public static class RemoteAppClientExtensions
 {
     /// <summary>
