@@ -240,6 +240,49 @@ namespace System.Web
             return buffer;
         }
 
+        public void SaveAs(string filename, bool includeHeaders)
+        {
+            using var f = new FileStream(filename, FileMode.Create);
+
+            if (includeHeaders)
+            {
+                using var w = new StreamWriter(f, leaveOpen: true);
+
+                w.Write(HttpMethod);
+                w.Write(" ");
+                w.Write(Path);
+
+                // Includes the leading '?' if non-empty
+                w.Write(_request.QueryString);
+
+                w.Write(" ");
+                w.WriteLine(_request.Protocol);
+
+                foreach (var header in _request.Headers)
+                {
+                    w.Write(header.Key);
+                    w.Write(": ");
+                    w.WriteLine(header.Value);
+                }
+
+                w.WriteLine();
+            }
+
+            WriteTo(InputStream, f);
+        }
+
+        /// <summary>
+        /// Copies the entire stream, but ensures the position is reset to what it was when starting
+        /// </summary>
+        private static void WriteTo(Stream source, Stream destination)
+        {
+            var currentPosition = source.Position;
+
+            source.Position = 0;
+            source.CopyTo(destination);
+            source.Position = currentPosition;
+        }
+
         public void Abort() => _request.HttpContext.Abort();
 
         [return: NotNullIfNotNull("request")]
