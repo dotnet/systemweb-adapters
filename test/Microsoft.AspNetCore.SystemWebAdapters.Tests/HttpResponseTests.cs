@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -418,21 +419,46 @@ public class HttpResponseTests
     }
 
     [Fact]
-    public void WriteFile()
+    [Obsolete(System.Web.Constants.ApiFromAspNet)]
+    public Task WriteFile()
         => SendFileTest((response, file) => response.WriteFile(file));
 
     [Fact]
-    public void TransmitFile()
+    public Task WriteFileAsync()
+        => SendFileTestAsync((response, file, token) => response.WriteFileAsync(file, token));
+
+    [Fact]
+    [Obsolete(System.Web.Constants.ApiFromAspNet)]
+    public Task TransmitFile()
         => SendFileTest((response, file) => response.TransmitFile(file));
 
     [Fact]
-    public void TransmitFileArgs()
+    public Task TransmitFileAsync()
+        => SendFileTestAsync((response, file, token) => response.TransmitFileAsync(file, token));
+
+    [Fact]
+    [Obsolete(System.Web.Constants.ApiFromAspNet)]
+    public Task TransmitFileArgs()
         => SendFileTest((response, file, offset, length) => response.TransmitFile(file, offset, length!.Value), 30, 3);
 
-    private static void SendFileTest(Action<HttpResponse, string> action)
+    [Fact]
+    public Task TransmitFileArgsAsync()
+        => SendFileTestAsync((response, file, offset, length, token) => response.TransmitFileAsync(file, offset, length!.Value, token), 30, 3, hasToken: true);
+
+    private static Task SendFileTest(Action<HttpResponse, string> action)
         => SendFileTest((response, file, offset, length) => action(response, file), 0, default);
 
-    private static void SendFileTest(Action<HttpResponse, string, long, long?> action, long offset, long? length)
+    private static Task SendFileTestAsync(Func<HttpResponse, string, CancellationToken, Task> func)
+        => SendFileTestAsync((response, file, offset, length, token) => func(response, file, token), 0, default, hasToken: true);
+
+    private static Task SendFileTest(Action<HttpResponse, string, long, long?> action, long offset, long? length)
+        => SendFileTestAsync((response, file, offset, length, _) =>
+        {
+            action(response, file, offset, length);
+            return Task.CompletedTask;
+        }, offset, length, hasToken: false);
+
+    private static async Task SendFileTestAsync(Func<HttpResponse, string, long, long?, CancellationToken, Task> func, long offset, long? length, bool hasToken)
     {
         // Arrange
         const string FileName = "somefile.txt";
@@ -449,12 +475,15 @@ public class HttpResponseTests
         responseCore.Setup(r => r.HttpContext).Returns(context.Object);
 
         var response = new HttpResponse(responseCore.Object);
+        using var cts = new CancellationTokenSource();
+
+        var token = hasToken ? cts.Token : default;
 
         // Act
-        action(response, FileName, offset, length);
+        await func(response, FileName, offset, length, token);
 
         // Assert
-        responsebody.Verify(r => r.SendFileAsync(FileName, offset, length, default), Times.Once);
+        responsebody.Verify(r => r.SendFileAsync(FileName, offset, length, token), Times.Once);
     }
 
     [InlineData(200, false)]

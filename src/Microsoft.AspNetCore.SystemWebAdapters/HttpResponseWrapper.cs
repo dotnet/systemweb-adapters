@@ -4,6 +4,8 @@
 using System.Collections.Specialized;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace System.Web
 {
@@ -107,10 +109,25 @@ namespace System.Web
 
         public override void End() => _response.End();
 
+#if NET6_0_OR_GREATER
+        public override Task TransmitFileAsync(string filename, CancellationToken token) => _response.TransmitFileAsync(filename, token);
+
+        [Obsolete(HttpResponse.UseTransmitFileAsync)]
+#endif
         public override void TransmitFile(string filename) => _response.TransmitFile(filename);
 
+#if NET6_0_OR_GREATER
+        public override Task TransmitFileAsync(string filename, long offset, long length, CancellationToken token) => _response.TransmitFileAsync(filename, offset, length, token);
+
+        [Obsolete(HttpResponse.UseTransmitFileAsync)]
+#endif
         public override void TransmitFile(string filename, long offset, long length) => _response.TransmitFile(filename, offset, length);
 
+#if NET6_0_OR_GREATER
+        public override Task WriteFileAsync(string filename, CancellationToken token) => _response.WriteFileAsync(filename, token);
+
+        [Obsolete(HttpResponse.UseWriteFileAsync)]
+#endif
         public override void WriteFile(string filename) => _response.WriteFile(filename);
     }
 }
