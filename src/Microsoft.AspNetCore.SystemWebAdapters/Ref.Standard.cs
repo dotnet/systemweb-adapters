@@ -274,11 +274,14 @@ namespace System.Web
         public void RedirectPermanent(string url) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void RedirectPermanent(string url, bool endResponse) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void SetCookie(System.Web.HttpCookie cookie) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        [System.ObsoleteAttribute("Use TransmitFileAsync instead as this will cause sync over async")]
         public void TransmitFile(string filename) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        [System.ObsoleteAttribute("Use TransmitFileAsync instead as this will cause sync over async")]
         public void TransmitFile(string filename, long offset, long length) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void Write(char ch) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void Write(object obj) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public void Write(string s) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        [System.ObsoleteAttribute("Use WriteFileAsync instead as this will cause sync over async")]
         public void WriteFile(string filename) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
     }
     public partial class HttpResponseBase
@@ -307,11 +310,14 @@ namespace System.Web
         public virtual void ClearHeaders() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public virtual void End() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public virtual void SetCookie(System.Web.HttpCookie cookie) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        [System.ObsoleteAttribute("Use TransmitFileAsync instead as this will cause sync over async")]
         public virtual void TransmitFile(string filename) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        [System.ObsoleteAttribute("Use TransmitFileAsync instead as this will cause sync over async")]
         public virtual void TransmitFile(string filename, long offset, long length) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public virtual void Write(char ch) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public virtual void Write(object obj) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public virtual void Write(string s) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        [System.ObsoleteAttribute("Use WriteFileAsync instead as this will cause sync over async")]
         public virtual void WriteFile(string filename) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
     }
     public partial class HttpResponseWrapper : System.Web.HttpResponseBase
@@ -340,11 +346,14 @@ namespace System.Web
         public override void ClearHeaders() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public override void End() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public override void SetCookie(System.Web.HttpCookie cookie) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        [System.ObsoleteAttribute("Use TransmitFileAsync instead as this will cause sync over async")]
         public override void TransmitFile(string filename) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        [System.ObsoleteAttribute("Use TransmitFileAsync instead as this will cause sync over async")]
         public override void TransmitFile(string filename, long offset, long length) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public override void Write(char ch) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public override void Write(object obj) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public override void Write(string s) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        [System.ObsoleteAttribute("Use WriteFileAsync instead as this will cause sync over async")]
         public override void WriteFile(string filename) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
     }
     public sealed partial class HttpRuntime

@@ -105,25 +105,13 @@ namespace System.Web
 
         public virtual void ClearHeaders() => throw new NotImplementedException();
 
-#if NET6_0_OR_GREATER
-        public virtual Task WriteFileAsync(string filename, CancellationToken token) => throw new NotImplementedException();
-
         [Obsolete(HttpResponse.UseWriteFileAsync)]
-#endif
         public virtual void WriteFile(string filename) => throw new NotImplementedException();
 
-#if NET6_0_OR_GREATER
-        public virtual Task TransmitFileAsync(string filename, CancellationToken token) => throw new NotImplementedException();
-
         [Obsolete(HttpResponse.UseTransmitFileAsync)]
-#endif
         public virtual void TransmitFile(string filename) => throw new NotImplementedException();
 
-#if NET6_0_OR_GREATER
-        public virtual Task TransmitFileAsync(string filename, long offset, long length, CancellationToken token) => throw new NotImplementedException();
-
         [Obsolete(HttpResponse.UseTransmitFileAsync)]
-#endif
         public virtual void TransmitFile(string filename, long offset, long length) => throw new NotImplementedException();
     }
 }

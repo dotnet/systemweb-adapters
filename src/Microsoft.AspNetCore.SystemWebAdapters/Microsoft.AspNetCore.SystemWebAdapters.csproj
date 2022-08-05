@@ -41,6 +41,7 @@
     <Compile Remove="**/*" />
     <Compile Include="Properties/PropertyInfo.cs" />
     <Compile Include="Ref.Standard.cs" />
+    <Compile Include="HttpResponseAsyncExtensions.Shared.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">

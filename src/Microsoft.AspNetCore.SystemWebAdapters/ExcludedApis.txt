@@ -1,5 +1,6 @@
 T:Microsoft.AspNetCore.SystemWebAdapters.SystemWebAdaptersExtensions
 T:Microsoft.AspNetCore.SystemWebAdapters.ISystemWebAdapterBuilder
+T:System.Web.HttpResponseAsyncExtensions
 
 # Prebuffering
 T:Microsoft.AspNetCore.SystemWebAdapters.IPreBufferRequestStreamMetadata

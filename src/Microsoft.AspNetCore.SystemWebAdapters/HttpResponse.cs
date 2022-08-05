@@ -5,8 +5,6 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -241,30 +239,15 @@ namespace System.Web
             }
         }
 
-#if NET6_0_OR_GREATER
-        public Task WriteFileAsync(string filename, CancellationToken token)
-            => TransmitFileAsync(filename, token);
-
         [Obsolete(UseWriteFileAsync)]
-#endif
         public void WriteFile(string filename)
             => TransmitFile(filename);
 
-#if NET6_0_OR_GREATER
-        public Task TransmitFileAsync(string filename, CancellationToken token)
-            => TransmitFileAsync(filename, 0, -1, token);
-
         [Obsolete(UseTransmitFileAsync)]
-#endif
         public void TransmitFile(string filename)
             => TransmitFile(filename, 0, -1);
 
-#if NET6_0_OR_GREATER
-        public Task TransmitFileAsync(string filename, long offset, long length, CancellationToken token)
-            => _response.SendFileAsync(filename, offset, length >= 0 ? length : null, token);
-
         [Obsolete(UseTransmitFileAsync)]
-#endif
         public void TransmitFile(string filename, long offset, long length)
             => _response.SendFileAsync(filename, offset, length >= 0 ? length : null).GetAwaiter().GetResult();
 
