@@ -6,7 +6,9 @@ using System.Web.Caching;
 using System.Web.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Mvc;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -19,7 +21,8 @@ public static class SystemWebAdaptersExtensions
         services.AddSingleton<BrowserCapabilitiesFactory>();
         services.AddTransient<IStartupFilter, HttpContextStartupFilter>();
 
-        return new SystemWebAdapterBuilder(services);
+        return new SystemWebAdapterBuilder(services)
+            .AddMvc();
     }
 
     public static void UseSystemWebAdapters(this IApplicationBuilder app)
