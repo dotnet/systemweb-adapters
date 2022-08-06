@@ -23,21 +23,20 @@ internal partial class BufferResponseStreamMiddleware
     }
 
     public Task InvokeAsync(HttpContextCore context)
-        => context.GetEndpoint()?.Metadata.GetMetadata<BufferResponseStreamAttribute>() is { IsDisabled: false } metadata && context.Features.Get<IHttpResponseBodyFeature>() is { } feature
-            ? BufferResponseStreamAsync(context, feature, metadata)
+        => context.GetEndpoint()?.Metadata.GetMetadata<BufferResponseStreamAttribute>() is { IsDisabled: false } metadata
+            ? BufferResponseStreamAsync(context, metadata)
             : _next(context);
 
-    private async Task BufferResponseStreamAsync(HttpContextCore context, IHttpResponseBodyFeature feature, BufferResponseStreamAttribute metadata)
+    private async Task BufferResponseStreamAsync(HttpContextCore context, BufferResponseStreamAttribute metadata)
     {
         LogBuffering(metadata.BufferLimit, metadata.MemoryThreshold);
 
-        var originalBodyFeature = context.Features.Get<IHttpResponseBodyFeature>();
-        var originalBufferedResponseFeature = context.Features.Get<IBufferedResponseFeature>();
+        var responseBodyFeature = context.Features.GetRequired<IHttpResponseBodyFeature>();
 
-        await using var bufferedFeature = new BufferedHttpResponseFeature(feature, metadata);
+        await using var bufferedFeature = new HttpRequestAdapterFeature(responseBodyFeature, metadata);
 
         context.Features.Set<IHttpResponseBodyFeature>(bufferedFeature);
-        context.Features.Set<IBufferedResponseFeature>(bufferedFeature);
+        context.Features.Set<IHttpRequestAdapterFeature>(bufferedFeature);
 
         try
         {
@@ -46,8 +45,8 @@ internal partial class BufferResponseStreamMiddleware
         }
         finally
         {
-            context.Features.Set(originalBodyFeature);
-            context.Features.Set(originalBufferedResponseFeature);
+            context.Features.Set(responseBodyFeature);
+            context.Features.Set<IHttpRequestAdapterFeature>(null);
         }
     }
 }
