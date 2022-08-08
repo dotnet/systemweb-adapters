@@ -20,7 +20,7 @@ instructions provided by the bot. You will only need to do this once across all 
 
 ## Code of conduct
 
-See [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
+See [CODE-OF-CONDUCT.md](./CODE-OF-CONDUCT.md)
 
 ## Reporting security issues and bugs
 **Please do not report security vulnerabilities through public GitHub issues.**
