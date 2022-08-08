@@ -54,7 +54,7 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
         // Finish initializing the http client here since the scheme won't be known
         // until the owning authentication handler is initialized.
         _options = _authOptionsSnapshot.Get(scheme.Name);
-        _client.BaseAddress = new Uri(_remoteAppOptions.RemoteAppUrl, _options.AuthenticationEndpointPath);
+        _client.BaseAddress = new Uri($"{_remoteAppOptions.RemoteAppUrl.ToString().TrimEnd('/')}{_options.AuthenticationEndpointPath}");
         _client.DefaultRequestHeaders.Add(_remoteAppOptions.ApiKeyHeader, _remoteAppOptions.ApiKey);
 
         return Task.CompletedTask;

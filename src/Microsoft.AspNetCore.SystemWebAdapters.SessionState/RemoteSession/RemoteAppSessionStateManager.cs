@@ -37,7 +37,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
         // Use the HttpClient supplied in options if one is present;
         // otherwise, generate a client with an IHttpClientFactory from DI
         _client = remoteOptions.BackchannelHttpClient ?? httpClientFactory?.CreateClient(SessionConstants.SessionClientName) ?? throw new ArgumentNullException(nameof(httpClientFactory));
-        _client.BaseAddress = new Uri(remoteOptions.RemoteAppUrl, _options.SessionEndpointPath);
+        _client.BaseAddress = new Uri($"{remoteOptions.RemoteAppUrl.ToString().TrimEnd('/')}{_options.SessionEndpointPath}");
         _client.DefaultRequestHeaders.Add(remoteOptions.ApiKeyHeader, remoteOptions.ApiKey);
     }
 
