@@ -29,17 +29,20 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
     private RemoteAppAuthenticationClientOptions? _options;
 
     public RemoteAppAuthenticationService(
-        HttpClient client,
+        IHttpClientFactory httpClientFactory,
         IAuthenticationResultFactory resultFactory,
         IOptionsSnapshot<RemoteAppAuthenticationClientOptions> authOptions,
         IOptions<RemoteAppOptions> remoteAppOptions,
         ILogger<RemoteAppAuthenticationService> logger)
     {
-        _client = client ?? throw new ArgumentNullException(nameof(client));
+        _remoteAppOptions = remoteAppOptions?.Value ?? throw new ArgumentNullException(nameof(remoteAppOptions));
         _resultFactory = resultFactory ?? throw new ArgumentNullException(nameof(resultFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _remoteAppOptions = remoteAppOptions?.Value ?? throw new ArgumentNullException(nameof(remoteAppOptions));
         _authOptionsSnapshot = authOptions ?? throw new ArgumentNullException(nameof(authOptions));
+
+        // Use the HttpClient supplied in options if one is present;
+        // otherwise, generate a client with an IHttpClientFactory from DI
+        _client = _remoteAppOptions.BackchannelHttpClient ?? httpClientFactory?.CreateClient(AuthenticationConstants.AuthClientName) ?? throw new ArgumentNullException(nameof(httpClientFactory));
     }
 
     /// <summary>

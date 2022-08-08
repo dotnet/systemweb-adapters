@@ -4,6 +4,7 @@
 using System;
 #if NET6_0_OR_GREATER
 using System.ComponentModel.DataAnnotations;
+using System.Net.Http;
 #endif
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
@@ -37,5 +38,11 @@ public class RemoteAppOptions
     /// </summary>
     [Required]
     public Uri RemoteAppUrl { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets an HttpClient to use for making requests to the remote app.
+    /// A new HttpClient will be automatically generated if none is provided.
+    /// </summary>
+    public HttpClient? BackchannelHttpClient { get; set; }
 #endif
 }
