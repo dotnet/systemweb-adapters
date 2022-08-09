@@ -12,9 +12,19 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal class BufferedHttpResponseFeature : Stream, IHttpResponseBodyFeature, IBufferedResponseFeature
+/// <summary>
+/// This feature implements the <see cref="IHttpRequestAdapterFeature"/> to expose functionality for the adapters. As part of that,
+/// it overrides the following features as well:
+/// 
+/// <list>
+///   <item>
+///     <see cref="IHttpResponseBodyFeature"/>: Provide ability to turn off writing to the stream, while also supporting the ability to clear and suppress output
+///   </item>
+/// </list> 
+/// </summary>
+internal class HttpRequestAdapterFeature : Stream, IHttpResponseBodyFeature, IHttpRequestAdapterFeature
 {
-    public enum StreamState
+    private enum StreamState
     {
         NotStarted,
         Buffering,
@@ -22,48 +32,85 @@ internal class BufferedHttpResponseFeature : Stream, IHttpResponseBodyFeature, I
         Complete,
     }
 
-    private readonly IHttpResponseBodyFeature _other;
+    private readonly IHttpResponseBodyFeature _responseBodyFeature;
     private readonly BufferResponseStreamAttribute _metadata;
 
     private FileBufferingWriteStream? _bufferedStream;
     private PipeWriter? _pipeWriter;
+    private bool _suppressContent;
+    private StreamState _state; 
 
-    public BufferedHttpResponseFeature(IHttpResponseBodyFeature other, BufferResponseStreamAttribute metadata)
+    public HttpRequestAdapterFeature(IHttpResponseBodyFeature httpResponseBody, BufferResponseStreamAttribute metadata)
     {
-        _other = other;
+        _responseBodyFeature = httpResponseBody;
         _metadata = metadata;
-        State = StreamState.NotStarted;
+        _state = StreamState.NotStarted;
     }
 
-    public StreamState State { get; private set; }
+    Task IHttpResponseBodyFeature.CompleteAsync() => CompleteAsync();
 
-    public Stream Stream => this;
+    void IHttpResponseBodyFeature.DisableBuffering()
+    {
+        if (_state == StreamState.NotStarted)
+        {
+            _state = StreamState.NotBuffering;
+            _responseBodyFeature.DisableBuffering();
+            _pipeWriter = _responseBodyFeature.Writer;
+        }
+    }
 
-    public PipeWriter Writer => _pipeWriter ??= PipeWriter.Create(this, new StreamPipeWriterOptions(leaveOpen: true));
+    Task IHttpResponseBodyFeature.StartAsync(CancellationToken cancellationToken)
+    {
+        if (_state == StreamState.NotStarted)
+        {
+            _state = StreamState.Buffering;
+        }
 
-    public bool SuppressContent { get; set; }
+        return _responseBodyFeature.StartAsync(cancellationToken);
+    }
+
+    Stream IHttpResponseBodyFeature.Stream => this;
+
+    PipeWriter IHttpResponseBodyFeature.Writer => _pipeWriter ??= PipeWriter.Create(this, new StreamPipeWriterOptions(leaveOpen: true));
+
+    bool IHttpRequestAdapterFeature.SuppressContent
+    {
+        get => _suppressContent;
+        set => _suppressContent = value;
+    }
+
+    Task IHttpRequestAdapterFeature.EndAsync() => CompleteAsync();
+
+    bool IHttpRequestAdapterFeature.IsEnded => _state == StreamState.Complete;
+
+    void IHttpRequestAdapterFeature.ClearContent()
+    {
+        if (_bufferedStream is not null)
+        {
+            _bufferedStream.Dispose();
+            _bufferedStream = null;
+        }
+    }
 
     private Stream CurrentStream
     {
         get
         {
-            if (State == StreamState.NotBuffering)
+            if (_state == StreamState.NotBuffering)
             {
-                return _other.Stream;
+                return _responseBodyFeature.Stream;
             }
-            else if (State == StreamState.Complete)
+            else if (_state == StreamState.Complete)
             {
-                return Stream.Null;
+                return Null;
             }
             else
             {
-                State = StreamState.Buffering;
+                _state = StreamState.Buffering;
                 return _bufferedStream ??= new FileBufferingWriteStream(_metadata.MemoryThreshold, _metadata.BufferLimit);
             }
         }
     }
-
-    public void End() => CompleteAsync().GetAwaiter().GetResult();
 
     public override async ValueTask DisposeAsync()
     {
@@ -77,9 +124,9 @@ internal class BufferedHttpResponseFeature : Stream, IHttpResponseBodyFeature, I
 
     public async ValueTask FlushBufferedStreamAsync()
     {
-        if (State is StreamState.Buffering && _bufferedStream is not null && !SuppressContent)
+        if (_state is StreamState.Buffering && _bufferedStream is not null && !_suppressContent)
         {
-            await _bufferedStream.DrainBufferAsync(_other.Stream);
+            await _bufferedStream.DrainBufferAsync(_responseBodyFeature.Stream);
         }
     }
 
@@ -97,21 +144,12 @@ internal class BufferedHttpResponseFeature : Stream, IHttpResponseBodyFeature, I
         set => throw new NotSupportedException();
     }
 
-    public async Task CompleteAsync()
+
+    private async Task CompleteAsync()
     {
         await FlushBufferedStreamAsync();
-        await _other.CompleteAsync();
-        State = StreamState.Complete;
-    }
-
-    public void DisableBuffering()
-    {
-        if (State == StreamState.NotStarted)
-        {
-            State = StreamState.NotBuffering;
-            _other.DisableBuffering();
-            _pipeWriter = _other.Writer;
-        }
+        await _responseBodyFeature.CompleteAsync();
+        _state = StreamState.Complete;
     }
 
     public override void Flush() => CurrentStream.Flush();
@@ -127,16 +165,6 @@ internal class BufferedHttpResponseFeature : Stream, IHttpResponseBodyFeature, I
 
     public override void SetLength(long value) => throw new NotSupportedException();
 
-    public Task StartAsync(CancellationToken cancellationToken = default)
-    {
-        if (State == StreamState.NotStarted)
-        {
-            State = StreamState.Buffering;
-        }
-
-        return _other.StartAsync(cancellationToken);
-    }
-
     public override void Write(byte[] buffer, int offset, int count) => CurrentStream.Write(buffer, offset, count);
 
     public override void Write(ReadOnlySpan<byte> buffer) => CurrentStream.Write(buffer);
@@ -148,13 +176,4 @@ internal class BufferedHttpResponseFeature : Stream, IHttpResponseBodyFeature, I
 
     public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         => CurrentStream.WriteAsync(buffer, offset, count, cancellationToken);
-
-    public void ClearContent()
-    {
-        if (_bufferedStream is not null)
-        {
-            _bufferedStream.Dispose();
-            _bufferedStream = null;
-        }
-    }
 }

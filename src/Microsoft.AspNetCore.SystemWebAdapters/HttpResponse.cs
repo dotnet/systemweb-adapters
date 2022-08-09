@@ -25,7 +25,7 @@ namespace System.Web
 
         private NameValueCollection? _headers;
         private ResponseHeaders? _typedHeaders;
-        private IBufferedResponseFeature? _bufferedFeature;
+        private IHttpRequestAdapterFeature? _adapterFeature;
         private TextWriter? _writer;
         private HttpCookieCollection? _cookies;
 
@@ -34,8 +34,8 @@ namespace System.Web
             _response = response;
         }
 
-        private IBufferedResponseFeature BufferedFeature => _bufferedFeature ??= _response.HttpContext.Features.Get<IBufferedResponseFeature>()
-            ?? throw new InvalidOperationException("Response buffering must be enabled on this endpoint for this feature via the IBufferResponseStreamMetadata metadata item");
+        private IHttpRequestAdapterFeature AdapterFeature => _adapterFeature ??= _response.HttpContext.Features.Get<IHttpRequestAdapterFeature>()
+            ?? throw new InvalidOperationException($"Response buffering must be enabled on this endpoint for this API via the BufferResponseStreamAttribute metadata item");
 
         internal ResponseHeaders TypedHeaders => _typedHeaders ??= new(_response.Headers);
 
@@ -82,8 +82,8 @@ namespace System.Web
 
         public bool SuppressContent
         {
-            get => BufferedFeature.SuppressContent;
-            set => BufferedFeature.SuppressContent = value;
+            get => AdapterFeature.SuppressContent;
+            set => AdapterFeature.SuppressContent = value;
         }
 
         public Encoding ContentEncoding
@@ -201,7 +201,7 @@ namespace System.Web
 
         public void SetCookie(HttpCookie cookie) => Cookies.Set(cookie);
 
-        public void End() => BufferedFeature.End();
+        public void End() => AdapterFeature.EndAsync().GetAwaiter().GetResult();
 
         public void Write(char ch) => Output.Write(ch);
 
@@ -233,7 +233,7 @@ namespace System.Web
             }
             else
             {
-                BufferedFeature.ClearContent();
+                AdapterFeature.ClearContent();
             }
         }
 
