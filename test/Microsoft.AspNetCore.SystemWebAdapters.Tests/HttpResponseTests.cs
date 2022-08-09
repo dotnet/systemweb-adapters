@@ -108,11 +108,11 @@ public class HttpResponseTests
     public void SuppressContent(bool suppressContent)
     {
         // Arrange
-        var feature = new Mock<IBufferedResponseFeature>();
+        var feature = new Mock<IHttpRequestAdapterFeature>();
         feature.SetupProperty(f => f.SuppressContent);
 
         var features = new Mock<IFeatureCollection>();
-        features.Setup(f => f.Get<IBufferedResponseFeature>()).Returns(feature.Object);
+        features.Setup(f => f.Get<IHttpRequestAdapterFeature>()).Returns(feature.Object);
 
         var context = new Mock<HttpContextCore>();
         context.Setup(c => c.Features).Returns(features.Object);
@@ -135,10 +135,10 @@ public class HttpResponseTests
     public void End()
     {
         // Arrange
-        var feature = new Mock<IBufferedResponseFeature>();
+        var feature = new Mock<IHttpRequestAdapterFeature>();
 
         var features = new Mock<IFeatureCollection>();
-        features.Setup(f => f.Get<IBufferedResponseFeature>()).Returns(feature.Object);
+        features.Setup(f => f.Get<IHttpRequestAdapterFeature>()).Returns(feature.Object);
 
         var context = new Mock<HttpContextCore>();
         context.Setup(c => c.Features).Returns(features.Object);
@@ -153,7 +153,7 @@ public class HttpResponseTests
         response.End();
 
         // Assert
-        feature.Verify(f => f.End(), Times.Once);
+        feature.Verify(f => f.EndAsync(), Times.Once);
     }
 
     [Fact]
@@ -260,11 +260,11 @@ public class HttpResponseTests
             { HeaderNames.ContentType, "application/json" },
         };
 
-        var feature = new Mock<IBufferedResponseFeature>();
+        var feature = new Mock<IHttpRequestAdapterFeature>();
         var responseFeature = new Mock<IHttpResponseFeature>();
 
         var features = new Mock<IFeatureCollection>();
-        features.Setup(f => f.Get<IBufferedResponseFeature>()).Returns(feature.Object);
+        features.Setup(f => f.Get<IHttpRequestAdapterFeature>()).Returns(feature.Object);
         features.Setup(f => f.Get<IHttpResponseFeature>()).Returns(responseFeature.Object);
 
         var body = new Mock<Stream>();
@@ -292,11 +292,11 @@ public class HttpResponseTests
     public void ClearContentsStreamNotSeekable()
     {
         // Arrange
-        var feature = new Mock<IBufferedResponseFeature>();
+        var feature = new Mock<IHttpRequestAdapterFeature>();
         var body = new Mock<Stream>();
 
         var features = new Mock<IFeatureCollection>();
-        features.Setup(f => f.Get<IBufferedResponseFeature>()).Returns(feature.Object);
+        features.Setup(f => f.Get<IHttpRequestAdapterFeature>()).Returns(feature.Object);
 
         var context = new Mock<HttpContextCore>();
         context.Setup(c => c.Features).Returns(features.Object);
@@ -520,7 +520,7 @@ public class HttpResponseTests
         var url = _fixture.Create<string>();
         var features = new FeatureCollection();
 
-        var bufferedBody = new Mock<IBufferedResponseFeature>();
+        var bufferedBody = new Mock<IHttpRequestAdapterFeature>();
         bufferedBody.SetupAllProperties();
         features.Set(bufferedBody.Object);
 
@@ -545,6 +545,6 @@ public class HttpResponseTests
 
         // Assert
         responseCore.Verify(r => r.Redirect(url, true), Times.Once);
-        bufferedBody.Verify(b => b.End(), isEndCalled ? Times.Once : Times.Never);
+        bufferedBody.Verify(b => b.EndAsync(), isEndCalled ? Times.Once : Times.Never);
     }
 }
