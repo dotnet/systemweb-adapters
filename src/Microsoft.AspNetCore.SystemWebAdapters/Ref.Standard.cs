@@ -175,6 +175,7 @@ namespace System.Web
         public string[] UserLanguages { get { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");} }
         public void Abort() { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
         public byte[] BinaryRead(int count) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
+        public void SaveAs(string filename, bool includeHeaders) { throw new System.PlatformNotSupportedException("Only support when running on ASP.NET Core or System.Web");}
     }
     public abstract partial class HttpRequestBase
     {
