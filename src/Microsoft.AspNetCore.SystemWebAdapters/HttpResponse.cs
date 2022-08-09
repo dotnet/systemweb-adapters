@@ -36,7 +36,7 @@ namespace System.Web
             _response = response;
         }
 
-        private IHttpRequestAdapterFeature AdapterFeature => _adapterFeature ??= _response.HttpContext.Features.Get<IHttpRequestAdapterFeature>()
+        internal IHttpRequestAdapterFeature AdapterFeature => _adapterFeature ??= _response.HttpContext.Features.Get<IHttpRequestAdapterFeature>()
             ?? throw new InvalidOperationException($"Response buffering must be enabled on this endpoint for this API via the {nameof(BufferResponseStreamAttribute)} metadata item");
 
         internal ResponseHeaders TypedHeaders => _typedHeaders ??= new(_response.Headers);

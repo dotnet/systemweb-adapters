@@ -9,6 +9,10 @@ using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.Http;
 #endif
 
+#if NETSTANDARD2_0
+#pragma warning disable CS0618 // Type or member is obsolete
+#endif
+
 namespace System.Web;
 
 public static class HttpResponseAsyncExtensions
@@ -29,6 +33,16 @@ public static class HttpResponseAsyncExtensions
 #else
     {
         response.TransmitFile(filename, offset, length);
+        return Task.CompletedTask;
+    }
+#endif
+
+    public static Task EndAsync(this HttpResponse response)
+#if NET6_0_OR_GREATER
+        => response.AdapterFeature.EndAsync();
+#else
+    {
+        response.End();
         return Task.CompletedTask;
     }
 #endif
