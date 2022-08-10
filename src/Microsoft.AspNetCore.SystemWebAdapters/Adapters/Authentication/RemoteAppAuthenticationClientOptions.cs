@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
@@ -36,13 +35,6 @@ public class RemoteAppAuthenticationClientOptions : AuthenticationSchemeOptions
     /// are specified, all headers will be forwarded.
     /// </summary>
     public ICollection<string> ResponseHeadersToForward { get; } = new HashSet<string>(DefaultResponseHeadersToForward);
-
-    /// <summary>
-    /// The maximum time loading session state from the remote app
-    /// or committing changes to it can take before timing out.
-    /// </summary>
-    [Required]
-    public TimeSpan NetworkTimeout { get; set; } = TimeSpan.FromMinutes(1);
 
     /// <summary>
     /// Gets or sets the endpoint on the remote app that provides remote authentication
