@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;netstandard2.0;net472</TargetFrameworks>
+    <TargetFrameworks>net6.0;netstandard2.0;net45;net472</TargetFrameworks>
     <IsPackable>true</IsPackable>
 
     <!-- This will validate that the package will unify correctly with System.Web.dll -->
@@ -44,11 +44,16 @@
     <Using Include="Microsoft.AspNetCore.Http.HttpRequest" Alias="HttpRequestCore" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'net45' ">
     <Compile Remove="**/*" />
     <Compile Include="Properties/PropertyInfo.cs" />
     <Compile Include="Adapters/ISessionState.cs" />
     <Compile Include="TypeForwards.Framework.cs" />
+
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
 
     <Reference Include="System.Web" />
   </ItemGroup>

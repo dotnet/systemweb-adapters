@@ -26,7 +26,11 @@
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpSessionStateWrapper))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpUnhandledException))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.ISubscriptionToken))]
+
+#if NET472_OR_GREATER
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.SameSiteMode))]
+#endif
+
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Caching.Cache))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Caching.CacheDependency))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Caching.CacheItemPriority))]
