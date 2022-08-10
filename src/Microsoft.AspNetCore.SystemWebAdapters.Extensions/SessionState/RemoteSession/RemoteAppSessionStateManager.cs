@@ -17,26 +17,42 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
 internal partial class RemoteAppSessionStateManager : ISessionManager
 {
-    private readonly HttpClient _client;
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ISessionSerializer _serializer;
     private readonly ILogger<RemoteAppSessionStateManager> _logger;
     private readonly RemoteAppSessionStateClientOptions _options;
+    private readonly IOptions<RemoteAppOptions> _remoteAppOptions;
+    private HttpClient? _client;
+
+    private HttpClient Client
+    {
+        get
+        {
+            if (_client is null)
+            {
+                // Use the HttpClient supplied in options if one is present in options;
+                // otherwise, generate a client with an IHttpClientFactory from DI
+                _client = _remoteAppOptions.Value.BackchannelHttpClient ?? _httpClientFactory.CreateClient(SessionConstants.SessionClientName);
+                _client.BaseAddress = new Uri($"{_remoteAppOptions.Value.RemoteAppUrl.ToString().TrimEnd('/')}{_options.SessionEndpointPath}");
+                _client.DefaultRequestHeaders.Add(_remoteAppOptions.Value.ApiKeyHeader, _remoteAppOptions.Value.ApiKey);
+            }
+
+            return _client;
+        }
+    }
 
     public RemoteAppSessionStateManager(
-        HttpClient client,
+        IHttpClientFactory httpClientFactory,
         ISessionSerializer serializer,
         IOptions<RemoteAppSessionStateClientOptions> sessionOptions,
         IOptions<RemoteAppOptions> remoteAppOptions,
         ILogger<RemoteAppSessionStateManager> logger)
     {
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _remoteAppOptions = remoteAppOptions ?? throw new ArgumentNullException(nameof(remoteAppOptions));
         _options = sessionOptions?.Value ?? throw new ArgumentNullException(nameof(sessionOptions));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-
-        var remoteOptions = remoteAppOptions?.Value ?? throw new ArgumentNullException(nameof(remoteAppOptions));
-        _client.BaseAddress = new Uri(remoteOptions.RemoteAppUrl, _options.SessionEndpointPath);
-        _client.DefaultRequestHeaders.Add(remoteOptions.ApiKeyHeader, remoteOptions.ApiKey);
     }
 
     [LoggerMessage(EventId = 0, Level = LogLevel.Debug, Message = "Loaded {Count} items from remote session state for session {SessionId}")]
@@ -53,9 +69,6 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
 
     public async Task<ISessionState> CreateAsync(HttpContextCore context, SessionAttribute metadata)
     {
-        using var timeout = new CancellationTokenSource(_options.NetworkTimeout);
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, context.RequestAborted, context.RequestAborted);
-
         // If an existing remote session ID is present in the request, use its session ID.
         // Otherwise, leave session ID null for now; it will be provided by the remote service
         // when session data is loaded.
@@ -64,7 +77,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
         try
         {
             // Get or create session data
-            var response = await GetSessionDataAsync(sessionId, metadata.IsReadOnly, context, cts.Token);
+            var response = await GetSessionDataAsync(sessionId, metadata.IsReadOnly, context, context.RequestAborted);
 
             LogSessionLoad(response.Count, response.SessionID);
 
@@ -87,7 +100,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
         AddSessionCookieToHeader(req, sessionId);
         AddReadOnlyHeader(req, readOnly);
 
-        var response = await _client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, token);
+        var response = await Client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, token);
 
         LogRetrieveResponse(response.StatusCode);
 
@@ -119,9 +132,6 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
     /// </summary>
     private async Task SetOrReleaseSessionData(ISessionState? state, CancellationToken cancellationToken)
     {
-        using var timeout = new CancellationTokenSource(_options.NetworkTimeout);
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, cancellationToken);
-
         using var req = new HttpRequestMessage { Method = HttpMethod.Put };
 
         if (state is not null)
@@ -130,7 +140,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
             req.Content = new SerializedSessionHttpContent(_serializer, state);
         }
 
-        using var response = await _client.SendAsync(req, cts.Token);
+        using var response = await Client.SendAsync(req, cancellationToken);
 
         LogCommitResponse(response.StatusCode);
 

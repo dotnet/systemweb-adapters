@@ -4,6 +4,7 @@
 using System;
 using System.Net.Http;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -17,9 +18,12 @@ public static class RemoteAppSessionStateExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
-        builder.Services.AddHttpClient<ISessionManager, RemoteAppSessionStateManager>()
+        builder.Services.AddHttpClient(SessionConstants.SessionClientName)
             // Disable cookies in the HTTP client because the service will manage the cookie header directly
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { UseCookies = false });
+
+        builder.Services.AddTransient<ISessionManager, RemoteAppSessionStateManager>();
+
         builder.Services.AddOptions<RemoteAppSessionStateClientOptions>()
             .Configure(configure ?? (_ => { }))
             .ValidateDataAnnotations();

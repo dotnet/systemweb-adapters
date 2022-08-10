@@ -5,6 +5,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
 internal static class AuthenticationConstants
 {
+    internal const string AuthClientName = "RemoteAuthHttpClient";
+
     public const string ForwardedHostHeaderName = "x-forwarded-host";
     public const string ForwardedProtoHeaderName = "x-forwarded-proto";
     public const string MigrationAuthenticateRequestHeaderName = "x-migration-authenticate";

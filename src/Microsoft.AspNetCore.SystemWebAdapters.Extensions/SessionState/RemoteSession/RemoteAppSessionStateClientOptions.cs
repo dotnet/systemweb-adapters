@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations;
-using System;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
@@ -16,11 +15,4 @@ public class RemoteAppSessionStateClientOptions
     /// </summary>
     [Required]
     public string CookieName { get; set; } = SessionConstants.DefaultCookieName;
-
-    /// <summary>
-    /// The maximum time loading session state from the remote app
-    /// or committing changes to it can take before timing out.
-    /// </summary>
-    [Required]
-    public TimeSpan NetworkTimeout { get; set; } = TimeSpan.FromMinutes(1);
 }
