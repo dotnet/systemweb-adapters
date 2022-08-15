@@ -9,7 +9,7 @@
     <PackageReference Include="Moq" Version="4.16.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.Extensions\Microsoft.AspNetCore.SystemWebAdapters.Extensions.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Web" />

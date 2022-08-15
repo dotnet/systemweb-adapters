@@ -2,11 +2,12 @@
   "solution": {
     "path": "Microsoft.AspNetCore.SystemWebAdapters.sln",
     "projects": [
-      "src\\Microsoft.AspNetCore.SystemWebAdapters.Extensions\\Microsoft.AspNetCore.SystemWebAdapters.Extensions.csproj",
       "src\\Microsoft.AspNetCore.SystemWebAdapters\\Microsoft.AspNetCore.SystemWebAdapters.csproj",
-      "test\\Microsoft.AspNetCore.SystemWebAdapters.Extensions.Framework.Tests\\Microsoft.AspNetCore.SystemWebAdapters.Extensions.Framework.Tests.csproj",
-      "test\\Microsoft.AspNetCore.SystemWebAdapters.Extensions.Tests\\Microsoft.AspNetCore.SystemWebAdapters.Extensions.Tests.csproj",
+      "src\\Microsoft.AspNetCore.SystemWebAdapters.CoreServices\\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.csproj",
+      "src\\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices\\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.csproj",
       "test\\Microsoft.AspNetCore.SystemWebAdapters.Tests\\Microsoft.AspNetCore.SystemWebAdapters.Tests.csproj"
+      "test\\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests\\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests.csproj",
+      "test\\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.Tests\\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.Tests.csproj",
     ]
   }
 }
