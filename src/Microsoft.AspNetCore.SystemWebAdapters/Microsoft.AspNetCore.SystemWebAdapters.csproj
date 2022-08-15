@@ -47,7 +47,7 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'net45' ">
     <Compile Remove="**/*" />
     <Compile Include="Properties/PropertyInfo.cs" />
-    <Compile Include="Adapters/ISessionState.cs" />
+    <Compile Include="Adapters/**/*.cs" />
     <Compile Include="TypeForwards.Framework.cs" />
 
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2">
