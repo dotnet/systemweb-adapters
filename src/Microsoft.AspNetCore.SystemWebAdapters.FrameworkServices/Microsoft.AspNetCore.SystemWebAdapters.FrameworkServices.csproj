@@ -4,9 +4,18 @@
     <TargetFramework>net472</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <EnablePackageValidation>true</EnablePackageValidation>
     <RootNamespace>Microsoft.AspNetCore.SystemWebAdapters</RootNamespace>
     <UseSharedServices>true</UseSharedServices>
   </PropertyGroup>
+
+  <PropertyGroup Label="Package Information">
+    <Description>A collection of services for ASP.NET application to incorporate Microsoft.AspNetCore.SystemWebAdapters.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="Content\*" Pack="true" PackagePath="Content\" />
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="System.Web" />
