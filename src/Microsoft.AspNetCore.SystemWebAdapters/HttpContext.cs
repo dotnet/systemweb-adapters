@@ -58,6 +58,32 @@ public class HttpContext : IServiceProvider
 
     public DateTime Timestamp { get; } = DateTime.UtcNow.ToLocalTime();
 
+    public void RewritePath(string path)
+    {
+        if (path is null)
+        {
+            throw new ArgumentNullException(nameof(path));
+        }
+
+        // Extract query string
+        string? qs = null;
+        var iqs = path.IndexOf('?');
+
+        if (iqs >= 0)
+        {
+            qs = (iqs < path.Length - 1) ? path[iqs..] : string.Empty;
+            path = path[..iqs];
+        }
+
+        if (!path.StartsWith("/"))
+        {
+            path = "/" + path;
+        }
+
+        _context.Request.QueryString = new QueryString(qs);
+        _context.Request.Path = path;
+    }
+
     [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = Constants.ApiFromAspNet)]
     object? IServiceProvider.GetService(Type service)
     {

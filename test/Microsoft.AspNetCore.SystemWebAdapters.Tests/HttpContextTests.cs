@@ -240,5 +240,27 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             Assert.False(token.IsActive);
             disposable.Verify(d => d.Dispose(), Times.Once);
         }
+
+        [InlineData("path1", "/path1", "", 0)]
+        [InlineData("/path1", "/path1", "", 0)]
+        [InlineData("path1?", "/path1", "", 0)]
+        [InlineData("/path1?", "/path1", "", 0)]
+        [InlineData("path1?q=1", "/path1", "?q=1", 1)]
+        [InlineData("/path1?q=1", "/path1", "?q=1", 1)]
+        [Theory]
+        public void RewritePathNoQuery(string rewritePath, string finalPath, string finalQuery, int queryCount)
+        {
+            // Arrange
+            var coreContext = new DefaultHttpContext();
+            var context = new HttpContext(coreContext);
+
+            // Act
+            context.RewritePath(rewritePath);
+
+            // Assert
+            Assert.Equal(finalPath, coreContext.Request.Path);
+            Assert.Equal(new(finalQuery), coreContext.Request.QueryString);
+            Assert.Equal(queryCount, coreContext.Request.Query.Count);
+        }
     }
 }
