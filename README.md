@@ -32,9 +32,10 @@ Below are the steps needed to start using the System.Web adapters with your ASP.
    - Class libraries can target .NET Standard 2.0 if desired which will ensure you are using the shared surface area
    - If you find that there's still some missing APIs, you may cross-compile with .NET Framework to maintain that behavior and handle it in .NET core in some other way
    - There should be no manual changes to enable using supported surface area of the adapters. If a member is not found, it is not currently supported on ASP.NET Core
-3. Install `Microsoft.AspNetCore.SystemWebAdapters.Extensions` to your ASP.NET Core and Framework applications
-   - In your framework application the package installation will add a new module to your `web.config`. This module handles any customizations that are required to help migrate to .NET Core. See [this](docs/framework.md) for details on what is available here.
-4. For your ASP.NET Core application:
+3. Install `Microsoft.AspNetCore.SystemWebAdapters.CoreServices` to your ASP.NET Core application
+4. Install `Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices` to your ASP.NET Framework application
+   - The package installation will add a new module to your `web.config`. This module handles any customizations that are required to help migrate to .NET Core. See [this](docs/framework.md) for details on what is available here.
+5. For your ASP.NET Core application:
    - Register the adapter services:
      ```csharp
      builder.Services.AddSystemWebAdapters();
