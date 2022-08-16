@@ -67,7 +67,7 @@ public class HttpContext : IServiceProvider
 
         // Extract query string
         string? qs = null;
-        var iqs = path.IndexOf('?');
+        var iqs = path.IndexOf('?', StringComparison.Ordinal);
 
         if (iqs >= 0)
         {
@@ -75,7 +75,7 @@ public class HttpContext : IServiceProvider
             path = path[..iqs];
         }
 
-        if (!path.StartsWith("/"))
+        if (!path.StartsWith("/", StringComparison.Ordinal))
         {
             path = "/" + path;
         }
