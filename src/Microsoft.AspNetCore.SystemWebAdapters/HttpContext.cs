@@ -81,7 +81,7 @@ public class HttpContext : IServiceProvider
         }
 
         _context.Request.QueryString = new QueryString(qs);
-        _context.Request.Path = path;
+        _context.Request.Path = new PathString(path.Trim());
     }
 
     [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = Constants.ApiFromAspNet)]

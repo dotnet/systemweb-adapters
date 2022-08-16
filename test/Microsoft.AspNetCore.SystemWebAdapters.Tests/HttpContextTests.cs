@@ -247,8 +247,9 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         [InlineData("/path1?", "/path1", "", 0)]
         [InlineData("path1?q=1", "/path1", "?q=1", 1)]
         [InlineData("/path1?q=1", "/path1", "?q=1", 1)]
+        [InlineData("/path1 ?q=1", "/path1", "?q=1", 1)]
         [Theory]
-        public void RewritePathNoQuery(string rewritePath, string finalPath, string finalQuery, int queryCount)
+        public void RewritePath(string rewritePath, string finalPath, string finalQuery, int queryCount)
         {
             // Arrange
             var coreContext = new DefaultHttpContext();
@@ -261,6 +262,27 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             Assert.Equal(finalPath, coreContext.Request.Path);
             Assert.Equal(new(finalQuery), coreContext.Request.QueryString);
             Assert.Equal(queryCount, coreContext.Request.Query.Count);
+        }
+
+        [Fact]
+        public void RewritePathWithSpace()
+        {
+            // Arrange
+            var coreContext = new DefaultHttpContext();
+            var context = new HttpContext(coreContext);
+            var rewritePath = "/path1 withspace?q=1";
+
+            // Act
+            context.RewritePath(rewritePath);
+
+            // Assert
+            Assert.Equal("/path1%20withspace", coreContext.Request.Path);
+            Assert.Equal("/path1 withspace", context.Request.Path);
+            Assert.Collection(coreContext.Request.Query, q =>
+            {
+                Assert.Equal("q", q.Key);
+                Assert.Equal("1", q.Value);
+            });
         }
     }
 }
