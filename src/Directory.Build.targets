@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <UseSharedServices Condition=" '$(UseSharedServices)' == '' ">false</UseSharedServices>
+    <SharedServiceDirectory>$(MSBuildThisFileDirectory)Services</SharedServiceDirectory>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SharedServices Include="$(SharedServiceDirectory)/**/*.cs" />
+    
+    <Compile Condition="$(UseSharedServices)" Include="@(SharedServices)">
+       <Link>$([MSBuild]::MakeRelative($(SharedServiceDirectory), %(FullPath)))</Link>
+    </Compile>
+  </ItemGroup>
+
+  <Import Project="..\Directory.Build.targets" />
+</Project>

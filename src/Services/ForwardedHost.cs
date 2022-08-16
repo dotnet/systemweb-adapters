@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#if !NETSTANDARD
-
 #pragma warning disable CA2234 // Pass System.Uri objects instead of strings
 
 using System;
@@ -31,4 +29,3 @@ internal readonly struct ForwardedHost
 
     public int Port => _port is int port ? port : DefaultPort;
 }
-#endif
