@@ -2,11 +2,8 @@ using System;
 using System.IO;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
-using Microsoft.Owin.Security.DataHandler;
-using Microsoft.Owin.Security.Interop;
 using MvcApp.Models;
 using Owin;
 
@@ -14,26 +11,6 @@ namespace MvcApp
 {
     public partial class Startup
     {
-        public static CookieAuthenticationOptions ConfigureSharedCookie(string sharedApplicationName,
-            string cookieName,
-            string authScheme,
-            string sharedKeyDirectory,
-            CookieAuthenticationOptions options)
-        {
-            var sharedDataProtectionProvider = DataProtectionProvider.Create(
-                new DirectoryInfo(sharedKeyDirectory),
-                    builder => builder.SetApplicationName(sharedApplicationName))
-                    .CreateProtector(
-                        "Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationMiddleware",
-                        authScheme,
-                        "v2");
-
-            // Settings to configure shared cookie with MvcCoreApp
-            options.CookieName = cookieName;
-            options.TicketDataFormat = new AspNetTicketDataFormat(new DataProtectorShim(sharedDataProtectionProvider));
-            return options;
-        }
-
         // For more information on configuring authentication, please visit https://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
@@ -53,7 +30,7 @@ namespace MvcApp
             // Enable the application to use a cookie to store information for the signed in user
             // and to use a cookie to temporarily store information about a user logging in with a third party login provider
             // Configure the sign in cookie
-            app.UseCookieAuthentication(ConfigureSharedCookie(sharedApplicationName, sharedCookieName, authScheme, sharedKeyDirectory,
+            app.UseCookieAuthentication(app.ConfigureSharedCookie(sharedApplicationName, sharedCookieName, authScheme, sharedKeyDirectory,
                 new CookieAuthenticationOptions
                 {
                     AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
