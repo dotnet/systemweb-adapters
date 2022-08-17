@@ -13,6 +13,11 @@ public static class CookieExtensions
         string sharedKeyDirectory,
         CookieAuthenticationOptions options)
     {
+        if (options == null)
+        {
+            throw new ArgumentNullException(nameof(options));
+        }
+
         var sharedDataProtectionProvider = DataProtectionProvider.Create(
             new DirectoryInfo(sharedKeyDirectory),
                 builder => builder.SetApplicationName(sharedApplicationName))
