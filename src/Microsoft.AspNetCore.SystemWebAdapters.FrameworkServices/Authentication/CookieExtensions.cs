@@ -1,17 +1,14 @@
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Interop;
-using Owin;
 
 namespace Microsoft.Owin.Security.Cookies;
 
 public static class CookieExtensions
 {
-    public static CookieAuthenticationOptions ConfigureSharedCookie(this IAppBuilder app, string sharedApplicationName,
-        string cookieName,
+    public static void ConfigureSharedCookie(this CookieAuthenticationOptions options,
+        string sharedApplicationName,
         string authScheme,
-        string sharedKeyDirectory,
-        CookieAuthenticationOptions options)
+        string sharedKeyDirectory)
     {
         if (options == null)
         {
@@ -26,9 +23,6 @@ public static class CookieExtensions
                     authScheme,
                     "v2");
 
-        // Settings to configure shared cookie with MvcCoreApp
-        options.CookieName = cookieName;
         options.TicketDataFormat = new AspNetTicketDataFormat(new DataProtectorShim(sharedDataProtectionProvider));
-        return options;
     }
 }

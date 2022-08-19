@@ -21,29 +21,33 @@ namespace MvcApp
 
             // These must match the data protection settings in MvcCoreApp Program.cs for cookie sharing to work
             var sharedApplicationName = "CommonMvcAppName";
-            var sharedCookieName = ".AspNet.ApplicationCookie";
             // This directory is used to share dataprotection keys between MvcApp and MvcCoreApp
             var sharedKeyDirectory = Path.Combine(Path.GetTempPath(), "sharedkeys", sharedApplicationName);
             // Must match the Scheme name on the MvcCoreApp, i.e. IdentityConstants.ApplicationScheme
             var authScheme = "SharedCookie";
 
+            var cookieOptions = new CookieAuthenticationOptions
+            {
+                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+                LoginPath = new PathString("/Account/Login"),
+                Provider = new CookieAuthenticationProvider
+                {
+                    // Enables the application to validate the security stamp when the user logs in.
+                    // This is a security feature which is used when you change a password or add an external login to your account.  
+                    OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser>(
+                            validateInterval: TimeSpan.FromMinutes(30),
+                            regenerateIdentity: (manager, user) => user.GenerateUserIdentityAsync(manager))
+                },
+
+                // Settings to configure shared cookie with MvcCoreApp
+                CookieName = ".AspNet.ApplicationCookie"
+            };
+            cookieOptions.ConfigureSharedCookie(sharedApplicationName, authScheme, sharedKeyDirectory);
+
             // Enable the application to use a cookie to store information for the signed in user
             // and to use a cookie to temporarily store information about a user logging in with a third party login provider
             // Configure the sign in cookie
-            app.UseCookieAuthentication(app.ConfigureSharedCookie(sharedApplicationName, sharedCookieName, authScheme, sharedKeyDirectory,
-                new CookieAuthenticationOptions
-                {
-                    AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
-                    LoginPath = new PathString("/Account/Login"),
-                    Provider = new CookieAuthenticationProvider
-                    {
-                        // Enables the application to validate the security stamp when the user logs in.
-                        // This is a security feature which is used when you change a password or add an external login to your account.  
-                        OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser>(
-                            validateInterval: TimeSpan.FromMinutes(30),
-                            regenerateIdentity: (manager, user) => user.GenerateUserIdentityAsync(manager))
-                    }
-                }));
+            app.UseCookieAuthentication(cookieOptions);
  
             app.Map("/owin-info", app2 =>
             {
