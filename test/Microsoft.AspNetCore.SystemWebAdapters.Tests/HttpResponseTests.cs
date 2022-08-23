@@ -106,11 +106,11 @@ public class HttpResponseTests
     public void SuppressContent(bool suppressContent)
     {
         // Arrange
-        var feature = new Mock<IHttpRequestAdapterFeature>();
+        var feature = new Mock<IHttpResponseAdapterFeature>();
         feature.SetupProperty(f => f.SuppressContent);
 
         var features = new Mock<IFeatureCollection>();
-        features.Setup(f => f.Get<IHttpRequestAdapterFeature>()).Returns(feature.Object);
+        features.Setup(f => f[typeof(IHttpResponseAdapterFeature)]).Returns(feature.Object);
 
         var context = new Mock<HttpContextCore>();
         context.Setup(c => c.Features).Returns(features.Object);
@@ -133,10 +133,10 @@ public class HttpResponseTests
     public void End()
     {
         // Arrange
-        var feature = new Mock<IHttpRequestAdapterFeature>();
+        var feature = new Mock<IHttpResponseAdapterFeature>();
 
         var features = new Mock<IFeatureCollection>();
-        features.Setup(f => f.Get<IHttpRequestAdapterFeature>()).Returns(feature.Object);
+        features.Setup(f => f[typeof(IHttpResponseAdapterFeature)]).Returns(feature.Object);
 
         var context = new Mock<HttpContextCore>();
         context.Setup(c => c.Features).Returns(features.Object);
@@ -258,11 +258,11 @@ public class HttpResponseTests
             { HeaderNames.ContentType, "application/json" },
         };
 
-        var feature = new Mock<IHttpRequestAdapterFeature>();
+        var feature = new Mock<IHttpResponseAdapterFeature>();
         var responseFeature = new Mock<IHttpResponseFeature>();
 
         var features = new Mock<IFeatureCollection>();
-        features.Setup(f => f.Get<IHttpRequestAdapterFeature>()).Returns(feature.Object);
+        features.Setup(f => f[typeof(IHttpResponseAdapterFeature)]).Returns(feature.Object);
         features.Setup(f => f.Get<IHttpResponseFeature>()).Returns(responseFeature.Object);
 
         var body = new Mock<Stream>();
@@ -290,11 +290,11 @@ public class HttpResponseTests
     public void ClearContentsStreamNotSeekable()
     {
         // Arrange
-        var feature = new Mock<IHttpRequestAdapterFeature>();
+        var feature = new Mock<IHttpResponseAdapterFeature>();
         var body = new Mock<Stream>();
 
         var features = new Mock<IFeatureCollection>();
-        features.Setup(f => f.Get<IHttpRequestAdapterFeature>()).Returns(feature.Object);
+        features.Setup(f => f[typeof(IHttpResponseAdapterFeature)]).Returns(feature.Object);
 
         var context = new Mock<HttpContextCore>();
         context.Setup(c => c.Features).Returns(features.Object);
@@ -490,7 +490,7 @@ public class HttpResponseTests
         var url = _fixture.Create<string>();
         var features = new FeatureCollection();
 
-        var bufferedBody = new Mock<IHttpRequestAdapterFeature>();
+        var bufferedBody = new Mock<IHttpResponseAdapterFeature>();
         bufferedBody.SetupAllProperties();
         features.Set(bufferedBody.Object);
 
