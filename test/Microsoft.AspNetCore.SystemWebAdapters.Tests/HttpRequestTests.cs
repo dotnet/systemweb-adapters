@@ -458,10 +458,19 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             stream.Setup(s => s.Length).Returns(length);
             stream.Setup(s => s.CanSeek).Returns(true);
 
-            var coreRequest = new Mock<HttpRequestCore>();
-            coreRequest.Setup(c => c.Body).Returns(stream.Object);
+            var features = new FeatureCollection();
+            var context = new Mock<HttpContextCore>();
+            context.Setup(c => c.Features).Returns(features);
 
-            var request = new HttpRequest(coreRequest.Object);
+            var requestFeature = new Mock<IHttpRequestAdapterFeature>();
+            requestFeature.Setup(r => r.GetInputStream()).Returns(stream.Object);
+
+            features.Set(requestFeature.Object);
+
+            var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.HttpContext).Returns(context.Object);
+
+            var request = new HttpRequest(requestCore.Object);
 
             // Act
             var result = request.TotalBytes;
@@ -872,9 +881,19 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         {
             // Arrange
             var bytes = _fixture.CreateMany<byte>(50).ToArray();
+            var features = new FeatureCollection();
             using var body = new MemoryStream(bytes);
+
+            var context = new Mock<HttpContextCore>();
+            context.Setup(c => c.Features).Returns(features);
+
+            var requestFeature = new Mock<IHttpRequestAdapterFeature>();
+            requestFeature.Setup(r => r.GetInputStream()).Returns(body);
+
+            features.Set(requestFeature.Object);
+
             var requestCore = new Mock<HttpRequestCore>();
-            requestCore.Setup(r => r.Body).Returns(body);
+            requestCore.Setup(r => r.HttpContext).Returns(context.Object);
 
             var request = new HttpRequest(requestCore.Object);
 
@@ -890,9 +909,19 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         {
             // Arrange
             var bytes = _fixture.CreateMany<byte>(50).ToArray();
+            var features = new FeatureCollection();
             using var body = new MemoryStream(bytes);
+
+            var context = new Mock<HttpContextCore>();
+            context.Setup(c => c.Features).Returns(features);
+
+            var requestFeature = new Mock<IHttpRequestAdapterFeature>();
+            requestFeature.Setup(r => r.GetInputStream()).Returns(body);
+
+            features.Set(requestFeature.Object);
+
             var requestCore = new Mock<HttpRequestCore>();
-            requestCore.Setup(r => r.Body).Returns(body);
+            requestCore.Setup(r => r.HttpContext).Returns(context.Object);
 
             var request = new HttpRequest(requestCore.Object);
 
