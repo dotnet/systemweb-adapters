@@ -10,11 +10,11 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
 internal sealed class RemoteAppAuthenticationModule : IHttpModule
 {
-    private readonly RemoteAppOptions _remoteAppOptions;
+    private readonly RemoteAppServerOptions _remoteAppOptions;
     private readonly RemoteAppAuthenticationServerOptions _authOptions;
     private readonly RemoteAppAuthenticationHttpHandler _remoteAppAuthHandler;
 
-    public RemoteAppAuthenticationModule(IOptions<RemoteAppOptions> remoteAppOptions, IOptions<RemoteAppAuthenticationServerOptions> authOptions)
+    public RemoteAppAuthenticationModule(IOptions<RemoteAppServerOptions> remoteAppOptions, IOptions<RemoteAppAuthenticationServerOptions> authOptions)
     {
         if (authOptions is null)
         {

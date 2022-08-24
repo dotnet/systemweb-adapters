@@ -24,7 +24,7 @@ public static class RemoteAppClientExtensions
             throw new ArgumentNullException(nameof(configure));
         }
 
-        builder.Services.AddOptions<RemoteAppOptions>()
+        builder.Services.AddOptions<RemoteAppClientOptions>()
             .ValidateDataAnnotations();
 
         configure(new Builder(builder.Services));
@@ -32,7 +32,7 @@ public static class RemoteAppClientExtensions
         return builder;
     }
 
-    public static ISystemWebAdapterRemoteClientAppBuilder Configure(this ISystemWebAdapterRemoteClientAppBuilder builder, Action<RemoteAppOptions> configure)
+    public static ISystemWebAdapterRemoteClientAppBuilder Configure(this ISystemWebAdapterRemoteClientAppBuilder builder, Action<RemoteAppClientOptions> configure)
     {
         if (builder is null)
         {
@@ -44,7 +44,7 @@ public static class RemoteAppClientExtensions
             throw new ArgumentNullException(nameof(configure));
         }
 
-        builder.Services.AddOptions<RemoteAppOptions>()
+        builder.Services.AddOptions<RemoteAppClientOptions>()
             .Configure(configure);
 
         return builder;

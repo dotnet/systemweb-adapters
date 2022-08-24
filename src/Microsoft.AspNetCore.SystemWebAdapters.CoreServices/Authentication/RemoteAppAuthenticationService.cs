@@ -25,14 +25,15 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
     private readonly IAuthenticationResultFactory _resultFactory;
     private readonly ILogger<RemoteAppAuthenticationService> _logger;
     private readonly IOptionsSnapshot<RemoteAppAuthenticationClientOptions> _authOptionsSnapshot;
-    private readonly RemoteAppOptions _remoteAppOptions;
+    private readonly RemoteAppClientOptions _remoteAppOptions;
+
     private RemoteAppAuthenticationClientOptions? _options;
 
     public RemoteAppAuthenticationService(
         IHttpClientFactory httpClientFactory,
         IAuthenticationResultFactory resultFactory,
         IOptionsSnapshot<RemoteAppAuthenticationClientOptions> authOptions,
-        IOptions<RemoteAppOptions> remoteAppOptions,
+        IOptions<RemoteAppClientOptions> remoteAppOptions,
         ILogger<RemoteAppAuthenticationService> logger)
     {
         _remoteAppOptions = remoteAppOptions?.Value ?? throw new ArgumentNullException(nameof(remoteAppOptions));

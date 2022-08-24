@@ -21,7 +21,8 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
     private readonly ISessionSerializer _serializer;
     private readonly ILogger<RemoteAppSessionStateManager> _logger;
     private readonly RemoteAppSessionStateClientOptions _options;
-    private readonly IOptions<RemoteAppOptions> _remoteAppOptions;
+    private readonly IOptions<RemoteAppClientOptions> _remoteAppOptions;
+
     private HttpClient? _client;
 
     private HttpClient Client
@@ -45,7 +46,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
         IHttpClientFactory httpClientFactory,
         ISessionSerializer serializer,
         IOptions<RemoteAppSessionStateClientOptions> sessionOptions,
-        IOptions<RemoteAppOptions> remoteAppOptions,
+        IOptions<RemoteAppClientOptions> remoteAppOptions,
         ILogger<RemoteAppSessionStateManager> logger)
     {
         _remoteAppOptions = remoteAppOptions ?? throw new ArgumentNullException(nameof(remoteAppOptions));
