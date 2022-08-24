@@ -88,6 +88,7 @@ public class ServerVariablesNameValueCollectionTests
         var results = collection.GetValues(key);
 
         // Assert
+        Assert.NotNull(results);
         Assert.Equal(value, result);
         Assert.Collection(results, r => Assert.Equal(value, r));
     }
