@@ -25,8 +25,8 @@ public static class RemoteAppServerExtensions
         }
 
         var options = builder.Services.AddOptions<RemoteAppOptions>()
-            .Validate(options => !string.IsNullOrEmpty(options.ApiKey), "ApiKey must be set")
-            .Validate(options => !string.IsNullOrEmpty(options.ApiKeyHeader), "ApiKeyHeader must be set");
+            .Validate(options => !string.IsNullOrEmpty(options.ApiKeyHeader), "ApiKeyHeader must be set")
+            .Validate(RemoteAppOptions.Validate, "ApiKey must be a non-empty GUID");
 
         configure(new Builder(builder.Services));
 

@@ -17,7 +17,8 @@ namespace OIDCAuth
             SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
                 .AddProxySupport(options => options.UseForwardedHeaders = true)
                 .AddRemoteAppServer(remote => remote
-                    .Configure(options => options.ApiKey = "test-key")
+                    // Do not re-use this ApiKey; every solution should use a unique ApiKey
+                    .Configure(options => options.ApiKey = "121257f2-c121-4f51-b30c-d1f617933290")
                     .AddAuthentication());
 
         }

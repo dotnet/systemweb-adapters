@@ -19,7 +19,8 @@ namespace FormsAuth
                 .AddRemoteAppServer(remote => remote
                     .Configure(options =>
                     {
-                        options.ApiKey = "FormsAuthSampleKey";
+                        // Do not re-use this ApiKey; every solution should use a unique ApiKey
+                        options.ApiKey = "8e470586-24e5-4f2a-8245-69bbdbf9f767";
                     })
                     .AddAuthentication());
         }

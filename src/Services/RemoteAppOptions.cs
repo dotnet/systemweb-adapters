@@ -1,8 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 #if NET6_0_OR_GREATER
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http;
 #endif
@@ -45,4 +45,9 @@ public class RemoteAppOptions
     /// </summary>
     public HttpClient? BackchannelHttpClient { get; set; }
 #endif
+
+    // To ensure secure API keys are used, enforce that
+    // keys are parsable as GUIDs
+    public static bool Validate(RemoteAppOptions options) =>
+        Guid.TryParse(options.ApiKey, out var keyGuid) && keyGuid != Guid.Empty;
 }

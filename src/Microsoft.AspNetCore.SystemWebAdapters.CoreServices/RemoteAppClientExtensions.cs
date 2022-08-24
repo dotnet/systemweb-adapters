@@ -25,7 +25,8 @@ public static class RemoteAppClientExtensions
         }
 
         builder.Services.AddOptions<RemoteAppOptions>()
-            .ValidateDataAnnotations();
+            .ValidateDataAnnotations()
+            .Validate(RemoteAppOptions.Validate, "ApiKey must be a non-empty GUID");
 
         configure(new Builder(builder.Services));
 
