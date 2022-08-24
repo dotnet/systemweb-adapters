@@ -24,7 +24,11 @@ public static class SystemWebAdapterConfiguration
         {
             if (application.Application[Key] is null)
             {
-                application.Application[Key] = new SystemWebAdapterBuilder(new ServiceCollection());
+                var services = new ServiceCollection();
+
+                services.AddLogging();
+
+                application.Application[Key] = new SystemWebAdapterBuilder(services);
 
                 // If a service provider has been created, ensure it's disposed at
                 // application shutdown.
