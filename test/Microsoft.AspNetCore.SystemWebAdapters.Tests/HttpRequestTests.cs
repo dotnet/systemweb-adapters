@@ -11,6 +11,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
+using System.Web;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -463,7 +464,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             context.Setup(c => c.Features).Returns(features);
 
             var requestFeature = new Mock<IHttpRequestAdapterFeature>();
-            requestFeature.Setup(r => r.GetInputStream()).Returns(stream.Object);
+            requestFeature.Setup(r => r.InputStream).Returns(stream.Object);
 
             features.Set(requestFeature.Object);
 
@@ -888,7 +889,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             context.Setup(c => c.Features).Returns(features);
 
             var requestFeature = new Mock<IHttpRequestAdapterFeature>();
-            requestFeature.Setup(r => r.GetInputStream()).Returns(body);
+            requestFeature.Setup(r => r.InputStream).Returns(body);
 
             features.Set(requestFeature.Object);
 
@@ -916,7 +917,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             context.Setup(c => c.Features).Returns(features);
 
             var requestFeature = new Mock<IHttpRequestAdapterFeature>();
-            requestFeature.Setup(r => r.GetInputStream()).Returns(body);
+            requestFeature.Setup(r => r.InputStream).Returns(body);
 
             features.Set(requestFeature.Object);
 
@@ -999,6 +1000,102 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Assert
             Assert.Same(files1, files2);
             Assert.Same(files1.FormFiles, formFiles.Object);
+        }
+
+        [Fact]
+        public void InputStreamFromFeature()
+        {
+            // Arrange
+            var stream = new Mock<Stream>();
+
+            var adapterFeature = new Mock<IHttpRequestAdapterFeature>();
+            adapterFeature.Setup(f => f.InputStream).Returns(stream.Object);
+
+            var features = new FeatureCollection();
+            features.Set(adapterFeature.Object);
+
+            var coreContext = new DefaultHttpContext(features);
+
+            var request = new HttpRequest(coreContext.Request);
+
+            // Act
+            var inputStream = request.InputStream;
+
+            // Assert
+            Assert.Same(stream.Object, inputStream);
+        }
+
+        [Fact]
+        public void BufferedStream()
+        {
+            // Arrange
+            var stream = new Mock<Stream>();
+
+            var adapterFeature = new Mock<IHttpRequestAdapterFeature>();
+            adapterFeature.Setup(f => f.GetBufferedInputStream()).Returns(stream.Object);
+
+            var features = new FeatureCollection();
+            features.Set(adapterFeature.Object);
+
+            var coreContext = new DefaultHttpContext(features);
+
+            var request = new HttpRequest(coreContext.Request);
+
+            // Act
+            var bufferedStream = request.GetBufferedInputStream();
+
+            // Assert
+            Assert.Same(stream.Object, bufferedStream);
+        }
+
+        [Fact]
+        public void BufferlessStream()
+        {
+            // Arrange
+            var stream = new Mock<Stream>();
+
+            var adapterFeature = new Mock<IHttpRequestAdapterFeature>();
+            adapterFeature.Setup(f => f.GetBufferlessInputStream()).Returns(stream.Object);
+
+            var features = new FeatureCollection();
+            features.Set(adapterFeature.Object);
+
+            var coreContext = new DefaultHttpContext(features);
+
+            var request = new HttpRequest(coreContext.Request);
+
+            // Act
+            var bufferedStream = request.GetBufferlessInputStream();
+
+            // Assert
+            Assert.Same(stream.Object, bufferedStream);
+        }
+
+        [Theory]
+        [InlineData(ReadEntityBodyMode.None)]
+        [InlineData(ReadEntityBodyMode.Classic)]
+        [InlineData(ReadEntityBodyMode.Bufferless)]
+        [InlineData(ReadEntityBodyMode.Buffered)]
+        public void EntityReadMode(ReadEntityBodyMode mode)
+        {
+            // Arrange
+            var stream = new Mock<Stream>();
+
+            var adapterFeature = new Mock<IHttpRequestAdapterFeature>();
+            adapterFeature.Setup(f => f.Mode).Returns(mode);
+
+            var features = new FeatureCollection();
+            features.Set(adapterFeature.Object);
+
+            var coreContext = new DefaultHttpContext(features);
+
+            var request = new HttpRequest(coreContext.Request);
+
+            // Act
+            var result = request.ReadEntityBodyMode;
+
+            // Assert
+            Assert.Equal(mode, result);
         }
     }
 }
