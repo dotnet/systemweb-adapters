@@ -42,4 +42,3 @@ app.Run();
 ```
 
 This opts into all the behavior (described below), as well as sets up a remote session state (see [here](session-state/session.md) for details).
-

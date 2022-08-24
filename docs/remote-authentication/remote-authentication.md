@@ -15,12 +15,13 @@ SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
     .AddProxySupport(options => options.UseForwardedHeaders = true)
     .AddRemoteApp(options =>
     {
-        options.ApiKey = "MySecretKey";
+        // ApiKey is a string representing a GUID
+        options.ApiKey = "00000000-0000-0000-0000-000000000000";
     })
     .AddRemoteAppAuthentication();
 ```
 
-In the options configuration method passed to the `AddRemoteApp` call, you must specify an API key which is used to secure the endpoint so that only trusted callers can make requests to it (this same API key will be provided to the ASP.NET Core app when it is configured).
+In the options configuration method passed to the `AddRemoteApp` call, you must specify an API key which is used to secure the endpoint so that only trusted callers can make requests to it (this same API key will be provided to the ASP.NET Core app when it is configured). The API key is a string and must be parsable as a GUID (128-bit hex number). Hyphens in the key are optional.
 
 ### ASP.NET Core app configuration
 
@@ -31,7 +32,9 @@ builder.Services.AddSystemWebAdapters()
     .AddRemoteApp(options =>
     {
         options.RemoteAppUrl = new(builder.Configuration["http://URL-for-the-ASPNet-app"]);
-        options.ApiKey = "MySecretKey";
+
+        // ApiKey is a string representing a GUID
+        options.ApiKey = "00000000-0000-0000-0000-000000000000";
     })
     .AddRemoteAppAuthentication(true);
 ```
@@ -51,6 +54,14 @@ Finally, if the ASP.NET Core app didn't previously include authentication middle
 ```CSharp
 app.UseAuthentication();
 ```
+
+## Securing the remote app connection
+
+Because remote app authentication involves serving requests on a new endpoint from the ASP.NET app, it's important that communication to and from the ASP.NET app be secure.
+
+First, make sure that the API key string used to authenticate the ASP.NET Core app with the ASP.NET app is unique and kept secret. It is a best practice to not store the API key in source control. Instead, load it at runtime from a secure source such as Azure Key Vault or other secure runtime configuration. In order to encourage secure API keys, remote app connections require that the keys be non-empty GUIDs (128-bit hex numbers).
+
+Second, because it's important for the ASP.NET Core app to be able to trust that it is requesting identity information from the correct ASP.NET app, the ASP.NET app should use HTTPS in any production scenarios so that the ASP.NET Core app can know identity is being served by a trusted source.
 
 ## Design
 
