@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal interface IHttpRequestAdapterFeature
+internal interface IHttpResponseAdapterFeature
 {
     bool IsEnded { get; }
 

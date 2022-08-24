@@ -33,10 +33,10 @@ internal partial class BufferResponseStreamMiddleware
 
         var responseBodyFeature = context.Features.GetRequired<IHttpResponseBodyFeature>();
 
-        await using var bufferedFeature = new HttpRequestAdapterFeature(responseBodyFeature, metadata);
+        await using var bufferedFeature = new HttpResponseAdapterFeature(responseBodyFeature, metadata);
 
         context.Features.Set<IHttpResponseBodyFeature>(bufferedFeature);
-        context.Features.Set<IHttpRequestAdapterFeature>(bufferedFeature);
+        context.Features.Set<IHttpResponseAdapterFeature>(bufferedFeature);
 
         try
         {
@@ -46,7 +46,7 @@ internal partial class BufferResponseStreamMiddleware
         finally
         {
             context.Features.Set(responseBodyFeature);
-            context.Features.Set<IHttpRequestAdapterFeature>(null);
+            context.Features.Set<IHttpResponseAdapterFeature>(null);
         }
     }
 }

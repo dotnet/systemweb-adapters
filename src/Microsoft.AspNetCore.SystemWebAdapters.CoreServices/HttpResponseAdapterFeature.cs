@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.WebUtilities;
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 /// <summary>
-/// This feature implements the <see cref="IHttpRequestAdapterFeature"/> to expose functionality for the adapters. As part of that,
+/// This feature implements the <see cref="IHttpResponseAdapterFeature"/> to expose functionality for the adapters. As part of that,
 /// it overrides the following features as well:
 /// 
 /// <list>
@@ -22,7 +22,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 ///   </item>
 /// </list> 
 /// </summary>
-internal class HttpRequestAdapterFeature : Stream, IHttpResponseBodyFeature, IHttpRequestAdapterFeature
+internal class HttpResponseAdapterFeature : Stream, IHttpResponseBodyFeature, IHttpResponseAdapterFeature
 {
     private enum StreamState
     {
@@ -40,7 +40,7 @@ internal class HttpRequestAdapterFeature : Stream, IHttpResponseBodyFeature, IHt
     private bool _suppressContent;
     private StreamState _state; 
 
-    public HttpRequestAdapterFeature(IHttpResponseBodyFeature httpResponseBody, BufferResponseStreamAttribute metadata)
+    public HttpResponseAdapterFeature(IHttpResponseBodyFeature httpResponseBody, BufferResponseStreamAttribute metadata)
     {
         _responseBodyFeature = httpResponseBody;
         _metadata = metadata;
@@ -73,17 +73,17 @@ internal class HttpRequestAdapterFeature : Stream, IHttpResponseBodyFeature, IHt
 
     PipeWriter IHttpResponseBodyFeature.Writer => _pipeWriter ??= PipeWriter.Create(this, new StreamPipeWriterOptions(leaveOpen: true));
 
-    bool IHttpRequestAdapterFeature.SuppressContent
+    bool IHttpResponseAdapterFeature.SuppressContent
     {
         get => _suppressContent;
         set => _suppressContent = value;
     }
 
-    Task IHttpRequestAdapterFeature.EndAsync() => CompleteAsync();
+    Task IHttpResponseAdapterFeature.EndAsync() => CompleteAsync();
 
-    bool IHttpRequestAdapterFeature.IsEnded => _state == StreamState.Complete;
+    bool IHttpResponseAdapterFeature.IsEnded => _state == StreamState.Complete;
 
-    void IHttpRequestAdapterFeature.ClearContent()
+    void IHttpResponseAdapterFeature.ClearContent()
     {
         if (_bufferedStream is not null)
         {
