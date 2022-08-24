@@ -1,3 +1,4 @@
+using System.Configuration;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
@@ -20,7 +21,7 @@ namespace MvcApp
                 .AddProxySupport(options => options.UseForwardedHeaders = true)
                 .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys))
                 .AddRemoteAppServer(remote => remote
-                    .Configure(options => options.ApiKey = ClassLibrary.RemoteServiceUtils.ApiKey)
+                    .Configure(options => options.ApiKey = ConfigurationManager.AppSettings["RemoteAppApiKey"])
                     .AddAuthentication()
                     .AddSession());
         }
