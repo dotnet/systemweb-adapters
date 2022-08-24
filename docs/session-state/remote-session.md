@@ -16,12 +16,9 @@ builder.Services.AddSystemWebAdapters()
 
 ## Configuration
 
-In order to configure it, both the framework and core app must set an API key as well as register known app settings types. These properties are:
+First, follow the [remote app setup](../remote-app-setup.md) instructions to connect the ASP.NET Core and ASP.NET apps. Then, there are just a couple extra extension methods to call to enable remote app session state.
 
-- `ApiKeyHeader` - header name that will contain an API key to secure the endpoint added on .NET Framework
-- `ApiKey` - the shared API key that will be validated in the .NET Framework handler
-
-Configuration for ASP.NET Core would look similar to the following:
+Configuration for ASP.NET Core involves calling `AddRemoteAppSession` and `AddJsonSessionSerializer` to register known session item types. The code should look similar to the following:
 
 ```csharp
 builder.Services.AddSystemWebAdapters()
@@ -61,7 +58,6 @@ app.MapDefaultControllerRoute()
     .RequireSystemWebAdapterSession();
 ```
 
-
 The framework equivalent would look like the following change in `Global.asax.cs`:
 
 ```csharp
@@ -77,14 +73,6 @@ SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
         options.RegisterKey<SessionDemoModel>("SampleSessionItem");
     });
 ```
-
-## Securing the remote app connection
-
-Because remote session involves serving requests on a new endpoint from the ASP.NET app, it's important that communication to and from the ASP.NET app be secure.
-
-First, make sure that the API key string used to authenticate the ASP.NET Core app with the ASP.NET app is unique and kept secret. It is a best practice to not store the API key in source control. Instead, load it at runtime from a secure source such as Azure Key Vault or other secure runtime configuration. In order to encourage secure API keys, remote app connections require that the keys be non-empty GUIDs (128-bit hex numbers).
-
-Second, because it's important for the ASP.NET Core app to be able to trust that it is requesting session information from the correct ASP.NET app, the ASP.NET app should use HTTPS in any production scenarios so that the ASP.NET Core app can know responses are being served by a trusted source.
 
 # Protocol
 

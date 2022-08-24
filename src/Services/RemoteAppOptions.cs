@@ -48,6 +48,8 @@ public class RemoteAppOptions
 
     // To ensure secure API keys are used, enforce that
     // keys are parsable as GUIDs
-    public static bool Validate(RemoteAppOptions options) =>
-        Guid.TryParse(options.ApiKey, out var keyGuid) && keyGuid != Guid.Empty;
+    internal static bool Validate(RemoteAppOptions options) =>
+        options is not null
+        && Guid.TryParse(options.ApiKey, out var keyGuid)
+        && keyGuid != Guid.Empty;
 }

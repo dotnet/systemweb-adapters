@@ -6,9 +6,11 @@ The System.Web adapter's remote authentication feature allows an ASP.NET Core ap
 
 There are just a few small code changes needed to enable remote authentication in a solution that's already set up according to the [Getting Started](../getting_started.md).
 
+First, follow the [remote app setup](../remote-app-setup.md) instructions to connect the ASP.NET Core and ASP.NET apps. Then, there are just a couple extra extension methods to call to enable remote app authentication.
+
 ### ASP.NET app configuration
 
-First, the ASP.NET app needs to be configured to add the authentication endpoint. This is done by calling the `AddRemoteApp` extension method on the `ISystemWebAdapterBuilder` to configure receiving remote calls, and by calling `AddRemoteAuthentication` to set up the HTTP module that will watch for requests to the authentication endpoint.  Note that remote authentication scenarios typically want to add proxy support, as well, so that any auth-related redirects will correctly route to the ASP.NET Core app rather than the ASP.NET one.
+First, the ASP.NET app needs to be configured to add the authentication endpoint. This is done by calling the `AddRemoteAuthentication` extension method to set up the HTTP module that will watch for requests to the authentication endpoint.  Note that remote authentication scenarios typically want to add proxy support, as well, so that any auth-related redirects will correctly route to the ASP.NET Core app rather than the ASP.NET one.
 
 ```CSharp
 SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
@@ -21,11 +23,9 @@ SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
     .AddRemoteAppAuthentication();
 ```
 
-In the options configuration method passed to the `AddRemoteApp` call, you must specify an API key which is used to secure the endpoint so that only trusted callers can make requests to it (this same API key will be provided to the ASP.NET Core app when it is configured). The API key is a string and must be parsable as a GUID (128-bit hex number). Hyphens in the key are optional.
-
 ### ASP.NET Core app configuration
 
-Next, the ASP.NET Core app needs to be configured to enable the authentication handler that will authenticate users by making an HTTP request to the ASP.NET app. Again, this is done by calling `AddRemoteApp` and `AddRemoteAppAuthentication` when registering System.Web adapters services:
+Next, the ASP.NET Core app needs to be configured to enable the authentication handler that will authenticate users by making an HTTP request to the ASP.NET app. Again, this is done by calling `AddRemoteAppAuthentication` when registering System.Web adapters services:
 
 ```CSharp
 builder.Services.AddSystemWebAdapters()
@@ -38,8 +38,6 @@ builder.Services.AddSystemWebAdapters()
     })
     .AddRemoteAppAuthentication(true);
 ```
-
-The `AddRemoteApp` call is used to configure the remote app's URL and the shared secret API key.
 
 The boolean that is passed to the `AddRemoteAuthentication` call specifies whether remote app authentication should be the default authentication scheme. Passing `true` will cause the user to be authenticated via remote app authentication for all requests, whereas passing `false` means that the user will only be authenticated with remote app authentication if the remote app scheme is specifically requested (with `[Authorize(AuthenticationSchemes = RemoteAppAuthenticationDefaults.AuthenticationScheme)]` on a controller or action method, for example). Passing false for this parameter has the advantage of only making HTTP requests to the original ASP.NET app for authentication for endpoints that require remote app authentication but has the disadvantage of requiring annotating all such endpoints to indicate that they will use remote app auth.
 
@@ -54,14 +52,6 @@ Finally, if the ASP.NET Core app didn't previously include authentication middle
 ```CSharp
 app.UseAuthentication();
 ```
-
-## Securing the remote app connection
-
-Because remote app authentication involves serving requests on a new endpoint from the ASP.NET app, it's important that communication to and from the ASP.NET app be secure.
-
-First, make sure that the API key string used to authenticate the ASP.NET Core app with the ASP.NET app is unique and kept secret. It is a best practice to not store the API key in source control. Instead, load it at runtime from a secure source such as Azure Key Vault or other secure runtime configuration. In order to encourage secure API keys, remote app connections require that the keys be non-empty GUIDs (128-bit hex numbers).
-
-Second, because it's important for the ASP.NET Core app to be able to trust that it is requesting identity information from the correct ASP.NET app, the ASP.NET app should use HTTPS in any production scenarios so that the ASP.NET Core app can know identity is being served by a trusted source.
 
 ## Design
 
