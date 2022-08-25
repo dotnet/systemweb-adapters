@@ -2,9 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Security.Principal;
 using System.Text;
+using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace System.Web
 {
@@ -83,5 +85,8 @@ namespace System.Web
         public virtual byte[] BinaryRead(int count) => throw new NotImplementedException();
 
         public virtual void Abort() => throw new NotImplementedException();
+
+        [return: NotNullIfNotNull("request")]
+        public static implicit operator HttpRequestBase?(HttpRequestCore? request) => request?.GetAdapterBase();
     }
 }
