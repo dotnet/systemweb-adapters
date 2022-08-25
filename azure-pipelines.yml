@@ -119,7 +119,7 @@ stages:
 
       - job: macOS
         pool:
-          vmImage: macOS-10.15
+          vmImage: macOS-latest
         strategy:
           matrix:
             release:
@@ -155,7 +155,7 @@ stages:
 
       - job: Linux
         pool:
-          vmImage: ubuntu-18.04
+          vmImage: ubuntu-latest
           container: LinuxContainer
         strategy:
           matrix:
