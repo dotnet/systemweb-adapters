@@ -36,10 +36,15 @@ namespace System.Web
         private NameValueCollection? _params;
         private HttpBrowserCapabilities? _browser;
 
+        private FeatureReference<IHttpRequestAdapterFeature> _requestFeature;
+
         internal HttpRequest(HttpRequestCore request)
         {
             _request = request;
+            _requestFeature = FeatureReference<IHttpRequestAdapterFeature>.Default;
         }
+
+        private IHttpRequestAdapterFeature RequestFeature => _requestFeature.Fetch(_request.HttpContext.Features) ?? throw new InvalidOperationException("Please ensure you have added the System.Web adapters middleware.");
 
         internal RequestHeaders TypedHeaders => _typedHeaders ??= new(_request.Headers);
 
@@ -48,6 +53,12 @@ namespace System.Web
         public NameValueCollection Headers => _headers ??= _request.Headers.ToNameValueCollection();
 
         public Uri Url => new(_request.GetEncodedUrl());
+
+        public ReadEntityBodyMode ReadEntityBodyMode => RequestFeature.Mode;
+
+        public Stream GetBufferlessInputStream() => RequestFeature.GetBufferlessInputStream();
+
+        public Stream GetBufferedInputStream() => RequestFeature.GetBufferedInputStream();
 
         [SuppressMessage("Design", "CA1056:URI-like properties should not be strings", Justification = Constants.ApiFromAspNet)]
         public string? RawUrl => _request.HttpContext.Features.Get<IHttpRequestFeature>()?.RawTarget;
@@ -139,9 +150,7 @@ namespace System.Web
             set => _request.ContentType = value;
         }
 
-        public Stream InputStream => _request.Body.CanSeek
-            ? _request.Body
-            : throw new InvalidOperationException("Input stream must be seekable. Ensure your endpoints are either annotated with BufferRequestStreamAttribute or you've called .RequireRequestStreamBuffering() on them.");
+        public Stream InputStream => RequestFeature.InputStream;
 
         public NameValueCollection ServerVariables => _serverVariables ??= _request.HttpContext.Features.GetRequired<IServerVariablesFeature>().ToNameValueCollection();
 
@@ -268,7 +277,7 @@ namespace System.Web
                 w.WriteLine();
             }
 
-            WriteTo(InputStream, f);
+            WriteTo(GetBufferedInputStream(), f);
         }
 
         /// <summary>

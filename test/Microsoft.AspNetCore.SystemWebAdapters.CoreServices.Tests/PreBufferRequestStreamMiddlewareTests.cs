@@ -40,12 +40,12 @@ public class PreBufferRequestStreamMiddlewareTests
 
         var responseFeature = new Mock<IHttpResponseFeature>();
 
-        var features = new Mock<IFeatureCollection>();
-        features.Setup(f => f.Get<IEndpointFeature>()).Returns(endpointFeature.Object);
-        features.Setup(f => f.Get<IHttpRequestFeature>()).Returns(requestFeature.Object);
-        features.Setup(f => f.Get<IHttpResponseFeature>()).Returns(responseFeature.Object);
+        var features = new FeatureCollection();
+        features.Set(endpointFeature.Object);
+        features.Set(requestFeature.Object);
+        features.Set(responseFeature.Object);
 
-        var context = new DefaultHttpContext(features.Object);
+        var context = new DefaultHttpContext(features);
 
         // Act
         await mock.Create<PreBufferRequestStreamMiddleware>().InvokeAsync(context);

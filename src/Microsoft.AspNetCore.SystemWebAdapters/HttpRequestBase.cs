@@ -52,6 +52,10 @@ namespace System.Web
 
         public virtual Stream InputStream => throw new NotImplementedException();
 
+        public virtual Stream GetBufferedInputStream() => throw new NotImplementedException();
+
+        public virtual Stream GetBufferlessInputStream() => throw new NotImplementedException();
+
         public virtual NameValueCollection ServerVariables => throw new NotImplementedException();
 
         public virtual bool IsSecureConnection => throw new NotImplementedException();

@@ -26,6 +26,7 @@
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpSessionStateWrapper))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpUnhandledException))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.ISubscriptionToken))]
+[assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.ReadEntityBodyMode))]
 
 #if NET472_OR_GREATER
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.SameSiteMode))]

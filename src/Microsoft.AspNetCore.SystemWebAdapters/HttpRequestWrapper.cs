@@ -41,6 +41,10 @@ namespace System.Web
 
         public override Stream InputStream => _request.InputStream;
 
+        public override Stream GetBufferedInputStream() => _request.GetBufferedInputStream();
+
+        public override Stream GetBufferlessInputStream() => _request.GetBufferlessInputStream();
+
         public override bool IsAuthenticated => _request.IsAuthenticated;
 
         public override bool IsLocal => _request.IsLocal;
