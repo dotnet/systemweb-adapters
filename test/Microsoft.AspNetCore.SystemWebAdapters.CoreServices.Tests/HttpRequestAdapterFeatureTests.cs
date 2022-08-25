@@ -44,7 +44,7 @@ public class HttpRequestAdapterFeatureTests
         other.Setup(o => o.Body).Returns(stream);
 
         var feature = new HttpRequestAdapterFeature(other.Object, DefaultThreshold, default);
-        await feature.PreBufferInputStreamAsync(default);
+        await feature.BufferInputStreamAsync(default);
 
         var adapterFeature = (IHttpRequestAdapterFeature)feature;
 

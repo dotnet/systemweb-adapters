@@ -22,7 +22,7 @@ internal partial class PreBufferRequestStreamMiddleware
 
         if(!metadata.IsDisabled)
         {
-            await requestFeature.PreBufferInputStreamAsync(context.RequestAborted);
+            await requestFeature.BufferInputStreamAsync(context.RequestAborted);
         }
 
         context.Response.RegisterForDispose(requestFeature);

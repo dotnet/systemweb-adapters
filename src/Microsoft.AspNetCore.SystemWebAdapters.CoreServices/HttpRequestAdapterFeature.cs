@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,13 +32,17 @@ internal class HttpRequestAdapterFeature : IHttpRequestAdapterFeature, IHttpRequ
 
     public Stream GetBufferedInputStream()
     {
-        if (Mode is ReadEntityBodyMode.Buffered or ReadEntityBodyMode.None)
+        if (Mode is ReadEntityBodyMode.Buffered)
+        {
+            Debug.Assert(_bufferedStream is not null);
+            return _bufferedStream;
+        }
+
+        if (Mode is ReadEntityBodyMode.None)
         {
             Mode = ReadEntityBodyMode.Buffered;
 
-            _bufferedStream ??= new FileBufferingReadStream(_other.Body, _bufferThreshold, _bufferLimit, AspNetCoreTempDirectory.TempDirectoryFactory);
-
-            return _bufferedStream;
+            return _bufferedStream = new FileBufferingReadStream(_other.Body, _bufferThreshold, _bufferLimit, AspNetCoreTempDirectory.TempDirectoryFactory);
         }
 
         throw new InvalidOperationException("GetBufferlessInputStream cannot be called after other stream access");
@@ -67,15 +72,17 @@ internal class HttpRequestAdapterFeature : IHttpRequestAdapterFeature, IHttpRequ
         }
     }
 
-    Task<Stream> IHttpRequestAdapterFeature.GetInputStreamAsync(CancellationToken token) => BufferInputStreamAsync(token);
+    async Task<Stream> IHttpRequestAdapterFeature.GetInputStreamAsync(CancellationToken token)
+    {
+        await BufferInputStreamAsync(token);
+        return GetBody();
+    }
 
-    public Task PreBufferInputStreamAsync(CancellationToken token) => BufferInputStreamAsync(token);
-
-    private async Task<Stream> BufferInputStreamAsync(CancellationToken token)
+    public async Task BufferInputStreamAsync(CancellationToken token)
     {
         if (Mode is ReadEntityBodyMode.Classic)
         {
-            return GetBody();
+            return;
         }
 
         if (Mode is not ReadEntityBodyMode.None)
@@ -88,8 +95,6 @@ internal class HttpRequestAdapterFeature : IHttpRequestAdapterFeature, IHttpRequ
         stream.Position = 0;
 
         Mode = ReadEntityBodyMode.Classic;
-
-        return stream;
     }
 
     public void Dispose() => _bufferedStream?.Dispose();
