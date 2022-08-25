@@ -27,9 +27,7 @@ internal class ProxyHeaderModule : IHttpModule
 
     private readonly IOptions<ProxyOptions> _options;
 
-    private FieldInfo _wrField;
-    private Type _iis7WorkerRequestType;
-    private FieldInfo _knownRequestHeadersField;
+    private ReflectionHelper? _reflectionHelper;
 
     public ProxyHeaderModule(IOptions<ProxyOptions> options)
     {
@@ -46,9 +44,7 @@ internal class ProxyHeaderModule : IHttpModule
 
         if (options.UseForwardedHeaders)
         {
-            _wrField = typeof(HttpRequest).GetField("_wr", BindingFlags.NonPublic | BindingFlags.Instance);
-            _iis7WorkerRequestType = Assembly.GetAssembly(typeof(HttpRequest)).GetType("System.Web.Hosting.IIS7WorkerRequest");
-            _knownRequestHeadersField = _iis7WorkerRequestType.GetField("_knownRequestHeaders", BindingFlags.NonPublic | BindingFlags.Instance);
+            _reflectionHelper = new ReflectionHelper();
 
             context.BeginRequest += (s, e) =>
             {
@@ -89,7 +85,7 @@ internal class ProxyHeaderModule : IHttpModule
 
             requestHeaders[Host] = host;
 
-            SetHostHeader(request, host);
+            _reflectionHelper?.SetHostHeader(request, host);
         }
     }
 
@@ -102,21 +98,8 @@ internal class ProxyHeaderModule : IHttpModule
         serverVariables.Set(ServerHttps, values.Https);
         requestHeaders[Host] = values.Host;
 
-        SetHostHeader(request, values.Host);
+        _reflectionHelper?.SetHostHeader(request, values.Host);
     }
-
-    private void SetHostHeader(HttpRequest? request, string host)
-    {
-        // Need to use reflection to force HttpRequest to update the known headers
-        if (request != null)
-        {
-            var workerRequest = _wrField.GetValue(request);
-            var knownRequestHeaders = (string[])_knownRequestHeadersField.GetValue(workerRequest);
-            // This is the Host index
-            knownRequestHeaders[HttpWorkerRequest.HeaderHost] = host;
-        }
-    }
-
 
     private static void UseForwardedFor(NameValueCollection requestHeaders, NameValueCollection serverVariables)
     {
@@ -124,6 +107,31 @@ internal class ProxyHeaderModule : IHttpModule
         {
             serverVariables.Set("REMOTE_ADDR", remote);
             serverVariables.Set("REMOTE_HOST", remote);
+        }
+    }
+
+    private class ReflectionHelper
+    {
+        private readonly FieldInfo _wrField;
+        private readonly Type _iis7WorkerRequestType;
+        private readonly FieldInfo _knownRequestHeadersField;
+
+        public ReflectionHelper()
+        {
+            _wrField = typeof(HttpRequest).GetField("_wr", BindingFlags.NonPublic | BindingFlags.Instance);
+            _iis7WorkerRequestType = Assembly.GetAssembly(typeof(HttpRequest)).GetType("System.Web.Hosting.IIS7WorkerRequest");
+            _knownRequestHeadersField = _iis7WorkerRequestType.GetField("_knownRequestHeaders", BindingFlags.NonPublic | BindingFlags.Instance);
+        }
+        public void SetHostHeader(HttpRequest? request, string host)
+        {
+            // Need to use reflection to force HttpRequest to update the known headers
+            if (request != null)
+            {
+                var workerRequest = _wrField.GetValue(request);
+                var knownRequestHeaders = (string[])_knownRequestHeadersField.GetValue(workerRequest);
+                // This is the Host index
+                knownRequestHeaders[HttpWorkerRequest.HeaderHost] = host;
+            }
         }
     }
 
