@@ -53,7 +53,6 @@ internal class ProxyHeaderModule : IHttpModule
             context.BeginRequest += (s, e) =>
             {
                 var request = ((HttpApplication)s).Context.Request;
-
                 UseHeaders(request.Headers, request.ServerVariables, request);
             };
         }
@@ -64,7 +63,7 @@ internal class ProxyHeaderModule : IHttpModule
             context.BeginRequest += (s, e) =>
             {
                 var request = ((HttpApplication)s).Context.Request;
-                UseOptions(values, request.Headers, request.ServerVariables);
+                UseOptions(values, request.Headers, request.ServerVariables, request);
             };
         }
     }
@@ -90,18 +89,11 @@ internal class ProxyHeaderModule : IHttpModule
 
             requestHeaders[Host] = host;
 
-            // Need to use reflection to force HttpRequest to update the known headers
-            if (request != null)
-            {
-                var workerRequest = _wrField.GetValue(request);
-                var knownRequestHeaders = (string[])_knownRequestHeadersField.GetValue(workerRequest);
-                // This is the Host index
-                knownRequestHeaders[HttpWorkerRequest.HeaderHost] = host;
-            }
+            SetHostHeader(request, host);
         }
     }
 
-    private static void UseOptions(ServerValues values, NameValueCollection requestHeaders, NameValueCollection serverVariables)
+    private void UseOptions(ServerValues values, NameValueCollection requestHeaders, NameValueCollection serverVariables, HttpRequest? request = null)
     {
         UseForwardedFor(requestHeaders, serverVariables);
 
@@ -109,6 +101,20 @@ internal class ProxyHeaderModule : IHttpModule
         serverVariables.Set(ServerPort, values.Port);
         serverVariables.Set(ServerHttps, values.Https);
         requestHeaders[Host] = values.Host;
+
+        SetHostHeader(request, values.Host);
+    }
+
+    private void SetHostHeader(HttpRequest? request, string host)
+    {
+        // Need to use reflection to force HttpRequest to update the known headers
+        if (request != null)
+        {
+            var workerRequest = _wrField.GetValue(request);
+            var knownRequestHeaders = (string[])_knownRequestHeadersField.GetValue(workerRequest);
+            // This is the Host index
+            knownRequestHeaders[HttpWorkerRequest.HeaderHost] = host;
+        }
     }
 
 
