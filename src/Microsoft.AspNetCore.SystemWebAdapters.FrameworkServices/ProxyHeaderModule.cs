@@ -117,14 +117,13 @@ internal class ProxyHeaderModule : IHttpModule
     private class ReflectionHelper
     {
         private readonly FieldInfo _wrField;
-        private readonly Type _iis7WorkerRequestType;
         private readonly FieldInfo _knownRequestHeadersField;
 
         public ReflectionHelper()
         {
             _wrField = typeof(HttpRequest).GetField("_wr", BindingFlags.NonPublic | BindingFlags.Instance);
-            _iis7WorkerRequestType = Assembly.GetAssembly(typeof(HttpRequest)).GetType("System.Web.Hosting.IIS7WorkerRequest");
-            _knownRequestHeadersField = _iis7WorkerRequestType.GetField("_knownRequestHeaders", BindingFlags.NonPublic | BindingFlags.Instance);
+            var type = Assembly.GetAssembly(typeof(HttpRequest)).GetType("System.Web.Hosting.IIS7WorkerRequest");
+            _knownRequestHeadersField = type.GetField("_knownRequestHeaders", BindingFlags.NonPublic | BindingFlags.Instance);
         }
         
         public void SetHostHeader(HttpRequest request, string host)
