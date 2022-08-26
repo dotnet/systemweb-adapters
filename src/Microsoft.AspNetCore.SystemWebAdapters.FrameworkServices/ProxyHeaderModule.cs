@@ -126,6 +126,7 @@ internal class ProxyHeaderModule : IHttpModule
             _iis7WorkerRequestType = Assembly.GetAssembly(typeof(HttpRequest)).GetType("System.Web.Hosting.IIS7WorkerRequest");
             _knownRequestHeadersField = _iis7WorkerRequestType.GetField("_knownRequestHeaders", BindingFlags.NonPublic | BindingFlags.Instance);
         }
+        
         public void SetHostHeader(HttpRequest request, string host)
         {
             // Need to use reflection to force HttpRequest to update the known headers
