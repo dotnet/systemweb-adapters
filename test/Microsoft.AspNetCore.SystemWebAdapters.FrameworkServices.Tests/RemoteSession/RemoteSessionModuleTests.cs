@@ -31,7 +31,7 @@ public class RemoteSessionModuleTests
     {
         // Arrange
         var sessionOptions = Options.Create(new RemoteAppSessionStateServerOptions());
-        var remoteAppOptions = Options.Create(new RemoteAppOptions { ApiKey = apiKey });
+        var remoteAppOptions = Options.Create(new RemoteAppServerOptions { ApiKey = apiKey });
         var sessions = new Mock<ILockedSessionCache>();
         var serializer = new Mock<ISessionSerializer>();
 
@@ -56,7 +56,7 @@ public class RemoteSessionModuleTests
     {
         // Arrange
         var sessionOptions = Options.Create(new RemoteAppSessionStateServerOptions());
-        var remoteAppOptions = Options.Create(new RemoteAppOptions { ApiKey = expectedApiKey });
+        var remoteAppOptions = Options.Create(new RemoteAppServerOptions { ApiKey = expectedApiKey });
 
         var sessions = new Mock<ILockedSessionCache>();
         var serializer = new Mock<ISessionSerializer>();

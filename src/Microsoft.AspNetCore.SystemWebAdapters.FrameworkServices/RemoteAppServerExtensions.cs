@@ -24,7 +24,7 @@ public static class RemoteAppServerExtensions
             throw new ArgumentNullException(nameof(configure));
         }
 
-        var options = builder.Services.AddOptions<RemoteAppOptions>()
+        var options = builder.Services.AddOptions<RemoteAppServerOptions>()
             .Validate(options => !string.IsNullOrEmpty(options.ApiKey), "ApiKey must be set")
             .Validate(options => !string.IsNullOrEmpty(options.ApiKeyHeader), "ApiKeyHeader must be set");
 
@@ -33,7 +33,7 @@ public static class RemoteAppServerExtensions
         return builder;
     }
 
-    public static ISystemWebAdapterRemoteServerAppBuilder Configure(this ISystemWebAdapterRemoteServerAppBuilder builder, Action<RemoteAppOptions> configure)
+    public static ISystemWebAdapterRemoteServerAppBuilder Configure(this ISystemWebAdapterRemoteServerAppBuilder builder, Action<RemoteAppServerOptions> configure)
     {
         if (builder is null)
         {
@@ -45,7 +45,7 @@ public static class RemoteAppServerExtensions
             throw new ArgumentNullException(nameof(configure));
         }
 
-        builder.Services.AddOptions<RemoteAppOptions>()
+        builder.Services.AddOptions<RemoteAppServerOptions>()
             .Configure(configure);
 
         return builder;

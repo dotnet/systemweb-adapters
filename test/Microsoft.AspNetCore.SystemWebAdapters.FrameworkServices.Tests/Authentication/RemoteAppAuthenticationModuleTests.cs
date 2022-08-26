@@ -34,7 +34,7 @@ public class RemoteAppAuthenticationModuleTests
 
         // Create module and options to test
         var authOptions = new RemoteAppAuthenticationServerOptions();
-        var remoteAppOptions = new RemoteAppOptions
+        var remoteAppOptions = new RemoteAppServerOptions
         {
             ApiKey = GoodKey
         };

@@ -10,13 +10,13 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
 internal sealed class RemoteSessionModule : IHttpModule
 {
-    private readonly RemoteAppOptions _remoteAppOptions;
+    private readonly RemoteAppServerOptions _remoteAppOptions;
     private readonly RemoteAppSessionStateServerOptions _sessionOptions;
     private readonly ReadOnlySessionHandler _readonlyHandler;
     private readonly GetWriteableSessionHandler _writeableHandler;
     private readonly StoreSessionStateHandler _saveHandler;
 
-    public RemoteSessionModule(IOptions<RemoteAppSessionStateServerOptions> sessionOptions, IOptions<RemoteAppOptions> remoteAppOptions, ILockedSessionCache cache, ISessionSerializer serializer)
+    public RemoteSessionModule(IOptions<RemoteAppSessionStateServerOptions> sessionOptions, IOptions<RemoteAppServerOptions> remoteAppOptions, ILockedSessionCache cache, ISessionSerializer serializer)
     {
         _sessionOptions = sessionOptions?.Value ?? throw new ArgumentNullException(nameof(sessionOptions));
         _remoteAppOptions = remoteAppOptions?.Value ?? throw new ArgumentNullException(nameof(remoteAppOptions));
