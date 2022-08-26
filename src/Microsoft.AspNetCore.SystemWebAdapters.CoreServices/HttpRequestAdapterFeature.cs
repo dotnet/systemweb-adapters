@@ -160,7 +160,19 @@ internal class HttpRequestAdapterFeature : IHttpRequestAdapterFeature, IHttpRequ
 
             return body;
         }
-        set => _other.Body = value;
+        set
+        {
+            _other.Body = value;
+
+            // If someone updates the body, we should reset things
+            Mode = ReadEntityBodyMode.None;
+
+            if (_bufferedStream is not null)
+            {
+                _bufferedStream.Dispose();
+                _bufferedStream = null;
+            }
+        }
     }
 
     private Stream GetBody() => _bufferedStream ?? _other.Body;
