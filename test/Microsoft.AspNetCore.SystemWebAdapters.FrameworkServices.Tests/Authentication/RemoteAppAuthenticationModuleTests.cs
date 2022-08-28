@@ -58,6 +58,7 @@ public class RemoteAppAuthenticationModuleTests
         var request = new Mock<HttpRequestBase>();
         request.Setup(r => r.Headers).Returns(headers);
         request.Setup(r => r.QueryString).Returns(queryStrings);
+        request.Setup(r => r.HttpMethod).Returns("GET");
         request.Setup(r => r.Url).Returns(new Uri("http://localhost:8080"));
 
         var response = new Mock<HttpResponseBase>();
@@ -70,7 +71,7 @@ public class RemoteAppAuthenticationModuleTests
         context.SetupProperty(c => c.Handler);
 
         // Act
-        module.MapRemoteAuthenticationHandler(context.Object);
+        module.HandleRequest(context.Object);
 
         // Assert
         Assert.Equal(expectedStatusCode, response.Object.StatusCode);
