@@ -22,7 +22,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
             // https://docs.microsoft.com/en-us/dotnet/api/system.web.virtualpathutility.toabsolute?view=netframework-4.8
             // but it does match the actual framework
             Assert.Throws<ArgumentException>(() => VirtualPathUtility.ToAbsolute("hello", "/"));
-			Assert.Throws<ArgumentException>(() => VirtualPathUtility.ToAbsolute("../../test", "/"));
+            Assert.Throws<ArgumentException>(() => VirtualPathUtility.ToAbsolute("../../test", "/"));
             Assert.Throws<ArgumentException>(() => VirtualPathUtility.ToAbsolute("~hello", "/"));
             Assert.Throws<HttpException>(() => VirtualPathUtility.ToAbsolute("~/../../test", "/"));
             Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.ToAbsolute("~/hello", null!));
@@ -95,8 +95,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Fact]
         public void GetDirectoryError()
         {
-			Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetDirectory(null!));
-			Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetDirectory(""));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetDirectory(null!));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetDirectory(""));
             Assert.Throws<ArgumentException>(() => VirtualPathUtility.GetDirectory("test"));
             Assert.Throws<ArgumentException>(() => VirtualPathUtility.GetDirectory("test/world.jpg"));
         }

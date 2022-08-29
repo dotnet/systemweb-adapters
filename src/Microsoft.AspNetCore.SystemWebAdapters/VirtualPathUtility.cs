@@ -597,7 +597,6 @@ public static class VirtualPathUtility
         return appRelativeCharacter + virtualPath[(appPathLength - 1)..];
     }
 
-
     private static string MakeVirtualPathAppAbsolute(string virtualPath)
     {
         return MakeVirtualPathAppAbsolute(virtualPath, HttpRuntime.AppDomainAppVirtualPath);
@@ -608,7 +607,6 @@ public static class VirtualPathUtility
     // E.g. ~/Sub/foo.aspx --> /MyApp/Sub/foo.aspx
     private static string MakeVirtualPathAppAbsolute(string virtualPath, string applicationPath)
     {
-
         // If the path is exactly "~", just return the app root path
         if (virtualPath.Length == 1 && virtualPath[0] == appRelativeCharacter)
             return applicationPath;
@@ -635,7 +633,6 @@ public static class VirtualPathUtility
         // Return it unchanged
         return virtualPath;
     }
-
 
     private static bool VirtualPathStartsWithVirtualPath(string virtualPath1, string virtualPath2)
     {
