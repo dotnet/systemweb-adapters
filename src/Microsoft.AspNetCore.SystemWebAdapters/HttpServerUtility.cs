@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace System.Web;
 
@@ -21,10 +23,14 @@ public class HttpServerUtility
     {
         var appPath = path is null ? VirtualPathUtility.GetDirectory(_context.Request.Path) :
             VirtualPathUtility.Combine(
-            VirtualPathUtility.GetDirectory(_context.Request.Path)
+            VirtualPathUtility.GetDirectory(_context.Request.Path) ?? "/"
             , path);
-        if (string.IsNullOrEmpty(appPath)) return HttpRuntime.AppDomainAppPath;
-        return System.IO.Path.Combine(HttpRuntime.AppDomainAppPath, appPath[1..].Replace('/', System.IO.Path.DirectorySeparatorChar));
+        // Potential alternative implementations here - for the most literal match to the original use HttpRuntime.AppDomainAppPath
+        var rootPath = HttpRuntime.AppDomainAppPath;
+        //var rootPath = _context.RequestServices.GetRequiredService<IWebHostEnvironment>().WebRootPath;
+        //var rootPath = _context.RequestServices.GetRequiredService<IWebHostEnvironment>().ContentRootPath;
+        if (string.IsNullOrEmpty(appPath)) return rootPath;
+        return System.IO.Path.Combine(rootPath, appPath[1..].Replace('/', System.IO.Path.DirectorySeparatorChar));
     }
 
     [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1024:Use properties where appropriate", Justification = Constants.ApiFromAspNet)]
