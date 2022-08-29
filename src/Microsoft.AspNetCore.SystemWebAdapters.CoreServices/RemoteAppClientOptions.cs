@@ -31,8 +31,7 @@ public class RemoteAppClientOptions
     public Uri RemoteAppUrl { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets an <see cref="HttpClient"/> to use for making requests to the remote app.
-    /// A new <see cref="HttpClient"/> will be automatically generated if none is provided.
+    /// Gets or sets an <see cref="HttpMessageHandler"/> to use for making requests to the remote app.
     /// </summary>
-    public HttpClient? BackchannelHttpClient { get; set; }
+    public HttpMessageHandler? BackchannelHandler { get; set; }
 }

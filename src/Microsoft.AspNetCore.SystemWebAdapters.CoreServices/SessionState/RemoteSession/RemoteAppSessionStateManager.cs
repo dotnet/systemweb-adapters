@@ -21,36 +21,14 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
     private readonly ISessionSerializer _serializer;
     private readonly ILogger<RemoteAppSessionStateManager> _logger;
     private readonly RemoteAppSessionStateClientOptions _options;
-    private readonly IOptions<RemoteAppClientOptions> _remoteAppOptions;
-
-    private HttpClient? _client;
-
-    private HttpClient Client
-    {
-        get
-        {
-            if (_client is null)
-            {
-                // Use the HttpClient supplied in options if one is present in options;
-                // otherwise, generate a client with an IHttpClientFactory from DI
-                _client = _remoteAppOptions.Value.BackchannelHttpClient ?? _httpClientFactory.CreateClient(SessionConstants.SessionClientName);
-                _client.BaseAddress = new Uri($"{_remoteAppOptions.Value.RemoteAppUrl.ToString().TrimEnd('/')}{_options.SessionEndpointPath}");
-                _client.DefaultRequestHeaders.Add(_remoteAppOptions.Value.ApiKeyHeader, _remoteAppOptions.Value.ApiKey);
-            }
-
-            return _client;
-        }
-    }
 
     public RemoteAppSessionStateManager(
         IHttpClientFactory httpClientFactory,
         ISessionSerializer serializer,
-        IOptions<RemoteAppSessionStateClientOptions> sessionOptions,
-        IOptions<RemoteAppClientOptions> remoteAppOptions,
+        IOptions<RemoteAppSessionStateClientOptions> options,
         ILogger<RemoteAppSessionStateManager> logger)
     {
-        _remoteAppOptions = remoteAppOptions ?? throw new ArgumentNullException(nameof(remoteAppOptions));
-        _options = sessionOptions?.Value ?? throw new ArgumentNullException(nameof(sessionOptions));
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
@@ -95,13 +73,14 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
     {
         // The request message is manually disposed at a later time
 #pragma warning disable CA2000 // Dispose objects before losing scope
-        var req = new HttpRequestMessage { Method = HttpMethod.Get };
+        var req = new HttpRequestMessage(HttpMethod.Get, _options.SessionEndpointPath);
 #pragma warning restore CA2000 // Dispose objects before losing scope
 
         AddSessionCookieToHeader(req, sessionId);
         AddReadOnlyHeader(req, readOnly);
 
-        var response = await Client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, token);
+        using var client = _httpClientFactory.CreateClient(RemoteConstants.HttpClientName);
+        var response = await client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, token);
 
         LogRetrieveResponse(response.StatusCode);
 
@@ -133,7 +112,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
     /// </summary>
     private async Task SetOrReleaseSessionData(ISessionState? state, CancellationToken cancellationToken)
     {
-        using var req = new HttpRequestMessage { Method = HttpMethod.Put };
+        using var req = new HttpRequestMessage(HttpMethod.Put, _options.SessionEndpointPath);
 
         if (state is not null)
         {
@@ -141,7 +120,8 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
             req.Content = new SerializedSessionHttpContent(_serializer, state);
         }
 
-        using var response = await Client.SendAsync(req, cancellationToken);
+        using var client = _httpClientFactory.CreateClient(RemoteConstants.HttpClientName);
+        using var response = await client.SendAsync(req, cancellationToken);
 
         LogCommitResponse(response.StatusCode);
 
