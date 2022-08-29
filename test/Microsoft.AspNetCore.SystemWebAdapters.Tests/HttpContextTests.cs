@@ -9,6 +9,7 @@ using System.Web;
 using System.Web.Caching;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 using Moq;
 using Xunit;
 
