@@ -17,8 +17,15 @@ public class HttpServerUtility
 
     public string MachineName => Environment.MachineName;
 
-    [Obsolete(Constants.NotImplemented)]
-    public string MapPath(string path) => throw new NotImplementedException();
+    public string MapPath(string? path)
+    {
+        var appPath = path is null ? VirtualPathUtility.GetDirectory(_context.Request.Path) :
+            VirtualPathUtility.Combine(
+            VirtualPathUtility.GetDirectory(_context.Request.Path)
+            , path);
+        if (string.IsNullOrEmpty(appPath)) return HttpRuntime.AppDomainAppPath;
+        return System.IO.Path.Combine(HttpRuntime.AppDomainAppPath, appPath[1..].Replace('/', System.IO.Path.DirectorySeparatorChar));
+    }
 
     [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1024:Use properties where appropriate", Justification = Constants.ApiFromAspNet)]
     public Exception? GetLastError() => null;
