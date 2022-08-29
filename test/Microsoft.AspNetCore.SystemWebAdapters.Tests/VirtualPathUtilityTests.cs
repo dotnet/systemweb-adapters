@@ -90,7 +90,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Fact]
         public void GetDirectoryError()
         {
-			Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetDirectory(null));
+			Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetDirectory(null!));
 			Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetDirectory(""));
             Assert.Throws<ArgumentException>(() => VirtualPathUtility.GetDirectory("test"));
             Assert.Throws<ArgumentException>(() => VirtualPathUtility.GetDirectory("test/world.jpg"));
@@ -110,7 +110,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Fact]
         public void GetExtensionError()
         {
-            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetExtension(null));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetExtension(null!));
             Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetExtension(""));
         }
 
@@ -129,7 +129,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Fact]
         public void GetFileNameError()
         {
-            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetFileName(null));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetFileName(null!));
             Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetFileName(""));
             Assert.Throws<ArgumentException>(() => VirtualPathUtility.GetFileName("test"));
             Assert.Throws<ArgumentException>(() => VirtualPathUtility.GetFileName("test/world.jpg"));
@@ -153,7 +153,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Fact]
         public void IsAbsoluteError()
         {
-            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.IsAbsolute(null));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.IsAbsolute(null!));
             Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.IsAbsolute(""));
         }
 
@@ -175,7 +175,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Fact]
         public void IsAppRelativeError()
         {
-            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.IsAppRelative(null));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.IsAppRelative(null!));
             Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.IsAppRelative(""));
         }
 
@@ -203,8 +203,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Fact]
         public void MakeRelativeError()
         {
-            Assert.Throws<NullReferenceException>(() => VirtualPathUtility.MakeRelative("~/", null));
-            Assert.Throws<NullReferenceException>(() => VirtualPathUtility.MakeRelative(null, "~/"));
+            Assert.Throws<NullReferenceException>(() => VirtualPathUtility.MakeRelative("~/", null!));
+            Assert.Throws<NullReferenceException>(() => VirtualPathUtility.MakeRelative(null!, "~/"));
             Assert.Throws<ArgumentOutOfRangeException>(() => VirtualPathUtility.MakeRelative("~/hello/", "test"));
             Assert.Throws<ArgumentOutOfRangeException>(() => VirtualPathUtility.MakeRelative("test", "~/hello/"));
         }

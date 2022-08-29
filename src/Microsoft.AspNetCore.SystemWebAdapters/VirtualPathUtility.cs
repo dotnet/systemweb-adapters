@@ -411,7 +411,7 @@ public static class VirtualPathUtility
     ///   <paramref name="virtualPath" /> is null.</exception>
     public static bool IsAppRelative(string virtualPath)
     {
-        if (string.IsNullOrEmpty(virtualPath)) throw new ArgumentNullException();
+        if (string.IsNullOrEmpty(virtualPath)) throw new ArgumentNullException(nameof(virtualPath));
 
         var len = virtualPath.Length;
 
