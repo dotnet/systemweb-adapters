@@ -444,7 +444,6 @@ namespace System.Web
     }
     public static partial class VirtualPathUtility
     {
-        public static string AppendTrailingSlash(string virtualPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public static string Combine(string basePath, string relativePath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public static string GetDirectory(string virtualPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public static string GetExtension(string virtualPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
