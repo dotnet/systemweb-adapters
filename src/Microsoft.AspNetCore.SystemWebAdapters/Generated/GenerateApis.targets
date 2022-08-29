@@ -8,9 +8,10 @@
     <__Generate Condition="$(GenerateTypeForwards) OR $(GenerateStandard)">true</__Generate>
 
     <GenAPIHeaderFile>$(MSBuildThisFileDirectory)\Header.txt</GenAPIHeaderFile>
+    <GenAPIExcludedAttributes>$(MSBuildThisFileDirectory)\ExcludedAttributes.txt</GenAPIExcludedAttributes>
     <GenAPITargetPath Condition="$(GenerateTypeForwards)">$(MSBuildThisFileDirectory)\TypeForwards.Framework.cs</GenAPITargetPath>
     <GenAPITargetPath Condition="!$(GenerateTypeForwards)">$(MSBuildThisFileDirectory)\Ref.Standard.cs</GenAPITargetPath>
-    <GenAPIAdditionalParameters>-excludeApiList $(MSBuildThisFileDirectory)ExcludedApis.txt -throw "$(PlatformNotSupportedMessage)" -HeaderFile "$(GenAPIHeaderFile)"</GenAPIAdditionalParameters>
+    <GenAPIAdditionalParameters>-excludeApiList $(MSBuildThisFileDirectory)ExcludedApis.txt -throw "$(PlatformNotSupportedMessage)" -HeaderFile "$(GenAPIHeaderFile)" -excludeAttributesList "$(GenAPIExcludedAttributes)"</GenAPIAdditionalParameters>
     <GenAPIAdditionalParameters Condition="$(GenerateTypeForwards)">$(GenAPIAdditionalParameters) -writer TypeForwards</GenAPIAdditionalParameters>
   </PropertyGroup>
 
