@@ -42,6 +42,7 @@
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpUnhandledException))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.ISubscriptionToken))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.ReadEntityBodyMode))]
+[assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.VirtualPathUtility))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Caching.Cache))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Caching.CacheDependency))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Caching.CacheItemPriority))]
@@ -51,4 +52,3 @@
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Caching.CacheItemUpdateReason))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Configuration.HttpCapabilitiesBase))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.SessionState.HttpSessionState))]
-[assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.VirtualPathUtility))]
