@@ -1,72 +1,32 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Security.Policy;
 using System.Web;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
-internal sealed class RemoteAppAuthenticationModule : IHttpModule
+internal sealed class RemoteAppAuthenticationModule : RemoteModule
 {
-    private readonly RemoteAppServerOptions _remoteAppOptions;
-    private readonly RemoteAppAuthenticationServerOptions _authOptions;
-    private readonly RemoteAppAuthenticationHttpHandler _remoteAppAuthHandler;
-
     public RemoteAppAuthenticationModule(IOptions<RemoteAppServerOptions> remoteAppOptions, IOptions<RemoteAppAuthenticationServerOptions> authOptions)
+        : base(remoteAppOptions)
     {
         if (authOptions is null)
         {
             throw new ArgumentNullException(nameof(authOptions));
         }
 
-        if (remoteAppOptions is null)
-        {
-            throw new ArgumentNullException(nameof(remoteAppOptions));
-        }
+        Path = authOptions.Value.AuthenticationEndpointPath;
 
-        if (string.IsNullOrEmpty(authOptions.Value.AuthenticationEndpointPath))
-        {
-            throw new ArgumentOutOfRangeException(nameof(authOptions.Value.AuthenticationEndpointPath), "Options must specify remote authentication path.");
-        }
+        var handler = new RemoteAppAuthenticationHttpHandler();
 
-        if (string.IsNullOrEmpty(remoteAppOptions.Value.ApiKey))
-        {
-            throw new ArgumentOutOfRangeException(nameof(remoteAppOptions.Value.ApiKey), "Options must specify API key.");
-        }
-
-        if (string.IsNullOrEmpty(remoteAppOptions.Value.ApiKeyHeader))
-        {
-            throw new ArgumentOutOfRangeException(nameof(remoteAppOptions.Value.ApiKeyHeader), "Options must specify API key header name.");
-        }
-
-        _authOptions = authOptions.Value;
-        _remoteAppOptions = remoteAppOptions.Value;
-        _remoteAppAuthHandler = new RemoteAppAuthenticationHttpHandler();
+        MapGet(context => handler);
     }
 
-    public void Init(HttpApplication context)
-    {
-        context.PostMapRequestHandler += (s, _) =>
-        {
-            var context = ((HttpApplication)s).Context;
-            if (string.Equals(context.Request.Path, _authOptions.AuthenticationEndpointPath, StringComparison.OrdinalIgnoreCase)
-                && context.Request.HttpMethod.Equals("GET", StringComparison.OrdinalIgnoreCase))
-            {
-                MapRemoteAuthenticationHandler(new HttpContextWrapper(context));
+    protected override string Path { get; }
 
-                if (context.Handler is null)
-                {
-                    context.ApplicationInstance.CompleteRequest();
-                }
-            }
-        };
-    }
-
-    public void MapRemoteAuthenticationHandler(HttpContextBase context)
+    protected override bool Authenticate(HttpContextBase context)
     {
-        var apiKey = context.Request.Headers.Get(_remoteAppOptions.ApiKeyHeader);
         var migrationAuthenticateHeader = context.Request.Headers.Get(AuthenticationConstants.MigrationAuthenticateRequestHeaderName);
 
         if (migrationAuthenticateHeader is null)
@@ -94,25 +54,17 @@ internal sealed class RemoteAppAuthenticationModule : IHttpModule
                 context.Response.StatusCode = 400;
             }
 
-            // Clear any existing handler as this request is now completely handled
-            context.Handler = null;
+            return false;
         }
-        else if (apiKey is null || !string.Equals(_remoteAppOptions.ApiKey, apiKey, StringComparison.Ordinal))
+        else if (!HasValidApiKey(context))
         {
             // Requests to the authentication endpoint must include a valid API key.
             // Requests without an API key or with an invalid API key are considered malformed.
             context.Response.StatusCode = 400;
 
-            // Clear any existing handler as this request is now completely handled
-            context.Handler = null;
+            return false;
         }
-        else
-        {
-            context.Handler = _remoteAppAuthHandler;
-        }
-    }
 
-    public void Dispose()
-    {
+        return true;
     }
 }

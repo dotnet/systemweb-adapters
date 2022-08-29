@@ -24,9 +24,8 @@ public static class RemoteAppServerExtensions
             throw new ArgumentNullException(nameof(configure));
         }
 
-        var options = builder.Services.AddOptions<RemoteAppServerOptions>()
-            .Validate(options => !string.IsNullOrEmpty(options.ApiKey), "ApiKey must be set")
-            .Validate(options => !string.IsNullOrEmpty(options.ApiKeyHeader), "ApiKeyHeader must be set");
+        builder.Services.AddOptions<RemoteAppServerOptions>()
+            .ValidateDataAnnotations();
 
         configure(new Builder(builder.Services));
 

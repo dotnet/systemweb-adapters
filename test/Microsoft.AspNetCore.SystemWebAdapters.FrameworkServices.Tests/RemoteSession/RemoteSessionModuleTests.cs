@@ -24,21 +24,6 @@ public class RemoteSessionModuleTests
         _fixture = new Fixture();
     }
 
-    [InlineData(null)]
-    [InlineData("")]
-    [Theory]
-    public void VeriyApiKeyIsNotNullOrEmpty(string apiKey)
-    {
-        // Arrange
-        var sessionOptions = Options.Create(new RemoteAppSessionStateServerOptions());
-        var remoteAppOptions = Options.Create(new RemoteAppServerOptions { ApiKey = apiKey });
-        var sessions = new Mock<ILockedSessionCache>();
-        var serializer = new Mock<ISessionSerializer>();
-
-        // Act/Assert
-        Assert.Throws<ArgumentOutOfRangeException>(() => new RemoteSessionModule(sessionOptions, remoteAppOptions, sessions.Object, serializer.Object));
-    }
-
     [InlineData("GET", "true", 401, ApiKey1, ApiKey2, null)]
     [InlineData("GET", "true", 0, ApiKey1, ApiKey1, typeof(ReadOnlySessionHandler))]
     [InlineData("GET", "false", 0, ApiKey1, ApiKey1, typeof(GetWriteableSessionHandler))]
@@ -82,7 +67,7 @@ public class RemoteSessionModuleTests
         context.SetupProperty(c => c.Handler);
 
         // Act
-        module.MapRemoteSessionHandler(context.Object);
+        module.HandleRequest(context.Object);
 
         // Assert
         Assert.Equal(statusCode, response.Object.StatusCode);

@@ -27,7 +27,7 @@ public static class RemoteAppAuthenticationExtensions
 
         builder.Services.AddScoped<IHttpModule, RemoteAppAuthenticationModule>();
         var options = builder.Services.AddOptions<RemoteAppAuthenticationServerOptions>()
-            .Validate(options => !string.IsNullOrEmpty(options.AuthenticationEndpointPath), "AuthenticationEndpointPath must be set");
+            .ValidateDataAnnotations();
 
         if (configure is not null)
         {
