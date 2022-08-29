@@ -8,8 +8,10 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal abstract class RemoteModule : IHttpModule
 {
-    private readonly Dictionary<string, Func<HttpContextBase, IHttpHandler?>> _mapping = new(StringComparer.OrdinalIgnoreCase);
     private readonly IOptions<RemoteAppServerOptions> _options;
+
+    private Func<HttpContextBase, IHttpHandler?>? _get;
+    private Func<HttpContextBase, IHttpHandler?>? _put;
 
     protected RemoteModule(IOptions<RemoteAppServerOptions> options)
     {
@@ -18,10 +20,11 @@ internal abstract class RemoteModule : IHttpModule
 
     protected abstract string Path { get; }
 
-    protected void Register(HttpMethod method, Func<HttpContextBase, IHttpHandler?> handler)
-    {
-        _mapping.Add(method.ToString(), handler);
-    }
+    protected void MapGet(Func<HttpContextBase, IHttpHandler?> handler)
+        => _get = handler;
+
+    protected void MapPut(Func<HttpContextBase, IHttpHandler?> handler)
+        => _put = handler;
 
     protected bool HasValidApiKey(HttpContextBase context)
     {
@@ -72,9 +75,13 @@ internal abstract class RemoteModule : IHttpModule
         if (!Authenticate(context))
         {
         }
-        else if (context.Request.HttpMethod is { } method && _mapping.TryGetValue(method, out var action))
+        else if (string.Equals("GET", context.Request.HttpMethod, StringComparison.OrdinalIgnoreCase) && _get is { } get)
         {
-            context.Handler = action(context);
+            context.Handler = get(context);
+        }
+        else if (string.Equals("PUT", context.Request.HttpMethod, StringComparison.OrdinalIgnoreCase) && _put is { } put)
+        {
+            context.Handler = put(context);
         }
         else
         {

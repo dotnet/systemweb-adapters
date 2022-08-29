@@ -19,14 +19,14 @@ internal sealed class RemoteSessionModule : RemoteModule
 
         var options = sessionOptions.Value;
 
+        Path = options.SessionEndpointPath;
+
         var readonlyHandler = new ReadOnlySessionHandler(serializer);
         var writeableHandler = new GetWriteableSessionHandler(serializer, cache);
         var saveHandler = new StoreSessionStateHandler(cache, options.CookieName);
 
-        Register(HttpMethod.Get, context => GetIsReadonly(context.Request) ? readonlyHandler : writeableHandler);
-        Register(HttpMethod.Put, context => saveHandler);
-
-        Path = options.SessionEndpointPath;
+        MapGet(context => GetIsReadonly(context.Request) ? readonlyHandler : writeableHandler);
+        MapPut(context => saveHandler);
 
         static bool GetIsReadonly(HttpRequestBase request)
             => bool.TryParse(request.Headers.Get(SessionConstants.ReadOnlyHeaderName), out var result) && result;

@@ -20,7 +20,7 @@ internal sealed class RemoteAppAuthenticationModule : RemoteModule
 
         var handler = new RemoteAppAuthenticationHttpHandler();
 
-        Register(HttpMethod.Get, context => handler);
+        MapGet(context => handler);
     }
 
     protected override string Path { get; }
