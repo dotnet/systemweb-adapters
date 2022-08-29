@@ -27,24 +27,12 @@
     <Compile Remove="**/*" />
     <Compile Include="Properties/PropertyInfo.cs" />
     <Compile Include="Generated/Ref.*.cs" />
-    <EmbeddedResource Remove="**/*" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
 
     <PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
-
-    <EmbeddedResource Update="VirtualPathUtilityErrors.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>VirtualPathUtilityErrors.Designer.cs</LastGenOutput>
-      <CustomToolNamespace>System.Web</CustomToolNamespace>
-    </EmbeddedResource>
-    <Compile Update="VirtualPathUtilityErrors.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>VirtualPathUtilityErrors.resx</DependentUpon>
-    </Compile>
     
     <Using Include="Microsoft.AspNetCore.Http.HttpContext" Alias="HttpContextCore" />
     <Using Include="Microsoft.AspNetCore.Http.HttpResponse" Alias="HttpResponseCore" />
@@ -53,7 +41,6 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'net45' ">
     <Compile Remove="**/*" />
-    <EmbeddedResource Remove="**/*" />
     <Compile Include="Properties/PropertyInfo.cs" />
     <Compile Include="Adapters/**/*.cs" />
     <Compile Include="Generated/TypeForwards.*.cs" />

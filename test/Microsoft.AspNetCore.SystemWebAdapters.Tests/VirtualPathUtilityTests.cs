@@ -8,6 +8,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
     {
         [InlineData("/", "/")]
         [InlineData("~/", "/")]
+        [InlineData("~/test/../other", "/other")]
         [Theory]
         public void ToAbsolute(string virtualPath, string expected)
         {
@@ -17,14 +18,16 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Fact]
         public void ToAbsoluteError()
         {
-#if NET40_OR_GREATER
-			// This does not match the documentation
-			Assert.Throws<ArgumentException>(() => VirtualPathUtility.ToAbsolute("hello", "/"));
+            // This does not match the documentation
+            // https://docs.microsoft.com/en-us/dotnet/api/system.web.virtualpathutility.toabsolute?view=netframework-4.8
+            // but it does match the actual framework
+            Assert.Throws<ArgumentException>(() => VirtualPathUtility.ToAbsolute("hello", "/"));
 			Assert.Throws<ArgumentException>(() => VirtualPathUtility.ToAbsolute("../../test", "/"));
-#elif NET6_0_OR_GREATER
-            Assert.Throws<ArgumentOutOfRangeException>(() => VirtualPathUtility.ToAbsolute("hello", "/"));
-            Assert.Throws<ArgumentOutOfRangeException>(() => VirtualPathUtility.ToAbsolute("../../test", "/"));
-#endif
+            Assert.Throws<ArgumentException>(() => VirtualPathUtility.ToAbsolute("~hello", "/"));
+            Assert.Throws<HttpException>(() => VirtualPathUtility.ToAbsolute("~/../../test", "/"));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.ToAbsolute("~/hello", null!));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.ToAbsolute("~/hello", ""));
+            Assert.Throws<ArgumentException>(() => VirtualPathUtility.ToAbsolute("~/hello", "world"));
         }
 
         [InlineData("/", "~/")]

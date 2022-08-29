@@ -20,6 +20,11 @@ public static class VirtualPathUtility
     #region "Private implementation stuff"
     private const char appRelativeCharacter = '~';
     private const string appRelativeCharacterString = "~/";
+    private const string Cannot_exit_up_top_directory = "Cannot use a leading .. to exit above the top directory.";
+    private const string Empty_path_has_no_directory = "Empty path has no directory.";
+    private const string Invalid_vpath = "'{0}' is not a valid virtual path.";
+    private const string Path_must_be_rooted = "The virtual path '{0}' is not rooted.";
+    private const string Physical_path_not_allowed = "'{0}' is a physical path, but a virtual path was expected.";
 
     private static bool IsRooted(string basepath) => string.IsNullOrEmpty(basepath) || basepath[0] == '/' || basepath[0] == '\\';
 
@@ -141,7 +146,7 @@ public static class VirtualPathUtility
         // Check if it looks like a physical path (UNC shares and C:)
         if (IsAbsolutePhysicalPath(path))
         {
-            throw new HttpException(string.Format(VirtualPathUtilityErrors.Physical_path_not_allowed, path));
+            throw new HttpException(string.Format(Physical_path_not_allowed, path));
         }
 
         // Virtual path can't have colons.
@@ -152,7 +157,7 @@ public static class VirtualPathUtility
         }
         if (HasScheme(path))
         {
-            throw new HttpException(string.Format(VirtualPathUtilityErrors.Invalid_vpath, path));
+            throw new HttpException(string.Format(Invalid_vpath, path));
         }
     }
 
@@ -258,7 +263,7 @@ public static class VirtualPathUtility
                 if (examine - start == 3)
                 {
                     if (list.Count == 0)
-                        throw new HttpException(VirtualPathUtilityErrors.Cannot_exit_up_top_directory);
+                        throw new HttpException(Cannot_exit_up_top_directory);
 
                     // We're about to backtrack onto a starting '~', which would yield
                     // incorrect results.  Instead, make the path App Absolute, and call
@@ -330,10 +335,10 @@ public static class VirtualPathUtility
     public static string? GetDirectory(string virtualPath)
     {
         if (string.IsNullOrEmpty(virtualPath))
-            throw new ArgumentNullException(nameof(virtualPath), VirtualPathUtilityErrors.Empty_path_has_no_directory);
+            throw new ArgumentNullException(nameof(virtualPath), Empty_path_has_no_directory);
 
         if (virtualPath[0] != '/' && virtualPath[0] != appRelativeCharacter)
-            throw new ArgumentException(string.Format(VirtualPathUtilityErrors.Path_must_be_rooted, virtualPath), nameof(virtualPath));
+            throw new ArgumentException(string.Format(Path_must_be_rooted, virtualPath), nameof(virtualPath));
 
         if ((virtualPath[0] == appRelativeCharacter && virtualPath.Length==1) || virtualPath == appRelativeCharacterString) return "/";
         if (virtualPath.Length == 1) return null;
@@ -342,7 +347,7 @@ public static class VirtualPathUtility
 
         // This could happen if the input looks like "~abc"
         if (slashIndex < 0)
-            throw new ArgumentException(string.Format(VirtualPathUtilityErrors.Path_must_be_rooted, virtualPath), nameof(virtualPath));
+            throw new ArgumentException(string.Format(Path_must_be_rooted, virtualPath), nameof(virtualPath));
 
         return virtualPath[..(slashIndex + 1)];
     }
@@ -448,9 +453,9 @@ public static class VirtualPathUtility
 
         // Make sure both virtual paths are rooted
         if (!IsRooted(fromPath))
-            throw new ArgumentException(string.Format(VirtualPathUtilityErrors.Path_must_be_rooted, fromPath));
+            throw new ArgumentException(string.Format(Path_must_be_rooted, fromPath));
         if (!IsRooted(toPath))
-            throw new ArgumentException(string.Format(VirtualPathUtilityErrors.Path_must_be_rooted, toPath));
+            throw new ArgumentException(string.Format(Path_must_be_rooted, toPath));
 
         // Remove the query string, so that System.Uri doesn't corrupt it
         string? queryString = null;
@@ -529,8 +534,8 @@ public static class VirtualPathUtility
     public static string ToAbsolute(string virtualPath)
     {
         if (IsRooted(virtualPath)) return virtualPath;
-        if (IsAppRelative(virtualPath)) return MakeVirtualPathAppAbsolute(virtualPath);
-        throw new ArgumentOutOfRangeException(nameof(virtualPath));
+        if (IsAppRelative(virtualPath)) return ReduceVirtualPath(MakeVirtualPathAppAbsolute(virtualPath));
+        throw new ArgumentException($"The relative virtual path '{virtualPath}' is not allowed here.", nameof(virtualPath));
     }
 
     /// <summary>Converts a virtual path to an application absolute path using the specified application path.</summary>
@@ -542,10 +547,12 @@ public static class VirtualPathUtility
     /// <exception cref="T:System.Web.HttpException">A leading double period (..) is used in the application path to exit above the top directory.</exception>
     public static string ToAbsolute(string virtualPath, string applicationPath)
     {
+        if (string.IsNullOrEmpty(applicationPath)) throw new ArgumentNullException(nameof(applicationPath));
+        if (!IsRooted(applicationPath)) throw new ArgumentException($"The relative virtual path '{virtualPath}' is not allowed here.", nameof(applicationPath));
         if (IsRooted(virtualPath)) return virtualPath;
         var appPath = AppendTrailingSlash(applicationPath);
-        if (IsAppRelative(virtualPath)) return MakeVirtualPathAppAbsolute(virtualPath, appPath);
-        throw new ArgumentOutOfRangeException(nameof(virtualPath));
+        if (IsAppRelative(virtualPath)) return ReduceVirtualPath(MakeVirtualPathAppAbsolute(virtualPath, appPath));
+        throw new ArgumentException($"The relative virtual path '{virtualPath}' is not allowed here.", nameof(virtualPath));
     }
 
     /// <summary>Converts a virtual path to an application-relative path using the application virtual path that is in the <see cref="P:System.Web.HttpRuntime.AppDomainAppVirtualPath" /> property. </summary>
