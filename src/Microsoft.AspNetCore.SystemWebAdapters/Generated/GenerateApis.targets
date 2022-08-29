@@ -1,0 +1,21 @@
+<Project>
+  <PropertyGroup>
+    <PlatformNotSupportedMessage>Only supported when running on ASP.NET Core or System.Web</PlatformNotSupportedMessage>
+    <GenerateTypeForwards Condition=" '$(GenerateTypeForwards)' == '' ">false</GenerateTypeForwards>
+    <GenerateStandard Condition=" '$(GenerateStandard)' == '' ">false</GenerateStandard>
+
+    <__Generate>false</__Generate>
+    <__Generate Condition="$(GenerateTypeForwards) OR $(GenerateStandard)">true</__Generate>
+
+    <GenAPIHeaderFile>$(MSBuildThisFileDirectory)\Header.txt</GenAPIHeaderFile>
+    <GenAPITargetPath Condition="$(GenerateTypeForwards)">$(MSBuildThisFileDirectory)\TypeForwards.Framework.cs</GenAPITargetPath>
+    <GenAPITargetPath Condition="!$(GenerateTypeForwards)">$(MSBuildThisFileDirectory)\Ref.Standard.cs</GenAPITargetPath>
+    <GenAPIAdditionalParameters>-excludeApiList $(MSBuildThisFileDirectory)ExcludedApis.txt -throw "$(PlatformNotSupportedMessage)" -HeaderFile "$(GenAPIHeaderFile)"</GenAPIAdditionalParameters>
+    <GenAPIAdditionalParameters Condition="$(GenerateTypeForwards)">$(GenAPIAdditionalParameters) -writer TypeForwards</GenAPIAdditionalParameters>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$(__Generate)">
+    <PackageReference Include="Microsoft.DotNet.BuildTools.GenAPI" Version="3.0.0-preview4-06015-01" />
+  </ItemGroup>
+
+</Project>

@@ -20,14 +20,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Ref.Standard.cs" />
-    <Compile Remove="TypeForwards.Framework.cs" />
+    <Compile Remove="Generated/*.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <Compile Remove="**/*" />
     <Compile Include="Properties/PropertyInfo.cs" />
-    <Compile Include="Ref.Standard.cs" />
+    <Compile Include="Generated/Ref.*.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
@@ -44,7 +43,7 @@
     <Compile Remove="**/*" />
     <Compile Include="Properties/PropertyInfo.cs" />
     <Compile Include="Adapters/**/*.cs" />
-    <Compile Include="TypeForwards.Framework.cs" />
+    <Compile Include="Generated/TypeForwards.*.cs" />
 
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2">
       <PrivateAssets>all</PrivateAssets>
@@ -54,6 +53,6 @@
     <Reference Include="System.Web" />
   </ItemGroup>
 
-  <Import Condition=" '$(TargetFramework)' == 'net6.0' " Project="GenerateApis.targets" />
+  <Import Condition=" '$(TargetFramework)' == 'net6.0' " Project="Generated/GenerateApis.targets" />
 
 </Project>

@@ -91,6 +91,13 @@ stages:
           name: Build
           displayName: Build
           condition: succeeded()
+        - task: PowerShell@2
+          inputs:
+            filePath: update_apis.ps1
+            argument: -c $(_BuildConfig)
+          name: VerifyTypeForwardsRef
+          displayName: Verify TypeForwards/Reference assembly
+          condition: succeeded()
         - task: PublishTestResults@2
           displayName: Publish xUnit Test Results
           condition: always()
@@ -136,6 +143,13 @@ stages:
           name: Build
           displayName: Build
           condition: succeeded()
+        - task: PowerShell@2
+          inputs:
+            filePath: update_apis.ps1
+            argument: -c $(_BuildConfig)
+          name: VerifyTypeForwardsRef
+          displayName: Verify TypeForwards/Reference assembly
+          condition: succeeded()
         - task: PublishTestResults@2
           displayName: Publish xUnit Test Results
           condition: always()
@@ -172,6 +186,13 @@ stages:
             --prepareMachine
           name: Build
           displayName: Build
+          condition: succeeded()
+        - task: PowerShell@2
+          inputs:
+            filePath: update_apis.ps1
+            argument: -c $(_BuildConfig)
+          name: VerifyTypeForwardsRef
+          displayName: Verify TypeForwards/Reference assembly
           condition: succeeded()
         - task: PublishTestResults@2
           displayName: Publish xUnit Test Results

@@ -7,7 +7,12 @@ M:System.Web.HttpRequest.op_Implicit(Microsoft.AspNetCore.Http.HttpRequest)~Syst
 M:System.Web.HttpRequest.op_Implicit(System.Web.HttpRequest)~Microsoft.AspNetCore.Http.HttpRequest
 M:System.Web.HttpResponse.op_Implicit(Microsoft.AspNetCore.Http.HttpResponse)~System.Web.HttpResponse
 M:System.Web.HttpResponse.op_Implicit(System.Web.HttpResponse)~Microsoft.AspNetCore.Http.HttpResponse
+M:System.Web.HttpResponseBase.op_Implicit(Microsoft.AspNetCore.Http.HttpResponse)~System.Web.HttpResponseBase
+M:System.Web.HttpRequestBase.op_Implicit(Microsoft.AspNetCore.Http.HttpRequest)~System.Web.HttpRequestBase
 
 T:Microsoft.AspNetCore.SystemWebAdapters.ISessionState
 T:Microsoft.AspNetCore.SystemWebAdapters.ISessionKeySerializer
 T:Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization.ISessionSerializer
+
+# We manually type forward this only for .NET 4.7.2+
+T:System.Web.SameSiteMode
