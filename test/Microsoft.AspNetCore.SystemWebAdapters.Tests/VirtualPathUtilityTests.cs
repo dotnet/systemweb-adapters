@@ -75,6 +75,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
             Assert.Equal(expected, (string?)VirtualPathUtility.RemoveTrailingSlash(virtualPath));
         }
 
+        // These are conditional so that these tests can be run against net48.
+        // The GetDirectory function doesn't work unless for app relative paths unless running as a web application.
 #if NET6_0_OR_GREATER
         [InlineData("~", "/")]
         [InlineData("~/", "/")]
@@ -182,6 +184,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
             Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.IsAppRelative(""));
         }
 
+        // These are conditional so that these tests can be run against net48.
+        // The MakeRelative function doesn't work unless for app relative paths unless running as a web application.
 #if NET6_0_OR_GREATER
         [InlineData("~/home/index", "~/api/weather/get", "../api/weather/get")]
         [InlineData("~/home/index", "~/other/index", "../other/index")]
