@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using System;
 
 namespace System.Web;
 
@@ -328,17 +327,16 @@ public static class VirtualPathUtility
     /// <param name="virtualPath">The virtual path.</param>
     /// <exception cref="T:System.ArgumentException">
     ///   <paramref name="virtualPath" /> is not rooted. - or -<paramref name="virtualPath" /> is null or an empty string.</exception>
-    public static string GetDirectory(string virtualPath)
+    public static string? GetDirectory(string virtualPath)
     {
         if (string.IsNullOrEmpty(virtualPath))
-            throw new ArgumentException(VirtualPathUtilityErrors.Empty_path_has_no_directory, nameof(virtualPath));
+            throw new ArgumentNullException(nameof(virtualPath), VirtualPathUtilityErrors.Empty_path_has_no_directory);
 
         if (virtualPath[0] != '/' && virtualPath[0] != appRelativeCharacter)
             throw new ArgumentException(string.Format(VirtualPathUtilityErrors.Path_must_be_rooted, virtualPath), nameof(virtualPath));
 
-        // If it's just "~" or "/", return it unchanged
-        if (virtualPath.Length == 1)
-            return virtualPath;
+        if ((virtualPath[0] == appRelativeCharacter && virtualPath.Length==1) || virtualPath == appRelativeCharacterString) return "/";
+        if (virtualPath.Length == 1) return null;
 
         var slashIndex = virtualPath.LastIndexOf('/');
 
@@ -356,8 +354,7 @@ public static class VirtualPathUtility
     ///   <paramref name="virtualPath" /> contains one or more characters that are not valid, as defined in <see cref="F:System.IO.Path.InvalidPathChars" />. </exception>
     public static string? GetExtension(string virtualPath)
     {
-        if (virtualPath == null)
-            return null;
+        if (string.IsNullOrEmpty(virtualPath)) throw new ArgumentNullException(nameof(virtualPath));
 
         var length = virtualPath.Length;
         for (var i = length; --i >= 0;)
@@ -383,16 +380,15 @@ public static class VirtualPathUtility
     ///   <paramref name="virtualPath" /> contains one or more characters that are not valid, as defined in <see cref="F:System.IO.Path.InvalidPathChars" />. </exception>
     public static string? GetFileName(string virtualPath)
     {
-        if (virtualPath != null)
+        if (string.IsNullOrEmpty(virtualPath)) throw new ArgumentNullException(nameof(virtualPath));
+        if (!IsAppRelative(virtualPath) && !IsRooted(virtualPath)) throw new ArgumentException($"The relative virtual path '{virtualPath}' is not allowed here.", nameof(virtualPath));
+        var length = virtualPath.Length;
+        for (var i = length; --i >= 0;)
         {
-            var length = virtualPath.Length;
-            for (var i = length; --i >= 0;)
-            {
-                var ch = virtualPath[i];
-                if (ch == '/')
-                    return virtualPath.Substring(i + 1, length - i - 1);
+            var ch = virtualPath[i];
+            if (ch == '/')
+                return virtualPath.Substring(i + 1, length - i - 1);
 
-            }
         }
         return virtualPath;
     }
@@ -404,15 +400,8 @@ public static class VirtualPathUtility
     ///   <paramref name="virtualPath" /> is null.</exception>
     public static bool IsAbsolute(string virtualPath)
     {
-        if (virtualPath is null) throw new ArgumentNullException(nameof(virtualPath));
-        if (string.IsNullOrEmpty(virtualPath)) return false;
+        if (string.IsNullOrEmpty(virtualPath)) throw new ArgumentNullException(nameof(virtualPath));
         return IsRooted(virtualPath);
-        //VirtualPath virtualPath1 = VirtualPath.Create(virtualPath);
-        //if (virtualPath1.IsRelative)
-        //{
-        //    return false;
-        //}
-        //return virtualPath1.VirtualPathStringIfAvailable != null;
     }
 
     /// <summary>Returns a Boolean value indicating whether the specified virtual path is relative to the application.</summary>
@@ -422,7 +411,7 @@ public static class VirtualPathUtility
     ///   <paramref name="virtualPath" /> is null.</exception>
     public static bool IsAppRelative(string virtualPath)
     {
-        if (virtualPath == null) return false;
+        if (string.IsNullOrEmpty(virtualPath)) throw new ArgumentNullException();
 
         var len = virtualPath.Length;
 
