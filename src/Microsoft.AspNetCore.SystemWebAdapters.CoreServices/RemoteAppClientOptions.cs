@@ -12,6 +12,32 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 /// </summary>
 public class RemoteAppClientOptions
 {
+    // Matches an empty GUID (32 0s) with dashes, parentheses, and braces optional
+    private const string EmptyGuidRegex =
+        "[({]?" + // Optional starting brace or parenthesis
+        "0{8}-?" + // 8 0s followed, optionally, by a -
+        "0{4}-?" + // 4 0s followed, optionally, by a -
+        "0{4}-?" + // 4 0s followed, optionally, by a -
+        "0{4}-?" + // 4 0s followed, optionally, by a -
+        "0{12}-?" + // 12 0s followed, optionally, by a -
+        "[})]?";      // Optional closing brace or parenthesis
+
+    // Matches a GUID with dashes, parentheses, and braces optional
+    private const string GuidRegex =
+        "[({]?" + // Optional starting brace or parenthesis
+        "[0-9a-fA-F]{8}-?" + // 8 hex digits followed, optionally, by a -
+        "[0-9a-fA-F]{4}-?" + // 4 hex digits followed, optionally, by a -
+        "[0-9a-fA-F]{4}-?" + // 4 hex digits followed, optionally, by a -
+        "[0-9a-fA-F]{4}-?" + // 4 hex digits followed, optionally, by a -
+        "[0-9a-fA-F]{12}-?" + // 12 hex digits followed, optionally, by a -
+        "[})]?";              // Optional closing brace or parenthesis
+
+    // Matches a GUID that is not an empty GUID
+    private const string NonEmptyGuidRegex =
+        $"^" + // Beginning of string anchor
+        $"(?!{EmptyGuidRegex})" + // Looking ahead does *not* match empty GUID
+        $"{GuidRegex}$";          // Matches GUID
+
     /// <summary>
     /// Gets or sets the header used to store the API key
     /// </summary>
@@ -21,7 +47,7 @@ public class RemoteAppClientOptions
     /// <summary>
     /// Gets or sets an API key used to secure the endpoint
     /// </summary>
-    [Required]
+    [Required, RegularExpression(NonEmptyGuidRegex, ErrorMessage = "API Key must be 32 hex characters (for example a GUID)")]
     public string ApiKey { get; set; } = null!;
 
     /// <summary>
