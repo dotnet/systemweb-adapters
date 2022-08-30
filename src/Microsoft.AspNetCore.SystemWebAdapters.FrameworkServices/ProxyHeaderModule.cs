@@ -1,9 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections.Specialized;
 using System.Globalization;
+using System.Reflection;
 using System.Web;
 using Microsoft.Extensions.Options;
 
@@ -26,10 +26,12 @@ internal class ProxyHeaderModule : IHttpModule
     private const string Off = "off";
 
     private readonly IOptions<ProxyOptions> _options;
+    private readonly ReflectionHelper _reflectionHelper;
 
     public ProxyHeaderModule(IOptions<ProxyOptions> options)
     {
         _options = options ?? throw new ArgumentNullException(nameof(options));
+        _reflectionHelper = new ReflectionHelper();
     }
 
     public void Dispose()
@@ -45,7 +47,7 @@ internal class ProxyHeaderModule : IHttpModule
             context.BeginRequest += (s, e) =>
             {
                 var request = ((HttpApplication)s).Context.Request;
-                UseHeaders(request.Headers, request.ServerVariables);
+                UseHeaders(request.Headers, request.ServerVariables, request);
             };
         }
         else
@@ -55,12 +57,12 @@ internal class ProxyHeaderModule : IHttpModule
             context.BeginRequest += (s, e) =>
             {
                 var request = ((HttpApplication)s).Context.Request;
-                UseOptions(values, request.Headers, request.ServerVariables);
+                UseOptions(values, request.Headers, request.ServerVariables, request);
             };
         }
     }
 
-    public void UseHeaders(NameValueCollection requestHeaders, NameValueCollection serverVariables)
+    public void UseHeaders(NameValueCollection requestHeaders, NameValueCollection serverVariables, HttpRequest? request = null)
     {
         UseForwardedFor(requestHeaders, serverVariables);
 
@@ -80,10 +82,15 @@ internal class ProxyHeaderModule : IHttpModule
             serverVariables.Set(ServerHttps, value.IsSecure ? On : Off);
 
             requestHeaders[Host] = host;
+
+            if (request != null)
+            {
+                _reflectionHelper.SetHostHeader(request, host);
+            }
         }
     }
 
-    private static void UseOptions(ServerValues values, NameValueCollection requestHeaders, NameValueCollection serverVariables)
+    private void UseOptions(ServerValues values, NameValueCollection requestHeaders, NameValueCollection serverVariables, HttpRequest? request = null)
     {
         UseForwardedFor(requestHeaders, serverVariables);
 
@@ -91,8 +98,12 @@ internal class ProxyHeaderModule : IHttpModule
         serverVariables.Set(ServerPort, values.Port);
         serverVariables.Set(ServerHttps, values.Https);
         requestHeaders[Host] = values.Host;
-    }
 
+        if (request != null)
+        {
+            _reflectionHelper.SetHostHeader(request, values.Host);
+        }
+    }
 
     private static void UseForwardedFor(NameValueCollection requestHeaders, NameValueCollection serverVariables)
     {
@@ -100,6 +111,31 @@ internal class ProxyHeaderModule : IHttpModule
         {
             serverVariables.Set("REMOTE_ADDR", remote);
             serverVariables.Set("REMOTE_HOST", remote);
+        }
+    }
+
+    private class ReflectionHelper
+    {
+        private readonly FieldInfo _wrField;
+        private readonly FieldInfo _knownRequestHeadersField;
+
+        public ReflectionHelper()
+        {
+            _wrField = typeof(HttpRequest).GetField("_wr", BindingFlags.NonPublic | BindingFlags.Instance);
+            var type = Assembly.GetAssembly(typeof(HttpRequest)).GetType("System.Web.Hosting.IIS7WorkerRequest");
+            _knownRequestHeadersField = type.GetField("_knownRequestHeaders", BindingFlags.NonPublic | BindingFlags.Instance);
+        }
+        
+        public void SetHostHeader(HttpRequest request, string host)
+        {
+            // Need to use reflection to force HttpRequest to update the known headers
+            var workerRequest = _wrField.GetValue(request);
+            var knownRequestHeaders = (string[])_knownRequestHeadersField.GetValue(workerRequest);
+            // We don't need to do anything if the known headers haven't been built yet
+            if (knownRequestHeaders != null)
+            {
+                knownRequestHeaders[HttpWorkerRequest.HeaderHost] = host;
+            }
         }
     }
 

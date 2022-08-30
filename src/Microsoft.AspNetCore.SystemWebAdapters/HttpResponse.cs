@@ -25,17 +25,17 @@ namespace System.Web
 
         private NameValueCollection? _headers;
         private ResponseHeaders? _typedHeaders;
-        private IHttpRequestAdapterFeature? _adapterFeature;
+        private FeatureReference<IHttpResponseAdapterFeature> _adapterFeature;
         private TextWriter? _writer;
         private HttpCookieCollection? _cookies;
 
         internal HttpResponse(HttpResponseCore response)
         {
             _response = response;
+            _adapterFeature = FeatureReference<IHttpResponseAdapterFeature>.Default;
         }
 
-        private IHttpRequestAdapterFeature AdapterFeature => _adapterFeature ??= _response.HttpContext.Features.Get<IHttpRequestAdapterFeature>()
-            ?? throw new InvalidOperationException($"Response buffering must be enabled on this endpoint for this API via the BufferResponseStreamAttribute metadata item");
+        private IHttpResponseAdapterFeature AdapterFeature => _adapterFeature.Fetch(_response.HttpContext.Features) ?? throw new InvalidOperationException($"Response buffering must be enabled on this endpoint for this API via the BufferResponseStreamAttribute metadata item");
 
         internal ResponseHeaders TypedHeaders => _typedHeaders ??= new(_response.Headers);
 

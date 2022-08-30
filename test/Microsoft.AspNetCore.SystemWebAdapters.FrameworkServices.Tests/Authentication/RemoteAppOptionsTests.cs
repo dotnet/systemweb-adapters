@@ -34,7 +34,7 @@ public class RemoteAppOptionsTests
 
         using var serviceProvider = services.BuildServiceProvider();
 
-        var options = serviceProvider.GetRequiredService<IOptions<RemoteAppOptions>>();
+        var options = serviceProvider.GetRequiredService<IOptions<RemoteAppServerOptions>>();
 
         // Act/Assert
         if (shouldSucceed)

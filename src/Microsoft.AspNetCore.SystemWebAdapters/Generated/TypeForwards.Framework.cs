@@ -1,6 +1,21 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#pragma warning disable CA1822 // Mark members as static
+#pragma warning disable CA1010 // Generic interface should also be implemented
+#pragma warning disable CA1055 // URI-like return values should not be strings
+#pragma warning disable CA1710 // Identifiers should have correct suffix
+#pragma warning disable CA1008 // Enums should have zero value
+#pragma warning disable CA1027 // Mark enums with FlagsAttribute
+#pragma warning disable CA1069 // Enums values should not be duplicated
+#pragma warning disable CA1819 // Properties should not return arrays
+#pragma warning disable CA1056 // URI-like properties should not be strings
+#pragma warning disable CA1024 // Use properties where appropriate
+#pragma warning disable CA1724 // Type names should not match namespaces
+#pragma warning disable CA1716 // Using a reserved keyword as the name of a virtual/interface member makes it harder for consumers in other languages to override/implement the member.
+#pragma warning disable CA1054 // URI parameters should not be strings
+#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
+
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpBrowserCapabilities))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpBrowserCapabilitiesBase))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpBrowserCapabilitiesWrapper))]
@@ -26,11 +41,7 @@
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpSessionStateWrapper))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpUnhandledException))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.ISubscriptionToken))]
-
-#if NET472_OR_GREATER
-[assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.SameSiteMode))]
-#endif
-
+[assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.ReadEntityBodyMode))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Caching.Cache))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Caching.CacheDependency))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Caching.CacheItemPriority))]

@@ -2,89 +2,175 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Diagnostics;
 using System.IO;
-using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-/// <summary>
-/// This feature implements the <see cref="IHttpRequestAdapterFeature"/> to expose functionality for the adapters. As part of that,
-/// it overrides the following features as well:
-/// 
-/// <list>
-///   <item>
-///     <see cref="IHttpResponseBodyFeature"/>: Provide ability to turn off writing to the stream, while also supporting the ability to clear and suppress output
-///   </item>
-/// </list> 
-/// </summary>
-internal class HttpRequestAdapterFeature : Stream, IHttpResponseBodyFeature, IHttpRequestAdapterFeature
+internal class HttpRequestAdapterFeature : IHttpRequestAdapterFeature, IHttpRequestFeature, IDisposable
 {
-    private enum StreamState
+    private readonly int _bufferThreshold;
+    private readonly long? _bufferLimit;
+    private readonly IHttpRequestFeature _other;
+
+    private Stream? _bufferedStream;
+
+    public HttpRequestAdapterFeature(IHttpRequestFeature other, int bufferThreshold, long? bufferLimit)
     {
-        NotStarted,
-        Buffering,
-        NotBuffering,
-        Complete,
+        _bufferThreshold = bufferThreshold;
+        _bufferLimit = bufferLimit;
+        _other = other;
     }
 
-    private readonly IHttpResponseBodyFeature _responseBodyFeature;
-    private readonly BufferResponseStreamAttribute _metadata;
+    public ReadEntityBodyMode Mode { get; private set; }
 
-    private FileBufferingWriteStream? _bufferedStream;
-    private PipeWriter? _pipeWriter;
-    private bool _suppressContent;
-    private StreamState _state; 
-
-    public HttpRequestAdapterFeature(IHttpResponseBodyFeature httpResponseBody, BufferResponseStreamAttribute metadata)
+    public Stream GetBufferedInputStream()
     {
-        _responseBodyFeature = httpResponseBody;
-        _metadata = metadata;
-        _state = StreamState.NotStarted;
-    }
-
-    Task IHttpResponseBodyFeature.CompleteAsync() => CompleteAsync();
-
-    void IHttpResponseBodyFeature.DisableBuffering()
-    {
-        if (_state == StreamState.NotStarted)
+        if (Mode is ReadEntityBodyMode.Buffered)
         {
-            _state = StreamState.NotBuffering;
-            _responseBodyFeature.DisableBuffering();
-            _pipeWriter = _responseBodyFeature.Writer;
+            Debug.Assert(_bufferedStream is not null);
+            return _bufferedStream;
+        }
+
+        if (Mode is ReadEntityBodyMode.None)
+        {
+            Mode = ReadEntityBodyMode.Buffered;
+
+            return _bufferedStream = new FileBufferingReadStream(_other.Body, _bufferThreshold, _bufferLimit, AspNetCoreTempDirectory.TempDirectoryFactory);
+        }
+
+        throw new InvalidOperationException("GetBufferlessInputStream cannot be called after other stream access");
+    }
+
+    Stream IHttpRequestAdapterFeature.GetBufferlessInputStream()
+    {
+        if (Mode is ReadEntityBodyMode.Bufferless or ReadEntityBodyMode.None)
+        {
+            Mode = ReadEntityBodyMode.Bufferless;
+            return GetBody();
+        }
+
+        throw new InvalidOperationException("GetBufferlessInputStream cannot be called after other stream access");
+    }
+
+    Stream IHttpRequestAdapterFeature.InputStream
+    {
+        get
+        {
+            if (Mode is ReadEntityBodyMode.Classic && _bufferedStream is not null)
+            {
+                return _bufferedStream;
+            }
+
+            throw new InvalidOperationException("InputStream must be prebuffered");
         }
     }
 
-    Task IHttpResponseBodyFeature.StartAsync(CancellationToken cancellationToken)
+    async Task<Stream> IHttpRequestAdapterFeature.GetInputStreamAsync(CancellationToken token)
     {
-        if (_state == StreamState.NotStarted)
+        await BufferInputStreamAsync(token);
+        return GetBody();
+    }
+
+    public async Task BufferInputStreamAsync(CancellationToken token)
+    {
+        if (Mode is ReadEntityBodyMode.Classic)
         {
-            _state = StreamState.Buffering;
+            return;
         }
 
-        return _responseBodyFeature.StartAsync(cancellationToken);
+        if (Mode is not ReadEntityBodyMode.None)
+        {
+            throw new InvalidOperationException("InputStream cannot be called after other stream access");
+        }
+
+        var stream = GetBufferedInputStream();
+        await stream.DrainAsync(token);
+        stream.Position = 0;
+
+        Mode = ReadEntityBodyMode.Classic;
     }
 
-    Stream IHttpResponseBodyFeature.Stream => this;
+    public void Dispose() => _bufferedStream?.Dispose();
 
-    PipeWriter IHttpResponseBodyFeature.Writer => _pipeWriter ??= PipeWriter.Create(this, new StreamPipeWriterOptions(leaveOpen: true));
-
-    bool IHttpRequestAdapterFeature.SuppressContent
+    string IHttpRequestFeature.Protocol
     {
-        get => _suppressContent;
-        set => _suppressContent = value;
+        get => _other.Protocol;
+        set => _other.Protocol = value;
     }
 
-    Task IHttpRequestAdapterFeature.EndAsync() => CompleteAsync();
-
-    bool IHttpRequestAdapterFeature.IsEnded => _state == StreamState.Complete;
-
-    void IHttpRequestAdapterFeature.ClearContent()
+    string IHttpRequestFeature.Scheme
     {
+        get => _other.Scheme;
+        set => _other.Scheme = value;
+    }
+
+    string IHttpRequestFeature.Method
+    {
+        get => _other.Method;
+        set => _other.Method = value;
+    }
+
+    string IHttpRequestFeature.PathBase
+    {
+        get => _other.PathBase;
+        set => _other.PathBase = value;
+    }
+
+    string IHttpRequestFeature.Path
+    {
+        get => _other.Path;
+        set => _other.Path = value;
+    }
+
+    string IHttpRequestFeature.QueryString
+    {
+        get => _other.QueryString;
+        set => _other.QueryString = value;
+    }
+
+    string IHttpRequestFeature.RawTarget
+    {
+        get => _other.RawTarget;
+        set => _other.RawTarget = value;
+    }
+
+    IHeaderDictionary IHttpRequestFeature.Headers
+    {
+        get => _other.Headers;
+        set => _other.Headers = value;
+    }
+
+    Stream IHttpRequestFeature.Body
+    {
+        get
+        {
+            var body = GetBody();
+
+            if (Mode is ReadEntityBodyMode.None)
+            {
+                Mode = body.CanSeek ? ReadEntityBodyMode.Buffered : ReadEntityBodyMode.Bufferless;
+            }
+
+            return body;
+        }
+        set
+        {
+            _other.Body = value;
+            Reset();
+        }
+    }
+
+    private void Reset()
+    {
+        Mode = ReadEntityBodyMode.None;
+
         if (_bufferedStream is not null)
         {
             _bufferedStream.Dispose();
@@ -92,88 +178,34 @@ internal class HttpRequestAdapterFeature : Stream, IHttpResponseBodyFeature, IHt
         }
     }
 
-    private Stream CurrentStream
+    private Stream GetBody() => _bufferedStream ?? _other.Body;
+
+    internal static class AspNetCoreTempDirectory
     {
-        get
+        private static string? _tempDirectory;
+
+        public static string TempDirectory
         {
-            if (_state == StreamState.NotBuffering)
+            get
             {
-                return _responseBodyFeature.Stream;
-            }
-            else if (_state == StreamState.Complete)
-            {
-                return Null;
-            }
-            else
-            {
-                _state = StreamState.Buffering;
-                return _bufferedStream ??= new FileBufferingWriteStream(_metadata.MemoryThreshold, _metadata.BufferLimit);
+                if (_tempDirectory == null)
+                {
+                    // Look for folders in the following order.
+                    var temp = Environment.GetEnvironmentVariable("ASPNETCORE_TEMP") ?? // ASPNETCORE_TEMP - User set temporary location.
+                               Path.GetTempPath();                                      // Fall back.
+
+                    if (!Directory.Exists(temp))
+                    {
+                        throw new DirectoryNotFoundException(temp);
+                    }
+
+                    _tempDirectory = temp;
+                }
+
+                return _tempDirectory;
             }
         }
+
+        public static Func<string> TempDirectoryFactory => () => TempDirectory;
     }
-
-    public override async ValueTask DisposeAsync()
-    {
-        if (_bufferedStream is not null)
-        {
-            await _bufferedStream.DisposeAsync();
-        }
-
-        await base.DisposeAsync();
-    }
-
-    public async ValueTask FlushBufferedStreamAsync()
-    {
-        if (_state is StreamState.Buffering && _bufferedStream is not null && !_suppressContent)
-        {
-            await _bufferedStream.DrainBufferAsync(_responseBodyFeature.Stream);
-        }
-    }
-
-    public override bool CanRead => true;
-
-    public override bool CanSeek => false;
-
-    public override bool CanWrite => true;
-
-    public override long Length => CurrentStream.Length;
-
-    public override long Position
-    {
-        get => throw new NotSupportedException();
-        set => throw new NotSupportedException();
-    }
-
-
-    private async Task CompleteAsync()
-    {
-        await FlushBufferedStreamAsync();
-        await _responseBodyFeature.CompleteAsync();
-        _state = StreamState.Complete;
-    }
-
-    public override void Flush() => CurrentStream.Flush();
-
-    public override Task FlushAsync(CancellationToken cancellationToken) => CurrentStream.FlushAsync(cancellationToken);
-
-    public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
-
-    public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
-
-    public Task SendFileAsync(string path, long offset, long? count, CancellationToken cancellationToken = default)
-        => SendFileFallback.SendFileAsync(CurrentStream, path, offset, count, cancellationToken);
-
-    public override void SetLength(long value) => throw new NotSupportedException();
-
-    public override void Write(byte[] buffer, int offset, int count) => CurrentStream.Write(buffer, offset, count);
-
-    public override void Write(ReadOnlySpan<byte> buffer) => CurrentStream.Write(buffer);
-
-    public override void WriteByte(byte value) => CurrentStream.WriteByte(value);
-
-    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
-        => CurrentStream.WriteAsync(buffer, cancellationToken);
-
-    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-        => CurrentStream.WriteAsync(buffer, offset, count, cancellationToken);
 }

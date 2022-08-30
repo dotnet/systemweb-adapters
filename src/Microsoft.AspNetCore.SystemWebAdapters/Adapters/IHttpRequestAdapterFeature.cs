@@ -1,21 +1,26 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#if NET6_0_OR_GREATER
+#if NETCOREAPP
 
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal interface IHttpRequestAdapterFeature
 {
-    bool IsEnded { get; }
+    ReadEntityBodyMode Mode { get; }
 
-    bool SuppressContent { get; set; }
+    Task<Stream> GetInputStreamAsync(CancellationToken token);
 
-    Task EndAsync();
+    Stream InputStream { get; }
 
-    void ClearContent();
+    Stream GetBufferedInputStream();
+
+    Stream GetBufferlessInputStream();
 }
 
 #endif

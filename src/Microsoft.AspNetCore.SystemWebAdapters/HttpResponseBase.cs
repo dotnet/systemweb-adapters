@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
+using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace System.Web
 {
@@ -108,5 +109,8 @@ namespace System.Web
         public virtual void TransmitFile(string filename) => throw new NotImplementedException();
 
         public virtual void TransmitFile(string filename, long offset, long length) => throw new NotImplementedException();
+
+        [return: NotNullIfNotNull("response")]
+        public static implicit operator HttpResponseBase?(HttpResponseCore? response) => response?.GetAdapterBase();
     }
 }

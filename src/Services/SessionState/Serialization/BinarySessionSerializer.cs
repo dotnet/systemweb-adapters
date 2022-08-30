@@ -8,12 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-
-#if !NETFRAMEWORK
 using Microsoft.Extensions.Logging;
-
-#endif
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
@@ -24,15 +20,6 @@ internal partial class BinarySessionSerializer : ISessionSerializer
     private readonly SessionSerializerOptions _options;
     private readonly ISessionKeySerializer _serializer;
 
-#if NETFRAMEWORK
-    public BinarySessionSerializer(ISessionKeySerializer serializer, IOptions<SessionSerializerOptions> options)
-    {
-        _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-    }
-
-    partial void LogSerialization(string key);
-#else
     private readonly ILogger<BinarySessionSerializer> _logger;
 
     public BinarySessionSerializer(ISessionKeySerializer serializer, IOptions<SessionSerializerOptions> options, ILogger<BinarySessionSerializer> logger)
@@ -47,7 +34,6 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 
     [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Could not deserialize unknown session key '{Key}'")]
     partial void LogDeserialization(string key);
-#endif
 
     public void Write(ISessionState state, BinaryWriter writer)
     {
@@ -123,12 +109,10 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 
         if (state.UnknownKeys is { Count: > 0 } unknownKeys)
         {
-#if !NETFRAMEWORK
             foreach (var unknown in unknownKeys)
             {
                 LogDeserialization(unknown);
             }
-#endif
 
             if (_options.ThrowOnUnknownSessionKey)
             {

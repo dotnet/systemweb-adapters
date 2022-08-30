@@ -25,24 +25,25 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
     private readonly IAuthenticationResultFactory _resultFactory;
     private readonly ILogger<RemoteAppAuthenticationService> _logger;
     private readonly IOptionsSnapshot<RemoteAppAuthenticationClientOptions> _authOptionsSnapshot;
-    private readonly RemoteAppOptions _remoteAppOptions;
+
     private RemoteAppAuthenticationClientOptions? _options;
 
     public RemoteAppAuthenticationService(
         IHttpClientFactory httpClientFactory,
         IAuthenticationResultFactory resultFactory,
         IOptionsSnapshot<RemoteAppAuthenticationClientOptions> authOptions,
-        IOptions<RemoteAppOptions> remoteAppOptions,
+        IOptions<RemoteAppClientOptions> remoteAppOptions,
         ILogger<RemoteAppAuthenticationService> logger)
     {
-        _remoteAppOptions = remoteAppOptions?.Value ?? throw new ArgumentNullException(nameof(remoteAppOptions));
+        if (httpClientFactory is null)
+        {
+            throw new ArgumentNullException(nameof(httpClientFactory));
+        }
+
         _resultFactory = resultFactory ?? throw new ArgumentNullException(nameof(resultFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _authOptionsSnapshot = authOptions ?? throw new ArgumentNullException(nameof(authOptions));
-
-        // Use the HttpClient supplied in options if one is present;
-        // otherwise, generate a client with an IHttpClientFactory from DI
-        _client = _remoteAppOptions.BackchannelHttpClient ?? httpClientFactory?.CreateClient(AuthenticationConstants.AuthClientName) ?? throw new ArgumentNullException(nameof(httpClientFactory));
+        _client = httpClientFactory.CreateClient(RemoteConstants.HttpClientName);
     }
 
     /// <summary>
@@ -54,8 +55,6 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
         // Finish initializing the http client here since the scheme won't be known
         // until the owning authentication handler is initialized.
         _options = _authOptionsSnapshot.Get(scheme.Name);
-        _client.BaseAddress = new Uri($"{_remoteAppOptions.RemoteAppUrl.ToString().TrimEnd('/')}{_options.AuthenticationEndpointPath}");
-        _client.DefaultRequestHeaders.Add(_remoteAppOptions.ApiKeyHeader, _remoteAppOptions.ApiKey);
 
         return Task.CompletedTask;
     }
@@ -86,7 +85,7 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
         // that may matter for authentication. Also include the original request path as
         // as a query parameter so that the ASP.NET app can redirect back to it if an
         // authentication provider attempts to redirect back to the authenticate URL.
-        var url = $"?{AuthenticationConstants.OriginalUrlQueryParamName}={WebUtility.UrlEncode(originalRequest.GetEncodedPathAndQuery())}";
+        var url = $"{_options.AuthenticationEndpointPath}?{AuthenticationConstants.OriginalUrlQueryParamName}={WebUtility.UrlEncode(originalRequest.GetEncodedPathAndQuery())}";
         using var authRequest = new HttpRequestMessage(HttpMethod.Get, url);
         AddHeaders(_options.RequestHeadersToForward, originalRequest, authRequest);
 

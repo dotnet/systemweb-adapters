@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.SessionState;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 
 /// <summary>
 /// Represents the state of a session and is used to create a <see cref="HttpSessionState"/>.

@@ -57,9 +57,6 @@ public static class RemoteAppAuthenticationExtensions
 
         authenticationBuilder.Services.AddScoped<IRemoteAppAuthenticationResultProcessor, RedirectUrlProcessor>();
         authenticationBuilder.Services.AddSingleton<IAuthenticationResultFactory, RemoteAppAuthenticationResultFactory>();
-        authenticationBuilder.Services.AddHttpClient(AuthenticationConstants.AuthClientName)
-            // Disable cookies in the HTTP client because the service will manage the cookie header directly
-            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { UseCookies = false, AllowAutoRedirect = false });
         authenticationBuilder.Services.AddTransient<IRemoteAppAuthenticationService, RemoteAppAuthenticationService>();
         authenticationBuilder.Services.AddOptions<RemoteAppAuthenticationClientOptions>(scheme)
             .Configure(configureOptions ?? (_ => { }))

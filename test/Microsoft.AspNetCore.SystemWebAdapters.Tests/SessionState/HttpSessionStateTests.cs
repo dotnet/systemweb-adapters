@@ -7,7 +7,7 @@ using AutoFixture;
 using Moq;
 using Xunit;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters.Tests.SessionState;
+namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Tests;
 
 public class HttpSessionStateTests
 {

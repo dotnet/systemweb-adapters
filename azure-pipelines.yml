@@ -91,6 +91,13 @@ stages:
           name: Build
           displayName: Build
           condition: succeeded()
+        - task: PowerShell@2
+          inputs:
+            filePath: update_apis.ps1
+            argument: -c $(_BuildConfig)
+          name: VerifyTypeForwardsRef
+          displayName: Verify TypeForwards/Reference assembly
+          condition: succeeded()
         - task: PublishTestResults@2
           displayName: Publish xUnit Test Results
           condition: always()
@@ -119,7 +126,7 @@ stages:
 
       - job: macOS
         pool:
-          vmImage: macOS-10.15
+          vmImage: macOS-latest
         strategy:
           matrix:
             release:
@@ -135,6 +142,13 @@ stages:
             --prepareMachine
           name: Build
           displayName: Build
+          condition: succeeded()
+        - task: PowerShell@2
+          inputs:
+            filePath: update_apis.ps1
+            argument: -c $(_BuildConfig)
+          name: VerifyTypeForwardsRef
+          displayName: Verify TypeForwards/Reference assembly
           condition: succeeded()
         - task: PublishTestResults@2
           displayName: Publish xUnit Test Results
@@ -155,7 +169,7 @@ stages:
 
       - job: Linux
         pool:
-          vmImage: ubuntu-18.04
+          vmImage: ubuntu-latest
           container: LinuxContainer
         strategy:
           matrix:
@@ -172,6 +186,13 @@ stages:
             --prepareMachine
           name: Build
           displayName: Build
+          condition: succeeded()
+        - task: PowerShell@2
+          inputs:
+            filePath: update_apis.ps1
+            argument: -c $(_BuildConfig)
+          name: VerifyTypeForwardsRef
+          displayName: Verify TypeForwards/Reference assembly
           condition: succeeded()
         - task: PublishTestResults@2
           displayName: Publish xUnit Test Results
