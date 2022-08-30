@@ -378,7 +378,6 @@ namespace System.Web
         public virtual string MachineName { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual void ClearError() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual System.Exception GetLastError() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        [System.ObsoleteAttribute("Not implemented yet for ASP.NET Core")]
         public virtual string MapPath(string path) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual byte[] UrlTokenDecode(string input) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual string UrlTokenEncode(byte[] input) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
