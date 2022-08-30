@@ -21,7 +21,7 @@ builder.Services.AddSystemWebAdapters()
         .Configure(options =>
         {
             options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
-            options.ApiKey = ClassLibrary.RemoteServiceUtils.ApiKey;
+            options.ApiKey = builder.Configuration["RemoteAppApiKey"];
         })
         .AddAuthentication(true)
         .AddSession())

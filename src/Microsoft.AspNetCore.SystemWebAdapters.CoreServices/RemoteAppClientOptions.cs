@@ -21,7 +21,7 @@ public class RemoteAppClientOptions
     /// <summary>
     /// Gets or sets an API key used to secure the endpoint
     /// </summary>
-    [Required]
+    [Required, ApiKey]
     public string ApiKey { get; set; } = null!;
 
     /// <summary>

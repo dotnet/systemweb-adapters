@@ -10,10 +10,7 @@ builder.Services.AddSystemWebAdapters()
         .Configure(options =>
         {
             options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
-
-            // A real application would not hard code this, but load it
-            // securely from environment or configuration
-            options.ApiKey = "TopSecretString";
+            options.ApiKey = builder.Configuration["RemoteAppApiKey"];
         })
 
         // This registers the remote app authentication handler. The boolean argument indicates whether remote app auth

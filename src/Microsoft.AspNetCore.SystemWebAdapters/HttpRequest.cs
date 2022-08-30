@@ -182,8 +182,7 @@ namespace System.Web
 
         public string AppRelativeCurrentExecutionFilePath => $"~{_request.Path.Value}";
 
-        [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = Constants.ApiFromAspNet)]
-        public string ApplicationPath => HttpRuntime.AppDomainAppVirtualPath;
+        public string ApplicationPath => _request.HttpContext.RequestServices.GetRequiredService<IHttpRuntime>().AppDomainAppVirtualPath;
 
         public Uri? UrlReferrer => TypedHeaders.Referer;
 

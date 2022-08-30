@@ -2,13 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Web;
 using System.Web.Caching;
 using System.Web.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SystemWebAdapters;
-using Microsoft.AspNetCore.SystemWebAdapters.Mvc;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +16,7 @@ public static class SystemWebAdaptersExtensions
     public static ISystemWebAdapterBuilder AddSystemWebAdapters(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
+        services.AddSingleton<IHttpRuntime>(_ => HttpRuntimeFactory.Create());
         services.AddSingleton<Cache>();
         services.AddSingleton<BrowserCapabilitiesFactory>();
         services.AddTransient<IStartupFilter, HttpContextStartupFilter>();
@@ -27,6 +27,8 @@ public static class SystemWebAdaptersExtensions
 
     public static void UseSystemWebAdapters(this IApplicationBuilder app)
     {
+        HttpRuntime.Current = app.ApplicationServices.GetRequiredService<IHttpRuntime>();
+
         app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
         app.UseMiddleware<PreBufferRequestStreamMiddleware>();
         app.UseMiddleware<SessionMiddleware>();

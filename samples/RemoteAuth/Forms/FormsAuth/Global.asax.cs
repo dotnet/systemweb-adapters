@@ -1,4 +1,5 @@
 using System;
+using System.Configuration;
 using System.Web;
 using System.Web.Optimization;
 using System.Web.Routing;
@@ -19,7 +20,7 @@ namespace FormsAuth
                 .AddRemoteAppServer(remote => remote
                     .Configure(options =>
                     {
-                        options.ApiKey = "FormsAuthSampleKey";
+                        options.ApiKey = ConfigurationManager.AppSettings["RemoteAppApiKey"];
                     })
                     .AddAuthentication());
         }
