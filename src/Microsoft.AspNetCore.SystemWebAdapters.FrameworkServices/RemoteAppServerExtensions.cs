@@ -27,6 +27,8 @@ public static class RemoteAppServerExtensions
         builder.Services.AddOptions<RemoteAppServerOptions>()
             .ValidateDataAnnotations();
 
+        builder.AddRemoteDiagnostics();
+
         configure(new Builder(builder.Services));
 
         return builder;

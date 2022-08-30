@@ -50,7 +50,8 @@ public static class RemoteAppClientExtensions
                 client.DefaultRequestHeaders.Add(options.ApiKeyHeader, options.ApiKey);
             });
 
-        configure(new Builder(builder.Services));
+        configure(new Builder(builder.Services)
+            .AddRemoteAppDiagnostics());
 
         return builder;
     }

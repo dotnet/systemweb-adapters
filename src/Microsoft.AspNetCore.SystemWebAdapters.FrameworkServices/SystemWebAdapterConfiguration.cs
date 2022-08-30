@@ -26,9 +26,7 @@ public static class SystemWebAdapterConfiguration
             {
                 var services = new ServiceCollection();
 
-                services.AddLogging();
-
-                application.Application[Key] = new SystemWebAdapterBuilder(services);
+                application.Application[Key] = new SystemWebAdapterBuilder(services).AddDefaultServices();
 
                 // If a service provider has been created, ensure it's disposed at
                 // application shutdown.
@@ -54,6 +52,14 @@ public static class SystemWebAdapterConfiguration
         {
             application.Application.UnLock();
         }
+    }
+
+    public static ISystemWebAdapterBuilder AddDefaultServices(this ISystemWebAdapterBuilder builder)
+    {
+        builder.Services.AddLogging();
+        builder.AddDiagnostics();
+
+        return builder;
     }
 
     public static ISystemWebAdapterBuilder AddProxySupport(this ISystemWebAdapterBuilder builder, Action<ProxyOptions> configure)

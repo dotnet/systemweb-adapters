@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Diagnostics;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,7 @@ public static class RemoteAppSessionStateExtensions
         }
 
         builder.Services.AddTransient<ISessionManager, RemoteAppSessionStateManager>();
+        builder.Services.AddTransient<IClientDiagnostic, SessionDiagnostic>();
 
         builder.Services.AddOptions<RemoteAppSessionStateClientOptions>()
             .Configure(configure ?? (_ => { }))

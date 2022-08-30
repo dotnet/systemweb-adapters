@@ -31,7 +31,9 @@ public static class SessionSerializerExtensions
             options.Configure(configure);
         }
 
-        builder.Services.TryAddSingleton<ISessionSerializer, BinarySessionSerializer>();
+        builder.Services.TryAddSingleton<BinarySessionSerializer>();
+        builder.Services.TryAddSingleton<ISessionSerializer>(ctx => ctx.GetRequiredService<BinarySessionSerializer>());
+        builder.Services.TryAddSingleton<IUnknownKeyTracker>(ctx => ctx.GetRequiredService<BinarySessionSerializer>());
 
         return builder;
     }

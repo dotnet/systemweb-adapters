@@ -22,7 +22,8 @@ public static class SystemWebAdaptersExtensions
         services.AddTransient<IStartupFilter, HttpContextStartupFilter>();
 
         return new SystemWebAdapterBuilder(services)
-            .AddMvc();
+            .AddMvc()
+            .AddDiagnostics();
     }
 
     public static void UseSystemWebAdapters(this IApplicationBuilder app)

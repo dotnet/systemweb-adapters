@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,14 +14,17 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
-internal partial class BinarySessionSerializer : ISessionSerializer
+internal partial class BinarySessionSerializer : ISessionSerializer, IUnknownKeyTracker
 {
     private const byte Version = 1;
 
     private readonly SessionSerializerOptions _options;
     private readonly ISessionKeySerializer _serializer;
-
     private readonly ILogger<BinarySessionSerializer> _logger;
+
+    private ImmutableHashSet<string> _unknown = ImmutableHashSet<string>.Empty;
+
+    public IReadOnlyCollection<string> UnknownKeys => _unknown;
 
     public BinarySessionSerializer(ISessionKeySerializer serializer, IOptions<SessionSerializerOptions> options, ILogger<BinarySessionSerializer> logger)
     {
@@ -78,6 +82,8 @@ internal partial class BinarySessionSerializer : ISessionSerializer
         }
         else
         {
+            UpdateUnknown(unknownKeys);
+
             writer.Write7BitEncodedInt(unknownKeys.Count);
 
             foreach (var key in unknownKeys)
@@ -91,6 +97,18 @@ internal partial class BinarySessionSerializer : ISessionSerializer
         {
             throw new UnknownSessionKeyException(unknownKeys);
         }
+    }
+
+    private void UpdateUnknown(List<string> unknownKeys)
+    {
+        var builder = _unknown.ToBuilder();
+
+        foreach (var item in unknownKeys)
+        {
+            builder.Add(item);
+        }
+
+        Interlocked.CompareExchange(ref _unknown, builder.ToImmutable(), _unknown);
     }
 
     public ISessionState Read(BinaryReader reader)
@@ -109,6 +127,8 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 
         if (state.UnknownKeys is { Count: > 0 } unknownKeys)
         {
+            UpdateUnknown(unknownKeys);
+
             foreach (var unknown in unknownKeys)
             {
                 LogDeserialization(unknown);

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Diagnostics;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +20,7 @@ public static class RemoteAppSessionStateExtensions
 
         builder.Services.AddScoped<IHttpModule, RemoteSessionModule>();
         builder.Services.AddSingleton<ILockedSessionCache, InMemoryLockedSessions>();
-        builder.Services.AddSingleton<ISessionSerializer, BinarySessionSerializer>();
+        builder.Services.AddTransient<IServerDiagnostic, SessionDiagnostic>();
         builder.Services.AddOptions<SessionSerializerOptions>()
             // We don't want to throw by default on the .NET Framework side as then the error won't be easily visible in the ASP.NET Core app
             .Configure(options => options.ThrowOnUnknownSessionKey = false);
