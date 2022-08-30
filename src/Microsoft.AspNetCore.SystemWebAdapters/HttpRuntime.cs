@@ -7,16 +7,17 @@ namespace System.Web;
 
 public sealed class HttpRuntime
 {
-    static HttpRuntime()
+    private static IHttpRuntime? _current;
+
+    internal static IHttpRuntime Current
     {
-        AppDomainAppVirtualPath = NativeMethods.IsAspNetCoreModuleLoaded()
-            ? NativeMethods.HttpGetApplicationProperties().pwzVirtualApplicationPath
-            : "/";
+        get => _current ?? throw new InvalidOperationException("HttpRuntime is not available in the current environment");
+        set => _current = value;
     }
 
     private HttpRuntime()
     {
     }
 
-    public static string AppDomainAppVirtualPath { get; }
+    public static string AppDomainAppVirtualPath => Current.AppDomainAppVirtualPath;
 }

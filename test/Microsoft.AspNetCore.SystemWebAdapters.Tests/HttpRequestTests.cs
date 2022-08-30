@@ -2,9 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -417,14 +415,28 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         [Fact]
         public void ApplicationPath()
         {
+            // Arrange
+            var appVirtualPath = _fixture.Create<string>();
+
+            var httpRuntime = new Mock<IHttpRuntime>();
+            httpRuntime.Setup(h => h.AppDomainAppVirtualPath).Returns(appVirtualPath);
+
+            var services = new Mock<IServiceProvider>();
+            services.Setup(s => s.GetService(typeof(IHttpRuntime))).Returns(httpRuntime.Object);
+
+            var coreContext = new Mock<HttpContextCore>();
+            coreContext.Setup(c => c.RequestServices).Returns(services.Object);
+
             var coreRequest = new Mock<HttpRequestCore>();
+            coreRequest.Setup(c => c.HttpContext).Returns(coreContext.Object);
+
             var request = new HttpRequest(coreRequest.Object);
 
             // Act
             var result = request.ApplicationPath;
 
             // Assert
-            Assert.Equal(System.Web.HttpRuntime.AppDomainAppVirtualPath, result);
+            Assert.Equal(appVirtualPath, result);
         }
 
         [Fact]
