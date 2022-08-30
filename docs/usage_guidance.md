@@ -95,3 +95,8 @@ The [remote session support](session-state/remote-session.md) exposes an endpoin
 
 **Recommendation**: Ensure the API key used is a strong one and that the connection with the framework app is done over SSL.
 
+## Virtual directories must be identical for framework and core applications
+
+The virtual directory setup is used for route generation, authorization, and other services within the system. At this point, no reliable method has been found to enable different virtual directories due to how ASP.NET Framework works.
+
+**Recomendation**: If you are using virtual directories, ensure your two applications are on different sites with the same application/virtual directory layout.
