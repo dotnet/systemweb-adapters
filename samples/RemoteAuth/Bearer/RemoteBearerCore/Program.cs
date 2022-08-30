@@ -10,10 +10,6 @@ builder.Services.AddSystemWebAdapters()
         .Configure(options =>
         {
             options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
-
-            // A real application would not hard code this, but load it
-            // securely from environment or configuration
-            // Do not re-use this ApiKey; every solution should use a unique ApiKey
             options.ApiKey = builder.Configuration["RemoteAppApiKey"];
         })
 

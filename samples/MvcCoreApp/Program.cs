@@ -21,8 +21,6 @@ builder.Services.AddSystemWebAdapters()
         .Configure(options =>
         {
             options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
-
-            // Do not re-use this API key. Every solution should have a unique API key.
             options.ApiKey = builder.Configuration["RemoteAppApiKey"];
         })
         .AddAuthentication(true)
