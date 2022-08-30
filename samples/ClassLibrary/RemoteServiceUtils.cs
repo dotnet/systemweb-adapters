@@ -5,8 +5,6 @@ namespace ClassLibrary;
 
 public class RemoteServiceUtils
 {
-    public static string ApiKey = "test-key";
-
     public static void RegisterSessionKeys(IDictionary<string, Type> knownTypes)
     {
         knownTypes.Add("test-value", typeof(int));

@@ -1,3 +1,4 @@
+using System.Configuration;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
@@ -17,7 +18,7 @@ namespace RemoteOAuth
                     {
                         // A real application would not hard code this, but load it
                         // securely from environment or configuration
-                        options.ApiKey = "TopSecretString";
+                        options.ApiKey = ConfigurationManager.AppSettings["RemoteAppApiKey"];
                     })
                     .AddAuthentication());
         }

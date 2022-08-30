@@ -8,9 +8,14 @@ using System.Web;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Tests;
 
-public class RemoteAppOptionsTests
+public class RemoteAppServerOptionsTests
 {
-    [InlineData("HeaderName", "MyKey", true)]
+    [InlineData("HeaderName", "36705d36-eba0-44f9-a2e0-c57e6f521274", true)]
+    [InlineData("HeaderName", "{36705d36eba044f9a2e0c57e6f521274}", true)]
+    [InlineData("HeaderName", "00000000-0000-0000-0000-000000000000", false)]
+    [InlineData(null, "36705d36-eba0-44f9-a2e0-c57e6f521274", false)]
+    [InlineData("", "36705d36-eba0-44f9-a2e0-c57e6f521274", false)]
+    [InlineData("HeaderName", "MyKey", false)]
     [InlineData(null, "MyKey", false)]
     [InlineData("", "MyKey", false)]
     [InlineData("HeaderName", null, false)]

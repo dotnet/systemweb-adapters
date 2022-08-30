@@ -16,12 +16,9 @@ builder.Services.AddSystemWebAdapters()
 
 ## Configuration
 
-In order to configure it, both the framework and core app must set an API key as well as register known app settings types. These properties are:
+First, follow the [remote app setup](../remote-app-setup.md) instructions to connect the ASP.NET Core and ASP.NET apps. Then, there are just a couple extra extension methods to call to enable remote app session state.
 
-- `ApiKeyHeader` - header name that will contain an API key to secure the endpoint added on .NET Framework
-- `ApiKey` - the shared API key that will be validated in the .NET Framework handler
-
-Configuration for ASP.NET Core would look similar to the following:
+Configuration for ASP.NET Core involves calling `AddRemoteAppSession` and `AddJsonSessionSerializer` to register known session item types. The code should look similar to the following:
 
 ```csharp
 builder.Services.AddSystemWebAdapters()
@@ -31,7 +28,8 @@ builder.Services.AddSystemWebAdapters()
         options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
 
         // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
-        options.ApiKey = "strong-api-key";
+        // ApiKey is a string representing a GUID
+        options.ApiKey = "00000000-0000-0000-0000-000000000000";
     })
     .AddRemoteAppSession()
     .AddJsonSessionSerializer(options =>
@@ -60,13 +58,13 @@ app.MapDefaultControllerRoute()
     .RequireSystemWebAdapterSession();
 ```
 
-
 The framework equivalent would look like the following change in `Global.asax.cs`:
 
 ```csharp
 SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
     // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
-    .AddRemoteApp(options => options.ApiKey = "strong-api-key")
+    // ApiKey is a string representing a GUID
+    .AddRemoteApp(options => options.ApiKey = "00000000-0000-0000-0000-000000000000")
     .AddRemoteAppSession()
     .AddJsonSessionSerializer(options =>
     {
@@ -75,6 +73,7 @@ SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
         options.RegisterKey<SessionDemoModel>("SampleSessionItem");
     });
 ```
+
 # Protocol
 
 ## Readonly
