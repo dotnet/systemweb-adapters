@@ -27,7 +27,7 @@ public static class SystemWebAdaptersExtensions
 
     public static void UseSystemWebAdapters(this IApplicationBuilder app)
     {
-        app.UseMiddleware<DefaultCacheControlMiddleware>();
+        app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
         app.UseMiddleware<PreBufferRequestStreamMiddleware>();
         app.UseMiddleware<SessionMiddleware>();
         app.UseMiddleware<BufferResponseStreamMiddleware>();
