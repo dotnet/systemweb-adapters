@@ -53,7 +53,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Forms", "Forms", "{78F7011B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OIDC", "OIDC", "{134659FA-F2BB-4E54-BB68-49E88EA2778F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices", "src\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.csproj", "{6931FEFB-DC18-4B3F-8AFC-EDA03063A518}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices", "src\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.csproj", "{6931FEFB-DC18-4B3F-8AFC-EDA03063A518}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.SystemWebAdapters.Analyzers", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.csproj", "{B9272998-FE24-409D-A35F-DBD97E73E1E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.SystemWebAdapters.CodeFixes", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CodeFixes\Microsoft.AspNetCore.SystemWebAdapters.CodeFixes.csproj", "{F6EF22BE-339D-4E0A-B715-1E6E550D9723}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Package", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Package\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Package.csproj", "{E46ACEDD-4839-4D04-8558-D06B576C4A79}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test.csproj", "{9C646533-E6D9-4C43-8A75-5C42CFD88497}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Vsix", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Vsix\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Vsix.csproj", "{104DA3FC-46D1-43EC-9796-BBA2AB3EE5A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -121,6 +131,26 @@ Global
 		{6931FEFB-DC18-4B3F-8AFC-EDA03063A518}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6931FEFB-DC18-4B3F-8AFC-EDA03063A518}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6931FEFB-DC18-4B3F-8AFC-EDA03063A518}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9272998-FE24-409D-A35F-DBD97E73E1E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9272998-FE24-409D-A35F-DBD97E73E1E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9272998-FE24-409D-A35F-DBD97E73E1E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9272998-FE24-409D-A35F-DBD97E73E1E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6EF22BE-339D-4E0A-B715-1E6E550D9723}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6EF22BE-339D-4E0A-B715-1E6E550D9723}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6EF22BE-339D-4E0A-B715-1E6E550D9723}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6EF22BE-339D-4E0A-B715-1E6E550D9723}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E46ACEDD-4839-4D04-8558-D06B576C4A79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E46ACEDD-4839-4D04-8558-D06B576C4A79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E46ACEDD-4839-4D04-8558-D06B576C4A79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E46ACEDD-4839-4D04-8558-D06B576C4A79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C646533-E6D9-4C43-8A75-5C42CFD88497}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C646533-E6D9-4C43-8A75-5C42CFD88497}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C646533-E6D9-4C43-8A75-5C42CFD88497}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C646533-E6D9-4C43-8A75-5C42CFD88497}.Release|Any CPU.Build.0 = Release|Any CPU
+		{104DA3FC-46D1-43EC-9796-BBA2AB3EE5A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{104DA3FC-46D1-43EC-9796-BBA2AB3EE5A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{104DA3FC-46D1-43EC-9796-BBA2AB3EE5A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{104DA3FC-46D1-43EC-9796-BBA2AB3EE5A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -145,6 +175,11 @@ Global
 		{78F7011B-1C83-4AFC-B163-32420EB10ECA} = {25382551-D3BE-46C0-AAB5-8D2C64D4EDDD}
 		{134659FA-F2BB-4E54-BB68-49E88EA2778F} = {25382551-D3BE-46C0-AAB5-8D2C64D4EDDD}
 		{6931FEFB-DC18-4B3F-8AFC-EDA03063A518} = {F9DB9323-C919-49E8-8F96-B923D2F42E60}
+		{B9272998-FE24-409D-A35F-DBD97E73E1E0} = {F9DB9323-C919-49E8-8F96-B923D2F42E60}
+		{F6EF22BE-339D-4E0A-B715-1E6E550D9723} = {F9DB9323-C919-49E8-8F96-B923D2F42E60}
+		{E46ACEDD-4839-4D04-8558-D06B576C4A79} = {F9DB9323-C919-49E8-8F96-B923D2F42E60}
+		{9C646533-E6D9-4C43-8A75-5C42CFD88497} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
+		{104DA3FC-46D1-43EC-9796-BBA2AB3EE5A9} = {F9DB9323-C919-49E8-8F96-B923D2F42E60}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DABA3C65-9D74-4EB6-9B1C-730328710EAD}
