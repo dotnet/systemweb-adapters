@@ -57,7 +57,7 @@ Below are the steps needed to start using the System.Web adapters with your ASP.
 
 ## Known Limitations
 
-Below are some of the limitations of the APIs in the adapters. These are usually due to building off of types used in ASP.NET Core that cannot be fully implemented in ASP.NET Core. In the future, analyzers may be used to flag usage to recommend better patterns.
+Below are some of the limitations of the APIs in the adapters. These are usually due to building off of types used in ASP.NET Framework that cannot be fully implemented in ASP.NET Core. In the future, analyzers may be used to flag usage to recommend better patterns.
 
 - A number of APIs in `System.Web.HttpContext` are exposed as `NameValueCollection` instances. In order to reduce copying, many of these are implemented on ASP.NET Core using the core containers. This makes it so that for many of these collections, `Get(int)` (and any API that requires that such as `.Keys` or `.GetEnumerator()`) are unavailable as most of the containers in ASP.NET Core (such as `IHeaderDictionary`) does not have the ability to index by position.
 
