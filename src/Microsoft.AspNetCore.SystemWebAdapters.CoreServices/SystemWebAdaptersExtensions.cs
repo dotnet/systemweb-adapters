@@ -29,7 +29,7 @@ public static class SystemWebAdaptersExtensions
     {
         HttpRuntime.Current = app.ApplicationServices.GetRequiredService<IHttpRuntime>();
 
-        app.UseMiddleware<DefaultCacheControlMiddleware>();
+        app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
         app.UseMiddleware<PreBufferRequestStreamMiddleware>();
         app.UseMiddleware<SessionMiddleware>();
         app.UseMiddleware<BufferResponseStreamMiddleware>();
