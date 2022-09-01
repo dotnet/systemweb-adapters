@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
+
 internal interface IUnknownKeyTracker
 {
     ILookup<string, Type> UnknownTypes { get; }
