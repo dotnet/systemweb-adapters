@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Xunit;
 using VerifyCS = Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test.CSharpAnalyzerVerifier<
-    Microsoft.AspNetCore.SystemWebAdapters.Analyzers.ServerVariableAnalyzer>;
+    Microsoft.AspNetCore.SystemWebAdapters.Analyzers.NameValueCollectionAnalyzer>;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test;
 
@@ -16,9 +16,8 @@ public class MicrosoftAspNetCoreSystemWebAdaptersAnalyzersUnitTest
         await VerifyCS.VerifyAnalyzerAsync(test);
     }
 
-    //Diagnostic and CodeFix both triggered and checked for
     [Fact]
-    public async Task TestMethod2()
+    public async Task CallThis()
     {
         var test = @"
     using System.Web;
@@ -30,6 +29,27 @@ public class MicrosoftAspNetCoreSystemWebAdaptersAnalyzersUnitTest
             public void Method(HttpRequest request)
             {
                 var _ = {|#0:request.ServerVariables[0]|};
+            }
+        }
+    }";
+
+        var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0);
+        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+    }
+
+    [Fact]
+    public async Task CallGet()
+    {
+        var test = @"
+    using System.Web;
+    
+    namespace ConsoleApplication1
+    {
+        class Test
+        {
+            public void Method(HttpRequest request)
+            {
+                var _ = {|#0:request.ServerVariables.Get(0)|};
             }
         }
     }";

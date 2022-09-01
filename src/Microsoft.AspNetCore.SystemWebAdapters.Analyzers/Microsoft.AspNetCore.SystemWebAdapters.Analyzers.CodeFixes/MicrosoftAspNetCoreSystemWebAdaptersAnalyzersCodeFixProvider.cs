@@ -20,7 +20,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
-            get { return ImmutableArray.Create(ServerVariableAnalyzer.DiagnosticId); }
+            get { return ImmutableArray.Create(NameValueCollectionAnalyzer.DiagnosticId); }
         }
 
         public sealed override FixAllProvider GetFixAllProvider()

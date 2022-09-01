@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
+using System.Dynamic;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -7,7 +10,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class ServerVariableAnalyzer : DiagnosticAnalyzer
+    public class NameValueCollectionAnalyzer : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "SYSWEB001";
 
@@ -29,59 +32,104 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers
 
             context.RegisterCompilationStartAction(context =>
             {
-                if (context.Compilation.GetTypeByMetadataName("System.Web.HttpRequest") is not INamedTypeSymbol request)
+                var symbols = new KnownSymbols(context.Compilation);
+
+                if (!symbols.IsValid)
                 {
                     return;
                 }
 
-                if (context.Compilation.GetTypeByMetadataName("System.Collections.Specialized.NameValueCollection") is not INamedTypeSymbol nameValueCollection)
+                context.RegisterOperationAction(context =>
                 {
-                    return;
-                }
-
-                if (context.Compilation.GetTypeByMetadataName("System.Int32") is not INamedTypeSymbol int32)
-                {
-                    return;
-                }
-
-                if (GetProperty(nameValueCollection, "this[]", int32) is { } getItem && GetProperty(request, "ServerVariables") is { } getServerVariables)
-                {
-                    context.RegisterOperationAction(context =>
+                    if (context.Operation is IInvocationOperation invocation && invocation.Instance is IPropertyReferenceOperation property)
                     {
-                        if (context.Operation is IPropertyReferenceOperation indexer && indexer.Instance is IPropertyReferenceOperation property)
+                        if (symbols.IsUnsupportedMethod(invocation.TargetMethod) && symbols.IsKnownRequestMethod(property.Member))
                         {
-                            if (SymbolEqualityComparer.Default.Equals(indexer.Member, getItem) && SymbolEqualityComparer.Default.Equals(property.Member, getServerVariables))
-                            {
-                                context.ReportDiagnostic(Diagnostic.Create(Rule, context.Operation.Syntax.GetLocation()));
-                            }
+                            context.ReportDiagnostic(Diagnostic.Create(Rule, context.Operation.Syntax.GetLocation()));
                         }
-
-                    }, OperationKind.Invocation, OperationKind.MethodReference, OperationKind.PropertyReference);
-                }
+                    }
+                    else if (context.Operation is IPropertyReferenceOperation indexer && GetMember(indexer.Instance) is { } member)
+                    {
+                        if (symbols.IsUnsupportedMethod(indexer.Member) && symbols.IsKnownRequestMethod(member))
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(Rule, context.Operation.Syntax.GetLocation()));
+                        }
+                    }
+                }, OperationKind.PropertyReference, OperationKind.Invocation);
             });
         }
 
-        private static IPropertySymbol? GetProperty(INamedTypeSymbol type, string name, params ISymbol[] args)
+        private static ISymbol? GetMember(IOperation operation) => operation switch
         {
-            foreach (var member in type.GetMembers(name))
+            IPropertyReferenceOperation property => property.Member,
+            IMethodReferenceOperation method => method.Member,
+            _ => null,
+        };
+
+
+        private class KnownSymbols
+        {
+            private readonly List<ISymbol> _members;
+            private readonly HashSet<ISymbol> _unsupported;
+
+            public KnownSymbols(Compilation compilation)
             {
-                if (member is IPropertySymbol property && property.Parameters.Length == args.Length)
+                _members = new List<ISymbol>();
+                _unsupported = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
+                IsValid = Initialize(compilation);
+            }
+
+            private bool Initialize(Compilation compilation)
+            {
+                if (compilation.GetTypeByMetadataName("System.Web.HttpRequest") is not { } request)
                 {
-                    var match = true;
+                    return false;
+                }
 
-                    for (int i = 0; i < args.Length; i++)
-                    {
-                        match &= SymbolEqualityComparer.Default.Equals(args[i], property.Parameters[i].Type);
-                    }
+                if (compilation.GetTypeByMetadataName("System.Collections.Specialized.NameValueCollection") is not { } NameValueCollection)
+                {
+                    return false;
+                }
 
-                    if (match)
+                if (compilation.GetTypeByMetadataName("System.Int32") is not { } int32)
+                {
+                    return false;
+                }
+
+                if (compilation.GetTypeByMetadataName("System.String") is not { } stringSymbol)
+                {
+                    return false;
+                }
+
+                TryAdd(_members, request.GetMember("Headers"));
+                TryAdd(_members, request.GetMember("Form"));
+                TryAdd(_members, request.GetMember("Cookies"));
+                TryAdd(_members, request.GetMember("ServerVariables"));
+                TryAdd(_members, request.GetMember("QueryString"));
+                TryAdd(_members, request.GetMember("Params"));
+
+                TryAdd(_unsupported, NameValueCollection.GetMember("Get", int32));
+                TryAdd(_unsupported, NameValueCollection.GetMember("GetKey", int32));
+                TryAdd(_unsupported, NameValueCollection.GetMember("GetValues", int32));
+                TryAdd(_unsupported, NameValueCollection.GetMember("Keys", int32));
+                TryAdd(_unsupported, NameValueCollection.GetMember("this[]", int32));
+
+                return true;
+
+                static void TryAdd(ICollection<ISymbol> set, ISymbol? symbol)
+                {
+                    if (symbol is not null)
                     {
-                        return property;
+                        set.Add(symbol);
                     }
                 }
             }
 
-            return null;
+            public bool IsKnownRequestMethod(ISymbol symbol) => _members.Contains(symbol);
+
+            public bool IsUnsupportedMethod(ISymbol symbol) => _unsupported.Contains(symbol);
+
+            public bool IsValid { get; }
         }
     }
 }
