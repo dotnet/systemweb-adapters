@@ -272,10 +272,11 @@ public class BinarySessionSerializerTests
         keySerializer ??= new Mock<ISessionKeySerializer>().Object;
 
         var logger = new Mock<ILogger<BinarySessionSerializer>>();
+        var tracker = new Mock<IUnknownKeyTracker>();
 
         var optionContainer = new Mock<IOptions<SessionSerializerOptions>>();
         optionContainer.Setup(o => o.Value).Returns(new SessionSerializerOptions());
 
-        return new BinarySessionSerializer(keySerializer, optionContainer.Object, logger.Object);
+        return new BinarySessionSerializer(keySerializer, tracker.Object, optionContainer.Object, logger.Object);
     }
 }

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Diagnostics;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -31,9 +32,9 @@ public static class SessionSerializerExtensions
             options.Configure(configure);
         }
 
-        builder.Services.TryAddSingleton<BinarySessionSerializer>();
-        builder.Services.TryAddSingleton<ISessionSerializer>(ctx => ctx.GetRequiredService<BinarySessionSerializer>());
-        builder.Services.TryAddSingleton<IUnknownKeyTracker>(ctx => ctx.GetRequiredService<BinarySessionSerializer>());
+        builder.Services.TryAddSingleton<ISessionSerializer, BinarySessionSerializer>();
+        builder.Services.TryAddSingleton<IUnknownKeyTracker, ImmutableUnknownKeyTracker>();
+        builder.Services.AddTransient<IDiagnostic, SessionDiagnostic>();
 
         return builder;
     }

@@ -1,44 +1,31 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Diagnostics;
 
-internal class RemoteDiagnosticHealthCheck : IHealthCheck
+internal class SystemWebAdaptersHealthCheck : IHealthCheck
 {
-    private readonly IHttpClientFactory _factory;
-    private readonly IOptions<DiagnosticOptions> _options;
-    private readonly IEnumerable<IClientDiagnostic> _diagnostics;
+    private readonly IEnumerable<IDiagnostic> _diagnostics;
 
-    public RemoteDiagnosticHealthCheck(IEnumerable<IClientDiagnostic> diagnostics, IOptions<DiagnosticOptions> options, IHttpClientFactory factory)
+    public SystemWebAdaptersHealthCheck(IEnumerable<IDiagnostic> diagnostics)
     {
-        _factory = factory;
-        _options = options;
         _diagnostics = diagnostics;
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
-        using var client = _factory.CreateClient(RemoteConstants.HttpClientName);
-        using var message = new HttpRequestMessage(HttpMethod.Get, _options.Value.Path);
-
-        foreach (var diagnostic in _diagnostics)
-        {
-            diagnostic.Prepare(message);
-        }
-
-        using var response = await client.SendAsync(message, cancellationToken);
-
         var builder = new HealthCheckBuilder();
 
         foreach (var diagnostic in _diagnostics)
         {
-            var result = diagnostic.Process(response);
-            builder.Process(result);
+            await foreach (var result in diagnostic.ProcessAsync(cancellationToken))
+            {
+                builder.Process(result);
+            }
         }
 
         return builder.Build();

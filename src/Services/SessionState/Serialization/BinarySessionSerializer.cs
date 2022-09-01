@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -14,22 +15,21 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
-internal partial class BinarySessionSerializer : ISessionSerializer, IUnknownKeyTracker
+internal partial class BinarySessionSerializer : ISessionSerializer
 {
     private const byte Version = 1;
 
-    private readonly SessionSerializerOptions _options;
+    private readonly IOptions<SessionSerializerOptions> _options;
     private readonly ISessionKeySerializer _serializer;
+    private readonly IUnknownKeyTracker _tracker;
     private readonly ILogger<BinarySessionSerializer> _logger;
 
-    private ImmutableHashSet<string> _unknown = ImmutableHashSet<string>.Empty;
 
-    public IReadOnlyCollection<string> UnknownKeys => _unknown;
-
-    public BinarySessionSerializer(ISessionKeySerializer serializer, IOptions<SessionSerializerOptions> options, ILogger<BinarySessionSerializer> logger)
+    public BinarySessionSerializer(ISessionKeySerializer serializer, IUnknownKeyTracker tracker, IOptions<SessionSerializerOptions> options, ILogger<BinarySessionSerializer> logger)
     {
         _serializer = serializer;
-        _options = options.Value;
+        _tracker = tracker;
+        _options = options;
         _logger = logger;
     }
 
@@ -66,6 +66,8 @@ internal partial class BinarySessionSerializer : ISessionSerializer, IUnknownKey
                 }
                 else
                 {
+                    _tracker.Add(item, obj.GetType());
+
                     (unknownKeys ??= new()).Add(item);
                     writer.Write7BitEncodedInt(0);
                 }
@@ -82,8 +84,6 @@ internal partial class BinarySessionSerializer : ISessionSerializer, IUnknownKey
         }
         else
         {
-            UpdateUnknown(unknownKeys);
-
             writer.Write7BitEncodedInt(unknownKeys.Count);
 
             foreach (var key in unknownKeys)
@@ -93,22 +93,10 @@ internal partial class BinarySessionSerializer : ISessionSerializer, IUnknownKey
             }
         }
 
-        if (unknownKeys is not null && _options.ThrowOnUnknownSessionKey)
+        if (unknownKeys is not null && _options.Value.ThrowOnUnknownSessionKey)
         {
             throw new UnknownSessionKeyException(unknownKeys);
         }
-    }
-
-    private void UpdateUnknown(List<string> unknownKeys)
-    {
-        var builder = _unknown.ToBuilder();
-
-        foreach (var item in unknownKeys)
-        {
-            builder.Add(item);
-        }
-
-        Interlocked.CompareExchange(ref _unknown, builder.ToImmutable(), _unknown);
     }
 
     public ISessionState Read(BinaryReader reader)
@@ -127,14 +115,14 @@ internal partial class BinarySessionSerializer : ISessionSerializer, IUnknownKey
 
         if (state.UnknownKeys is { Count: > 0 } unknownKeys)
         {
-            UpdateUnknown(unknownKeys);
+            _tracker.Add(unknownKeys);
 
             foreach (var unknown in unknownKeys)
             {
                 LogDeserialization(unknown);
             }
 
-            if (_options.ThrowOnUnknownSessionKey)
+            if (_options.Value.ThrowOnUnknownSessionKey)
             {
                 throw new UnknownSessionKeyException(unknownKeys);
             }
