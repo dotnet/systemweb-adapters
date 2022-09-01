@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Testing;
 using Microsoft.CodeAnalysis.Testing.Verifiers;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test
@@ -15,13 +16,16 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test
             {
                 SolutionTransforms.Add((solution, projectId) =>
                 {
-                    var compilationOptions = solution.GetProject(projectId).CompilationOptions;
-                    compilationOptions = compilationOptions.WithSpecificDiagnosticOptions(
+                    var compilationOptions = solution.GetProject(projectId)!.CompilationOptions;
+                    compilationOptions = compilationOptions!.WithSpecificDiagnosticOptions(
                         compilationOptions.SpecificDiagnosticOptions.SetItems(CSharpVerifierHelper.NullableWarnings));
                     solution = solution.WithProjectCompilationOptions(projectId, compilationOptions);
 
                     return solution;
                 });
+
+                TestState.ReferenceAssemblies = ReferenceAssemblies.Net.Net60;
+                TestState.AdditionalReferences.Add(typeof(System.Web.HttpContext).Assembly);
             }
         }
     }

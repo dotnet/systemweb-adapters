@@ -20,6 +20,9 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test
 
                     return solution;
                 });
+
+                TestState.ReferenceAssemblies = Microsoft.CodeAnalysis.Testing.ReferenceAssemblies.Net.Net60;
+                TestState.AdditionalReferences.Add(typeof(System.Web.HttpContext).Assembly);
             }
         }
     }

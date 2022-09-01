@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
@@ -15,12 +15,12 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(MicrosoftAspNetCoreSystemWebAdaptersAnalyzersCodeFixProvider)), Shared]
+    //[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(MicrosoftAspNetCoreSystemWebAdaptersAnalyzersCodeFixProvider)), Shared]
     public class MicrosoftAspNetCoreSystemWebAdaptersAnalyzersCodeFixProvider : CodeFixProvider
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
-            get { return ImmutableArray.Create(MicrosoftAspNetCoreSystemWebAdaptersAnalyzersAnalyzer.DiagnosticId); }
+            get { return ImmutableArray.Create(ServerVariableAnalyzer.DiagnosticId); }
         }
 
         public sealed override FixAllProvider GetFixAllProvider()

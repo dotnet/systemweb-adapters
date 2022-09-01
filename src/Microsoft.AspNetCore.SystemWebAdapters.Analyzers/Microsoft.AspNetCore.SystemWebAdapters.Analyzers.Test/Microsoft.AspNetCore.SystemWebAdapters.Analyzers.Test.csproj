@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj" />
     <ProjectReference Include="..\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CodeFixes\Microsoft.AspNetCore.SystemWebAdapters.CodeFixes.csproj" />
     <ProjectReference Include="..\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.csproj" />
   </ItemGroup>
