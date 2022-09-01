@@ -128,9 +128,15 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers
 
             public bool IsSupported(ISymbol nameValueSymbol, ISymbol requestSymbol)
             {
-                var unsupportedRequestSymbol = _members.Contains(requestSymbol) || _allKeysUnsupported.Contains(requestSymbol);
+                var allKeysUnsupported = _allKeysUnsupported.Contains(requestSymbol);
+                var unsupportedRequestSymbol = _members.Contains(requestSymbol) || allKeysUnsupported;
 
                 if (unsupportedRequestSymbol && _unsupported.Contains(nameValueSymbol))
+                {
+                    return false;
+                }
+
+                if (allKeysUnsupported && _additionalUnsupported.Contains(nameValueSymbol))
                 {
                     return false;
                 }

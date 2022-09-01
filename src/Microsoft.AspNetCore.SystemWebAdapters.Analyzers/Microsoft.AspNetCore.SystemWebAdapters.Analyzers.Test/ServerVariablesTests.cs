@@ -58,4 +58,25 @@ public class MicrosoftAspNetCoreSystemWebAdaptersAnalyzersUnitTest
         var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0).WithArguments(nameof(HttpRequest.ServerVariables));
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
     }
+
+    [Fact]
+    public async Task ServerVariablesAllKeys()
+    {
+        var test = @"
+    using System.Web;
+    
+    namespace ConsoleApplication1
+    {
+        class Test
+        {
+            public void Method(HttpRequest request)
+            {
+                var _ = {|#0:request.ServerVariables.AllKeys|};
+            }
+        }
+    }";
+
+        var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0).WithArguments(nameof(HttpRequest.ServerVariables));
+        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+    }
 }
