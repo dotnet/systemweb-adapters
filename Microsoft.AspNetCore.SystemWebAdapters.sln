@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Build.props = Directory.Build.props
 		Directory.Build.targets = Directory.Build.targets
 		global.json = global.json
+		NuGet.config = NuGet.config
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -55,15 +56,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OIDC", "OIDC", "{134659FA-F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices", "src\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.csproj", "{6931FEFB-DC18-4B3F-8AFC-EDA03063A518}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.SystemWebAdapters.Analyzers", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.csproj", "{B9272998-FE24-409D-A35F-DBD97E73E1E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.Analyzers", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.csproj", "{B9272998-FE24-409D-A35F-DBD97E73E1E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.SystemWebAdapters.CodeFixes", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CodeFixes\Microsoft.AspNetCore.SystemWebAdapters.CodeFixes.csproj", "{F6EF22BE-339D-4E0A-B715-1E6E550D9723}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.CodeFixes", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CodeFixes\Microsoft.AspNetCore.SystemWebAdapters.CodeFixes.csproj", "{F6EF22BE-339D-4E0A-B715-1E6E550D9723}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Package", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Package\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Package.csproj", "{E46ACEDD-4839-4D04-8558-D06B576C4A79}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Package", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Package\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Package.csproj", "{E46ACEDD-4839-4D04-8558-D06B576C4A79}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test.csproj", "{9C646533-E6D9-4C43-8A75-5C42CFD88497}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test.csproj", "{9C646533-E6D9-4C43-8A75-5C42CFD88497}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Vsix", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Vsix\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Vsix.csproj", "{104DA3FC-46D1-43EC-9796-BBA2AB3EE5A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Vsix", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Vsix\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Vsix.csproj", "{104DA3FC-46D1-43EC-9796-BBA2AB3EE5A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

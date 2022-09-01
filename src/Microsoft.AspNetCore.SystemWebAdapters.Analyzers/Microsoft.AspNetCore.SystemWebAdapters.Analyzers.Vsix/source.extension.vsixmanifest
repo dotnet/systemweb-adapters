@@ -14,8 +14,8 @@
   <Assets>
     <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="Microsoft.AspNetCore.SystemWebAdapters.Analyzers" Path="|Microsoft.AspNetCore.SystemWebAdapters.Analyzers|"/>
     <Asset Type="Microsoft.VisualStudio.Analyzer" d:Source="Project" d:ProjectName="Microsoft.AspNetCore.SystemWebAdapters.Analyzers" Path="|Microsoft.AspNetCore.SystemWebAdapters.Analyzers|"/>
-    <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CodeFixes" Path="|Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CodeFixes|"/>
-    <Asset Type="Microsoft.VisualStudio.Analyzer" d:Source="Project" d:ProjectName="Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CodeFixes" Path="|Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CodeFixes|"/>
+    <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="Microsoft.AspNetCore.SystemWebAdapters.CodeFixes" Path="|Microsoft.AspNetCore.SystemWebAdapters.CodeFixes|"/>
+    <Asset Type="Microsoft.VisualStudio.Analyzer" d:Source="Project" d:ProjectName="Microsoft.AspNetCore.SystemWebAdapters.CodeFixes" Path="|Microsoft.AspNetCore.SystemWebAdapters.CodeFixes|"/>
   </Assets>
   <Prerequisites>
     <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,)" DisplayName="Visual Studio core editor" />

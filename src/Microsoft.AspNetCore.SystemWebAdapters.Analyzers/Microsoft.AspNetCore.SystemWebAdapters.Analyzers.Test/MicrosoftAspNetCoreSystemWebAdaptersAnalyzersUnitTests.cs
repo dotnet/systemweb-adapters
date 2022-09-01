@@ -1,28 +1,27 @@
-﻿using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading.Tasks;
+using Xunit;
 using VerifyCS = Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test.CSharpCodeFixVerifier<
     Microsoft.AspNetCore.SystemWebAdapters.Analyzers.MicrosoftAspNetCoreSystemWebAdaptersAnalyzersAnalyzer,
     Microsoft.AspNetCore.SystemWebAdapters.Analyzers.MicrosoftAspNetCoreSystemWebAdaptersAnalyzersCodeFixProvider>;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test
+namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test;
+
+public class MicrosoftAspNetCoreSystemWebAdaptersAnalyzersUnitTest
 {
-    [TestClass]
-    public class MicrosoftAspNetCoreSystemWebAdaptersAnalyzersUnitTest
+    //No diagnostics expected to show up
+    [Fact]
+    public async Task TestMethod1()
     {
-        //No diagnostics expected to show up
-        [TestMethod]
-        public async Task TestMethod1()
-        {
-            var test = @"";
+        var test = @"";
 
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
+        await VerifyCS.VerifyAnalyzerAsync(test);
+    }
 
-        //Diagnostic and CodeFix both triggered and checked for
-        [TestMethod]
-        public async Task TestMethod2()
-        {
-            var test = @"
+    //Diagnostic and CodeFix both triggered and checked for
+    [Fact]
+    public async Task TestMethod2()
+    {
+        var test = @"
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -37,7 +36,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test
         }
     }";
 
-            var fixtest = @"
+        var fixtest = @"
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -52,8 +51,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test
         }
     }";
 
-            var expected = VerifyCS.Diagnostic("MicrosoftAspNetCoreSystemWebAdaptersAnalyzers").WithLocation(0).WithArguments("TypeName");
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
-        }
+        var expected = VerifyCS.Diagnostic("MicrosoftAspNetCoreSystemWebAdaptersAnalyzers").WithLocation(0).WithArguments("TypeName");
+        await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
     }
 }
