@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using System.Web;
 using Xunit;
 using VerifyCS = Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test.CSharpAnalyzerVerifier<
     Microsoft.AspNetCore.SystemWebAdapters.Analyzers.NameValueCollectionAnalyzer>;
@@ -33,7 +34,7 @@ public class MicrosoftAspNetCoreSystemWebAdaptersAnalyzersUnitTest
         }
     }";
 
-        var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0);
+        var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0).WithArguments(nameof(HttpRequest.ServerVariables));
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
     }
 
@@ -54,7 +55,7 @@ public class MicrosoftAspNetCoreSystemWebAdaptersAnalyzersUnitTest
         }
     }";
 
-        var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0);
+        var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0).WithArguments(nameof(HttpRequest.ServerVariables));
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
     }
 }
