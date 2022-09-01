@@ -3,25 +3,38 @@
 
 using System;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
-internal class JsonSessionKeySerializer : ISessionKeySerializer
+internal partial class JsonSessionKeySerializer : ISessionKeySerializer
 {
-    private readonly JsonSessionSerializerOptions _options;
+    private readonly IOptions<JsonSessionSerializerOptions> _options;
+    private readonly ILogger<JsonSessionKeySerializer> _logger;
 
-    public JsonSessionKeySerializer(IOptions<JsonSessionSerializerOptions> options)
+    public JsonSessionKeySerializer(IOptions<JsonSessionSerializerOptions> options, ILogger<JsonSessionKeySerializer> logger)
     {
-        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+        _options = options ?? throw new ArgumentNullException(nameof(options));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
+
+    [LoggerMessage(0, LogLevel.Error, "Unexpected JSON serialize/deserialization error for '{Key}' expected type '{Type}'")]
+    private partial void LogException(Exception e, string key, string type);
 
     public bool TryDeserialize(string key, byte[] bytes, out object? obj)
     {
-        if (_options.KnownKeys.TryGetValue(key, out var type))
+        if (_options.Value.KnownKeys.TryGetValue(key, out var type))
         {
-            obj = JsonSerializer.Deserialize(bytes, type);
-            return true;
+            try
+            {
+                obj = JsonSerializer.Deserialize(bytes, type);
+                return true;
+            }
+            catch (JsonException e)
+            {
+                LogException(e, key, type.Name);
+            }
         }
 
         obj = default;
@@ -30,10 +43,17 @@ internal class JsonSessionKeySerializer : ISessionKeySerializer
 
     public bool TrySerialize(string key, object value, out byte[] bytes)
     {
-        if (_options.KnownKeys.TryGetValue(key, out var type))
+        if (_options.Value.KnownKeys.TryGetValue(key, out var type) && type == value.GetType())
         {
-            bytes = JsonSerializer.SerializeToUtf8Bytes(value, type);
-            return true;
+            try
+            {
+                bytes = JsonSerializer.SerializeToUtf8Bytes(value, type);
+                return true;
+            }
+            catch (JsonException e)
+            {
+                LogException(e, key, type.Name);
+            }
         }
 
         bytes = Array.Empty<byte>();
