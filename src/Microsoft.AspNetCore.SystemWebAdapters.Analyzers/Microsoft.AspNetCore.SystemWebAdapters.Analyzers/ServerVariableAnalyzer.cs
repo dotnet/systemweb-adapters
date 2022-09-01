@@ -45,14 +45,14 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers
                     {
                         if (!symbols.IsSupported(invocation.TargetMethod, property.Member))
                         {
-                            context.ReportDiagnostic(Diagnostic.Create(Rule, context.Operation.Syntax.GetLocation(), property.Member.Name));
+                            context.ReportDiagnostic(Diagnostic.Create(Rule, context.Operation.Syntax.GetLocation(), property.Member.Name, invocation.TargetMethod.Name));
                         }
                     }
                     else if (context.Operation is IPropertyReferenceOperation indexer && GetMember(indexer.Instance) is { } member)
                     {
                         if (!symbols.IsSupported(indexer.Member, member))
                         {
-                            context.ReportDiagnostic(Diagnostic.Create(Rule, context.Operation.Syntax.GetLocation(), member.Name));
+                            context.ReportDiagnostic(Diagnostic.Create(Rule, context.Operation.Syntax.GetLocation(), member.Name, indexer.Member.Name));
                         }
                     }
                 }, OperationKind.PropertyReference, OperationKind.Invocation);
@@ -69,17 +69,17 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers
 
         private class KnownSymbols
         {
-            private readonly HashSet<ISymbol?> _members;
-            private readonly HashSet<ISymbol?> _unsupported;
-            private readonly HashSet<ISymbol?> _allKeysUnsupported;
-            private readonly HashSet<ISymbol?> _additionalUnsupported;
+            private readonly HashSet<ISymbol?> _requestMembers;
+            private readonly HashSet<ISymbol?> _nameValueMembers;
+            private readonly HashSet<ISymbol?> _requestMembersAdditional;
+            private readonly HashSet<ISymbol?> _nameValueMembersAdditional;
 
             public KnownSymbols(Compilation compilation)
             {
-                _members = new HashSet<ISymbol?>();
-                _unsupported = new HashSet<ISymbol?>(SymbolEqualityComparer.Default);
-                _allKeysUnsupported = new HashSet<ISymbol?>(SymbolEqualityComparer.Default);
-                _additionalUnsupported = new HashSet<ISymbol?>(SymbolEqualityComparer.Default);
+                _requestMembers = new HashSet<ISymbol?>();
+                _nameValueMembers = new HashSet<ISymbol?>(SymbolEqualityComparer.Default);
+                _requestMembersAdditional = new HashSet<ISymbol?>(SymbolEqualityComparer.Default);
+                _nameValueMembersAdditional = new HashSet<ISymbol?>(SymbolEqualityComparer.Default);
 
                 IsValid = Initialize(compilation);
             }
@@ -106,37 +106,38 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers
                     return false;
                 }
 
-                _members.Add(request.GetMember("Headers"));
-                _members.Add(request.GetMember("Form"));
-                _members.Add(request.GetMember("Cookies"));
-                _members.Add(request.GetMember("QueryString"));
+                _requestMembers.Add(request.GetMember("Headers"));
+                _requestMembers.Add(request.GetMember("Form"));
+                _requestMembers.Add(request.GetMember("Cookies"));
+                _requestMembers.Add(request.GetMember("QueryString"));
 
-                _allKeysUnsupported.Add(request.GetMember("ServerVariables"));
-                _allKeysUnsupported.Add(request.GetMember("Params"));
+                _requestMembersAdditional.Add(request.GetMember("ServerVariables"));
+                _requestMembersAdditional.Add(request.GetMember("Params"));
 
-                _unsupported.Add(NameValueCollection.GetMember("Get", int32));
-                _unsupported.Add(NameValueCollection.GetMember("GetKey", int32));
-                _unsupported.Add(NameValueCollection.GetMember("GetValues", int32));
-                _unsupported.Add(NameValueCollection.GetMember("Keys", int32));
-                _unsupported.Add(NameValueCollection.GetMember("this[]", int32));
+                _nameValueMembers.Add(NameValueCollection.GetMember("Get", int32));
+                _nameValueMembers.Add(NameValueCollection.GetMember("GetKey", int32));
+                _nameValueMembers.Add(NameValueCollection.GetMember("GetValues", int32));
+                _nameValueMembers.Add(NameValueCollection.GetMember("Keys"));
+                _nameValueMembers.Add(NameValueCollection.GetMember("GetEnumerator"));
+                _nameValueMembers.Add(NameValueCollection.GetMember("this[]", int32));
 
-                _additionalUnsupported.Add(NameValueCollection.GetMember("AllKeys"));
-                _additionalUnsupported.Add(NameValueCollection.GetMember("Count"));
+                _nameValueMembersAdditional.Add(NameValueCollection.GetMember("AllKeys"));
+                _nameValueMembersAdditional.Add(NameValueCollection.GetMember("Count"));
 
                 return true;
             }
 
             public bool IsSupported(ISymbol nameValueSymbol, ISymbol requestSymbol)
             {
-                var allKeysUnsupported = _allKeysUnsupported.Contains(requestSymbol);
-                var unsupportedRequestSymbol = _members.Contains(requestSymbol) || allKeysUnsupported;
+                var allKeysUnsupported = _requestMembersAdditional.Contains(requestSymbol);
+                var unsupportedRequestSymbol = allKeysUnsupported || _requestMembers.Contains(requestSymbol);
 
-                if (unsupportedRequestSymbol && _unsupported.Contains(nameValueSymbol))
+                if (unsupportedRequestSymbol && _nameValueMembers.Contains(nameValueSymbol))
                 {
                     return false;
                 }
 
-                if (allKeysUnsupported && _additionalUnsupported.Contains(nameValueSymbol))
+                if (allKeysUnsupported && _nameValueMembersAdditional.Contains(nameValueSymbol))
                 {
                     return false;
                 }

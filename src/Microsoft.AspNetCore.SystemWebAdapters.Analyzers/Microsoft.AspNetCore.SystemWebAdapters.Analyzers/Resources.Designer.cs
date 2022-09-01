@@ -61,7 +61,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to NameValueCollection cannot be accessed by integer index on ASP.NET Core.
+        ///   Looks up a localized string similar to NameValueCollection does not support some operations on ASP.NET Core.
         /// </summary>
         internal static string AnalyzerDescription {
             get {
@@ -70,7 +70,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} cannot be accessed by integer index on ASP.NET Core.
+        ///   Looks up a localized string similar to {0} does not support {1} on ASP.NET Core.
         /// </summary>
         internal static string AnalyzerMessageFormat {
             get {
@@ -79,7 +79,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to NameValueCollection cannot be accessed by integer index on ASP.NET Core.
+        ///   Looks up a localized string similar to NameValueCollection does not support some operations on ASP.NET Core.
         /// </summary>
         internal static string AnalyzerTitle {
             get {

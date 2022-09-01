@@ -4,17 +4,17 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers;
 
 internal static class SymbolExtensions
 {
-    public static ISymbol? GetMember(this INamedTypeSymbol type, string name, params ISymbol[] args)
+    public static ISymbol? GetMember(this INamedTypeSymbol type, string name, params ISymbol[] parameters)
     {
         foreach (var member in type.GetMembers(name))
         {
-            if (member is IPropertySymbol property && property.Parameters.Length == args.Length)
+            if (member is IPropertySymbol property && property.Parameters.Length == parameters.Length)
             {
                 var match = true;
 
-                for (int i = 0; i < args.Length; i++)
+                for (int i = 0; i < parameters.Length; i++)
                 {
-                    match &= SymbolEqualityComparer.Default.Equals(args[i], property.Parameters[i].Type);
+                    match &= SymbolEqualityComparer.Default.Equals(parameters[i], property.Parameters[i].Type);
                 }
 
                 if (match)
@@ -22,13 +22,13 @@ internal static class SymbolExtensions
                     return property;
                 }
             }
-            else if (member is IMethodSymbol method && method.Parameters.Length == args.Length)
+            else if (member is IMethodSymbol method && method.Parameters.Length == parameters.Length)
             {
                 var match = true;
 
-                for (int i = 0; i < args.Length; i++)
+                for (int i = 0; i < parameters.Length; i++)
                 {
-                    match &= SymbolEqualityComparer.Default.Equals(args[i], method.Parameters[i].Type);
+                    match &= SymbolEqualityComparer.Default.Equals(parameters[i], method.Parameters[i].Type);
                 }
 
                 if (match)
@@ -36,6 +36,11 @@ internal static class SymbolExtensions
                     return method;
                 }
             }
+        }
+
+        if (type.BaseType is { } baseType)
+        {
+            return baseType.GetMember(name, parameters);
         }
 
         return null;

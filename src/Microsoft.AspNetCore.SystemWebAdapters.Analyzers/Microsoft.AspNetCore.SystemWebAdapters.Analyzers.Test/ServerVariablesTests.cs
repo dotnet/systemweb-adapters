@@ -1,3 +1,4 @@
+using System.Collections.Specialized;
 using System.Threading.Tasks;
 using System.Web;
 using Xunit;
@@ -34,7 +35,7 @@ public class MicrosoftAspNetCoreSystemWebAdaptersAnalyzersUnitTest
         }
     }";
 
-        var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0).WithArguments(nameof(HttpRequest.ServerVariables));
+        var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0).WithArguments(nameof(HttpRequest.ServerVariables), "this[]");
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
     }
 
@@ -55,7 +56,7 @@ public class MicrosoftAspNetCoreSystemWebAdaptersAnalyzersUnitTest
         }
     }";
 
-        var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0).WithArguments(nameof(HttpRequest.ServerVariables));
+        var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0).WithArguments(nameof(HttpRequest.ServerVariables), nameof(NameValueCollection.Get));
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
     }
 
@@ -76,7 +77,28 @@ public class MicrosoftAspNetCoreSystemWebAdaptersAnalyzersUnitTest
         }
     }";
 
-        var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0).WithArguments(nameof(HttpRequest.ServerVariables));
+        var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0).WithArguments(nameof(HttpRequest.ServerVariables), nameof(NameValueCollection.AllKeys));
+        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+    }
+
+    [Fact]
+    public async Task FormGetEnumerator()
+    {
+        var test = @"
+    using System.Web;
+    
+    namespace ConsoleApplication1
+    {
+        class Test
+        {
+            public void Method(HttpRequest request)
+            {
+                var _ = {|#0:request.Form.GetEnumerator()|};
+            }
+        }
+    }";
+
+        var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0).WithArguments(nameof(HttpRequest.Form), nameof(NameValueCollection.GetEnumerator));
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
     }
 }
