@@ -12,7 +12,6 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
-using Microsoft.CodeAnalysis.Rename;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers;
 
@@ -40,7 +39,8 @@ public class NameValueCollectionCodeFixProvider : CodeFixProvider
         var node = root.FindNode(diagnosticSpan, getInnermostNodeForTie: true);
         var newNode = node switch
         {
-            MemberAccessExpressionSyntax member => member.WithName(SyntaxFactory.IdentifierName(newName)),
+            MemberAccessExpressionSyntax member => (SyntaxNode)member.WithName(SyntaxFactory.IdentifierName(newName)),
+            InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax member} invocation => member.WithName(SyntaxFactory.IdentifierName(newName)),
             _ => null,
         };
 
@@ -49,16 +49,15 @@ public class NameValueCollectionCodeFixProvider : CodeFixProvider
             return;
         }
 
-        // Register a code action that will invoke the fix.
         context.RegisterCodeFix(
             CodeAction.Create(
                 title: CodeFixResources.CodeFixTitle,
-                createChangedDocument: c => MakeUppercaseAsync(context.Document, node, newNode, c),
+                createChangedDocument: c => ReplaceNameAsync(context.Document, node, newNode, c),
                 equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
             diagnostic);
     }
 
-    private async Task<Document> MakeUppercaseAsync(Document document, SyntaxNode node, SyntaxNode newNode, CancellationToken cancellationToken)
+    private static async Task<Document> ReplaceNameAsync(Document document, SyntaxNode node, SyntaxNode newNode, CancellationToken cancellationToken)
     {
         var editor = await DocumentEditor.CreateAsync(document, cancellationToken);
 

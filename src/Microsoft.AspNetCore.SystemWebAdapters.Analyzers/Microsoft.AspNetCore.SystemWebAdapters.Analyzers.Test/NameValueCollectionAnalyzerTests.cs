@@ -279,4 +279,41 @@ public class NameValueCollectionAnalyzerTests
         var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0).WithArguments(requestMethod, nameof(NameValueCollection.Keys));
         await VerifyCS.VerifyCodeFixAsync(test, expected, fix);
     }
+
+    [Theory]
+    [InlineData(nameof(HttpRequest.Form))]
+    [InlineData(nameof(HttpRequest.Headers))]
+    [InlineData(nameof(HttpRequest.QueryString))]
+    public async Task ReplaceGetEnumeratorWithAllKeys(string requestMethod)
+    {
+        var test = $@"
+    using System.Web;
+    
+    namespace ConsoleApplication1
+    {{
+        class Test
+        {{
+            public void Method(HttpRequest request)
+            {{
+                var _ = {{|#0:request.{requestMethod}.GetEnumerator()|}};
+            }}
+        }}
+    }}";
+        var fix = $@"
+    using System.Web;
+    
+    namespace ConsoleApplication1
+    {{
+        class Test
+        {{
+            public void Method(HttpRequest request)
+            {{
+                var _ = {{|#0:request.{requestMethod}.AllKeys|}};
+            }}
+        }}
+    }}";
+
+        var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0).WithArguments(requestMethod, nameof(NameValueCollection.GetEnumerator));
+        await VerifyCS.VerifyCodeFixAsync(test, expected, fix);
+    }
 }
