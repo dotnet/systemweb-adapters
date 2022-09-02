@@ -73,7 +73,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
     {
         // The request message is manually disposed at a later time
 #pragma warning disable CA2000 // Dispose objects before losing scope
-        var req = new HttpRequestMessage(HttpMethod.Get, _options.SessionEndpointPath);
+        var req = new HttpRequestMessage(HttpMethod.Get, _options.Path.Relative);
 #pragma warning restore CA2000 // Dispose objects before losing scope
 
         AddSessionCookieToHeader(req, sessionId);
@@ -112,7 +112,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
     /// </summary>
     private async Task SetOrReleaseSessionData(ISessionState? state, CancellationToken cancellationToken)
     {
-        using var req = new HttpRequestMessage(HttpMethod.Put, _options.SessionEndpointPath);
+        using var req = new HttpRequestMessage(HttpMethod.Put, _options.Path.Relative);
 
         if (state is not null)
         {

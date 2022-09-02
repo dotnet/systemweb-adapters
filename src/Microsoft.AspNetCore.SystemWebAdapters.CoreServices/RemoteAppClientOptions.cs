@@ -12,6 +12,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 /// </summary>
 public class RemoteAppClientOptions
 {
+    private Uri _remoteAppUrl = null!;
+
     /// <summary>
     /// Gets or sets the header used to store the API key
     /// </summary>
@@ -28,7 +30,22 @@ public class RemoteAppClientOptions
     /// Gets or sets the remote app url
     /// </summary>
     [Required]
-    public Uri RemoteAppUrl { get; set; } = null!;
+    public Uri RemoteAppUrl
+    {
+        get => _remoteAppUrl;
+        set
+        {
+            // Path must end in '/' so that it will combine correctly with subpaths
+            if (!value.AbsolutePath.EndsWith("/"))
+            {
+                var builder = new UriBuilder(value);
+                builder.Path += "/";
+                value = builder.Uri;
+            }
+
+            _remoteAppUrl = value;
+        }
+    }
 
     /// <summary>
     /// Gets or sets an <see cref="HttpMessageHandler"/> to use for making requests to the remote app.

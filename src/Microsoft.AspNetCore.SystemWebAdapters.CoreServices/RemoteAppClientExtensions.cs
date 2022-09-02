@@ -31,7 +31,6 @@ public static class RemoteAppClientExtensions
         builder.Services.AddOptions<RemoteAppClientOptions>()
             .ValidateDataAnnotations();
 
-        builder.Services.AddTransient<VirtualDirectoryHandler>();
         builder.Services.AddHttpClient(RemoteConstants.HttpClientName)
             .ConfigurePrimaryHttpMessageHandler(sp =>
             {
@@ -45,7 +44,6 @@ public static class RemoteAppClientExtensions
                 // Disable cookies in the HTTP client because the service will manage the cookie header directly
                 return new HttpClientHandler { UseCookies = false, AllowAutoRedirect = false };
             })
-            .AddHttpMessageHandler<VirtualDirectoryHandler>()
             .ConfigureHttpClient((sp, client) =>
             {
                 var options = sp.GetRequiredService<IOptions<RemoteAppClientOptions>>().Value;
@@ -75,37 +73,6 @@ public static class RemoteAppClientExtensions
             .Configure(configure);
 
         return builder;
-    }
-
-    /// <summary>
-    /// <see cref="HttpClient.BaseAddress"/> is set automatically, but if this is supposed to have a path, then that gets
-    /// lost. This handler will append that back if necessary.
-    /// </summary>
-    private class VirtualDirectoryHandler : DelegatingHandler
-    {
-        private readonly string? _path;
-
-        public VirtualDirectoryHandler(IOptions<RemoteAppClientOptions> options)
-        {
-            _path = options.Value.RemoteAppUrl.AbsolutePath;
-
-            if (_path == "/")
-            {
-                _path = null;
-            }
-        }
-
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            if (_path is not null && request.RequestUri is { } uri)
-            {
-                var builder = new UriBuilder(uri);
-                builder.Path = $"{_path}{builder.Path}";
-                request.RequestUri = builder.Uri;
-            }
-
-            return base.SendAsync(request, cancellationToken);
-        }
     }
 
     private class Builder : ISystemWebAdapterRemoteClientAppBuilder
