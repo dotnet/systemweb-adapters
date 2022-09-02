@@ -1,8 +1,8 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Dynamic;
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -126,6 +126,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers
 
                 return true;
             }
+
+            public bool IsRequestSymbol(ISymbol requestSymbol) => _requestMembers.Contains(requestSymbol) || _requestMembersAdditional.Contains(requestSymbol);
 
             public bool IsSupported(ISymbol nameValueSymbol, ISymbol requestSymbol)
             {
