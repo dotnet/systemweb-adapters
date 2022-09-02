@@ -31,7 +31,7 @@ public static class RemoteAppClientExtensions
         builder.Services.AddOptions<RemoteAppClientOptions>()
             .ValidateDataAnnotations();
 
-        builder.Services.AddTransient<HandleVirtualDirectoryHandler>();
+        builder.Services.AddTransient<VirtualDirectoryHandler>();
         builder.Services.AddHttpClient(RemoteConstants.HttpClientName)
             .ConfigurePrimaryHttpMessageHandler(sp =>
             {
@@ -45,7 +45,7 @@ public static class RemoteAppClientExtensions
                 // Disable cookies in the HTTP client because the service will manage the cookie header directly
                 return new HttpClientHandler { UseCookies = false, AllowAutoRedirect = false };
             })
-            .AddHttpMessageHandler<HandleVirtualDirectoryHandler>()
+            .AddHttpMessageHandler<VirtualDirectoryHandler>()
             .ConfigureHttpClient((sp, client) =>
             {
                 var options = sp.GetRequiredService<IOptions<RemoteAppClientOptions>>().Value;
@@ -81,11 +81,11 @@ public static class RemoteAppClientExtensions
     /// <see cref="HttpClient.BaseAddress"/> is set automatically, but if this is supposed to have a path, then that gets
     /// lost. This handler will append that back if necessary.
     /// </summary>
-    private class HandleVirtualDirectoryHandler : DelegatingHandler
+    private class VirtualDirectoryHandler : DelegatingHandler
     {
         private readonly string? _path;
 
-        public HandleVirtualDirectoryHandler(IOptions<RemoteAppClientOptions> options)
+        public VirtualDirectoryHandler(IOptions<RemoteAppClientOptions> options)
         {
             _path = options.Value.RemoteAppUrl.AbsolutePath;
 
