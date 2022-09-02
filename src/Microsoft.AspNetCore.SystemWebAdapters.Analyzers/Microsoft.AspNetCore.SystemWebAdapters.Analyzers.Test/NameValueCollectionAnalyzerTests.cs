@@ -276,6 +276,7 @@ public class NameValueCollectionAnalyzerTests
         }}
     }}";
 
-        await VerifyCS.VerifyCodeFixAsync(test, fix);
+        var expected = VerifyCS.Diagnostic("SYSWEB001").WithLocation(0).WithArguments(requestMethod, nameof(NameValueCollection.Keys));
+        await VerifyCS.VerifyCodeFixAsync(test, expected, fix);
     }
 }
