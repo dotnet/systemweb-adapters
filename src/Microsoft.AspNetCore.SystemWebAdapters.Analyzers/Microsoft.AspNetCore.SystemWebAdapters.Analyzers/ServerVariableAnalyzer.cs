@@ -9,13 +9,11 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers
 {
-    [DiagnosticAnalyzer(LanguageNames.CSharp)]
+    [DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
     public class NameValueCollectionAnalyzer : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "SYSWEB001";
 
-        // You can change these strings in the Resources.resx file. If you do not want your analyzer to be localize-able, you can use regular strings for Title and MessageFormat.
-        // See https://github.com/dotnet/roslyn/blob/main/docs/analyzers/Localizing%20Analyzers.md for more on localization
         private static readonly LocalizableString Title = new LocalizableResourceString(nameof(Resources.AnalyzerTitle), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableString MessageFormat = new LocalizableResourceString(nameof(Resources.AnalyzerMessageFormat), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.AnalyzerDescription), Resources.ResourceManager, typeof(Resources));
@@ -43,16 +41,16 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers
                 {
                     if (context.Operation is IInvocationOperation invocation && invocation.Instance is IPropertyReferenceOperation property)
                     {
-                        if (!symbols.IsSupported(invocation.TargetMethod, property.Member))
+                        if (symbols.IsSupported(invocation.TargetMethod, property.Member) is { IsSupported: false, Properties: { } p })
                         {
-                            context.ReportDiagnostic(Diagnostic.Create(Rule, context.Operation.Syntax.GetLocation(), property.Member.Name, invocation.TargetMethod.Name));
+                            context.ReportDiagnostic(Diagnostic.Create(Rule, context.Operation.Syntax.GetLocation(), p, property.Member.Name, invocation.TargetMethod.Name));
                         }
                     }
                     else if (context.Operation is IPropertyReferenceOperation indexer && GetMember(indexer.Instance) is { } member)
                     {
-                        if (!symbols.IsSupported(indexer.Member, member))
+                        if (symbols.IsSupported(indexer.Member, member) is { IsSupported: false, Properties: { } p })
                         {
-                            context.ReportDiagnostic(Diagnostic.Create(Rule, context.Operation.Syntax.GetLocation(), member.Name, indexer.Member.Name));
+                            context.ReportDiagnostic(Diagnostic.Create(Rule, context.Operation.Syntax.GetLocation(), p, member.Name, indexer.Member.Name));
                         }
                     }
                 }, OperationKind.PropertyReference, OperationKind.Invocation);
@@ -65,6 +63,19 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers
             IMethodReferenceOperation method => method.Member,
             _ => null,
         };
+
+        private readonly struct SupportDetails
+        {
+            public SupportDetails(bool isSupported, ImmutableDictionary<string, string> properties)
+            {
+                IsSupported = isSupported;
+                Properties = properties;
+            }
+
+            public bool IsSupported { get; }
+
+            public ImmutableDictionary<string, string> Properties { get; }
+        }
 
 
         private class KnownSymbols
@@ -108,7 +119,6 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers
 
                 _requestMembers.Add(request.GetMember("Headers"));
                 _requestMembers.Add(request.GetMember("Form"));
-                _requestMembers.Add(request.GetMember("Cookies"));
                 _requestMembers.Add(request.GetMember("QueryString"));
 
                 _requestMembersAdditional.Add(request.GetMember("ServerVariables"));
@@ -129,23 +139,37 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers
 
             public bool IsRequestSymbol(ISymbol requestSymbol) => _requestMembers.Contains(requestSymbol) || _requestMembersAdditional.Contains(requestSymbol);
 
-            public bool IsSupported(ISymbol nameValueSymbol, ISymbol requestSymbol)
+            public SupportDetails IsSupported(ISymbol nameValueSymbol, ISymbol requestSymbol)
             {
                 var allKeysUnsupported = _requestMembersAdditional.Contains(requestSymbol);
                 var unsupportedRequestSymbol = allKeysUnsupported || _requestMembers.Contains(requestSymbol);
 
                 if (unsupportedRequestSymbol && _nameValueMembers.Contains(nameValueSymbol))
                 {
-                    return false;
+                    return CreateDetails(allKeysUnsupported, nameValueSymbol);
                 }
 
                 if (allKeysUnsupported && _nameValueMembersAdditional.Contains(nameValueSymbol))
                 {
-                    return false;
+                    return CreateDetails(allKeysUnsupported, nameValueSymbol);
                 }
 
-                return true;
+                return Supported;
             }
+
+            private SupportDetails CreateDetails(bool allKeysUnsupported, ISymbol nameValueSymbol)
+            {
+                if (!allKeysUnsupported && nameValueSymbol.Name is "Keys" or "GetEnumerator")
+                {
+                    return ReplaceWithAllKeys;
+                }
+
+                return Unsupported;
+            }
+
+            private readonly SupportDetails ReplaceWithAllKeys = new(false, ImmutableDictionary.Create<string, string>().Add("Replace", "AllKeys"));
+            private readonly SupportDetails Unsupported = new(false, ImmutableDictionary.Create<string, string>());
+            private readonly SupportDetails Supported = new(true, ImmutableDictionary.Create<string, string>());
 
             public bool IsValid { get; }
         }
