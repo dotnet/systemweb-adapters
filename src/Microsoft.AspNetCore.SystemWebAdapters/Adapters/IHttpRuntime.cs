@@ -6,4 +6,5 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 internal interface IHttpRuntime
 {
     string AppDomainAppVirtualPath { get; }
+    string AppDomainAppPath { get; }
 }
