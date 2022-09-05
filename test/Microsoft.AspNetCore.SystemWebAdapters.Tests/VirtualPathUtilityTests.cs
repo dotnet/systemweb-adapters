@@ -6,6 +6,13 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
 {
     public class VirtualPathUtilityTests
     {
+        public VirtualPathUtilityTests() => HttpRuntime.Current = new DefaultHttpRuntime();
+
+        internal class DefaultHttpRuntime : IHttpRuntime
+        {
+            public string AppDomainAppVirtualPath => "/";
+        }
+
         [InlineData("/", "/")]
         [InlineData("~/", "/")]
         [InlineData("~/test/../other", "/other")]
