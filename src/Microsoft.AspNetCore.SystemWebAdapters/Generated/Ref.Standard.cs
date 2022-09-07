@@ -359,8 +359,8 @@ namespace System.Web
     public sealed partial class HttpRuntime
     {
         internal HttpRuntime() { }
-        public static string AppDomainAppPath { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public static string AppDomainAppVirtualPath { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public static string AppDomainAppPath { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public static string AppDomainAppVirtualPath { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
     }
     public partial class HttpServerUtility
     {
