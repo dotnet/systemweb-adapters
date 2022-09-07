@@ -30,7 +30,10 @@ public class HttpServerUtility
         //var rootPath = _context.RequestServices.GetRequiredService<IWebHostEnvironment>().WebRootPath;
         //var rootPath = _context.RequestServices.GetRequiredService<IWebHostEnvironment>().ContentRootPath;
         if (string.IsNullOrEmpty(appPath)) return rootPath;
-        return System.IO.Path.Combine(rootPath, appPath[1..].Replace('/', System.IO.Path.DirectorySeparatorChar)).TrimEnd('\\');
+        return System.IO.Path.Combine(rootPath,
+            appPath[1..]
+            .Replace('/', System.IO.Path.DirectorySeparatorChar))
+            .TrimEnd(System.IO.Path.DirectorySeparatorChar);
     }
 
     [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1024:Use properties where appropriate", Justification = Constants.ApiFromAspNet)]
