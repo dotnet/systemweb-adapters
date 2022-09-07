@@ -25,10 +25,7 @@ public class HttpServerUtility
             VirtualPathUtility.Combine(
                 VirtualPathUtility.GetDirectory(_context.Request.Path) ?? "/"
                 , path));
-        // Potential alternative implementations here - for the most literal match to the original use HttpRuntime.AppDomainAppPath
         var rootPath = HttpRuntime.AppDomainAppPath;
-        //var rootPath = _context.RequestServices.GetRequiredService<IWebHostEnvironment>().WebRootPath;
-        //var rootPath = _context.RequestServices.GetRequiredService<IWebHostEnvironment>().ContentRootPath;
         if (string.IsNullOrEmpty(appPath)) return rootPath;
         return System.IO.Path.Combine(rootPath,
             appPath[1..]

@@ -24,7 +24,7 @@ internal static class HttpRuntimeFactory
     {
         public string AppDomainAppVirtualPath => "/";
 
-        public string AppDomainAppPath => AppDomain.CurrentDomain.BaseDirectory;
+        public string AppDomainAppPath => AppContext.BaseDirectory;
     }
 
     internal class IISHttpRuntime : IHttpRuntime
