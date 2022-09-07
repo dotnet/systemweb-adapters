@@ -8,19 +8,22 @@ public class MvcSampleTest : PageTest
     [Test]
     public async Task MVCCoreAppCanLogoutBothApps()
     {
-        // Login with mvc app
+        var email = $"{Path.GetRandomFileName()}@test.com";
+
         await Page.GotoAsync("https://localhost:44339/");
         await Expect(Page.Locator("text=My ASP.NET Application")).ToBeVisibleAsync();
-        await Page.Locator("text=Log in").ClickAsync();
-        await Expect(Page.Locator("text=Use a local account to log in.")).ToBeVisibleAsync();
-        await Page.Locator("input[name=Email]").TypeAsync("test@test.com");
+
+        // Create the user
+        await Page.Locator("text=Register").ClickAsync();
+        await Page.Locator("input[name=Email]").TypeAsync(email);
         await Page.Locator("input[name=Password]").TypeAsync("1qaz!QAZ");
-        await Page.Locator(@"input:has-text(""Log in"")").ClickAsync();
-        await Expect(Page.Locator(@"text=Hello test@test.com!")).ToBeVisibleAsync();
+        await Page.Locator("input[name=ConfirmPassword]").TypeAsync("1qaz!QAZ");
+        await Page.Locator(@"input:has-text(""Register"")").ClickAsync();
+        await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync();
 
         // Make sure core app also logged in
         await Page.GotoAsync("https://localhost:55442/");
-        await Expect(Page.Locator(@"text=Hello test@test.com!")).ToBeVisibleAsync();
+        await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync();
 
         // Logout on core app and make sure both logged out
         await Page.Locator(@"text=Log out").ClickAsync();
@@ -32,19 +35,23 @@ public class MvcSampleTest : PageTest
     [Test]
     public async Task MVCAppCanLogoutBothApps()
     {
+        var email = $"{Path.GetRandomFileName()}@test.com";
+
         // Login with core app
         await Page.GotoAsync("https://localhost:55442/");
         await Expect(Page.Locator("text=ASP.NET Core")).ToBeVisibleAsync();
-        await Page.Locator("text=Log in").ClickAsync();
-        await Expect(Page.Locator("text=Use a local account to log in.")).ToBeVisibleAsync();
-        await Page.Locator("input[name=Email]").TypeAsync("test@test.com");
+
+        // Create the user
+        await Page.Locator("text=Register").ClickAsync();
+        await Page.Locator("input[name=Email]").TypeAsync(email);
         await Page.Locator("input[name=Password]").TypeAsync("1qaz!QAZ");
-        await Page.Locator(@"input:has-text(""Log in"")").ClickAsync();
-        await Expect(Page.Locator(@"text=Hello test@test.com!")).ToBeVisibleAsync();
+        await Page.Locator("input[name=ConfirmPassword]").TypeAsync("1qaz!QAZ");
+        await Page.Locator(@"input:has-text(""Register"")").ClickAsync();
+        await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync();
 
         // Make sure framework app also logged in
         await Page.GotoAsync("https://localhost:44339/");
-        await Expect(Page.Locator(@"text=Hello test@test.com!")).ToBeVisibleAsync();
+        await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync();
 
         // Logout on framework app and make sure both logged out
         await Page.Locator(@"text=Log out").ClickAsync();
