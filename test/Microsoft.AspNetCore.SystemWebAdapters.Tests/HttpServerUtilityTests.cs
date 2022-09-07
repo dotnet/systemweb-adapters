@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Web;
 using AutoFixture;
@@ -24,7 +25,8 @@ public class HttpServerUtilityTests
     internal class DefaultHttpRuntime : IHttpRuntime
     {
         public string AppDomainAppVirtualPath => "/";
-        public string AppDomainAppPath => "C:\\ExampleSites\\TestMapPath";
+        public string AppDomainAppPath => System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
+            "C:\\ExampleSites\\TestMapPath" : "/apps/test-map-path";
     }
 
     [Fact]
@@ -88,19 +90,19 @@ public class HttpServerUtilityTests
     }
 
     // Test data from https://docs.microsoft.com/en-us/dotnet/api/system.web.httpserverutility.mappath?view=netframework-4.8
-    [InlineData("/RootLevelPage.aspx",null,"C:\\ExampleSites\\TestMapPath")]
-    [InlineData("/RootLevelPage.aspx", "", "C:\\ExampleSites\\TestMapPath")]
-    [InlineData("/RootLevelPage.aspx", "/DownOneLevel/DownLevelPage.aspx", "C:\\ExampleSites\\TestMapPath\\DownOneLevel\\DownLevelPage.aspx")]
-    [InlineData("/RootLevelPage.aspx", "/NotRealFolder", "C:\\ExampleSites\\TestMapPath\\NotRealFolder")]
-    [InlineData("/DownOneLevel/DownLevelPage.aspx", null, "C:\\ExampleSites\\TestMapPath\\DownOneLevel")]
-    [InlineData("/DownOneLevel/DownLevelPage.aspx", "../RootLevelPage.aspx", "C:\\ExampleSites\\TestMapPath\\RootLevelPage.aspx")]
-    [InlineData("/api/test/request/info", null, "C:\\ExampleSites\\TestMapPath\\api\\test\\request")]
-    [InlineData("/api/test/request/info", "", "C:\\ExampleSites\\TestMapPath\\api\\test\\request")]
-    [InlineData("/api/test/request/info", "/UploadedFiles", "C:\\ExampleSites\\TestMapPath\\UploadedFiles")]
-    [InlineData("/api/test/request/info", "UploadedFiles", "C:\\ExampleSites\\TestMapPath\\api\\test\\request\\UploadedFiles")]
-    [InlineData("/api/test/request/info", "~/MyUploadedFiles", "C:\\ExampleSites\\TestMapPath\\MyUploadedFiles")]
+    [InlineData("/RootLevelPage.aspx",null,"")]
+    [InlineData("/RootLevelPage.aspx", "", "")]
+    [InlineData("/RootLevelPage.aspx", "/DownOneLevel/DownLevelPage.aspx", "DownOneLevel","DownLevelPage.aspx")]
+    [InlineData("/RootLevelPage.aspx", "/NotRealFolder", "NotRealFolder")]
+    [InlineData("/DownOneLevel/DownLevelPage.aspx", null, "DownOneLevel")]
+    [InlineData("/DownOneLevel/DownLevelPage.aspx", "../RootLevelPage.aspx", "RootLevelPage.aspx")]
+    [InlineData("/api/test/request/info", null, "api","test","request")]
+    [InlineData("/api/test/request/info", "", "api", "test", "request")]
+    [InlineData("/api/test/request/info", "/UploadedFiles", "UploadedFiles")]
+    [InlineData("/api/test/request/info", "UploadedFiles", "api", "test", "request", "UploadedFiles")]
+    [InlineData("/api/test/request/info", "~/MyUploadedFiles", "MyUploadedFiles")]
     [Theory]
-    public void MapPath(string page, string? path, string expected)
+    public void MapPath(string page, string? path, params string[] segments)
     {
         // Arrange
         var coreContext = new Mock<HttpContextCore>();
@@ -112,6 +114,9 @@ public class HttpServerUtilityTests
 
         // Act
         var result = context.Server.MapPath(path);
+
+        var relative = System.IO.Path.Combine(segments);
+        var expected = System.IO.Path.Combine(HttpRuntime.Current.AppDomainAppPath, relative);
 
         // Assert
         Assert.Equal(expected, result);
