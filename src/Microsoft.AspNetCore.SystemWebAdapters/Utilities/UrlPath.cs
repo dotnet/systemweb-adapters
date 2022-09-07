@@ -5,6 +5,14 @@ using System.Text;
 
 namespace System.Web.Util;
 
+/// <summary>
+/// Provides utility methods for handling url and virtual paths.
+/// </summary>
+/// <remarks>
+/// Portions of this code are based on code originally Copyright (c) 1999 Microsoft Corporation
+/// System.Web.Util.UrlPath code at https://github.com/microsoft/referencesource/blob/master/System.Web/Util/UrlPath.cs
+/// These files are released under an MIT licence according to https://github.com/microsoft/referencesource#license
+/// </remarks>
 internal static class UrlPath
 {
     internal const char AppRelativeCharacter = '~';

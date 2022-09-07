@@ -1,5 +1,13 @@
 namespace System.Web.Util;
 
+/// <summary>
+/// Provides utility methods for string operations.
+/// </summary>
+/// <remarks>
+/// Portions of this code are based on code originally Copyright (c) 1999 Microsoft Corporation
+/// System.Web.Util.StringUtil at https://github.com/microsoft/referencesource/blob/master/System.Web/Util/StringUtil.cs
+/// These files are released under an MIT licence according to https://github.com/microsoft/referencesource#license
+/// </remarks>
 internal static class StringUtil
 {
     /*
