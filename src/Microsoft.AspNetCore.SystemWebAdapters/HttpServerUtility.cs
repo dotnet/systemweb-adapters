@@ -21,16 +21,16 @@ public class HttpServerUtility
 
     public string MapPath(string? path)
     {
-        var appPath = path is null ? VirtualPathUtility.GetDirectory(_context.Request.Path) :
+        var appPath = (path is null ? VirtualPathUtility.GetDirectory(_context.Request.Path) :
             VirtualPathUtility.Combine(
-            VirtualPathUtility.GetDirectory(_context.Request.Path) ?? "/"
-            , path);
+                VirtualPathUtility.GetDirectory(_context.Request.Path) ?? "/"
+                , path));
         // Potential alternative implementations here - for the most literal match to the original use HttpRuntime.AppDomainAppPath
         var rootPath = HttpRuntime.AppDomainAppPath;
         //var rootPath = _context.RequestServices.GetRequiredService<IWebHostEnvironment>().WebRootPath;
         //var rootPath = _context.RequestServices.GetRequiredService<IWebHostEnvironment>().ContentRootPath;
         if (string.IsNullOrEmpty(appPath)) return rootPath;
-        return System.IO.Path.Combine(rootPath, appPath[1..].Replace('/', System.IO.Path.DirectorySeparatorChar));
+        return System.IO.Path.Combine(rootPath, appPath[1..].Replace('/', System.IO.Path.DirectorySeparatorChar)).TrimEnd('\\');
     }
 
     [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1024:Use properties where appropriate", Justification = Constants.ApiFromAspNet)]
