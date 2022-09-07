@@ -98,9 +98,13 @@ internal static class UrlPath
         string path;
 
         if (string.IsNullOrEmpty(relative))
-            throw new ArgumentNullException(nameof(relative));
+        {
+             throw new ArgumentNullException(nameof(relative));
+        }
         if (string.IsNullOrEmpty(basepath))
+        {
             throw new ArgumentNullException(nameof(basepath));
+        }
 
         if (basepath[0] == AppRelativeCharacter && basepath.Length == 1)
         {
