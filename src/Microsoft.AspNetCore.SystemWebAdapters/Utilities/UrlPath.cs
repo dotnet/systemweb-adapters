@@ -122,7 +122,7 @@ internal static class UrlPath
             }
         }
 
-        // Make sure it's a virtual path (ASURT 73641)
+        // Make sure it's a virtual path
         Util.UrlPath.CheckValidVirtualPath(relative);
 
         if (Util.UrlPath.IsRooted(relative))
@@ -136,7 +136,7 @@ internal static class UrlPath
                 return appPath;
 
             // If the relative path starts with "~/" or "~\", treat it as app root
-            // relative (ASURT 68628)
+            // relative
             if (IsAppRelativePath(relative))
             {
                 if (appPath.Length > 1)
@@ -205,7 +205,7 @@ internal static class UrlPath
             if (newPath == (object)virtualPath)
                 break;
 
-            // We need to loop again to take care of triple (or more) slashes (VSWhidbey 288782)
+            // We need to loop again to take care of triple (or more) slashes
             virtualPath = newPath;
         }
 
@@ -227,7 +227,7 @@ internal static class UrlPath
             return applicationPath;
 
         // If the virtual path starts with "~/" or "~\", replace with the app path
-        // relative (ASURT 68628)
+        // relative
         if (virtualPath.Length >= 2 && virtualPath[0] == AppRelativeCharacter &&
             (virtualPath[1] == '/' || virtualPath[1] == '\\'))
         {
@@ -275,7 +275,7 @@ internal static class UrlPath
             return true;
         }
 
-        // Special case for apps rooted at the root. VSWhidbey 286145
+        // Special case for apps rooted at the root.
         if (virtualPath2Length == 1)
         {
             Debug.Assert(virtualPath2[0] == '/');
@@ -287,7 +287,7 @@ internal static class UrlPath
             return true;
 
         // If it doesn't, make sure the next char in virtualPath1 is a '/'.
-        // e.g. /app1 vs /app11 (VSWhidbey 285038)
+        // e.g. /app1 vs /app11
         if (virtualPath1[virtualPath2Length] != '/')
         {
             return false;
@@ -386,7 +386,7 @@ internal static class UrlPath
 
         var result = sb.ToString();
 
-        // If we end up with en empty string, turn it into either "/" or "." (VSWhidbey 289175)
+        // If we end up with en empty string, turn it into either "/" or "."
         if (result.Length == 0)
         {
             if (length > 0 && path[0] == '/')
@@ -399,7 +399,7 @@ internal static class UrlPath
     }
 
     // We use file: protocol instead of http:, so that Uri.MakeRelative behaves
-    // in a case insensitive way (VSWhidbey 80078)
+    // in a case insensitive way
     private const string dummyProtocolAndServer = "file://foo";
     private static readonly char[] s_slashChars = new char[] { '\\', '/' };
 
@@ -434,7 +434,7 @@ internal static class UrlPath
 
         string relativePath;
 
-        // VSWhidbey 144946: If to and from points to identical path (excluding query and fragment), just use them instead
+        // If to and from points to identical path (excluding query and fragment), just use them instead
         // of returning an empty string.
         if (fromUri.Equals(toUri))
         {
