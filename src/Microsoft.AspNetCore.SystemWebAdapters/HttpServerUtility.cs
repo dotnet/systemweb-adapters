@@ -21,7 +21,7 @@ public class HttpServerUtility
 
     public string MapPath(string? path)
     {
-        var appPath = (path is null ? VirtualPathUtility.GetDirectory(_context.Request.Path) :
+        var appPath = (string.IsNullOrEmpty(path) ? VirtualPathUtility.GetDirectory(_context.Request.Path) :
             VirtualPathUtility.Combine(
                 VirtualPathUtility.GetDirectory(_context.Request.Path) ?? "/"
                 , path));

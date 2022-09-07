@@ -89,10 +89,13 @@ public class HttpServerUtilityTests
 
     // Test data from https://docs.microsoft.com/en-us/dotnet/api/system.web.httpserverutility.mappath?view=netframework-4.8
     [InlineData("/RootLevelPage.aspx",null,"C:\\ExampleSites\\TestMapPath")]
+    [InlineData("/RootLevelPage.aspx", "", "C:\\ExampleSites\\TestMapPath")]
     [InlineData("/RootLevelPage.aspx", "/DownOneLevel/DownLevelPage.aspx", "C:\\ExampleSites\\TestMapPath\\DownOneLevel\\DownLevelPage.aspx")]
     [InlineData("/RootLevelPage.aspx", "/NotRealFolder", "C:\\ExampleSites\\TestMapPath\\NotRealFolder")]
     [InlineData("/DownOneLevel/DownLevelPage.aspx", null, "C:\\ExampleSites\\TestMapPath\\DownOneLevel")]
     [InlineData("/DownOneLevel/DownLevelPage.aspx", "../RootLevelPage.aspx", "C:\\ExampleSites\\TestMapPath\\RootLevelPage.aspx")]
+    [InlineData("/api/test/request/info", null, "C:\\ExampleSites\\TestMapPath\\api\\test\\request")]
+    [InlineData("/api/test/request/info", "", "C:\\ExampleSites\\TestMapPath\\api\\test\\request")]
     [InlineData("/api/test/request/info", "/UploadedFiles", "C:\\ExampleSites\\TestMapPath\\UploadedFiles")]
     [InlineData("/api/test/request/info", "UploadedFiles", "C:\\ExampleSites\\TestMapPath\\api\\test\\request\\UploadedFiles")]
     [InlineData("/api/test/request/info", "~/MyUploadedFiles", "C:\\ExampleSites\\TestMapPath\\MyUploadedFiles")]
