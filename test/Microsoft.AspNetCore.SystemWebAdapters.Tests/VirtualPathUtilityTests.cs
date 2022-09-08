@@ -11,6 +11,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         internal class DefaultHttpRuntime : IHttpRuntime
         {
             public string AppDomainAppVirtualPath => "/";
+            public string AppDomainAppPath => "C:\\";
         }
 
         [InlineData("/", "/")]

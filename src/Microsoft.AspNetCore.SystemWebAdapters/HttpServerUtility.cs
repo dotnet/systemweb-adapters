@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace System.Web;
 
@@ -17,8 +19,19 @@ public class HttpServerUtility
 
     public string MachineName => Environment.MachineName;
 
-    [Obsolete(Constants.NotImplemented)]
-    public string MapPath(string path) => throw new NotImplementedException();
+    public string MapPath(string? path)
+    {
+        var appPath = (string.IsNullOrEmpty(path) ? VirtualPathUtility.GetDirectory(_context.Request.Path) :
+            VirtualPathUtility.Combine(
+                VirtualPathUtility.GetDirectory(_context.Request.Path) ?? "/"
+                , path));
+        var rootPath = HttpRuntime.AppDomainAppPath;
+        if (string.IsNullOrEmpty(appPath)) return rootPath;
+        return System.IO.Path.Combine(rootPath,
+            appPath[1..]
+            .Replace('/', System.IO.Path.DirectorySeparatorChar))
+            .TrimEnd(System.IO.Path.DirectorySeparatorChar);
+    }
 
     [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1024:Use properties where appropriate", Justification = Constants.ApiFromAspNet)]
     public Exception? GetLastError() => null;
