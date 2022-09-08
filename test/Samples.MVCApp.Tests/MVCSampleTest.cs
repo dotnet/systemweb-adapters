@@ -1,16 +1,20 @@
 using Microsoft.Playwright.NUnit;
+using NUnit.Framework;
 
 namespace PlaywrightTests;
 
 [Parallelizable(ParallelScope.Self)]
 public class MvcSampleTest : PageTest
 {
+    private const string MvcAppUrl = "https://localhost:44339/";
+    private const string MvcCoreAppUrl = "https://localhost:55442/";
+
     [Test]
     public async Task MVCCoreAppCanLogoutBothApps()
     {
         var email = $"{Path.GetRandomFileName()}@test.com";
 
-        await Page.GotoAsync("https://localhost:44339/");
+        await Page.GotoAsync(MvcAppUrl);
         await Expect(Page.Locator("text=My ASP.NET Application")).ToBeVisibleAsync();
 
         // Create the user
@@ -22,13 +26,13 @@ public class MvcSampleTest : PageTest
         await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync();
 
         // Make sure core app also logged in
-        await Page.GotoAsync("https://localhost:55442/");
+        await Page.GotoAsync(MvcCoreAppUrl);
         await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync();
 
         // Logout on core app and make sure both logged out
         await Page.Locator(@"text=Log out").ClickAsync();
         await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
-        await Page.GotoAsync("https://localhost:44339/");
+        await Page.GotoAsync(MvcAppUrl);
         await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
     }
 
@@ -38,7 +42,7 @@ public class MvcSampleTest : PageTest
         var email = $"{Path.GetRandomFileName()}@test.com";
 
         // Login with core app
-        await Page.GotoAsync("https://localhost:55442/");
+        await Page.GotoAsync(MvcCoreAppUrl);
         await Expect(Page.Locator("text=ASP.NET Core")).ToBeVisibleAsync();
 
         // Create the user
@@ -50,13 +54,13 @@ public class MvcSampleTest : PageTest
         await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync();
 
         // Make sure framework app also logged in
-        await Page.GotoAsync("https://localhost:44339/");
+        await Page.GotoAsync(MvcAppUrl);
         await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync();
 
         // Logout on framework app and make sure both logged out
         await Page.Locator(@"text=Log out").ClickAsync();
         await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
-        await Page.GotoAsync("https://localhost:55442/");
+        await Page.GotoAsync(MvcCoreAppUrl);
         await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
     }
 }
