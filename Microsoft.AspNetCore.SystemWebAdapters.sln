@@ -57,6 +57,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.System
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.MVCApp.Tests", "test\Samples.MVCApp.Tests\Samples.MVCApp.Tests.csproj", "{C4F5601D-8D33-4C95-BCFD-EDEF1DC095B4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.RemoteAuth.Forms.Tests", "test\Samples.RemoteAuth.Forms.Tests\Samples.RemoteAuth.Forms.Tests.csproj", "{7C994084-D425-487C-9266-413BB0C22695}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -127,6 +129,10 @@ Global
 		{C4F5601D-8D33-4C95-BCFD-EDEF1DC095B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4F5601D-8D33-4C95-BCFD-EDEF1DC095B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4F5601D-8D33-4C95-BCFD-EDEF1DC095B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C994084-D425-487C-9266-413BB0C22695}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C994084-D425-487C-9266-413BB0C22695}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C994084-D425-487C-9266-413BB0C22695}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C994084-D425-487C-9266-413BB0C22695}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -152,6 +158,7 @@ Global
 		{134659FA-F2BB-4E54-BB68-49E88EA2778F} = {25382551-D3BE-46C0-AAB5-8D2C64D4EDDD}
 		{6931FEFB-DC18-4B3F-8AFC-EDA03063A518} = {F9DB9323-C919-49E8-8F96-B923D2F42E60}
 		{C4F5601D-8D33-4C95-BCFD-EDEF1DC095B4} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
+		{7C994084-D425-487C-9266-413BB0C22695} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DABA3C65-9D74-4EB6-9B1C-730328710EAD}
