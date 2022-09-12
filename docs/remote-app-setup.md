@@ -14,10 +14,9 @@ To setup the ASP.NET app to be able to receive requests from the ASP.NET Core ap
 
 ```CSharp
 SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
-    .AddRemoteApp(options =>
+    .AddRemoteAppServer(options =>
     {
-        // ApiKey is a string representing a GUID
-        options.ApiKey = "00000000-0000-0000-0000-000000000000";
+        options.ApiKey = ConfigurationManager.AppSettings["ApiKey"];
     });
 ```
 
@@ -29,12 +28,10 @@ To setup the ASP.NET Core app to be able to send requests to the ASP.NET app, yo
 
 ```CSharp
 builder.Services.AddSystemWebAdapters()
-    .AddRemoteApp(options =>
+    .AddRemoteAppClient(options =>
     {
         options.RemoteAppUrl = new(builder.Configuration["http://URL-for-the-ASPNet-app"]);
-
-        // ApiKey is a string representing a GUID
-        options.ApiKey = "00000000-0000-0000-0000-000000000000";
+        options.ApiKey = builder.Configuration("ApiKey");
     });
 ```
 

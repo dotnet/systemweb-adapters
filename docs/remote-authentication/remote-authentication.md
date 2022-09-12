@@ -17,8 +17,7 @@ SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
     .AddProxySupport(options => options.UseForwardedHeaders = true)
     .AddRemoteApp(options =>
     {
-        // ApiKey is a string representing a GUID
-        options.ApiKey = "00000000-0000-0000-0000-000000000000";
+        options.ApiKey = ConfigurationManager.AppSettings["ApiKey"];
     })
     .AddRemoteAppAuthentication();
 ```
@@ -32,9 +31,7 @@ builder.Services.AddSystemWebAdapters()
     .AddRemoteApp(options =>
     {
         options.RemoteAppUrl = new(builder.Configuration["http://URL-for-the-ASPNet-app"]);
-
-        // ApiKey is a string representing a GUID
-        options.ApiKey = "00000000-0000-0000-0000-000000000000";
+        options.ApiKey = builder.Configuration("ApiKey");
     })
     .AddRemoteAppAuthentication(true);
 ```
