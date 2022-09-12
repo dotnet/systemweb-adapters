@@ -18,7 +18,7 @@ public static class RemoteAppAuthenticationExtensions
     /// <param name="builder">The System.Web adapter builder to modify.</param>
     /// <param name="configure">Configuration to use when registering the remote authentication module.</param>
     /// <returns>The System.Web adapter builder updated to include the remote authentication module.</returns>
-    public static ISystemWebAdapterRemoteServerAppBuilder AddAuthentication(this ISystemWebAdapterRemoteServerAppBuilder builder, Action<RemoteAppAuthenticationServerOptions>? configure = null)
+    public static ISystemWebAdapterRemoteServerAppBuilder AddAuthenticationServer(this ISystemWebAdapterRemoteServerAppBuilder builder, Action<RemoteAppAuthenticationServerOptions>? configure = null)
     {
         if (builder is null)
         {
