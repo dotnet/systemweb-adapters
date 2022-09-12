@@ -29,7 +29,7 @@ protected void Application_Start()
     SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
         .AddProxySupport(options => options.UseForwardedHeaders = true)
         .AddJsonSessionSerializer(options => ClassLibrary.SessionUtils.RegisterSessionKeys(options.KnownKeys))
-        .AddRemoteAppServer(options => options.ApiKey = ClassLibrary.SessionUtils.ApiKey)
+        .AddRemoteAppServer(options => options.ApiKey = ConfigurationManager.AppSettings["RemoteAppApiKey"])
         .AddSessionServer();
 }
 ```

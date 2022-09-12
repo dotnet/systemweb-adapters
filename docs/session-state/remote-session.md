@@ -34,7 +34,7 @@ builder.Services.AddSystemWebAdapters()
         options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
 
         // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
-        options.ApiKey = builder.Configuration("ApiKey");
+        options.ApiKey = builder.Configuration("RemoteAppApiKey");
     })
     .AddSessionClient();
 ```
@@ -69,7 +69,7 @@ SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
     })
     // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
     // ApiKey is a string representing a GUID
-    .AddRemoteAppServer(options => options.ApiKey = ConfigurationManager.AppSettings["ApiKey"])
+    .AddRemoteAppServer(options => options.ApiKey = ConfigurationManager.AppSettings["RemoteAppApiKey"])
     .AddSessionServer();
 ```
 

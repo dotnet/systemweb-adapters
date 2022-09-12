@@ -16,7 +16,7 @@ To setup the ASP.NET app to be able to receive requests from the ASP.NET Core ap
 SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
     .AddRemoteAppServer(options =>
     {
-        options.ApiKey = ConfigurationManager.AppSettings["ApiKey"];
+        options.ApiKey = ConfigurationManager.AppSettings["RemoteAppApiKey"];
     });
 ```
 
@@ -30,8 +30,8 @@ To setup the ASP.NET Core app to be able to send requests to the ASP.NET app, yo
 builder.Services.AddSystemWebAdapters()
     .AddRemoteAppClient(options =>
     {
-        options.RemoteAppUrl = new(builder.Configuration["http://URL-for-the-ASPNet-app"]);
-        options.ApiKey = builder.Configuration("ApiKey");
+        options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
+        options.ApiKey = builder.Configuration("RemoteAppApiKey");
     });
 ```
 
