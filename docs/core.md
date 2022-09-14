@@ -11,13 +11,12 @@ var builder = WebApplication.CreateBuilder();
 builder.Services.AddControllersWithViews();
 builder.Services.AddSystemWebAdapters()
     .AddJsonSessionKeySerializer(options => ClassLibrary.SessionUtils.RegisterSessionKeys(options))
-    .AddRemoteAppClient(remote => remote
-        .Configure(options =>
-        {
-            options.RemoteApp = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
-            options.ApiKey = ClassLibrary.SessionUtils.ApiKey;
-        })
-        .AddSession());
+    .AddRemoteAppClient(options =>
+    {
+        options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
+        options.ApiKey = builder.Configuration("RemoteAppApiKey");
+    })
+    .AddSessionClient();
 
 var app = builder.Build();
 

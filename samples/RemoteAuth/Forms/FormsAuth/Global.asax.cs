@@ -17,12 +17,11 @@ namespace FormsAuth
 
             SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
                 .AddProxySupport(options => options.UseForwardedHeaders = true)
-                .AddRemoteAppServer(remote => remote
-                    .Configure(options =>
+                .AddRemoteAppServer(options =>
                     {
                         options.ApiKey = ConfigurationManager.AppSettings["RemoteAppApiKey"];
                     })
-                    .AddAuthentication());
+                .AddAuthenticationServer();
         }
     }
 }
