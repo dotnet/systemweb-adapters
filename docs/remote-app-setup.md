@@ -16,6 +16,7 @@ To setup the ASP.NET app to be able to receive requests from the ASP.NET Core ap
 SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
     .AddRemoteAppServer(options =>
     {
+        // ApiKey is a string representing a GUID
         options.ApiKey = ConfigurationManager.AppSettings["RemoteAppApiKey"];
     });
 ```
