@@ -173,7 +173,7 @@ namespace System.Web
         {
             if (_response.Headers.TryGetValue(name, out var existing))
             {
-                _response.Headers.Add(name, StringValues.Concat(existing, value));
+                _response.Headers[name] = StringValues.Concat(existing, value);
             }
             else
             {

@@ -14,7 +14,7 @@ internal class SetDefaultResponseHeadersMiddleware
 {
     private readonly RequestDelegate _next;
 
-    private readonly (string Header, string Value)[] _defaultHeaders = new (string, string)[]
+    private static readonly (string Header, string Value)[] _defaultHeaders = new (string, string)[]
     {
         (HeaderNames.CacheControl, CacheControlHeaderValue.PrivateString),
         (HeaderNames.ContentType, "text/html")
@@ -24,13 +24,20 @@ internal class SetDefaultResponseHeadersMiddleware
 
     public Task InvokeAsync(HttpContext context)
     {
-        foreach (var (header, value) in _defaultHeaders)
+        context.Response.OnStarting(static state =>
         {
-            if (!context.Response.Headers.ContainsKey(header))
+            var context = (HttpContext)state;
+
+            foreach (var (header, value) in _defaultHeaders)
             {
-                context.Response.Headers[header] = value;
+                if (!context.Response.Headers.ContainsKey(header))
+                {
+                    context.Response.Headers[header] = value;
+                }
             }
-        }
+
+            return Task.CompletedTask;
+        }, context);
 
         return _next(context);
     }
