@@ -4,6 +4,9 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
+using Microsoft.Extensions.DependencyInjection;
+using MvcApp.Services;
 
 namespace MvcApp
 {
@@ -22,7 +25,10 @@ namespace MvcApp
                 .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys))
                 .AddRemoteAppServer(options => options.ApiKey = ConfigurationManager.AppSettings["RemoteAppApiKey"])
                 .AddAuthenticationServer()
-                .AddSessionServer();
+                .AddSessionServer()
+
+                // Add custom service for serializing claims for remote app authentication scenarios
+                .Services.AddTransient<IClaimsSerializer, CustomClaimsSerializer>();
         }
     }
 }

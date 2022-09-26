@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
+using MvcCoreApp.Services;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
@@ -25,6 +27,9 @@ builder.Services.AddSystemWebAdapters()
     })
     .AddAuthenticationClient(true)
     .AddSessionClient();
+
+// Override default claims deserialization logic with custom deserialization logic
+builder.Services.AddTransient<IClaimsSerializer, CustomClaimsSerializer>();
 
 var app = builder.Build();
 
