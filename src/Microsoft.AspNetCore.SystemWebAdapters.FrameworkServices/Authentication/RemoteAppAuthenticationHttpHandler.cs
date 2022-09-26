@@ -12,6 +12,13 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// </summary>
 internal sealed class RemoteAppAuthenticationHttpHandler : IHttpHandler
 {
+    private readonly IClaimsSerializer _claimsSerializer;
+
+    public RemoteAppAuthenticationHttpHandler(IClaimsSerializer claimsSerializer)
+    {
+        _claimsSerializer = claimsSerializer ??  throw new ArgumentNullException(nameof(claimsSerializer));
+    }
+
     public bool IsReusable => true;
 
     public void ProcessRequest(HttpContext context)
@@ -26,9 +33,10 @@ internal sealed class RemoteAppAuthenticationHttpHandler : IHttpHandler
         {
             context.Response.StatusCode = 200;
             context.Response.ContentType = "application/octet-stream";
+
             var claimsPrincipal = context.User as ClaimsPrincipal ?? new ClaimsPrincipal(context.User.Identity);
-            using var writer = new BinaryWriter(context.Response.OutputStream);
-            claimsPrincipal.WriteTo(writer);
+
+            _claimsSerializer.Serialize(claimsPrincipal, context.Response.OutputStream);
         }
         else
         {

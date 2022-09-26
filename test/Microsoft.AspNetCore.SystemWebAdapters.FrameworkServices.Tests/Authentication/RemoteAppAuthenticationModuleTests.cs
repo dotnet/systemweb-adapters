@@ -39,7 +39,7 @@ public class RemoteAppAuthenticationModuleTests
             ApiKey = GoodKey
         };
 
-        var module = new RemoteAppAuthenticationModule(Options.Create(remoteAppOptions), Options.Create(authOptions));
+        var module = new RemoteAppAuthenticationModule(Options.Create(remoteAppOptions), Options.Create(authOptions), new RemoteAppAuthenticationSerializer());
 
         var headers = new NameValueCollection
         {

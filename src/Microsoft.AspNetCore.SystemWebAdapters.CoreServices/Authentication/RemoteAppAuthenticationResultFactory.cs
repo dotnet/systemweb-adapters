@@ -17,6 +17,13 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// </summary>
 internal class RemoteAppAuthenticationResultFactory : IAuthenticationResultFactory
 {
+    private readonly IClaimsSerializer _claimsSerializer;
+
+    public RemoteAppAuthenticationResultFactory(IClaimsSerializer claimsSerializer)
+    {
+        _claimsSerializer = claimsSerializer ?? throw new ArgumentNullException(nameof(claimsSerializer));
+    }
+
     public async Task<RemoteAppAuthenticationResult> CreateRemoteAppAuthenticationResultAsync(HttpResponseMessage response, RemoteAppAuthenticationClientOptions options)
     {
         if (response is null)
@@ -35,8 +42,7 @@ internal class RemoteAppAuthenticationResultFactory : IAuthenticationResultFacto
         if (response.StatusCode == HttpStatusCode.OK)
         {
             using var responseContent = await response.Content.ReadAsStreamAsync();
-            using var reader = new BinaryReader(responseContent);
-            ret = new RemoteAppAuthenticationResult(new ClaimsPrincipal(reader), (int)response.StatusCode, response.RequestMessage);
+            ret = new RemoteAppAuthenticationResult(_claimsSerializer.Deserialize(responseContent), (int)response.StatusCode, response.RequestMessage);
         }
 
         // If the remote authentication result hasn't yet been created, create it without a claims principal

@@ -8,7 +8,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
 internal sealed class RemoteAppAuthenticationModule : RemoteModule
 {
-    public RemoteAppAuthenticationModule(IOptions<RemoteAppServerOptions> remoteAppOptions, IOptions<RemoteAppAuthenticationServerOptions> authOptions)
+    public RemoteAppAuthenticationModule(IOptions<RemoteAppServerOptions> remoteAppOptions, IOptions<RemoteAppAuthenticationServerOptions> authOptions, IClaimsSerializer claimsSerializer)
         : base(remoteAppOptions)
     {
         if (authOptions is null)
@@ -18,7 +18,7 @@ internal sealed class RemoteAppAuthenticationModule : RemoteModule
 
         Path = authOptions.Value.AuthenticationEndpointPath;
 
-        var handler = new RemoteAppAuthenticationHttpHandler();
+        var handler = new RemoteAppAuthenticationHttpHandler(claimsSerializer);
 
         MapGet(context => handler);
     }
