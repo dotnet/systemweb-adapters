@@ -10,7 +10,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 /// Interface for creating authentication results from HTTP responses returned
 /// by a remote app in remote authentication scenarios.
 /// </summary>
-internal interface IAuthenticationResultFactory
+public interface IAuthenticationResultFactory
 {
     /// <summary>
     /// Given an HTTP response and remote authentication options, generate a RemoteAppAuthenticationResult
