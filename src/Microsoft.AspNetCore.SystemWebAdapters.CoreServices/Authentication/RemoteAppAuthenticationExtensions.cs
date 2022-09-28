@@ -57,7 +57,7 @@ public static class RemoteAppAuthenticationExtensions
 
         authenticationBuilder.Services.AddScoped<IRemoteAppAuthenticationResultProcessor, RedirectUrlProcessor>();
         authenticationBuilder.Services.AddTransient<IAuthenticationResultFactory, RemoteAppAuthenticationResultFactory>();
-        authenticationBuilder.Services.AddTransient<IClaimsSerializer, RemoteAppAuthenticationSerializer>();
+        authenticationBuilder.Services.AddTransient<IClaimsSerializer, BinaryClaimsSerializer>();
         authenticationBuilder.Services.AddTransient<IRemoteAppAuthenticationService, RemoteAppAuthenticationService>();
         authenticationBuilder.Services.AddOptions<RemoteAppAuthenticationClientOptions>(scheme)
             .Configure(configureOptions ?? (_ => { }))

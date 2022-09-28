@@ -26,7 +26,7 @@ public static class RemoteAppAuthenticationExtensions
         }
 
         builder.Services.AddScoped<IHttpModule, RemoteAppAuthenticationModule>();
-        builder.Services.AddScoped<IClaimsSerializer, RemoteAppAuthenticationSerializer>();
+        builder.Services.AddScoped<IClaimsSerializer, BinaryClaimsSerializer>();
         var options = builder.Services.AddOptions<RemoteAppAuthenticationServerOptions>()
             .ValidateDataAnnotations();
 

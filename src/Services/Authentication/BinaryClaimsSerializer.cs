@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
-internal class RemoteAppAuthenticationSerializer : IClaimsSerializer
+internal class BinaryClaimsSerializer : IClaimsSerializer
 {
-    public ClaimsPrincipal? Deserialize(Stream? responseContent)
+    public ClaimsPrincipal? Deserialize(Stream responseContent)
     {
         if (responseContent == null)
         {
@@ -17,7 +17,7 @@ internal class RemoteAppAuthenticationSerializer : IClaimsSerializer
         return new ClaimsPrincipal(reader);
     }
 
-    public void Serialize(ClaimsPrincipal? claimsPrincipal, Stream? outputStream)
+    public void Serialize(ClaimsPrincipal claimsPrincipal, Stream outputStream)
     {
         if (claimsPrincipal == null)
         {
