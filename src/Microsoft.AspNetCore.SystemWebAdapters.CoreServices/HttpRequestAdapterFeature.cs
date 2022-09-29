@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -13,12 +14,13 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal class HttpRequestAdapterFeature : IHttpRequestAdapterFeature, IHttpRequestFeature, IDisposable
+internal class HttpRequestAdapterFeature : IHttpRequestAdapterFeature, IHttpRequestFeature, IRequestBodyPipeFeature, IDisposable
 {
     private readonly int _bufferThreshold;
     private readonly long? _bufferLimit;
     private readonly IHttpRequestFeature _other;
 
+    private PipeReader? _pipeReader;
     private Stream? _bufferedStream;
 
     public HttpRequestAdapterFeature(IHttpRequestFeature other, int bufferThreshold, long? bufferLimit)
@@ -147,7 +149,7 @@ internal class HttpRequestAdapterFeature : IHttpRequestAdapterFeature, IHttpRequ
         set => _other.Headers = value;
     }
 
-    Stream IHttpRequestFeature.Body
+    public Stream Body
     {
         get
         {
@@ -166,6 +168,8 @@ internal class HttpRequestAdapterFeature : IHttpRequestAdapterFeature, IHttpRequ
             Reset();
         }
     }
+
+    PipeReader IRequestBodyPipeFeature.Reader => _pipeReader ??= PipeReader.Create(Body, new StreamPipeReaderOptions(leaveOpen: true));
 
     private void Reset()
     {

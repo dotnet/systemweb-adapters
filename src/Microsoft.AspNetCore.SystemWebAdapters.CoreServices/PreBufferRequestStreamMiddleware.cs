@@ -28,6 +28,7 @@ internal partial class PreBufferRequestStreamMiddleware
         context.Response.RegisterForDispose(requestFeature);
         context.Features.Set<IHttpRequestFeature>(requestFeature);
         context.Features.Set<IHttpRequestAdapterFeature>(requestFeature);
+        context.Features.Set<IRequestBodyPipeFeature>(requestFeature);
 
         await _next(context);
     }
