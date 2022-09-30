@@ -1,0 +1,30 @@
+<Project>
+  <Target Name="FindWebConfig" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <__WebConfigXsl>$(MSBuildThisFileDirectory)config.xslt</__WebConfigXsl>
+      <__FinalConfigPath>$(OutDir)$(AssemblyName).dll.config</__FinalConfigPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <__WebConfig Include="@(None)" Condition=" '%(Filename)%(Extension)' == 'Web.config' ">
+        <Path>$([MSBuild::NormalizePath($(MSBuildThisProjectDirectory), %(Identity))</Path>
+      </__WebConfig>
+    </ItemGroup>
+
+    <PropertyGroup>
+      <__WebConfigExists>false</__WebConfigExists>
+      <__WebConfigExists Condition=" '%(__WebConfig.FullPath)' != '' ">true</__WebConfigExists>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="TransformWebConfig" AfterTargets="FindWebConfig" Condition="$(__WebConfigExists)">
+    <Message Text="Copying AppSettings and ConnectionStrings from '%(__WebConfig.FullPath)' to '$(__FinalConfigPath)' " Importance="high" />
+
+    <XslTransformation XslInputPath="$(__WebConfigXsl)" XmlInputPaths="%(__WebConfig.FullPath)" OutputPaths="$(__FinalConfigPath)" />
+
+    <ItemGroup>
+      <FileWrites Include="$(__FinalConfigPath)" />
+    </ItemGroup>
+  </Target>
+
+</Project>

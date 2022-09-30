@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+l<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net6.0</TargetFrameworks>
@@ -11,6 +11,10 @@
   <PropertyGroup Label="Package Information">
     <Description>A collection of services to provide support for enabling configuration for Microsoft.AspNetCore.SystemWebAdapters.</Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="Build\*" Pack="true" PackagePath="Build\" />
+  </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests" />

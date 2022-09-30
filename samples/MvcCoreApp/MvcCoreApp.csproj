@@ -1,9 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\MvcApp\Web.config" Link="Web.config" />
+    <None Include="..\MvcApp\Web.Debug.config" Link="Web.Debug.config" />
+    <None Include="..\MvcApp\Web.Release.config" Link="Web.Release.config" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Yarp.ReverseProxy" Version="1.1.0" />
   </ItemGroup>
