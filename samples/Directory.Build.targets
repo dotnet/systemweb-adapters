@@ -1,5 +1,5 @@
 <!-- Disable any build stuff brought in by arcade for the samples.
      By default, Arcade will bring in PackageReferences which will break any old-style projects (they will prefer those packages over packages.config) -->
 <Project>
-  <Import Project="../src/Microsoft.AspNetCore.SystemWebAdapters.CoreServices/Content/Microsoft.AspNetCore.SystemWebAdapters.CoreServices.targets"/>
+  <Import Project="../src/Microsoft.AspNetCore.SystemWebAdapters.CoreServices/Build/Microsoft.AspNetCore.SystemWebAdapters.CoreServices.targets"/>
 </Project>
