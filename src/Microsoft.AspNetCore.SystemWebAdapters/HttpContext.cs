@@ -41,7 +41,9 @@ public class HttpContext : IServiceProvider
 
     public HttpServerUtility Server => _server ??= new(_context);
 
-    public Cache Cache => _context.RequestServices.GetRequiredService<Cache>();
+#pragma warning disable CA1822 // Mark members as static
+    public Cache Cache => HttpRuntime.Cache;
+#pragma warning restore CA1822 // Mark members as static
 
     /// <summary>
     /// Gets whether the current request is running in the development environment.

@@ -2,42 +2,60 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Web.Caching;
 using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 internal static class HttpRuntimeFactory
 {
-    public static IHttpRuntime Create()
+    public static IHttpRuntime Create(IServiceProvider serviceProvider)
     {
         if (NativeMethods.IsAspNetCoreModuleLoaded())
         {
             var config = NativeMethods.HttpGetApplicationProperties();
-
-            return new IISHttpRuntime(config);
+            return new IISHttpRuntime(config, serviceProvider);
         }
 
-        return new DefaultHttpRuntime();
+        return new DefaultHttpRuntime(serviceProvider);
     }
 
-    internal class DefaultHttpRuntime : IHttpRuntime
+    internal abstract class BaseHttpRuntime : IHttpRuntime
     {
-        public string AppDomainAppVirtualPath => "/";
+        private readonly IServiceProvider serviceProvider;
+        private Cache? cache;
 
-        public string AppDomainAppPath => AppContext.BaseDirectory;
+        protected BaseHttpRuntime(IServiceProvider serviceProvider)
+        {
+            this.serviceProvider = serviceProvider;
+        }
+        public abstract string AppDomainAppVirtualPath { get; }
+        public abstract string AppDomainAppPath { get; }
+        public Cache Cache => cache ??= serviceProvider.GetRequiredService<Cache>();
     }
 
-    internal class IISHttpRuntime : IHttpRuntime
+    internal class DefaultHttpRuntime : BaseHttpRuntime
+    {
+        public DefaultHttpRuntime(IServiceProvider sp) : base(sp)
+        {
+        }
+
+        public override string AppDomainAppVirtualPath => "/";
+
+        public override string AppDomainAppPath => AppContext.BaseDirectory;
+    }
+
+    internal class IISHttpRuntime : BaseHttpRuntime
     {
         private readonly NativeMethods.IISConfigurationData _config;
 
-        public IISHttpRuntime(NativeMethods.IISConfigurationData config)
+        public IISHttpRuntime(NativeMethods.IISConfigurationData config, IServiceProvider sp) : base(sp)
         {
             _config = config;
         }
 
-        public string AppDomainAppVirtualPath => _config.pwzVirtualApplicationPath;
+        public override string AppDomainAppVirtualPath => _config.pwzVirtualApplicationPath;
 
-        public string AppDomainAppPath => _config.pwzFullApplicationPath;
+        public override string AppDomainAppPath => _config.pwzFullApplicationPath;
     }
 }
