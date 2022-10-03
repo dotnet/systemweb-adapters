@@ -16,7 +16,7 @@
 #pragma warning disable CA1054 // URI parameters should not be strings
 #pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
 #pragma warning disable CA1063 // Implement IDisposable Correctly
-
+#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpBrowserCapabilities))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpBrowserCapabilitiesBase))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpBrowserCapabilitiesWrapper))]

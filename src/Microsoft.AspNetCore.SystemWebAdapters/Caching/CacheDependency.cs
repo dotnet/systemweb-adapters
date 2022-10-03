@@ -7,14 +7,13 @@ using System.Runtime.Caching;
 
 namespace System.Web.Caching;
 
-public class CacheDependency
+public class CacheDependency : IDisposable
 {
-    private List<ChangeMonitor> changeMonitors = new();
+    private readonly List<ChangeMonitor> changeMonitors = new();
     private bool hasChanged;
     private bool disposedValue;
     private DateTime utcLastModified;
     private Action<object, EventArgs>? dependencyChangedAction;
-    private string[]? filenames;
     private readonly DateTime utcStart;
     private bool initCompleted;
     private string? uniqueId;
@@ -50,7 +49,6 @@ public class CacheDependency
         }
         utcStart = start;
 
-        this.filenames = filenames;
         if (filenames is not null && filenames.Length != 0)
         {
             changeMonitors.Add(new HostFileChangeMonitor(filenames.ToList()));
@@ -91,9 +89,7 @@ public class CacheDependency
         public object? State { get; }
     }
 
-#pragma warning disable CA2109 // Review visible event handlers
     protected void NotifyDependencyChanged(object sender, EventArgs e)
-#pragma warning restore CA2109 // Review visible event handlers
     {
         if (initCompleted && DateTime.UtcNow > utcStart)
         {

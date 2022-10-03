@@ -16,7 +16,7 @@
 #pragma warning disable CA1054 // URI parameters should not be strings
 #pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
 #pragma warning disable CA1063 // Implement IDisposable Correctly
-
+#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
 namespace System.Web
 {
     public partial class HttpBrowserCapabilities : System.Web.Configuration.HttpCapabilitiesBase
@@ -492,7 +492,7 @@ namespace System.Web.Caching
         public void Insert(string key, object value, System.Web.Caching.CacheDependency dependencies, System.DateTime absoluteExpiration, System.TimeSpan slidingExpiration, System.Web.Caching.CacheItemUpdateCallback onUpdateCallback) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public object Remove(string key) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
-    public partial class CacheDependency
+    public partial class CacheDependency : System.IDisposable
     {
         public CacheDependency(string filename) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public CacheDependency(string filename, System.DateTime start) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
