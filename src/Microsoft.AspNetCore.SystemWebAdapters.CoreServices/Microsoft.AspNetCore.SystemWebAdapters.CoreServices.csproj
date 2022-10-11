@@ -5,7 +5,6 @@
     <IsPackable>true</IsPackable>
     <EnablePackageValidation>true</EnablePackageValidation>
     <RootNamespace>Microsoft.AspNetCore.SystemWebAdapters</RootNamespace>
-    <UseSharedServices>true</UseSharedServices>
   </PropertyGroup>
 
   <PropertyGroup Label="Package Information">
@@ -29,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj" />
+    <ProjectReference Include="..\Services\Microsoft.AspNetCore.SystemWebAdapters.Services.csproj" />
   </ItemGroup>
 
 </Project>
