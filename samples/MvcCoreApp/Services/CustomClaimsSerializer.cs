@@ -12,18 +12,19 @@ namespace MvcCoreApp.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public ClaimsPrincipal? Deserialize(Stream? responseContent)
+        public ClaimsPrincipal Deserialize(Stream responseContent)
         {
             _logger.LogInformation("Deserializing claims with customer serializer");
             if (responseContent == null)
             {
-                return null;
+                throw new ArgumentNullException(nameof(responseContent));
             }
+
             using var reader = new BinaryReader(responseContent);
             return new ClaimsPrincipal(reader);
         }
 
-        public void Serialize(ClaimsPrincipal? claimsPrincipal, Stream? outputStream)
+        public void Serialize(ClaimsPrincipal claimsPrincipal, Stream outputStream)
         {
             throw new NotImplementedException();
         }

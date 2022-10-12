@@ -7,12 +7,13 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
 internal class BinaryClaimsSerializer : IClaimsSerializer
 {
-    public ClaimsPrincipal? Deserialize(Stream responseContent)
+    public ClaimsPrincipal Deserialize(Stream responseContent)
     {
         if (responseContent == null)
         {
-            return null;
+            throw new ArgumentNullException(nameof(responseContent)); 
         }
+
         using var reader = new BinaryReader(responseContent);
         return new ClaimsPrincipal(reader);
     }
