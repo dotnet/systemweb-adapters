@@ -10,13 +10,15 @@ var builder = WebApplication.CreateBuilder();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSystemWebAdapters()
-    .AddJsonSessionKeySerializer(options => ClassLibrary.SessionUtils.RegisterSessionKeys(options))
+    .AddJsonSessionSerializer(options => ClassLibrary.SessionUtils.RegisterSessionKeys(options))
     .AddRemoteAppClient(options =>
     {
         options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
-        options.ApiKey = builder.Configuration("RemoteAppApiKey");
+        options.ApiKey = builder.Configuration["RemoteAppApiKey"];
     })
     .AddSessionClient();
+
+builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 var app = builder.Build();
 
