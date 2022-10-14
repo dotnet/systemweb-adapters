@@ -122,7 +122,7 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
             // Workaround for an issue identified by https://github.com/dotnet/systemweb-adapters/issues/228.
             // HttpClient wrongly uses comma (",") instead of semi-colon (";") as a separator for Cookie headers.
             // To mitigate this, we concatenate them manually and put them back as a single header value.
-            // This workaround can be removed once we target .NET 7+ as HttpClient is fixed there.
+            // This workaround can be removed once we target .NET 7+ as Kestrel is fixed there.
             if (string.Equals(headerName, HeaderNames.Cookie, StringComparison.OrdinalIgnoreCase))
             {
                 authRequest.Headers.Add(headerName, string.Join("; ", originalRequest.Headers[headerName].ToArray()));
