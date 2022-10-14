@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
@@ -97,7 +98,7 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
     }
 
     // Add configured headers to the request, or all headers if none in particular are specified
-    private static void AddHeaders(IEnumerable<string> headersToForward, HttpRequest originalRequest, HttpRequestMessage authRequest)
+    internal static void AddHeaders(IEnumerable<string> headersToForward, HttpRequest originalRequest, HttpRequestMessage authRequest)
     {
         // Add x-forwarded headers so that the authenticate API will know which host the HTTP request was addressed to originally.
         // These headers are also used by result processors - to fix-up redirect responses, for example, to redirect back to the
@@ -118,6 +119,14 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
 
         foreach (var headerName in headerNames)
         {
+            // HttpClient wrongly uses comma (",") instead of semi-colon (";") as a separator for Cookie headers.
+            // To mitigate this, we concatenate them manually and put them back as a single header value.
+            if (string.Equals(headerName, HeaderNames.Cookie, StringComparison.OrdinalIgnoreCase))
+            {
+                authRequest.Headers.Add(headerName, string.Join("; ", originalRequest.Headers[headerName].ToArray()));
+                continue;
+            }
+
             authRequest.Headers.Add(headerName, originalRequest.Headers[headerName].ToArray());
         }
     }
