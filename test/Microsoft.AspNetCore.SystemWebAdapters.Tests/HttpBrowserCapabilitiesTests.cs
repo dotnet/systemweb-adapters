@@ -7,20 +7,6 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
 {
     public class HttpBrowserCapabilitiesTests
     {
-        [Fact]
-        public void IsMobileDeviceCheck()
-        {
-            // Arrange
-            string userAgent = null;
-
-            // Assert
-            Assert.Throws<ArgumentNullException>(() =>
-            {
-                // Act
-                var _ = new HttpBrowserCapabilities(new BrowserCapabilitiesFactory(), userAgent);
-            });
-        }
-
         [Theory]
         [InlineData("", false)]
         [InlineData("Mozilla/5.0 (iPhone; CPU iPhone OS 12_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1", true)]
