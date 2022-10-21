@@ -60,7 +60,5 @@ public class RemoteAppClientOptions
     /// <summary>
     /// Gets or sets an <see cref="HttpClient"/> to use for making requests to the remote app.
     /// </summary>
-    public HttpClient BackchannelClient { get; set; }
-        // Set to default, because we'll ensure this is populated with post-configuration
-        = default!;
+    public HttpClient? BackchannelClient { get; set; }
 }
