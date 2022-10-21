@@ -6,6 +6,4 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 internal static class RemoteConstants
 {
     internal const string ApiKeyHeaderName = "X-SystemWebAdapter-RemoteAppAuthentication-Key";
-
-    internal const string HttpClientName = "remote-client";
 }
