@@ -23,6 +23,8 @@ internal partial class SessionMiddleware
     [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Creating session on demand by synchronously waiting on a potential asynchronous connection")]
     private partial void LogOnDemand();
 
+    private readonly TimeSpan CommitTimeout = TimeSpan.FromMinutes(1);
+
     public SessionMiddleware(RequestDelegate next, ILogger<SessionMiddleware> logger)
     {
         _next = next;
@@ -58,10 +60,8 @@ internal partial class SessionMiddleware
         {
             await _next(context);
 
-            // If the request is being redirected, the client may disconnect before we have a chance to commit, so we don't want to
-            // use HttpContext.RequestAborted as it will be disconnected
-            var token = context.GetAdapter().Response.IsRequestBeingRedirected ? CancellationToken.None : context.RequestAborted;
-            await state.CommitAsync(token);
+            using var cts = new CancellationTokenSource(CommitTimeout);
+            await state.CommitAsync(cts.Token);
         }
         finally
         {
