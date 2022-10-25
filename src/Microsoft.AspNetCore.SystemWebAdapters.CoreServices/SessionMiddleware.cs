@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Http;
@@ -56,7 +57,11 @@ internal partial class SessionMiddleware
         try
         {
             await _next(context);
-            await state.CommitAsync(context.RequestAborted);
+
+            // If the request is being redirected, the client may disconnect before we have a chance to commit, so we don't want to
+            // use HttpContext.RequestAborted as it will be disconnected
+            var token = context.GetAdapter().Response.IsRequestBeingRedirected ? CancellationToken.None : context.RequestAborted;
+            await state.CommitAsync(token);
         }
         finally
         {
