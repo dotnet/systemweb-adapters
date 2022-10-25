@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 
 namespace System.Web
@@ -181,22 +182,72 @@ namespace System.Web
             }
         }
 
+        public string RedirectLocation
+        {
+            get => _response.Headers.Location;
+            set => _response.Headers.Location = value;
+        }
+
         public bool IsRequestBeingRedirected => StatusCode is >= 300 and < 400;
 
-        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = "_writer is registered to be disposed by the owning HttpContext")]
-        public void RedirectPermanent(string url) => Redirect(url, true, true);
+        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = Constants.ApiFromAspNet)]
+        public void Redirect(string url) => Redirect(url, endResponse: true, permanent: false);
 
-        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = "_writer is registered to be disposed by the owning HttpContext")]
-        public void RedirectPermanent(string url, bool endResponse) => Redirect(url, endResponse, true);
+        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = Constants.ApiFromAspNet)]
+        public void Redirect(string url, bool endResponse) => Redirect(url, endResponse, permanent: false);
+
+        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = Constants.ApiFromAspNet)]
+        public void RedirectPermanent(string url) => Redirect(url, endResponse: true, permanent: true);
+
+        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = Constants.ApiFromAspNet)]
+        public void RedirectPermanent(string url, bool endResponse) => Redirect(url, endResponse, permanent: true);
 
         private void Redirect(string url, bool endResponse, bool permanent)
         {
-            _response.Redirect(url, permanent);
+            Clear();
+
+            var resolved = ResolvePath(url);
+            _response.Redirect(resolved, permanent);
+
+            ContentType = "text/html";
+
+            Output.WriteLine("<html><head><title>Object moved</title></head><body>");
+            Output.Write("<h2>Object moved to <a href=\"");
+            Output.Write(resolved);
+            Output.WriteLine("\">here</a>.</h2>");
+            Output.WriteLine("</body></html>");
 
             if (endResponse)
             {
                 End();
             }
+        }
+
+        private string ResolvePath(string url)
+        {
+            if (string.IsNullOrEmpty(url))
+            {
+                return "/";
+            }
+
+            if (!url.StartsWith('~'))
+            {
+                return url;
+            }
+
+            var vdir = _response.HttpContext.RequestServices.GetRequiredService<IHttpRuntime>().AppDomainAppVirtualPath;
+
+            var sb = new StringBuilder(url, 1, url.Length - 1, url.Length + vdir.Length);
+
+            if (sb.Length == 0 || sb[0] != '/')
+            {
+                sb.Insert(0, '/');
+            }
+
+            sb.Insert(0, vdir);
+            sb.Replace("//", "/");
+
+            return sb.ToString();
         }
 
         public void SetCookie(HttpCookie cookie) => Cookies.Set(cookie);
