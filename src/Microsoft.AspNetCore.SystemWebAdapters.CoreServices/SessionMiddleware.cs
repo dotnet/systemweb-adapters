@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Http;
@@ -21,6 +22,8 @@ internal partial class SessionMiddleware
 
     [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Creating session on demand by synchronously waiting on a potential asynchronous connection")]
     private partial void LogOnDemand();
+
+    private readonly TimeSpan CommitTimeout = TimeSpan.FromMinutes(1);
 
     public SessionMiddleware(RequestDelegate next, ILogger<SessionMiddleware> logger)
     {
@@ -56,7 +59,9 @@ internal partial class SessionMiddleware
         try
         {
             await _next(context);
-            await state.CommitAsync(context.RequestAborted);
+
+            using var cts = new CancellationTokenSource(CommitTimeout);
+            await state.CommitAsync(cts.Token);
         }
         finally
         {
