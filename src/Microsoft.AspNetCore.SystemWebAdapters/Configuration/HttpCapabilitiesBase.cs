@@ -23,4 +23,6 @@ public class HttpCapabilitiesBase
     public string? Platform => _data["platform"];
 
     public bool Crawler => _data.GetBoolean("crawler");
+
+    public bool IsMobileDevice => _data.GetBoolean("isMobileDevice");
 }
