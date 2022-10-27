@@ -59,7 +59,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.MVCApp.Tests", "tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.RemoteAuth.Forms.Tests", "test\Samples.RemoteAuth.Forms.Tests\Samples.RemoteAuth.Forms.Tests.csproj", "{7C994084-D425-487C-9266-413BB0C22695}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.Services", "src\Services\Microsoft.AspNetCore.SystemWebAdapters.Services.csproj", "{632E6195-4304-4C67-AABB-7CFC3F9086B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.Abstractions", "src\Services\Microsoft.AspNetCore.SystemWebAdapters.Abstractions.csproj", "{632E6195-4304-4C67-AABB-7CFC3F9086B6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

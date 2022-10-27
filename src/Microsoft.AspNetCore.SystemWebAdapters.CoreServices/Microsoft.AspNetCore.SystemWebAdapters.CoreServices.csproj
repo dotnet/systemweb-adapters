@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net6.0</TargetFrameworks>
@@ -28,7 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj" />
-    <ProjectReference Include="..\Services\Microsoft.AspNetCore.SystemWebAdapters.Services.csproj" />
+    <ProjectReference Include="..\Services\Microsoft.AspNetCore.SystemWebAdapters.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>
