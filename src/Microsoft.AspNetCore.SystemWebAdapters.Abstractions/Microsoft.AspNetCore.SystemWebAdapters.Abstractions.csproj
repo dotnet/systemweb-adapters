@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net472</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <IsPackable>true</IsPackable>
     <EnablePackageValidation>true</EnablePackageValidation>
     <RootNamespace>Microsoft.AspNetCore.SystemWebAdapters</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Label="Package Information">
-    <Description>A collection of services to provide support for enabling configuration for Microsoft.AspNetCore.SystemWebAdapters.</Description>
+    <Description>A collection of abstractions to provide support for enabling configuration for Microsoft.AspNetCore.SystemWebAdapters.</Description>
   </PropertyGroup>
 
   <ItemGroup>
