@@ -216,7 +216,7 @@
       <Project>{55c1bbe0-b922-46b0-8f2c-8472bc9a5f33}</Project>
       <Name>Microsoft.AspNetCore.SystemWebAdapters</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\src\Services\Microsoft.AspNetCore.SystemWebAdapters.Abstractions.csproj">
+    <ProjectReference Include="..\..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters.Abstractions\Microsoft.AspNetCore.SystemWebAdapters.Abstractions.csproj">
       <Project>{632e6195-4304-4c67-aabb-7cfc3f9086b6}</Project>
       <Name>Microsoft.AspNetCore.SystemWebAdapters.Abstractions</Name>
     </ProjectReference>
