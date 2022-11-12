@@ -1,9 +1,8 @@
 using System;
-using System.Collections.Specialized;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Internal;
 
-internal abstract class NoGetByIntNameValueCollection : NameValueCollection
+internal abstract class NoGetByIntNameValueCollection : HttpValueCollection
 {
     private protected const string IndexErrorMessage = "ASP.NET Core doesn't support accessing items by index.";
 

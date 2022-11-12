@@ -686,6 +686,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Assert
             Assert.Same(serverVariables1, serverVariables2);
             Assert.IsType<ServerVariablesNameValueCollection>(serverVariables1);
+            Assert.Throws<PlatformNotSupportedException>(() => serverVariables1.ToString());
         }
 
         [Fact]
@@ -757,6 +758,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             Assert.Equal(new[] { value1 }, form.GetValues(key1));
             Assert.Equal($"{value2},{value3}", form.Get(key2));
             Assert.Equal(new[] { value2, value3 }, form.GetValues(key2));
+            Assert.Equal($"{key1}={value1}&{key2}={value2}&{key2}={value3}", form.ToString());
         }
 
         [Fact]
@@ -778,6 +780,29 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Assert
             Assert.Same(queryCollection1, queryCollection2);
             Assert.IsType<StringValuesReadOnlyDictionaryNameValueCollection>(queryCollection1);
+        }
+
+        [Fact]
+        public void QueryToString()
+        {
+            // Arrange
+            var query = new QueryCollection(new Dictionary<string, StringValues>()
+            {
+                { "q", "1" },
+                { "t", "1,2,3" },
+                { "w", new StringValues(new[] { "5", "6" }) },
+            });
+
+            var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.Query).Returns(query);
+
+            var request = new HttpRequest(requestCore.Object);
+
+            // Act
+            var str = request.QueryString.ToString();
+
+            // Assert
+            Assert.Equal("q=1&t=1%2c2%2c3&w=5&w=6", str);
         }
 
         [Fact]
