@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Threading.Tasks;
 using System.Web;
 using Xunit;
+
 using VerifyCS = Microsoft.AspNetCore.SystemWebAdapters.Analyzers.Test.CSharpCodeFixVerifier<
     Microsoft.AspNetCore.SystemWebAdapters.Analyzers.NameValueCollectionAnalyzer,
     Microsoft.AspNetCore.SystemWebAdapters.Analyzers.NameValueCollectionCodeFixProvider>;

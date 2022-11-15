@@ -1,9 +1,9 @@
 {
   "sdk": {
-    "version": "7.0.100-rc.1.22431.12"
+    "version": "7.0.100"
   },
   "tools": {
-    "dotnet": "7.0.100-rc.1.22431.12",
+    "dotnet": "7.0.100",
     "runtimes": {
       "dotnet": [
         "6.0.4"
