@@ -23,4 +23,6 @@ public class HttpBrowserCapabilitiesWrapper : HttpBrowserCapabilitiesBase
     public override string? Version => _capabilities.Version;
 
     public override bool Crawler => _capabilities.Crawler;
+
+    public override bool IsMobileDevice => _capabilities.IsMobileDevice;
 }

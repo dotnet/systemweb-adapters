@@ -2,9 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Web;
 using AutoFixture;
+using Microsoft.AspNetCore.Http;
+using Moq;
 using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
@@ -16,6 +19,14 @@ public class HttpServerUtilityTests
     public HttpServerUtilityTests()
     {
         _fixture = new Fixture();
+        HttpRuntime.Current = new DefaultHttpRuntime();
+    }
+
+    internal class DefaultHttpRuntime : IHttpRuntime
+    {
+        public string AppDomainAppVirtualPath => "/";
+        public string AppDomainAppPath => System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
+            "C:\\ExampleSites\\TestMapPath" : "/apps/test-map-path";
     }
 
     [Fact]
@@ -76,5 +87,57 @@ public class HttpServerUtilityTests
         // Assert
         Assert.Equal(expected, encoded);
         Assert.Equal(bytes, decoded);
+    }
+
+    // Test data from https://docs.microsoft.com/en-us/dotnet/api/system.web.httpserverutility.mappath?view=netframework-4.8
+    [InlineData("/RootLevelPage.aspx",null,"")]
+    [InlineData("/RootLevelPage.aspx", "", "")]
+    [InlineData("/RootLevelPage.aspx", "/DownOneLevel/DownLevelPage.aspx", "DownOneLevel","DownLevelPage.aspx")]
+    [InlineData("/RootLevelPage.aspx", "/NotRealFolder", "NotRealFolder")]
+    [InlineData("/DownOneLevel/DownLevelPage.aspx", null, "DownOneLevel")]
+    [InlineData("/DownOneLevel/DownLevelPage.aspx", "../RootLevelPage.aspx", "RootLevelPage.aspx")]
+    [InlineData("/api/test/request/info", null, "api","test","request")]
+    [InlineData("/api/test/request/info", "", "api", "test", "request")]
+    [InlineData("/api/test/request/info", "/UploadedFiles", "UploadedFiles")]
+    [InlineData("/api/test/request/info", "UploadedFiles", "api", "test", "request", "UploadedFiles")]
+    [InlineData("/api/test/request/info", "~/MyUploadedFiles", "MyUploadedFiles")]
+    [Theory]
+    public void MapPath(string page, string? path, params string[] segments)
+    {
+        // Arrange
+        var coreContext = new Mock<HttpContextCore>();
+        var coreRequest = new Mock<HttpRequestCore>();
+        coreRequest.Setup(c => c.Path).Returns(page);
+        coreContext.Setup(c => c.Request).Returns(coreRequest.Object);
+
+        var context = new HttpContext(coreContext.Object);
+
+        // Act
+        var result = context.Server.MapPath(path);
+
+        var relative = System.IO.Path.Combine(segments);
+        var expected = System.IO.Path.Combine(HttpRuntime.Current.AppDomainAppPath, relative);
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    // Test data from https://docs.microsoft.com/en-us/dotnet/api/system.web.httpserverutility.mappath?view=netframework-4.8
+    [InlineData("/RootLevelPage.aspx", "../OutsideApplication", typeof(HttpException))]
+    [InlineData("/RootLevelPage.aspx", "C:\\OutsideApplication", typeof(HttpException))]
+    [InlineData("/RootLevelPage.aspx", "\\\\SomeServer\\Share\\Path", typeof(HttpException))]
+    [Theory]
+    public void MapPathException(string page, string? path, Type expected)
+    {
+        // Arrange
+        var coreContext = new Mock<HttpContextCore>();
+        var coreRequest = new Mock<HttpRequestCore>();
+        coreRequest.Setup(c => c.Path).Returns(page);
+        coreContext.Setup(c => c.Request).Returns(coreRequest.Object);
+
+        var context = new HttpContext(coreContext.Object);
+
+        // Assert
+        Assert.Throws(expected, ()=> context.Server.MapPath(path));
     }
 }

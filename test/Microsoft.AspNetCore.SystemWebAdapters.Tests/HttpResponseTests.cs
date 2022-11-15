@@ -479,42 +479,101 @@ public class HttpResponseTests
         Assert.Equal(isRequestBeingRedirected, result);
     }
 
-    [InlineData(null)]
-    [InlineData(false)]
-    [InlineData(true)]
+    [InlineData("/", "~", "/", true, null)]
+    [InlineData("/", "~", "/", true, false)]
+    [InlineData("/", "~", "/", true, true)]
+    [InlineData("/", "~", "/", false, null)]
+    [InlineData("/", "~", "/", false, false)]
+    [InlineData("/", "~", "/", false, true)]
+
+    [InlineData("/", "~/dir", "/dir", true, null)]
+    [InlineData("/", "~/dir", "/dir", true, false)]
+    [InlineData("/", "~/dir", "/dir", true, true)]
+    [InlineData("/", "~/dir", "/dir", false, null)]
+    [InlineData("/", "~/dir", "/dir", false, false)]
+    [InlineData("/", "~/dir", "/dir", false, true)]
+
+    [InlineData("/", "/dir", "/dir", true, null)]
+    [InlineData("/", "/dir", "/dir", true, false)]
+    [InlineData("/", "/dir", "/dir", true, true)]
+    [InlineData("/", "/dir", "/dir", false, null)]
+    [InlineData("/", "/dir", "/dir", false, false)]
+    [InlineData("/", "/dir", "/dir", false, true)]
+
+    [InlineData("/dir1/", "/dir2", "/dir2", true, null)]
+    [InlineData("/dir1/", "/dir2", "/dir2", true, false)]
+    [InlineData("/dir1/", "/dir2", "/dir2", true, true)]
+    [InlineData("/dir1/", "/dir2", "/dir2", false, null)]
+    [InlineData("/dir1/", "/dir2", "/dir2", false, false)]
+    [InlineData("/dir1/", "/dir2", "/dir2", false, true)]
+
+    [InlineData("/dir1/", "~/dir2", "/dir1/dir2", true, null)]
+    [InlineData("/dir1/", "~/dir2", "/dir1/dir2", true, false)]
+    [InlineData("/dir1/", "~/dir2", "/dir1/dir2", true, true)]
+    [InlineData("/dir1/", "~/dir2", "/dir1/dir2", false, null)]
+    [InlineData("/dir1/", "~/dir2", "/dir1/dir2", false, false)]
+    [InlineData("/dir1/", "~/dir2", "/dir1/dir2", false, true)]
+
+    [InlineData("/dir1/", "", "/", true, null)]
+    [InlineData("/dir1/", "", "/", true, false)]
+    [InlineData("/dir1/", "", "/", true, true)]
+    [InlineData("/dir1/", "", "/", false, null)]
+    [InlineData("/dir1/", "", "/", false, false)]
+    [InlineData("/dir1/", "", "/", false, true)]
+
     [Theory]
-    public void RedirectPermanent(bool? endResponse)
+    public void Redirect(string vdir, string url, string resolved, bool permanent, bool? endResponse)
     {
         // Arrange
         var isEndCalled = endResponse ?? true;
-        var url = _fixture.Create<string>();
-        var features = new FeatureCollection();
 
-        var bufferedBody = new Mock<IHttpResponseAdapterFeature>();
-        bufferedBody.SetupAllProperties();
-        features.Set(bufferedBody.Object);
+        var runtime = new Mock<IHttpRuntime>();
+        runtime.Setup(r => r.AppDomainAppVirtualPath).Returns(vdir);
 
-        var context = new Mock<HttpContextCore>();
-        context.Setup(c => c.Features).Returns(features);
+        var services = new Mock<IServiceProvider>();
+        services.Setup(s => s.GetService(typeof(IHttpRuntime))).Returns(runtime.Object);
 
-        var responseCore = new Mock<HttpResponseCore>();
-        responseCore.SetupProperty(r => r.StatusCode);
-        responseCore.Setup(r => r.HttpContext).Returns(context.Object);
+        var adapterFeatures = new Mock<IHttpResponseAdapterFeature>();
+        adapterFeatures.SetupAllProperties();
 
-        var response = new HttpResponse(responseCore.Object);
+        var context = new DefaultHttpContext();
+        context.Features.Set(adapterFeatures.Object);
+        context.RequestServices = services.Object;
+
+        var response = new HttpResponse(context.Response);
 
         // Act
         if (endResponse.HasValue)
         {
-            response.RedirectPermanent(url, endResponse.Value);
+            if (permanent)
+            {
+                response.RedirectPermanent(url, endResponse.Value);
+            }
+            else
+            {
+                response.Redirect(url, endResponse.Value);
+            }
         }
         else
         {
-            response.RedirectPermanent(url);
+            if (permanent)
+            {
+                response.RedirectPermanent(url);
+            }
+            else
+            {
+                response.Redirect(url);
+            }
         }
 
         // Assert
-        responseCore.Verify(r => r.Redirect(url, true), Times.Once);
-        bufferedBody.Verify(b => b.EndAsync(), isEndCalled ? Times.Once : Times.Never);
+        Assert.Equal(resolved, response.RedirectLocation);
+        Assert.Null(context.Features.GetRequired<IHttpResponseFeature>().ReasonPhrase);
+        Assert.Equal(2, context.Response.Headers.Count);
+        Assert.Equal(resolved, context.Response.Headers.Location);
+        Assert.Equal("text/html", context.Response.Headers.ContentType);
+        Assert.Equal(permanent ? 301 : 302, context.Response.StatusCode);
+
+        adapterFeatures.Verify(b => b.EndAsync(), isEndCalled ? Times.Once : Times.Never);
     }
 }

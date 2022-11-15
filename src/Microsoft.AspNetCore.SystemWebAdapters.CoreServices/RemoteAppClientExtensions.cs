@@ -14,7 +14,7 @@ public static class RemoteAppClientExtensions
     /// Add configuration for connecting to a remote app for System.Web extensions that require a remote
     /// ASP.NET app such as remote app authentication or remote app session sharing.
     /// </summary>
-    public static ISystemWebAdapterBuilder AddRemoteAppClient(this ISystemWebAdapterBuilder builder, Action<ISystemWebAdapterRemoteClientAppBuilder> configure)
+    public static ISystemWebAdapterRemoteClientAppBuilder AddRemoteAppClient(this ISystemWebAdapterBuilder builder, Action<RemoteAppClientOptions> configure)
     {
         if (builder is null)
         {
@@ -26,51 +26,12 @@ public static class RemoteAppClientExtensions
             throw new ArgumentNullException(nameof(configure));
         }
 
+        builder.Services.AddSingleton<IPostConfigureOptions<RemoteAppClientOptions>, RemoteAppClientPostConfigureOptions>();
         builder.Services.AddOptions<RemoteAppClientOptions>()
+            .Configure(configure)
             .ValidateDataAnnotations();
 
-        builder.Services.AddHttpClient(RemoteConstants.HttpClientName)
-            .ConfigurePrimaryHttpMessageHandler(sp =>
-            {
-                var options = sp.GetRequiredService<IOptions<RemoteAppClientOptions>>().Value;
-
-                if (options.BackchannelHandler is { } handler)
-                {
-                    return handler;
-                }
-
-                // Disable cookies in the HTTP client because the service will manage the cookie header directly
-                return new HttpClientHandler { UseCookies = false, AllowAutoRedirect = false };
-            })
-            .ConfigureHttpClient((sp, client) =>
-            {
-                var options = sp.GetRequiredService<IOptions<RemoteAppClientOptions>>().Value;
-
-                client.BaseAddress = options.RemoteAppUrl;
-                client.DefaultRequestHeaders.Add(options.ApiKeyHeader, options.ApiKey);
-            });
-
-        configure(new Builder(builder.Services));
-
-        return builder;
-    }
-
-    public static ISystemWebAdapterRemoteClientAppBuilder Configure(this ISystemWebAdapterRemoteClientAppBuilder builder, Action<RemoteAppClientOptions> configure)
-    {
-        if (builder is null)
-        {
-            throw new ArgumentNullException(nameof(builder));
-        }
-
-        if (configure is null)
-        {
-            throw new ArgumentNullException(nameof(configure));
-        }
-
-        builder.Services.AddOptions<RemoteAppClientOptions>()
-            .Configure(configure);
-
-        return builder;
+        return new Builder(builder.Services);
     }
 
     private class Builder : ISystemWebAdapterRemoteClientAppBuilder

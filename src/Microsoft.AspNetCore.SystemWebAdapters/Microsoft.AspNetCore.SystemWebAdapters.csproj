@@ -27,13 +27,13 @@
     <Compile Remove="**/*" />
     <Compile Include="Properties/PropertyInfo.cs" />
     <Compile Include="Generated/Ref.*.cs" />
+    <Compile Include="Adapters/SessionState/ISessionState.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
 
     <PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
-
     <Using Include="Microsoft.AspNetCore.Http.HttpContext" Alias="HttpContextCore" />
     <Using Include="Microsoft.AspNetCore.Http.HttpResponse" Alias="HttpResponseCore" />
     <Using Include="Microsoft.AspNetCore.Http.HttpRequest" Alias="HttpRequestCore" />

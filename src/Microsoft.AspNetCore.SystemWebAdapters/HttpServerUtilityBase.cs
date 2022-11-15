@@ -10,7 +10,6 @@ public class HttpServerUtilityBase
 {
     public virtual string MachineName => throw new NotImplementedException();
 
-    [Obsolete(Constants.NotImplemented)]
     public virtual string MapPath(string path) => throw new NotImplementedException();
 
     public virtual Exception? GetLastError() => throw new NotImplementedException();

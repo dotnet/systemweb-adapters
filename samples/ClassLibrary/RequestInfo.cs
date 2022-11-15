@@ -13,6 +13,12 @@ public class RequestInfo
         using (var writer = new SimpleJsonWriter(context.Response))
         {
             writer.Write("VirtualDirectory", HttpRuntime.AppDomainAppVirtualPath);
+            writer.Write("PhysicalDirectory", HttpRuntime.AppDomainAppPath);
+            writer.Write("RequestDirectory", context.Server.MapPath(null));
+            writer.Write("RequestDirectory2", context.Server.MapPath(""));
+            writer.Write("UploadedFiles", context.Server.MapPath("/UploadedFiles"));
+            writer.Write("RelativeFiles", context.Server.MapPath("UploadedFiles"));
+            writer.Write("AppFiles", context.Server.MapPath("~/MyUploadedFiles"));
             writer.Write("RequestVirtualDirectory", context.Request.ApplicationPath);
             writer.Write("RawUrl", context.Request.RawUrl);
             writer.Write("Path", context.Request.Path);

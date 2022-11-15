@@ -87,7 +87,7 @@ internal class HttpValueCollection : NameValueCollection
         }
     }
 
-    public override string ToString() => ToString(false);
+    public override string ToString() => ToString(true);
 
     private string ToString(bool urlencoded)
     {
@@ -100,9 +100,9 @@ internal class HttpValueCollection : NameValueCollection
 
         var s = new StringBuilder();
 
-        for (var i = 0; i < count; i++)
+        foreach (string k in this)
         {
-            var key = GetKey(i);
+            var key = k;
 
             if (urlencoded)
             {
@@ -110,7 +110,7 @@ internal class HttpValueCollection : NameValueCollection
             }
 
             var keyPrefix = string.IsNullOrEmpty(key) ? string.Empty : $"{key}=";
-            var values = (ArrayList?)BaseGet(i);
+            var values = GetValues(k);
 
             if (s.Length > 0)
             {
@@ -122,7 +122,7 @@ internal class HttpValueCollection : NameValueCollection
                 continue;
             }
 
-            for (var j = 0; j < values.Count; j++)
+            for (var j = 0; j < values.Length; j++)
             {
                 if (j > 0)
                 {

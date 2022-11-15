@@ -22,22 +22,21 @@ Configuration for ASP.NET Core involves calling `AddRemoteAppSession` and `AddJs
 
 ```csharp
 builder.Services.AddSystemWebAdapters()
-    .AddRemoteApp(options =>
-    {
-        // Provide the URL for the remote app that has enabled session querying
-        options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
-
-        // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
-        // ApiKey is a string representing a GUID
-        options.ApiKey = "00000000-0000-0000-0000-000000000000";
-    })
-    .AddRemoteAppSession()
     .AddJsonSessionSerializer(options =>
     {
         // Serialization/deserialization requires each session key to be registered to a type
         options.RegisterKey<int>("test-value");
         options.RegisterKey<SessionDemoModel>("SampleSessionItem");
-    });
+    })
+    .AddRemoteAppClient(options =>
+    {
+        // Provide the URL for the remote app that has enabled session querying
+        options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
+
+        // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
+        options.ApiKey = builder.Configuration("RemoteAppApiKey");
+    })
+    .AddSessionClient();
 ```
 
 Session support requires additional work for the ASP.NET Core pipeline, and is not turned on by default. It can be configured on a per-route basis via ASP.NET Core metadata.
@@ -62,16 +61,16 @@ The framework equivalent would look like the following change in `Global.asax.cs
 
 ```csharp
 SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
-    // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
-    // ApiKey is a string representing a GUID
-    .AddRemoteApp(options => options.ApiKey = "00000000-0000-0000-0000-000000000000")
-    .AddRemoteAppSession()
     .AddJsonSessionSerializer(options =>
     {
         // Serialization/deserialization requires each session key to be registered to a type
         options.RegisterKey<int>("test-value");
         options.RegisterKey<SessionDemoModel>("SampleSessionItem");
-    });
+    })
+    // Provide a strong API key that will be used to authenticate the request on the remote app for querying the session
+    // ApiKey is a string representing a GUID
+    .AddRemoteAppServer(options => options.ApiKey = ConfigurationManager.AppSettings["RemoteAppApiKey"])
+    .AddSessionServer();
 ```
 
 # Protocol

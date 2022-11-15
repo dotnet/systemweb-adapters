@@ -50,11 +50,14 @@ internal abstract class RemoteModule : IHttpModule
 
     void IHttpModule.Init(HttpApplication context)
     {
+        var appRelativePath = $"~{Path}";
+
         context.PostMapRequestHandler += (s, _) =>
         {
             var context = ((HttpApplication)s).Context;
 
-            if (!string.Equals(context.Request.Path, Path, StringComparison.Ordinal))
+            // Compare against the AppRelativeCurrentExecutionFilePath to account for potential virtual directories
+            if (!string.Equals(context.Request.AppRelativeCurrentExecutionFilePath, appRelativePath, StringComparison.Ordinal))
             {
                 return;
             }

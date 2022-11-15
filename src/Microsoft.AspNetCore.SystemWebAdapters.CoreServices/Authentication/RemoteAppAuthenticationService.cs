@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
@@ -29,21 +30,15 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
     private RemoteAppAuthenticationClientOptions? _options;
 
     public RemoteAppAuthenticationService(
-        IHttpClientFactory httpClientFactory,
         IAuthenticationResultFactory resultFactory,
         IOptionsSnapshot<RemoteAppAuthenticationClientOptions> authOptions,
         IOptions<RemoteAppClientOptions> remoteAppOptions,
         ILogger<RemoteAppAuthenticationService> logger)
     {
-        if (httpClientFactory is null)
-        {
-            throw new ArgumentNullException(nameof(httpClientFactory));
-        }
-
         _resultFactory = resultFactory ?? throw new ArgumentNullException(nameof(resultFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _authOptionsSnapshot = authOptions ?? throw new ArgumentNullException(nameof(authOptions));
-        _client = httpClientFactory.CreateClient(RemoteConstants.HttpClientName);
+        _client = remoteAppOptions?.Value.BackchannelClient ?? throw new ArgumentNullException(nameof(remoteAppOptions));
     }
 
     /// <summary>
@@ -85,7 +80,7 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
         // that may matter for authentication. Also include the original request path as
         // as a query parameter so that the ASP.NET app can redirect back to it if an
         // authentication provider attempts to redirect back to the authenticate URL.
-        var url = $"{_options.AuthenticationEndpointPath}?{AuthenticationConstants.OriginalUrlQueryParamName}={WebUtility.UrlEncode(originalRequest.GetEncodedPathAndQuery())}";
+        var url = $"{_options.Path.Relative}?{AuthenticationConstants.OriginalUrlQueryParamName}={WebUtility.UrlEncode(originalRequest.GetEncodedPathAndQuery())}";
         using var authRequest = new HttpRequestMessage(HttpMethod.Get, url);
         AddHeaders(_options.RequestHeadersToForward, originalRequest, authRequest);
 
@@ -97,7 +92,7 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
     }
 
     // Add configured headers to the request, or all headers if none in particular are specified
-    private static void AddHeaders(IEnumerable<string> headersToForward, HttpRequest originalRequest, HttpRequestMessage authRequest)
+    internal static void AddHeaders(IEnumerable<string> headersToForward, HttpRequest originalRequest, HttpRequestMessage authRequest)
     {
         // Add x-forwarded headers so that the authenticate API will know which host the HTTP request was addressed to originally.
         // These headers are also used by result processors - to fix-up redirect responses, for example, to redirect back to the
@@ -118,6 +113,16 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
 
         foreach (var headerName in headerNames)
         {
+            // Workaround for an issue identified by https://github.com/dotnet/systemweb-adapters/issues/228.
+            // HttpClient wrongly uses comma (",") instead of semi-colon (";") as a separator for Cookie headers.
+            // To mitigate this, we concatenate them manually and put them back as a single header value.
+            // This workaround can be removed once we target .NET 7+ as Kestrel is fixed there.
+            if (string.Equals(headerName, HeaderNames.Cookie, StringComparison.OrdinalIgnoreCase))
+            {
+                authRequest.Headers.Add(headerName, string.Join("; ", originalRequest.Headers[headerName].ToArray()));
+                continue;
+            }
+
             authRequest.Headers.Add(headerName, originalRequest.Headers[headerName].ToArray());
         }
     }

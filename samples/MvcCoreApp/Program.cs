@@ -17,15 +17,14 @@ builder.Services.AddAuthentication()
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSystemWebAdapters()
-    .AddRemoteAppClient(remote => remote
-        .Configure(options =>
-        {
-            options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
-            options.ApiKey = builder.Configuration["RemoteAppApiKey"];
-        })
-        .AddAuthentication(true)
-        .AddSession())
-    .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys));
+    .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys))
+    .AddRemoteAppClient(options =>
+    {
+        options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
+        options.ApiKey = builder.Configuration["RemoteAppApiKey"];
+    })
+    .AddAuthenticationClient(true)
+    .AddSessionClient();
 
 var app = builder.Build();
 

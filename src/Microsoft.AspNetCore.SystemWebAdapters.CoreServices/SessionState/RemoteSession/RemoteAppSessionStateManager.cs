@@ -17,20 +17,20 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
 internal partial class RemoteAppSessionStateManager : ISessionManager
 {
-    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ISessionSerializer _serializer;
     private readonly ILogger<RemoteAppSessionStateManager> _logger;
     private readonly RemoteAppSessionStateClientOptions _options;
+    private readonly HttpClient _backchannelClient;
 
     public RemoteAppSessionStateManager(
-        IHttpClientFactory httpClientFactory,
         ISessionSerializer serializer,
         IOptions<RemoteAppSessionStateClientOptions> options,
+        IOptions<RemoteAppClientOptions> remoteAppClientOptions,
         ILogger<RemoteAppSessionStateManager> logger)
     {
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+        _backchannelClient = remoteAppClientOptions?.Value.BackchannelClient ?? throw new ArgumentNullException(nameof(remoteAppClientOptions));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
     }
 
@@ -73,14 +73,13 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
     {
         // The request message is manually disposed at a later time
 #pragma warning disable CA2000 // Dispose objects before losing scope
-        var req = new HttpRequestMessage(HttpMethod.Get, _options.SessionEndpointPath);
+        var req = new HttpRequestMessage(HttpMethod.Get, _options.Path.Relative);
 #pragma warning restore CA2000 // Dispose objects before losing scope
 
         AddSessionCookieToHeader(req, sessionId);
         AddReadOnlyHeader(req, readOnly);
 
-        using var client = _httpClientFactory.CreateClient(RemoteConstants.HttpClientName);
-        var response = await client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, token);
+        var response = await _backchannelClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, token);
 
         LogRetrieveResponse(response.StatusCode);
 
@@ -112,7 +111,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
     /// </summary>
     private async Task SetOrReleaseSessionData(ISessionState? state, CancellationToken cancellationToken)
     {
-        using var req = new HttpRequestMessage(HttpMethod.Put, _options.SessionEndpointPath);
+        using var req = new HttpRequestMessage(HttpMethod.Put, _options.Path.Relative);
 
         if (state is not null)
         {
@@ -120,8 +119,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
             req.Content = new SerializedSessionHttpContent(_serializer, state);
         }
 
-        using var client = _httpClientFactory.CreateClient(RemoteConstants.HttpClientName);
-        using var response = await client.SendAsync(req, cancellationToken);
+        using var response = await _backchannelClient.SendAsync(req, cancellationToken);
 
         LogCommitResponse(response.StatusCode);
 

@@ -5,6 +5,7 @@ This project provides a collection of adapters that help migrating from `System.
 - `Microsoft.AspNetCore.SystemWebAdapters`: Subset of the APIs from `System.Web.dll` backed by `Microsoft.AspNetCore.Http` types
 - `Microsoft.AspNetCore.SystemWebAdapters.CoreServices`: Support for adding services to ASP.NET Core applications to enable migration efforts
 - `Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices`: Support for adding services to ASP.NET Framework applications to enable migration efforts
+- `Microsoft.AspNetCore.SystemWebAdapters.Abstractions`: A collection of abstractions shared between the ASP.NET Core and .NET Framework implementations, such as session serialization interfaces.
 
 These adapters help enable large scale, incremental migration from ASP.NET to ASP.NET Core. For more details on incremental migration from ASP.NET to ASP.NET Core, please see the [documentation](docs).
 
@@ -57,7 +58,7 @@ Below are the steps needed to start using the System.Web adapters with your ASP.
 
 ## Known Limitations
 
-Below are some of the limitations of the APIs in the adapters. These are usually due to building off of types used in ASP.NET Core that cannot be fully implemented in ASP.NET Core. In the future, analyzers may be used to flag usage to recommend better patterns.
+Below are some of the limitations of the APIs in the adapters. These are usually due to building off of types used in ASP.NET Core that cannot fully implement the shape of the API in  ASP.NET Framework. In the future, analyzers may be used to flag usage to recommend better patterns.
 
 - A number of APIs in `System.Web.HttpContext` are exposed as `NameValueCollection` instances. In order to reduce copying, many of these are implemented on ASP.NET Core using the core containers. This makes it so that for many of these collections, `Get(int)` (and any API that requires that such as `.Keys` or `.GetEnumerator()`) are unavailable as most of the containers in ASP.NET Core (such as `IHeaderDictionary`) does not have the ability to index by position.
 

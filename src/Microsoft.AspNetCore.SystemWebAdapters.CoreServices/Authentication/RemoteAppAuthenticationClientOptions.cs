@@ -41,5 +41,11 @@ public class RemoteAppAuthenticationClientOptions : AuthenticationSchemeOptions
     /// services. Requests to authenticate are sent to this endpoint.
     /// </summary>
     [Required]
-    public PathString AuthenticationEndpointPath { get; set; } = AuthenticationConstants.DefaultEndpoint;
+    public PathString AuthenticationEndpointPath
+    {
+        get => Path.Path;
+        set => Path = new(value);
+    }
+
+    internal RelativePathString Path { get; private set; } = new(AuthenticationConstants.DefaultEndpoint);
 }

@@ -30,13 +30,16 @@ public class RemoteAppClientOptionsTests
         var services = new ServiceCollection();
         var builder = new TestBuilder { Services = services };
 
-        builder.AddRemoteAppClient(remote => remote
-            .Configure(options =>
+        builder.AddRemoteAppClient(options =>
+        {
+            options.ApiKey = apiKey;
+            options.ApiKeyHeader = apiKeyHeader;
+
+            if (remoteAppUrl is not null)
             {
-                options.ApiKey = apiKey;
-                options.ApiKeyHeader = apiKeyHeader;
-                options.RemoteAppUrl = (remoteAppUrl is null ? null : new Uri(remoteAppUrl, UriKind.Absolute))!;
-            }));
+                options.RemoteAppUrl = new Uri(remoteAppUrl, UriKind.Absolute);
+            }
+        });
 
         using var serviceProvider = services.BuildServiceProvider();
 

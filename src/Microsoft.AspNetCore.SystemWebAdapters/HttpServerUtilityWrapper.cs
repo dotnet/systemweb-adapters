@@ -18,7 +18,6 @@ public class HttpServerUtilityWrapper : HttpServerUtilityBase
 
     public override string MachineName => _utility.MachineName;
 
-    [Obsolete(Constants.NotImplemented)]
     public override string MapPath(string path) => _utility.MapPath(path);
 
     public override byte[]? UrlTokenDecode(string input) => HttpServerUtility.UrlTokenDecode(input);
