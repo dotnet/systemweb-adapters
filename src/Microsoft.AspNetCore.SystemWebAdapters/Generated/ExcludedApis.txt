@@ -10,6 +10,8 @@ M:System.Web.HttpResponse.op_Implicit(System.Web.HttpResponse)~Microsoft.AspNetC
 M:System.Web.HttpResponseBase.op_Implicit(Microsoft.AspNetCore.Http.HttpResponse)~System.Web.HttpResponseBase
 M:System.Web.HttpRequestBase.op_Implicit(Microsoft.AspNetCore.Http.HttpRequest)~System.Web.HttpRequestBase
 
+T:System.Web.NameValueCollectionExtensions
+
 T:Microsoft.AspNetCore.SystemWebAdapters.SessionState.ISessionState
 
 # We manually type forward this only for .NET 4.7.2+

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
 {
-    internal class StringValuesReadOnlyDictionaryNameValueCollection : NoGetByIntNameValueCollection
+    internal class StringValuesReadOnlyDictionaryNameValueCollection : NoGetByIntNameValueCollection, IKeyEnumerator
     {
         private readonly IReadOnlyDictionary<string, StringValues> _values;
 
@@ -26,6 +26,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
         public override string?[] AllKeys => _values.Keys.ToArray();
 
         public override int Count => _values.Count;
+
+        IEnumerable<string> IKeyEnumerator.Keys => _values.Keys;
 
         public override string[]? GetValues(string? name)
             => name is not null && _values.TryGetValue(name, out var values) ? values : default;
