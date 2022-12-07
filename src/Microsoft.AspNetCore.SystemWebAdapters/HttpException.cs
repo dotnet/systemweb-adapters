@@ -8,7 +8,7 @@ namespace System.Web;
 
 public class HttpException : SystemException
 {
-    private readonly int httpStatusCode;
+    private readonly int httpStatusCode = 500;
     
     public HttpException()
     {
