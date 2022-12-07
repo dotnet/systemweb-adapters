@@ -27,7 +27,7 @@ Please include as much of the requested information listed below as possible to 
 
   * Type of issue, e.g. buffer overflow, SQL injection, cross-site scripting, etc.
   * Full paths of source files related to the manifestation of the issue
-  * The location of the affected source code such as tag,branch,commit or direct URL.
+  * The location of the affected source code such as tag, branch, commit, or direct URL.
   * Any special configuration required to reproduce the issue.
   * Step-by-step instructions to reproduce the issue.
   * Proof-of-concept or exploit code, if possible.
