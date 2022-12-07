@@ -119,16 +119,16 @@ namespace System.Web
     public partial class HttpException : System.SystemException
     {
         public HttpException() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public HttpException(int httpStatusCode) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public HttpException(int httpStatusCode, string message) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public HttpException(int httpStatusCode, string message, System.Exception innerException) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public HttpException(System.Net.HttpStatusCode httpStatusCode) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public HttpException(System.Net.HttpStatusCode httpStatusCode, string message) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public HttpException(System.Net.HttpStatusCode httpStatusCode, string message, System.Exception innerException) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public HttpException(string message) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public HttpException(string message, System.Exception innerException) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public HttpException(int httpStatusCode) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public HttpException(System.Net.HttpStatusCode httpStatusCode) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public HttpException(int httpStatusCode, string message) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public HttpException(System.Net.HttpStatusCode httpStatusCode, string message) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public HttpException(int httpStatusCode, string message, System.Exception innerException) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public HttpException(System.Net.HttpStatusCode httpStatusCode, string message, System.Exception innerException) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public int GetHttpCode() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public int StatusCode { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public int GetHttpCode() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
     public sealed partial class HttpFileCollection : System.Collections.Specialized.NameObjectCollectionBase
     {
