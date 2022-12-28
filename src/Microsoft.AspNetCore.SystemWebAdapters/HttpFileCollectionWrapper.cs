@@ -25,13 +25,15 @@ public class HttpFileCollectionWrapper: HttpFileCollectionBase
 
     public override int Count => _collection.Count;
 
-    public override HttpPostedFileBase this[string name] => Get(name);
+    public override HttpPostedFileBase? this[string name] => Get(name);
 
-    public override HttpPostedFileBase this[int index] => Get(index);
+    public override HttpPostedFileBase? this[int index] => Get(index);
 
-    public override HttpPostedFileBase Get(string name) => new HttpPostedFileWrapper(_collection[name]);
+    public override HttpPostedFileBase? Get(string name) =>
+        _collection[name] is { } file ? new HttpPostedFileWrapper(file) : null;
 
-    public override HttpPostedFileBase Get(int index) => new HttpPostedFileWrapper(_collection[index]);
+    public override HttpPostedFileBase? Get(int index) =>
+        _collection[index] is { } file ? new HttpPostedFileWrapper(file) : null;
 
     public override IList<HttpPostedFileBase> GetMultiple(string name)
          => _collection.GetMultiple(name)
