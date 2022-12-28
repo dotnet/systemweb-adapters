@@ -37,6 +37,8 @@ namespace System.Web
 
         public override NameValueCollection Headers => _request.Headers;
 
+        public override HttpFileCollectionBase Files => new HttpFileCollectionWrapper(_request.Files);
+
         public override string HttpMethod => _request.HttpMethod;
 
         public override Stream InputStream => _request.InputStream;

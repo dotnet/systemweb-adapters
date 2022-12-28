@@ -43,9 +43,13 @@ public sealed class HttpFileCollection : NameObjectCollectionBase
 
     public HttpPostedFile? Get(string name) => FormFiles.GetFile(name) is { } file ? new(file) : null;
 
+    public HttpPostedFile? Get(int index) => FormFiles[index] is { } file ? new(file) : null;
+
     public IList<HttpPostedFile> GetMultiple(string name) => FormFiles.GetFiles(name) is { Count: > 0 } files ? new ReadOnlyPostedFileCollection(files) : Array.Empty<HttpPostedFile>();
 
     public HttpPostedFile? this[string name] => Get(name);
+
+    public HttpPostedFile? this[int index] => Get(index);
 
     private string[] GetKeys()
     {
@@ -86,7 +90,7 @@ public sealed class HttpFileCollection : NameObjectCollectionBase
             set => throw new NotSupportedException(Message);
         }
 
-        private static HttpPostedFile Create(IFormFile file) => new(file);
+        private static HttpPostedFile Create(IFormFile file) => new HttpPostedFile(file);
 
         public int Count => _other.Count;
 
