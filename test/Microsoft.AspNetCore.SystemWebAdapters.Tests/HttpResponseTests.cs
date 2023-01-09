@@ -522,6 +522,7 @@ public class HttpResponseTests
     [InlineData("/dir1/", "", "/", false, true)]
 
     [Theory]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1054:URI-like parameters should not be strings", Justification = "Testing")]
     public void Redirect(string vdir, string url, string resolved, bool permanent, bool? endResponse)
     {
         // Arrange

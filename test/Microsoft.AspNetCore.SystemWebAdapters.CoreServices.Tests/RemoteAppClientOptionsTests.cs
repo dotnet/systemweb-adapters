@@ -24,7 +24,7 @@ public class RemoteAppClientOptionsTests
     [InlineData("HeaderName", "", "http://test", false)]
     [InlineData("HeaderName", "36705d36-eba0-44f9-a2e0-c57e6f521274", null, false)]
     [Theory]
-    public void VerifyIsCalled(string apiKeyHeader, string apiKey, string remoteAppUrl, bool shouldSucceed)
+    public void VerifyIsCalled(string apiKeyHeader, string apiKey, string remoteApp, bool shouldSucceed)
     {
         // Arrange
         var services = new ServiceCollection();
@@ -35,9 +35,9 @@ public class RemoteAppClientOptionsTests
             options.ApiKey = apiKey;
             options.ApiKeyHeader = apiKeyHeader;
 
-            if (remoteAppUrl is not null)
+            if (remoteApp is not null)
             {
-                options.RemoteAppUrl = new Uri(remoteAppUrl, UriKind.Absolute);
+                options.RemoteAppUrl = new Uri(remoteApp, UriKind.Absolute);
             }
         });
 
@@ -56,7 +56,7 @@ public class RemoteAppClientOptionsTests
         }
     }
 
-    private class TestBuilder : ISystemWebAdapterBuilder
+    private sealed class TestBuilder : ISystemWebAdapterBuilder
     {
         public IServiceCollection Services { get; set; } = null!;
     }

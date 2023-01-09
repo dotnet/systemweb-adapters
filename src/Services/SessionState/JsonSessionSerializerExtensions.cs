@@ -16,6 +16,7 @@ using System;
 namespace Microsoft.Extensions.DependencyInjection;
 #endif
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1510:Use ArgumentNullException throw helper", Justification = "Source shared with .NET Framework that does not have the method")]
 public static class JsonSessionSerializerExtensions
 {
     public static ISystemWebAdapterBuilder AddJsonSessionSerializer(this ISystemWebAdapterBuilder builder, Action<JsonSessionSerializerOptions>? configure = null)

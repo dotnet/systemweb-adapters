@@ -291,5 +291,5 @@ public class CacheTests
         Assert.Same(item, cache[key]);
     }
 
-    private record Removal(string Key, object Item, CacheItemRemovedReason Reason);
+    private sealed record Removal(string Key, object Item, CacheItemRemovedReason Reason);
 }

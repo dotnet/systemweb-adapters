@@ -19,12 +19,13 @@ public class HttpServerUtilityTests
     public HttpServerUtilityTests()
     {
         _fixture = new Fixture();
-        HttpRuntime.Current = new DefaultHttpRuntime();
+        HttpRuntime.Current = new TestHttpRuntime();
     }
 
-    internal class DefaultHttpRuntime : IHttpRuntime
+    internal sealed class TestHttpRuntime : IHttpRuntime
     {
         public string AppDomainAppVirtualPath => "/";
+
         public string AppDomainAppPath => System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
             "C:\\ExampleSites\\TestMapPath" : "/apps/test-map-path";
     }

@@ -70,10 +70,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
 
         public void CopyTo(Array array, int index)
         {
-            if (array is null)
-            {
-                throw new ArgumentNullException(nameof(array));
-            }
+            ArgumentNullException.ThrowIfNull(array);
 
             foreach (var item in _original)
             {

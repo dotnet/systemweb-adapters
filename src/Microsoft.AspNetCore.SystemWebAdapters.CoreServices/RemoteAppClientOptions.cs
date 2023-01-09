@@ -35,13 +35,10 @@ public class RemoteAppClientOptions
         get => _remoteAppUrl;
         set
         {
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(RemoteAppUrl));
-            }
+            ArgumentNullException.ThrowIfNull(value);
 
             // Path must end in '/' so that it will combine correctly with subpaths
-            if (!value.AbsolutePath.EndsWith("/"))
+            if (!value.AbsolutePath.EndsWith("/", StringComparison.Ordinal))
             {
                 var builder = new UriBuilder(value);
                 builder.Path += "/";

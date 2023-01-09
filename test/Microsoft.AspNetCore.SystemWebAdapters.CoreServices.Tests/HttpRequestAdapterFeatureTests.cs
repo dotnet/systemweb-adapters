@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Http.Features;
 using Moq;
 using Xunit;
 
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
+
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public class HttpRequestAdapterFeatureTests
@@ -24,7 +26,7 @@ public class HttpRequestAdapterFeatureTests
         var other = new Mock<IHttpRequestFeature>();
         other.Setup(o => o.Body).Returns(stream.Object);
 
-        var feature = new HttpRequestAdapterFeature(other.Object, DefaultThreshold, default);
+        using var feature = new HttpRequestAdapterFeature(other.Object, DefaultThreshold, default);
         var adapterFeature = (IHttpRequestAdapterFeature)feature;
 
         // Assert/Act
@@ -38,12 +40,12 @@ public class HttpRequestAdapterFeatureTests
     public async Task Prebuffer(bool canSeek)
     {
         // Arrange
-        var stream = new TestStream(canSeek);
+        using var stream = new TestStream(canSeek);
 
         var other = new Mock<IHttpRequestFeature>();
         other.Setup(o => o.Body).Returns(stream);
 
-        var feature = new HttpRequestAdapterFeature(other.Object, DefaultThreshold, default);
+        using var feature = new HttpRequestAdapterFeature(other.Object, DefaultThreshold, default);
         await feature.BufferInputStreamAsync(default);
 
         var adapterFeature = (IHttpRequestAdapterFeature)feature;
@@ -66,12 +68,12 @@ public class HttpRequestAdapterFeatureTests
     public void GetBufferless(bool canSeek)
     {
         // Arrange
-        var stream = new TestStream(canSeek);
+        using var stream = new TestStream(canSeek);
 
         var other = new Mock<IHttpRequestFeature>();
         other.Setup(o => o.Body).Returns(stream);
 
-        var feature = new HttpRequestAdapterFeature(other.Object, DefaultThreshold, default);
+        using var feature = new HttpRequestAdapterFeature(other.Object, DefaultThreshold, default);
         var adapterFeature = (IHttpRequestAdapterFeature)feature;
 
         // Act
@@ -90,12 +92,12 @@ public class HttpRequestAdapterFeatureTests
     public void GetBuffered(bool canSeek)
     {
         // Arrange
-        var stream = new TestStream(canSeek);
+        using var stream = new TestStream(canSeek);
 
         var other = new Mock<IHttpRequestFeature>();
         other.Setup(o => o.Body).Returns(stream);
 
-        var feature = new HttpRequestAdapterFeature(other.Object, DefaultThreshold, default);
+        using var feature = new HttpRequestAdapterFeature(other.Object, DefaultThreshold, default);
         var adapterFeature = (IHttpRequestAdapterFeature)feature;
 
         // Act
@@ -107,7 +109,7 @@ public class HttpRequestAdapterFeatureTests
         Assert.Equal(ReadEntityBodyMode.Buffered, mode);
     }
 
-    private class TestStream : MemoryStream
+    private sealed class TestStream : MemoryStream
     {
         public TestStream(bool canSeek) => CanSeek = canSeek;
 

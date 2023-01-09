@@ -19,15 +19,8 @@ internal class RemoteAppAuthenticationResultFactory : IAuthenticationResultFacto
 {
     public async Task<RemoteAppAuthenticationResult> CreateRemoteAppAuthenticationResultAsync(HttpResponseMessage response, RemoteAppAuthenticationClientOptions options)
     {
-        if (response is null)
-        {
-            throw new ArgumentNullException(nameof(response));
-        }
-
-        if (options is null)
-        {
-            throw new ArgumentNullException(nameof(options));
-        }
+        ArgumentNullException.ThrowIfNull(response);
+        ArgumentNullException.ThrowIfNull(options);
 
         RemoteAppAuthenticationResult? ret = null;
 

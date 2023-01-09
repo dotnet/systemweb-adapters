@@ -50,10 +50,7 @@ public static class RemoteAppAuthenticationExtensions
     /// <returns>The authentication builder updated with the remote authentication handler added using the given scheme and configuration.</returns>
     public static AuthenticationBuilder AddRemoteAppAuthentication(this AuthenticationBuilder authenticationBuilder, string scheme, Action<RemoteAppAuthenticationClientOptions>? configureOptions = null)
     {
-        if (authenticationBuilder is null)
-        {
-            throw new ArgumentNullException(nameof(authenticationBuilder));
-        }
+        ArgumentNullException.ThrowIfNull(authenticationBuilder);
 
         authenticationBuilder.Services.AddScoped<IRemoteAppAuthenticationResultProcessor, RedirectUrlProcessor>();
         authenticationBuilder.Services.AddSingleton<IAuthenticationResultFactory, RemoteAppAuthenticationResultFactory>();
@@ -71,10 +68,7 @@ public static class RemoteAppAuthenticationExtensions
     /// <param name="configureOptions">Configuration options for the remote authentication handler.</param>
     public static ISystemWebAdapterRemoteClientAppBuilder AddAuthenticationClient(this ISystemWebAdapterRemoteClientAppBuilder builder, bool isDefaultScheme, Action<RemoteAppAuthenticationClientOptions>? configureOptions = null)
     {
-        if (builder is null)
-        {
-            throw new ArgumentNullException(nameof(builder));
-        }
+        ArgumentNullException.ThrowIfNull(builder);
 
         builder.Services.AddAuthentication(options =>
         {

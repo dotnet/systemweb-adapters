@@ -17,10 +17,7 @@ namespace System.Web
 
         public HttpContextWrapper(HttpContext httpContext)
         {
-            if (httpContext == null)
-            {
-                throw new ArgumentNullException(nameof(httpContext));
-            }
+            ArgumentNullException.ThrowIfNull(httpContext);
 
             _context = httpContext;
         }

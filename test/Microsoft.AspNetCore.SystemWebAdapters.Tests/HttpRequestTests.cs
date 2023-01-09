@@ -1012,7 +1012,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             Assert.Same(Array.Empty<string>(), acceptTypes);
         }
 
-        private class RequestCookies : Dictionary<string, string>, IRequestCookieCollection
+        private sealed class RequestCookies : Dictionary<string, string>, IRequestCookieCollection
         {
             ICollection<string> IRequestCookieCollection.Keys => Keys;
         }

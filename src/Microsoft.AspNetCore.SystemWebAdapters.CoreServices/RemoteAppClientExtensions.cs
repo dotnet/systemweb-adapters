@@ -16,15 +16,8 @@ public static class RemoteAppClientExtensions
     /// </summary>
     public static ISystemWebAdapterRemoteClientAppBuilder AddRemoteAppClient(this ISystemWebAdapterBuilder builder, Action<RemoteAppClientOptions> configure)
     {
-        if (builder is null)
-        {
-            throw new ArgumentNullException(nameof(builder));
-        }
-
-        if (configure is null)
-        {
-            throw new ArgumentNullException(nameof(configure));
-        }
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(configure);
 
         builder.Services.AddSingleton<IPostConfigureOptions<RemoteAppClientOptions>, RemoteAppClientPostConfigureOptions>();
         builder.Services.AddOptions<RemoteAppClientOptions>()

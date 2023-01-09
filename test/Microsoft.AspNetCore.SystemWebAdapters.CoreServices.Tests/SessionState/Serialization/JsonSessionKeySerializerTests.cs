@@ -166,7 +166,7 @@ public class JsonSessionKeySerializerTests
         Assert.Empty(bytes);
     }
 
-    private class Type1
+    private sealed class Type1
     {
     }
 
@@ -174,7 +174,7 @@ public class JsonSessionKeySerializerTests
     {
     }
 
-    private class Type2Derived : Type2
+    private sealed class Type2Derived : Type2
     {
     }
 }

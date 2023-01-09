@@ -262,10 +262,7 @@ namespace System.Web
 
         public void BinaryWrite(byte[] buffer)
         {
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ArgumentNullException.ThrowIfNull(buffer);
 
             OutputStream.Write(buffer, 0, buffer.Length);
         }

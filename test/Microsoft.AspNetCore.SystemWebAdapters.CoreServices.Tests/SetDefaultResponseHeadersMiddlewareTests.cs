@@ -82,7 +82,7 @@ public class SetDefaultResponseHeadersMiddlewareTests
     }
 
     // The default feature does not include a functional `OnStarting` method
-    private class StartupCallbackFeature : HttpResponseFeature
+    private sealed class StartupCallbackFeature : HttpResponseFeature
     {
         private Func<Task>? _callback;
 

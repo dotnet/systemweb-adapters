@@ -74,20 +74,14 @@ public sealed class HttpCookieCollection : NameObjectCollectionBase
 
     public void Add(HttpCookie cookie)
     {
-        if (cookie is null)
-        {
-            throw new ArgumentNullException(nameof(cookie));
-        }
+        ArgumentNullException.ThrowIfNull(cookie);
 
         BaseAdd(cookie.Name, cookie);
     }
 
     public void Set(HttpCookie cookie)
     {
-        if (cookie is null)
-        {
-            throw new ArgumentNullException(nameof(cookie));
-        }
+        ArgumentNullException.ThrowIfNull(cookie);
 
         BaseSet(cookie.Name, cookie);
     }

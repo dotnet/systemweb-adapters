@@ -6,11 +6,12 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
 {
     public class VirtualPathUtilityTests
     {
-        public VirtualPathUtilityTests() => HttpRuntime.Current = new DefaultHttpRuntime();
+        public VirtualPathUtilityTests() => HttpRuntime.Current = new TestRuntime();
 
-        internal class DefaultHttpRuntime : IHttpRuntime
+        internal sealed class TestRuntime : IHttpRuntime
         {
             public string AppDomainAppVirtualPath => "/";
+
             public string AppDomainAppPath => "C:\\";
         }
 
