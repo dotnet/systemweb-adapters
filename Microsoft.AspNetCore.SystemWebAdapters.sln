@@ -61,6 +61,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.RemoteAuth.Forms.Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.Abstractions", "src\Microsoft.AspNetCore.SystemWebAdapters.Abstractions\Microsoft.AspNetCore.SystemWebAdapters.Abstractions.csproj", "{632E6195-4304-4C67-AABB-7CFC3F9086B6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorApp", "samples\BlazorApp\BlazorApp.csproj", "{EE62C68E-7471-4594-84C7-AA7B68057597}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -139,6 +141,10 @@ Global
 		{632E6195-4304-4C67-AABB-7CFC3F9086B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{632E6195-4304-4C67-AABB-7CFC3F9086B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{632E6195-4304-4C67-AABB-7CFC3F9086B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE62C68E-7471-4594-84C7-AA7B68057597}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE62C68E-7471-4594-84C7-AA7B68057597}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE62C68E-7471-4594-84C7-AA7B68057597}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE62C68E-7471-4594-84C7-AA7B68057597}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -166,6 +172,7 @@ Global
 		{C4F5601D-8D33-4C95-BCFD-EDEF1DC095B4} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
 		{7C994084-D425-487C-9266-413BB0C22695} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
 		{632E6195-4304-4C67-AABB-7CFC3F9086B6} = {F9DB9323-C919-49E8-8F96-B923D2F42E60}
+		{EE62C68E-7471-4594-84C7-AA7B68057597} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DABA3C65-9D74-4EB6-9B1C-730328710EAD}

@@ -63,13 +63,10 @@ app.MapGet("/current-principals-no-metadata", (HttpContext ctx) =>
     return "done";
 });
 
-app.UseEndpoints(endpoints =>
-{
-    app.MapDefaultControllerRoute();
-    // This method can be used to enable session (or read-only session) on all controllers
-    //.RequireSystemWebAdapterSession();
+app.MapDefaultControllerRoute();
+// This method can be used to enable session (or read-only session) on all controllers
+//.RequireSystemWebAdapterSession();
 
-    app.MapReverseProxy();
-});
+app.MapReverseProxy();
 
 app.Run();
