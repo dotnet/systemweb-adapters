@@ -60,10 +60,7 @@ public class HttpContext : IServiceProvider
 
     public void RewritePath(string path)
     {
-        if (path is null)
-        {
-            throw new ArgumentNullException(nameof(path));
-        }
+        ArgumentNullException.ThrowIfNull(path);
 
         // Extract query string
         string? qs = null;

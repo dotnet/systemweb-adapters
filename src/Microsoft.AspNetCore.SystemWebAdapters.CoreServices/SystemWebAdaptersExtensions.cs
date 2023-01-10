@@ -27,6 +27,8 @@ public static class SystemWebAdaptersExtensions
 
     public static void UseSystemWebAdapters(this IApplicationBuilder app)
     {
+        ArgumentNullException.ThrowIfNull(app);
+
         HttpRuntime.Current = app.ApplicationServices.GetRequiredService<IHttpRuntime>();
 
         app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();

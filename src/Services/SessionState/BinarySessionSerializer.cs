@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1510:Use ArgumentNullException throw helper", Justification = "Source shared with .NET Framework that does not have the method")]
 internal partial class BinarySessionSerializer : ISessionSerializer
 {
     private const byte Version = 1;

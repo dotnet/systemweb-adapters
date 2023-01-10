@@ -11,10 +11,7 @@ public static class RemoteAppSessionStateExtensions
 {
     public static ISystemWebAdapterRemoteClientAppBuilder AddSessionClient(this ISystemWebAdapterRemoteClientAppBuilder builder, Action<RemoteAppSessionStateClientOptions>? configure = null)
     {
-        if (builder is null)
-        {
-            throw new ArgumentNullException(nameof(builder));
-        }
+        ArgumentNullException.ThrowIfNull(builder);
 
         builder.Services.AddTransient<ISessionManager, RemoteAppSessionStateManager>();
 

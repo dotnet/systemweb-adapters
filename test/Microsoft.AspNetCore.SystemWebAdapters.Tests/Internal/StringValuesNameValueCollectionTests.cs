@@ -72,7 +72,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
             Assert.Throws<NotSupportedException>(() => collection.Add(_fixture.Create<string>(), _fixture.Create<string>()));
         }
 
-        private class Builder : IReadOnlyDictionary<string, StringValues>
+        private sealed class Builder : IReadOnlyDictionary<string, StringValues>
         {
             private List<KeyValuePair<string, StringValues>> _items = new();
 

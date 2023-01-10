@@ -41,7 +41,7 @@ public class RemoteAppAuthenticationServerOptionsTests
         }
     }
 
-    private class TestBuilder : ISystemWebAdapterRemoteServerAppBuilder
+    private sealed class TestBuilder : ISystemWebAdapterRemoteServerAppBuilder
     {
         public IServiceCollection Services { get; set; } = null!;
     }

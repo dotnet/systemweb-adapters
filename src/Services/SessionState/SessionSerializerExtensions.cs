@@ -17,6 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class SessionSerializerExtensions
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1510:Use ArgumentNullException throw helper", Justification = "Source shared with .NET Framework that does not have the method")]
     public static ISystemWebAdapterBuilder AddSessionSerializer(this ISystemWebAdapterBuilder builder, Action<SessionSerializerOptions>? configure = null)
     {
         if (builder is null)

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Text;
 
 namespace System.Web.Util;
@@ -44,10 +45,10 @@ internal static class UrlPath
         // If ':' is found, then as long as we find a '/' before the ':', it cannot be
         // a scheme because schemes don't contain '/'.  Otherwise, we will assume it has a 
         // scheme.
-        var indexOfColon = virtualPath.IndexOf(':');
+        var indexOfColon = virtualPath.IndexOf(':', StringComparison.Ordinal);
         if (indexOfColon == -1)
             return false;
-        var indexOfSlash = virtualPath.IndexOf('/');
+        var indexOfSlash = virtualPath.IndexOf('/', StringComparison.Ordinal);
         return indexOfSlash == -1 || indexOfColon < indexOfSlash;
     }
 
@@ -78,18 +79,18 @@ internal static class UrlPath
         // Check if it looks like a physical path (UNC shares and C:)
         if (IsAbsolutePhysicalPath(path))
         {
-            throw new HttpException(string.Format(Physical_path_not_allowed, path));
+            throw new HttpException(string.Format(CultureInfo.InvariantCulture, Physical_path_not_allowed, path));
         }
 
         // Virtual path can't have colons.
-        var iqs = path.IndexOf('?');
+        var iqs = path.IndexOf('?', StringComparison.Ordinal);
         if (iqs >= 0)
         {
             path = path[..iqs];
         }
         if (HasScheme(path))
         {
-            throw new HttpException(string.Format(Invalid_vpath, path));
+            throw new HttpException(string.Format(CultureInfo.InvariantCulture, Invalid_vpath, path));
         }
     }
 
@@ -99,7 +100,7 @@ internal static class UrlPath
 
         if (string.IsNullOrEmpty(relative))
         {
-             throw new ArgumentNullException(nameof(relative));
+            throw new ArgumentNullException(nameof(relative));
         }
         if (string.IsNullOrEmpty(basepath))
         {
@@ -174,7 +175,7 @@ internal static class UrlPath
         string? queryString = null;
         if (!string.IsNullOrEmpty(path))
         {
-            var iqs = path.IndexOf('?');
+            var iqs = path.IndexOf('?', StringComparison.Ordinal);
             if (iqs >= 0)
             {
                 queryString = path[iqs..];
@@ -199,7 +200,7 @@ internal static class UrlPath
         // Replace any double forward slashes
         for (; ; )
         {
-            var newPath = virtualPath.Replace("//", "/");
+            var newPath = virtualPath.Replace("//", "/", StringComparison.Ordinal);
 
             // If it didn't do anything, we're done
             if (newPath == (object)virtualPath)
@@ -251,15 +252,9 @@ internal static class UrlPath
 
     internal static bool VirtualPathStartsWithVirtualPath(string virtualPath1, string virtualPath2)
     {
-        if (virtualPath1 == null)
-        {
-            throw new ArgumentNullException(nameof(virtualPath1));
-        }
+        ArgumentNullException.ThrowIfNull(virtualPath1);
 
-        if (virtualPath2 == null)
-        {
-            throw new ArgumentNullException(nameof(virtualPath2));
-        }
+        ArgumentNullException.ThrowIfNull(virtualPath2);
 
         // if virtualPath1 as a string doesn't start with virtualPath2 as s string, then no for sure
         if (!StringUtil.StringStartsWithIgnoreCase(virtualPath1, virtualPath2))
@@ -412,15 +407,15 @@ internal static class UrlPath
 
         // Make sure both virtual paths are rooted
         if (!Util.UrlPath.IsRooted(fromPath))
-            throw new ArgumentException(string.Format(Path_must_be_rooted, fromPath));
+            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, Path_must_be_rooted, fromPath));
         if (!Util.UrlPath.IsRooted(toPath))
-            throw new ArgumentException(string.Format(Path_must_be_rooted, toPath));
+            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, Path_must_be_rooted, toPath));
 
         // Remove the query string, so that System.Uri doesn't corrupt it
         string? queryString = null;
         if (!string.IsNullOrEmpty(toPath))
         {
-            var iqs = toPath.IndexOf('?');
+            var iqs = toPath.IndexOf('?', StringComparison.Ordinal);
             if (iqs >= 0)
             {
                 queryString = toPath[iqs..];

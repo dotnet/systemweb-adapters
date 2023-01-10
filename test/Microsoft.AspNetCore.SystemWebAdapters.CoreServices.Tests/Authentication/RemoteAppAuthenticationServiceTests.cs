@@ -15,6 +15,9 @@ public class RemoteAppAuthenticationServiceTests
     [MemberData(nameof(GetHeadersForConcatenation))]
     public void AddHeadersConcatenation(Dictionary<string, StringValues> originalHeaders, Dictionary<string, StringValues> resultHeaders)
     {
+        ArgumentNullException.ThrowIfNull(originalHeaders);
+        ArgumentNullException.ThrowIfNull(resultHeaders);
+
         var originalRequest = new Mock<HttpRequestCore>();
         originalRequest.Setup(r => r.Headers).Returns(new HeaderDictionary(originalHeaders));
         originalRequest.Setup(r => r.Scheme).Returns("scheme");
@@ -25,7 +28,7 @@ public class RemoteAppAuthenticationServiceTests
         resultHeaders.Add(AuthenticationConstants.ForwardedProtoHeaderName, "scheme");
         resultHeaders.Add(AuthenticationConstants.MigrationAuthenticateRequestHeaderName, "true");
 
-        var authRequest = new HttpRequestMessage();
+        using var authRequest = new HttpRequestMessage();
 
         RemoteAppAuthenticationService.AddHeaders(originalHeaders.Keys, originalRequest.Object, authRequest);
 

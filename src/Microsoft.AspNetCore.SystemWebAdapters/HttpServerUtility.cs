@@ -49,10 +49,7 @@ public class HttpServerUtility
     /// <exception cref="ArgumentNullException"></exception>
     public static byte[]? UrlTokenDecode(string input)
     {
-        if (input is null)
-        {
-            throw new ArgumentNullException(nameof(input));
-        }
+        ArgumentNullException.ThrowIfNull(input);
 
         if (input.Length == 0)
         {
@@ -81,10 +78,7 @@ public class HttpServerUtility
     [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1055:URI-like return values should not be strings", Justification = Constants.ApiFromAspNet)]
     public static string UrlTokenEncode(byte[] input)
     {
-        if (input is null)
-        {
-            throw new ArgumentNullException(nameof(input));
-        }
+        ArgumentNullException.ThrowIfNull(input);
 
         if (input.Length == 0)
         {

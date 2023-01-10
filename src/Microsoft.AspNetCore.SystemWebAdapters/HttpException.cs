@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Net;
 
 namespace System.Web;
@@ -9,7 +8,7 @@ namespace System.Web;
 public class HttpException : SystemException
 {
     private readonly int _httpStatusCode = 500;
-    
+
     public HttpException()
     {
     }
@@ -57,16 +56,11 @@ public class HttpException : SystemException
         _httpStatusCode = (int)httpStatusCode;
     }
 
+    [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1024:Use properties where appropriate", Justification = Constants.ApiFromAspNet)]
     public int GetHttpCode()
     {
-        return _httpStatusCode;
+        return StatusCode;
     }
 
-    public int StatusCode
-    {
-        get
-        {
-            return _httpStatusCode;
-        }
-    }
+    public int StatusCode => _httpStatusCode;
 }

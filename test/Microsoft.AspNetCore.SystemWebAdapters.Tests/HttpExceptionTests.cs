@@ -4,11 +4,11 @@
 using System;
 using System.Net;
 using System.Web;
-using AutoFixture;
 using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2201:Do not raise reserved exception types", Justification = "Used for tests")]
 public class HttpExceptionTests
 {
     [Fact]

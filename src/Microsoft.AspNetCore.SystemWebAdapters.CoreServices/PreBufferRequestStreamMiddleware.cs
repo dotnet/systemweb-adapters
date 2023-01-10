@@ -18,9 +18,13 @@ internal partial class PreBufferRequestStreamMiddleware
     {
         var metadata = context.GetEndpoint()?.Metadata.GetMetadata<PreBufferRequestStreamAttribute>() ?? _defaultMetadata;
         var existing = context.Features.GetRequired<IHttpRequestFeature>();
-        var requestFeature = new HttpRequestAdapterFeature(existing, metadata.BufferThreshold, metadata.BufferLimit);
 
-        if(!metadata.IsDisabled)
+#pragma warning disable CA2000 // Dispose objects before losing scope
+        // This is registered to be disposed with the HttpContext below
+        var requestFeature = new HttpRequestAdapterFeature(existing, metadata.BufferThreshold, metadata.BufferLimit);
+#pragma warning restore CA2000 // Dispose objects before losing scope
+
+        if (!metadata.IsDisabled)
         {
             await requestFeature.BufferInputStreamAsync(context.RequestAborted);
         }

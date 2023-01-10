@@ -3,7 +3,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-internal class ApiKeyAttribute: RegularExpressionAttribute
+internal sealed class ApiKeyAttribute: RegularExpressionAttribute
 {
     private const string DefaultErrorMessage = "API Key must be 32 hex characters (for example a GUID)";
 

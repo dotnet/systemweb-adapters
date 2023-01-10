@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Web.Configuration;
 using Xunit;
 
@@ -27,7 +28,7 @@ public class BrowserCapabilitiesFactoryTests
         Assert.Equal(data.MajorVersion, result["majorversion"]);
         Assert.Equal(data.MinorVersion, result["minorversion"]);
         Assert.Equal(data.Platform, result["platform"]);
-        Assert.Equal(data.IsMobileDevice, Convert.ToBoolean(result["isMobileDevice"]));
+        Assert.Equal(data.IsMobileDevice, Convert.ToBoolean(result["isMobileDevice"], CultureInfo.InvariantCulture));
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1034:Nested types should not be visible", Justification = "Used for tests")]

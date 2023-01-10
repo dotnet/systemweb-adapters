@@ -13,10 +13,12 @@ internal class RemoteAppClientPostConfigureOptions : IPostConfigureOptions<Remot
     {
         if (options.BackchannelClient is null)
         {
+#pragma warning disable CA2000 // Dispose objects before losing scope
             options.BackchannelClient = new HttpClient(
                 options.BackchannelHandler
                 // Disable cookies in the HTTP client because the service will manage the cookie header directly
                 ?? new HttpClientHandler { UseCookies = false, AllowAutoRedirect = false });
+#pragma warning restore CA2000 // Dispose objects before losing scope
 
             // Set base address and API key header based on options
             if (options.RemoteAppUrl is not null)
