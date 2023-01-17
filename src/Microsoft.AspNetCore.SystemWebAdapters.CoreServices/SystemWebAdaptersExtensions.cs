@@ -2,12 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Caching;
 using System.Web.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.Extensions.ObjectPool;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -19,7 +23,7 @@ public static class SystemWebAdaptersExtensions
         services.AddSingleton<IHttpRuntime>(_ => HttpRuntimeFactory.Create());
         services.AddSingleton<Cache>();
         services.AddSingleton<BrowserCapabilitiesFactory>();
-        services.AddTransient<IStartupFilter, HttpContextStartupFilter>();
+        services.AddTransient<IStartupFilter, SystemWebAdaptersStartupFilter>();
 
         return new SystemWebAdapterBuilder(services)
             .AddMvc();
@@ -31,12 +35,36 @@ public static class SystemWebAdaptersExtensions
 
         HttpRuntime.Current = app.ApplicationServices.GetRequiredService<IHttpRuntime>();
 
+        // This will short circuit things if CompleteRequest has been called on any custom modules
+        app.Use((ctx, next) =>
+        {
+            if (ctx.Features.Get<IHttpResponseAdapterFeature>() is { IsEnded: true })
+            {
+                return Task.CompletedTask;
+            }
+
+            return next(ctx);
+        });
+
+        var isHttpApplication = app.IsHttpApplicationRegistered();
+
+        if (isHttpApplication)
+        {
+            app.UseMiddleware<HttpApplicationMiddleEventsMiddleware>();
+        }
+
+        app.UseMiddleware<SessionMiddleware>();
         app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
         app.UseMiddleware<PreBufferRequestStreamMiddleware>();
-        app.UseMiddleware<SessionMiddleware>();
         app.UseMiddleware<BufferResponseStreamMiddleware>();
         app.UseMiddleware<SingleThreadedRequestMiddleware>();
         app.UseMiddleware<CurrentPrincipalMiddleware>();
+
+
+        if (isHttpApplication)
+        {
+            app.UseMiddleware<HttpApplicationEventsHandlerMiddleware>();
+        }
     }
 
     /// <summary>
@@ -60,12 +88,18 @@ public static class SystemWebAdaptersExtensions
         where TBuilder : IEndpointConventionBuilder
         => builder.WithMetadata(metadata ?? new BufferResponseStreamAttribute());
 
-    internal class HttpContextStartupFilter : IStartupFilter
+    internal class SystemWebAdaptersStartupFilter : IStartupFilter
     {
         public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
             => builder =>
             {
                 builder.UseMiddleware<SetHttpContextTimestampMiddleware>();
+
+                if (builder.IsHttpApplicationRegistered())
+                {
+                    builder.UseMiddleware<SetHttpApplicationMiddleware>();
+                }
+
                 next(builder);
             };
     }

@@ -23,9 +23,16 @@ internal partial class BufferResponseStreamMiddleware
     }
 
     public Task InvokeAsync(HttpContextCore context)
-        => context.GetEndpoint()?.Metadata.GetMetadata<BufferResponseStreamAttribute>() is { IsDisabled: false } metadata
+    {
+        if (context.Features.Get<IHttpResponseAdapterFeature>() is { IsEnded: true })
+        {
+            return Task.CompletedTask;
+        }
+
+        return context.GetEndpoint()?.Metadata.GetMetadata<BufferResponseStreamAttribute>() is { IsDisabled: false } metadata
             ? BufferResponseStreamAsync(context, metadata)
             : _next(context);
+    }
 
     private async Task BufferResponseStreamAsync(HttpContextCore context, BufferResponseStreamAttribute metadata)
     {

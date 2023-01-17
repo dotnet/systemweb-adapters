@@ -47,6 +47,36 @@ The following steps are needed to use the `System.Web` adapters with an ASP.NET 
      ```
    - For additional configuration, please see the [configuration](./docs/core.md) section
 
+## HttpApplication and IHttpModule support
+
+Support for HttpApplication and IHttpModule is emulated as best as possible on the ASP.NET Core pipeline. This is not tied to IIS and will work on Kestrel or any other host by using middleware to invoke the expected events at the times that best approximate the timing from ASP.NET Core. An attempt has been made to get the events to fire at the appropriate time, but because of the substantial difference between ASP.NET and ASP.NET Core there may still be unexpected behavior.
+
+In order to register either an `HttpApplication` or `IHttpModule` instance, use the following pattern:
+
+```csharp
+builder.Services.AddSystemWebAdapters()
+  .AddHttpApplication<MyApp>()
+  .AddHttpModule<MyModule>();
+```
+
+The normal `.UseSystemWebAdapters()` middleware builder will enable majority of the events. However, the authentication and authorization events require two additional middleware calls in order to enable them. If they are omitted, those events will not be called, and as such are only needed if those events are used:
+
+
+```diff
+app.UseRouting();
+
+app.UseAuthentication();
++ app.UseRaiseAuthenticationEvents();
+
+app.UseAuthorization();
++ app.UseRaiseAuthorizationEvents();
+
+app.UseSystemWebAdapters();
+```
+
+
+> **Note**: This implementation is not tied to IIS and does not hook into any of their events if ran on IIS.
+
 ## Supported Targets
 
 - .NET 6.0: This will implement the adapters against ASP.NET Core `HttpContext`. This will provide the following:

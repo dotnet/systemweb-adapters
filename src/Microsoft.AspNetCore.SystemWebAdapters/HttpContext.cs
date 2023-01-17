@@ -41,6 +41,10 @@ public class HttpContext : IServiceProvider
 
     public HttpServerUtility Server => _server ??= new(_context);
 
+    public RequestNotification CurrentNotification => _context.Features.GetRequired<INotificationFeature>().CurrentNotification;
+
+    public bool IsPostNotification => _context.Features.GetRequired<INotificationFeature>().IsPostNotification;
+
     public Cache Cache => _context.RequestServices.GetRequiredService<Cache>();
 
     /// <summary>

@@ -34,13 +34,28 @@ internal partial class SessionMiddleware
     public Task InvokeAsync(HttpContextCore context)
         => context.GetEndpoint()?.Metadata.GetMetadata<SessionAttribute>() is { Behavior: not SessionBehavior.None } metadata
             ? ManageStateAsync(context, metadata)
-            : _next(context);
+            : NoSessionAsync(context);
+
+    private Task NoSessionAsync(HttpContextCore context)
+        => context.Features.Get<IHttpApplicationEventsFeature>() is { } events ? RaiseEventsNoSessionAsync(context, events) : _next(context);
+
+    private async Task RaiseEventsNoSessionAsync(HttpContextCore context, IHttpApplicationEventsFeature events)
+    {
+        await events.RaiseAcquireRequestStateAsync(context.RequestAborted);
+        await events.RaisePostAcquireRequestStateAsync(context.RequestAborted);
+
+        await _next(context);
+
+        await events.RaiseReleaseRequestStateAsync(context.RequestAborted);
+        await events.RaisePostReleaseRequestStateAsync(context.RequestAborted);
+    }
 
     private async Task ManageStateAsync(HttpContextCore context, SessionAttribute metadata)
     {
         LogMessage(metadata.Behavior);
 
-        var manager = context.RequestServices.GetRequiredService<ISessionManager>();
+        var events = context.Features.Get<IHttpApplicationEventsFeature>();
+        var manager = GetSessionManager(context, events);
 
         using var state = metadata.Behavior switch
         {
@@ -62,10 +77,63 @@ internal partial class SessionMiddleware
 
             using var cts = new CancellationTokenSource(CommitTimeout);
             await state.CommitAsync(cts.Token);
+
+            if (state.IsAbandoned)
+            {
+                if (events is { })
+                {
+                    await events.RaiseSessionEnd(cts.Token);
+                }
+            }
         }
         finally
         {
             context.Features.Set<HttpSessionState?>(null);
+
+            if (events is { })
+            {
+                await events.RaiseReleaseRequestStateAsync(context.RequestAborted);
+                await events.RaisePostReleaseRequestStateAsync(context.RequestAborted);
+            }
+        }
+    }
+
+    private static ISessionManager GetSessionManager(HttpContext context, IHttpApplicationEventsFeature? events)
+    {
+        var manager = context.RequestServices.GetRequiredService<ISessionManager>();
+
+        if (events is null)
+        {
+            return manager;
+        }
+
+        return new EventingSessionManager(manager, events);
+    }
+
+    private class EventingSessionManager : ISessionManager
+    {
+        private readonly ISessionManager _other;
+        private readonly IHttpApplicationEventsFeature _events;
+
+        public EventingSessionManager(ISessionManager other, IHttpApplicationEventsFeature events)
+        {
+            _other = other;
+            _events = events;
+        }
+
+        public async Task<ISessionState> CreateAsync(HttpContext context, SessionAttribute metadata)
+        {
+            var result = await _other.CreateAsync(context, metadata);
+
+            if (result.IsNewSession)
+            {
+                await _events.RaiseSessionStart(context.RequestAborted);
+            }
+
+            await _events.RaiseAcquireRequestStateAsync(context.RequestAborted);
+            await _events.RaisePostAcquireRequestStateAsync(context.RequestAborted);
+
+            return result;
         }
     }
 
