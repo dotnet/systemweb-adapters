@@ -23,7 +23,7 @@ namespace System.Web
     public partial class HttpApplication : System.IDisposable
     {
         public HttpApplication() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public System.Web.HttpApplicationState Application { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public System.Web.HttpApplicationState Application { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Web.HttpContext Context { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Web.HttpRequest Request { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Web.HttpResponse Response { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
@@ -49,6 +49,7 @@ namespace System.Web
         public event System.EventHandler PostResolveRequestCache { add { } remove { } }
         public event System.EventHandler PostUpdateRequestCache { add { } remove { } }
         public event System.EventHandler PreRequestHandlerExecute { add { } remove { } }
+        public event System.EventHandler PreSendRequestHeaders { add { } remove { } }
         public event System.EventHandler ReleaseRequestState { add { } remove { } }
         public event System.EventHandler RequestCompleted { add { } remove { } }
         public event System.EventHandler ResolveRequestCache { add { } remove { } }
@@ -104,6 +105,8 @@ namespace System.Web
     public partial class HttpContext : System.IServiceProvider
     {
         internal HttpContext() { }
+        public System.Web.HttpApplicationState Application { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public System.Web.HttpApplication ApplicationInstance { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Web.Caching.Cache Cache { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public static System.Web.HttpContext Current { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Web.RequestNotification CurrentNotification { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }

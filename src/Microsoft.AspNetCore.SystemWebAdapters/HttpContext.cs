@@ -45,6 +45,10 @@ public class HttpContext : IServiceProvider
 
     public bool IsPostNotification => _context.Features.GetRequired<INotificationFeature>().IsPostNotification;
 
+    public HttpApplication ApplicationInstance => _context.Features.GetRequired<HttpApplication>();
+
+    public HttpApplicationState Application => ApplicationInstance.Application;
+
     public Cache Cache => _context.RequestServices.GetRequiredService<Cache>();
 
     /// <summary>

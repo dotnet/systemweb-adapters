@@ -2,15 +2,18 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Web;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal partial class HttpApplicationEventFactory
+internal partial class HttpApplicationFactoryConfigureOptions : IPostConfigureOptions<HttpApplicationOptions>
 {
     private readonly HashSet<string> UnsupportedEvents = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -79,33 +82,80 @@ internal partial class HttpApplicationEventFactory
     [LoggerMessage(2, LogLevel.Warning, "{ApplicationType}.{EventName} has unsupported signature")]
     private partial void LogInvalid(string applicationType, string eventName);
 
-    private readonly ConcurrentDictionary<Type, EventManager> _applicationInitializers;
-    private readonly ILogger<HttpApplicationEventFactory> _logger;
+    private readonly ILogger<HttpApplicationFactoryConfigureOptions> _logger;
 
-    public HttpApplicationEventFactory(ILogger<HttpApplicationEventFactory> logger)
+    public HttpApplicationFactoryConfigureOptions(ILogger<HttpApplicationFactoryConfigureOptions> logger)
     {
-        _applicationInitializers = new();
         _logger = logger;
     }
 
-    public void InitializeEvents(HttpApplication app)
+    void IPostConfigureOptions<HttpApplicationOptions>.PostConfigure(string name, HttpApplicationOptions options)
     {
-        var initializer = _applicationInitializers.GetOrAdd(app.GetType(), CreateEventManager, app);
-
-        // This is invoked the first time an HttpApplication is constructed
-        initializer.Application_Init?.Invoke(app)?.Invoke(app, EventArgs.Empty);
-
-        initializer.Initialize?.Invoke(app);
+        options.Factory = CreateFactory(options);
     }
 
-    private EventManager CreateEventManager(Type type, HttpApplication app)
+    private Func<IServiceProvider, HttpApplication> CreateFactory(HttpApplicationOptions options)
     {
-        var known = BuildEventManager(type);
+        var eventInitializer = GetEventInitializer(options);
+        var state = new HttpApplicationState();
+        var factory = ActivatorUtilities.CreateFactory(options.ApplicationType, Array.Empty<Type>());
+        var moduleFactories = options.Modules
+            .Select(m => ActivatorUtilities.CreateFactory(m, Array.Empty<Type>()))
+            .ToList();
 
-        // This is invoked the first time an HttpApplication is constructed
-        known.Application_Start?.Invoke(app)?.Invoke(app, EventArgs.Empty);
+        if (moduleFactories.Count == 0)
+        {
+            return sp =>
+            {
+                var app = (HttpApplication)factory(sp, null);
+                app.Initialize(Array.Empty<IHttpModule>(), state, eventInitializer);
+                return app;
+            };
+        }
 
-        return known;
+        return sp =>
+        {
+            var app = (HttpApplication)factory(sp, null);
+            var modules = new IHttpModule[moduleFactories.Count];
+
+            for (var i = 0; i < moduleFactories.Count; i++)
+            {
+                modules[i] = (IHttpModule)moduleFactories[i](sp, null);
+            }
+
+            app.Initialize(modules, state, eventInitializer);
+
+            return app;
+        };
+    }
+
+
+    private Action<HttpApplication> GetEventInitializer(HttpApplicationOptions options)
+    {
+        var initializer = BuildEventManager(options.ApplicationType);
+
+        if (!initializer.HasInitializers)
+        {
+            return _ => { };
+        }
+
+        var firstTime = 0;
+
+        return app =>
+        {
+            var current = Interlocked.CompareExchange(ref firstTime, 1, 0);
+
+            if (current == 0)
+            {
+                // This is invoked the first time an HttpApplication is constructed
+                initializer.Application_Start?.Invoke(app)?.Invoke(app, EventArgs.Empty);
+            }
+
+            // This is invoked the first time an HttpApplication is constructed
+            initializer.Application_Init?.Invoke(app)?.Invoke(app, EventArgs.Empty);
+
+            initializer.Initialize?.Invoke(app);
+        };
     }
 
     private EventManager BuildEventManager(Type type)
@@ -199,6 +249,11 @@ internal partial class HttpApplicationEventFactory
         public BindableEventHandler? Application_Start { get; set; }
 
         public Action<HttpApplication>? Initialize { get; set; }
+
+        public bool HasInitializers =>
+            Application_Init is not null &&
+            Application_Start is not null &&
+            Initialize is not null;
     }
 
     private enum EventParseState

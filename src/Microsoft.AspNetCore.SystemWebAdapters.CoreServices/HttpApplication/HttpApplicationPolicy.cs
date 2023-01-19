@@ -9,6 +9,7 @@ using System.Web;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -17,43 +18,33 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// a single <see cref="HttpApplication"/> instance can only be used by a single request at a time. This sets up a pool
 /// to keep instances available for reuse.
 /// </summary>
-internal partial class HttpApplicationPolicy<TApp> : PooledObjectPolicy<HttpApplication>
-    where TApp : HttpApplication
+internal partial class HttpApplicationPolicy : PooledObjectPolicy<HttpApplication>
 {
     [LoggerMessage(0, LogLevel.Debug, "Created HttpApplication instance ({Count})")]
     partial void HttpApplicationCreated(long count);
 
-    private readonly HttpApplicationState _state;
     private readonly IServiceProvider _sp;
     private readonly ILogger _logger;
-    private readonly HttpApplicationEventFactory _eventInitializer;
-    private readonly ObjectFactory _factory;
+    private readonly IOptions<HttpApplicationOptions> _options;
+
     private long _count;
 
     public HttpApplicationPolicy(
-        HttpApplicationState state,
         IServiceProvider sp,
-        HttpApplicationEventFactory eventInitializer,
-        ILogger<HttpApplicationPolicy<TApp>> logger)
+        IOptions<HttpApplicationOptions> options,
+        ILogger<HttpApplicationPolicy> logger)
     {
-        _state = state;
         _sp = sp;
         _logger = logger;
-        _eventInitializer = eventInitializer;
+        _options = options;
         _count = 0;
-        _factory = ActivatorUtilities.CreateFactory(typeof(TApp), Array.Empty<Type>());
     }
 
     public override HttpApplication Create()
     {
-        var app = (HttpApplication)_factory(_sp, null);
-        var modules = _sp.GetRequiredService<IEnumerable<IHttpModule>>().ToList();
+        var app = _options.Value.Factory(_sp);
+
         var count = Interlocked.Increment(ref _count);
-
-        app.Application = _state;
-        _eventInitializer.InitializeEvents(app);
-        app.Initialize(modules);
-
         HttpApplicationCreated(count);
 
         return app;

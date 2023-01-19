@@ -13,7 +13,7 @@ namespace System.Web;
 [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = Constants.ApiFromAspNet)]
 public class HttpApplication : IDisposable, IHttpApplicationEventsFeature
 {
-    private List<IHttpModule>? _modules;
+    private IHttpModule[]? _modules;
     private HttpApplicationState _state = null!;
     private HttpContext? _context;
 
@@ -21,9 +21,17 @@ public class HttpApplication : IDisposable, IHttpApplicationEventsFeature
     {
     }
 
-    internal void Initialize(List<IHttpModule> modules)
+    internal void Initialize(IHttpModule[] modules, HttpApplicationState state, Action<HttpApplication> eventInitializer)
     {
         _modules = modules;
+        _state = state;
+
+        eventInitializer(this);
+
+        if (_modules is null)
+        {
+            return;
+        }
 
         foreach (var m in _modules)
         {
@@ -32,10 +40,7 @@ public class HttpApplication : IDisposable, IHttpApplicationEventsFeature
     }
 
     public HttpApplicationState Application
-    {
-        get => _state ?? throw new InvalidOperationException("Can only be accessed during valid requests");
-        internal set => _state = value;
-    }
+        => _state ?? throw new InvalidOperationException("Can only be accessed during valid requests");
 
     public HttpContext Context
     {

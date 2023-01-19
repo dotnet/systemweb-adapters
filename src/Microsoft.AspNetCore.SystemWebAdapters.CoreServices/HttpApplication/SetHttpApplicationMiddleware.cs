@@ -28,7 +28,9 @@ internal class SetHttpApplicationMiddleware
 
         try
         {
+            context.Features.Set(app);
             app.Context = context;
+
             var feature = SetRequiredFeatures(context, app);
 
             await feature.RaiseBeginRequestAsync(context.RequestAborted);
@@ -37,6 +39,7 @@ internal class SetHttpApplicationMiddleware
         }
         finally
         {
+            context.Features.Set<HttpApplication>(null);
             _pool.Return(app);
         }
     }
@@ -147,11 +150,7 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaiseEndRequestAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
+            // Unlike other events, we raise EndRequest event even when IsEnded == true
             SetNotification(RequestNotification.EndRequest);
 
             await _app.RaiseEndRequestAsync(token);

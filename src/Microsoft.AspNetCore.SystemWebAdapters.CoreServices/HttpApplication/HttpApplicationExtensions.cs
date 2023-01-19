@@ -9,19 +9,46 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.ObjectPool;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static class HttpApplicationExtensions
 {
+    public static ISystemWebAdapterBuilder ConfigureApplication(this ISystemWebAdapterBuilder builder, Action<HttpApplicationOptions> configure)
+    {
+        if (builder is null)
+        {
+            throw new ArgumentNullException(nameof(builder));
+        }
+
+        builder.Services.TryAddSingleton<HttpApplicationFactoryConfigureOptions>();
+        builder.Services.TryAddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>();
+        builder.Services.TryAddTransient<HttpApplicationPolicy>();
+        builder.Services.TryAddSingleton<ObjectPool<HttpApplication>>(sp =>
+        {
+            var provider = sp.GetRequiredService<ObjectPoolProvider>();
+            var policy = sp.GetRequiredService<HttpApplicationPolicy>();
+            return provider.Create(policy);
+        });
+
+        builder.Services.TryAddTransient<IPostConfigureOptions<HttpApplicationOptions>, HttpApplicationFactoryConfigureOptions>();
+
+        builder.Services.AddOptions<HttpApplicationOptions>()
+            .Configure(configure);
+
+        return builder;
+    }
+
     public static ISystemWebAdapterBuilder AddHttpModule<TModule>(this ISystemWebAdapterBuilder builder)
         where TModule : class, IHttpModule
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.Services.AddHttpApplicationPool();
-        builder.Services.AddTransient<IHttpModule, TModule>();
-        builder.Services.TryAddTransient<IPooledObjectPolicy<HttpApplication>, HttpApplicationPolicy<HttpApplication>>();
+        builder.ConfigureApplication(options =>
+        {
+            options.RegisterModule<TModule>();
+        });
 
         return builder;
     }
@@ -31,25 +58,12 @@ public static class HttpApplicationExtensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.Services.AddHttpApplicationPool();
-        builder.Services.AddTransient<IPooledObjectPolicy<HttpApplication>, HttpApplicationPolicy<TApp>>();
-
-        return builder;
-    }
-
-    private static IServiceCollection AddHttpApplicationPool(this IServiceCollection services)
-    {
-        services.TryAddSingleton<HttpApplicationEventFactory>();
-        services.TryAddSingleton<HttpApplicationState>(_ => new HttpApplicationState());
-        services.TryAddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>();
-        services.TryAddSingleton<ObjectPool<HttpApplication>>(sp =>
+        builder.ConfigureApplication(options =>
         {
-            var provider = sp.GetRequiredService<ObjectPoolProvider>();
-            var policy = sp.GetRequiredService<IPooledObjectPolicy<HttpApplication>>();
-            return provider.Create(policy);
+            options.ApplicationType = typeof(TApp);
         });
 
-        return services;
+        return builder;
     }
 
     public static IApplicationBuilder UseRaiseAuthenticationEvents(this IApplicationBuilder app)
@@ -77,7 +91,7 @@ public static class HttpApplicationExtensions
     }
 
     internal static bool IsHttpApplicationRegistered(this IApplicationBuilder builder)
-        => builder.ApplicationServices.GetService<ObjectPool<HttpApplication>>() is not null;
+        => builder.ApplicationServices.GetRequiredService<IOptions<HttpApplicationOptions>>().Value.IsHttpApplicationNeeded;
 
     internal sealed class RaiseAuthenticateRequest : HttpApplicationEventsMiddleware
     {

@@ -52,6 +52,11 @@ app.MapGet("/current-principals-with-metadata", (HttpContext ctx) =>
     return "done";
 }).WithMetadata(new SetThreadCurrentPrincipalAttribute(), new SingleThreadedRequestAttribute());
 
+app.MapGet("/test", async () =>
+{
+    await Task.Delay(1000);
+    return "hi";
+});
 
 app.MapGet("/current-principals-no-metadata", (HttpContext ctx) =>
 {
@@ -74,16 +79,25 @@ app.Run();
 
 class MyApp : System.Web.HttpApplication
 {
+    private readonly ILogger<MyApp> _logger;
+
+    public MyApp(ILogger<MyApp> logger)
+    {
+        _logger = logger;
+    }
+
     protected void Application_Start(int i)
     {
     }
 
     protected void Application_Init()
     {
+        _logger.LogWarning("Application_Init");
     }
 
     protected void Application_Start()
     {
+        _logger.LogWarning("Application_Start");
     }
 
     protected void Application_BeginRequest()
@@ -93,12 +107,22 @@ class MyApp : System.Web.HttpApplication
 
 class MyModule : System.Web.IHttpModule
 {
+    private readonly ILogger<MyModule> _logger;
+
+    public MyModule(ILogger<MyModule> logger)
+    {
+        _logger = logger;
+    }
+
     public void Dispose()
     {
+        _logger.LogWarning("[Dispose] MyModule");
     }
 
     public void Init(System.Web.HttpApplication application)
     {
+        _logger.LogWarning("[Init] MyModule");
+
         application.BeginRequest += (s, e) =>
         {
             var context = ((System.Web.HttpApplication)s!).Context;
