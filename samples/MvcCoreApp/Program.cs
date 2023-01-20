@@ -11,6 +11,8 @@ builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Path.GetTempPath(), "sharedkeys", sharedApplicationName)))
     .SetApplicationName(sharedApplicationName);
 
+builder.Services.AddSkippableEndpoint<QuerySkippableEndpointSelector>();
+
 builder.Services.AddAuthentication()
     .AddCookie("SharedCookie", options => options.Cookie.Name = ".AspNet.ApplicationCookie");
 
