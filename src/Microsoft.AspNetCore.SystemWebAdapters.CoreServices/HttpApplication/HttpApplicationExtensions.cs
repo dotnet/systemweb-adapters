@@ -23,12 +23,17 @@ public static class HttpApplicationExtensions
         }
 
         builder.Services.TryAddSingleton<HttpApplicationFactoryConfigureOptions>();
-        builder.Services.TryAddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>();
         builder.Services.TryAddTransient<HttpApplicationPolicy>();
         builder.Services.TryAddSingleton<ObjectPool<HttpApplication>>(sp =>
         {
-            var provider = sp.GetRequiredService<ObjectPoolProvider>();
+            var options = sp.GetRequiredService<IOptions<HttpApplicationOptions>>();
             var policy = sp.GetRequiredService<HttpApplicationPolicy>();
+
+            var provider = new DefaultObjectPoolProvider
+            {
+                MaximumRetained = options.Value.PoolSize,
+            };
+
             return provider.Create(policy);
         });
 

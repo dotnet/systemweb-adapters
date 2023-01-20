@@ -15,6 +15,8 @@ public class HttpApplicationOptions
 
     public ICollection<Type> Modules { get; } = new List<Type>();
 
+    public int PoolSize { get; set; } = 10;
+
     internal Func<IServiceProvider, HttpApplication> Factory { get; set; } = null!;
 
     public void RegisterModule<T>()
