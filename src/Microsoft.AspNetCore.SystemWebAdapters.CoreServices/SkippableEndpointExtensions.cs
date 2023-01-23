@@ -14,8 +14,17 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
+/// <summary>
+/// Extension methods that enable optionally skipping endpoints
+/// </summary>
 public static class SkippableEndpointExtensions
 {
+    /// <summary>
+    /// Registers a <see cref="ISkippableEndpointSelector"/> that will be called when selecting
+    /// an endpoint that has been marked as skippable by <see cref="EnableSkipping{TBuilder}(TBuilder)"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of selector</typeparam>
+    /// <param name="services">Service collection to add to.</param>
     public static void AddSkippableEndpoint<T>(this IServiceCollection services)
         where T : class, ISkippableEndpointSelector
     {
@@ -23,7 +32,13 @@ public static class SkippableEndpointExtensions
         services.TryAddEnumerable(ServiceDescriptor.Singleton<MatcherPolicy, SkippableEndpointMatcherPolicy>());
     }
 
-    public static IEndpointConventionBuilder EnableSkipping(this IEndpointConventionBuilder builder)
+    /// <summary>
+    /// Enable skippable behavior for supplied endpoints. An implementation of <see cref="ISkippableEndpointSelector"/> must be registered as a service for this to be enabled at runtime.
+    /// </summary>
+    /// <param name="builder">The endpoint convention builder</param>
+    /// <returns>The original convention builder.</returns>
+    public static TBuilder EnableSkipping<TBuilder>(this TBuilder builder)
+        where TBuilder : IEndpointConventionBuilder
     {
         ArgumentNullException.ThrowIfNull(builder);
 
@@ -31,12 +46,12 @@ public static class SkippableEndpointExtensions
         return builder;
     }
 
-    private class SkipMetadata
+    private sealed class SkipMetadata
     {
         public static SkipMetadata Instance { get; } = new();
     }
 
-    private class SkippableEndpointMatcherPolicy : MatcherPolicy, IEndpointSelectorPolicy
+    private sealed class SkippableEndpointMatcherPolicy : MatcherPolicy, IEndpointSelectorPolicy
     {
         private readonly ISkippableEndpointSelector _selector;
 
