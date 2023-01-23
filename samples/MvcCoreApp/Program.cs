@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using MvcCoreApp;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
@@ -11,7 +12,7 @@ builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Path.GetTempPath(), "sharedkeys", sharedApplicationName)))
     .SetApplicationName(sharedApplicationName);
 
-builder.Services.AddSkippableEndpoint<QuerySkippableEndpointSelector>();
+builder.Services.AddSkippableEndpoint<QuerySkippableSelector>();
 
 builder.Services.AddAuthentication()
     .AddCookie("SharedCookie", options => options.Cookie.Name = ".AspNet.ApplicationCookie");
@@ -65,13 +66,10 @@ app.MapGet("/current-principals-no-metadata", (HttpContext ctx) =>
     return "done";
 });
 
-app.UseEndpoints(endpoints =>
-{
-    app.MapDefaultControllerRoute();
-    // This method can be used to enable session (or read-only session) on all controllers
-    //.RequireSystemWebAdapterSession();
+app.MapDefaultControllerRoute()
+    .EnableSkipping()
+    .RequireSystemWebAdapterSession();
 
-    app.MapReverseProxy();
-});
+app.MapReverseProxy();
 
 app.Run();
