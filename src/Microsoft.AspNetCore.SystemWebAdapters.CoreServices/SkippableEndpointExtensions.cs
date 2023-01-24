@@ -42,8 +42,7 @@ public static class SkippableEndpointExtensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.Add(builder => builder.Metadata.Add(SkipMetadata.Instance));
-        return builder;
+        return builder.WithMetadata(SkipMetadata.Instance);
     }
 
     private sealed class SkipMetadata
