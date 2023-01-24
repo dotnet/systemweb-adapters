@@ -60,7 +60,7 @@ public class SkippableEndpointTests
     {
     }
 
-    private class TestSkippable : ISkippableEndpointSelector
+    private sealed class TestSkippable : ISkippableEndpointSelector
     {
         public ValueTask<bool> ShouldSkipAsync(HttpContextCore context)
         {
