@@ -3,7 +3,6 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Caching;
 using System.Web.Configuration;
@@ -14,7 +13,6 @@ using Microsoft.Extensions.ObjectPool;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
-
 public static class SystemWebAdaptersExtensions
 {
     public static ISystemWebAdapterBuilder AddSystemWebAdapters(this IServiceCollection services)
@@ -35,16 +33,7 @@ public static class SystemWebAdaptersExtensions
 
         HttpRuntime.Current = app.ApplicationServices.GetRequiredService<IHttpRuntime>();
 
-        // This will short circuit things if CompleteRequest has been called on any custom modules
-        app.Use((ctx, next) =>
-        {
-            if (ctx.Features.Get<IHttpResponseAdapterFeature>() is { IsEnded: true })
-            {
-                return Task.CompletedTask;
-            }
-
-            return next(ctx);
-        });
+        app.UseMiddleware<EndRequestShortCircuitMiddleware>();
 
         var isHttpApplication = app.IsHttpApplicationRegistered();
 
@@ -59,7 +48,6 @@ public static class SystemWebAdaptersExtensions
         app.UseMiddleware<BufferResponseStreamMiddleware>();
         app.UseMiddleware<SingleThreadedRequestMiddleware>();
         app.UseMiddleware<CurrentPrincipalMiddleware>();
-
 
         if (isHttpApplication)
         {

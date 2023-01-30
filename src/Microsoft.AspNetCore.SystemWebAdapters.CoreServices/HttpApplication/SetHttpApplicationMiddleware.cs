@@ -69,7 +69,15 @@ internal class SetHttpApplicationMiddleware
 
         var setNotification = new RequestHttpApplicationEventsFeature(application, context);
 
-        context.Features.Set<IHttpApplicationEventsFeature>(setNotification);
+        if (context.Features.Get<IHttpApplicationEventsFeature>() is { } existingEventFeature)
+        {
+            context.Features.Set<IHttpApplicationEventsFeature>(new CompositeHttpApplicationEventsFeature(existingEventFeature, setNotification));
+        }
+        else
+        {
+            context.Features.Set<IHttpApplicationEventsFeature>(setNotification);
+        }
+
         context.Features.Set<INotificationFeature>(setNotification);
 
         // Need to support Response.IsEnded potentially before the buffering support is added

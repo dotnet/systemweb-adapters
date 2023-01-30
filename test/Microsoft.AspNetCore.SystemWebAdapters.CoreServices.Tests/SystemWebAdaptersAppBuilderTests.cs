@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -17,6 +18,15 @@ using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
+public class ModuleTests
+{
+    [Fact]
+    public void BeginRequestEvent()
+    {
+        // Arrange
+        var context = new DefaultHttpContext();
+    }
+}
 public class SystemWebAdaptersAppBuilderTests
 {
     private static readonly ImmutableList<string> AllOrderedExpectedEvents = new[]
@@ -74,45 +84,47 @@ public class SystemWebAdaptersAppBuilderTests
         var services = new ServiceCollection();
         var expected = AllOrderedExpectedEvents;
 
-        services.AddLogging();
-        services.AddSystemWebAdapters();
-
-        var session = new Mock<ISessionState>();
-
-        if (state is TestSessionState.New)
-        {
-            session.Setup(s => s.IsNewSession).Returns(true);
-        }
-        else
-        {
-            expected = expected.Remove(nameof(IHttpApplicationEventsFeature.RaiseSessionStart));
-        }
-
-        if (state is TestSessionState.Abandoned)
-        {
-            session.Setup(s => s.IsAbandoned).Returns(true);
-        }
-        else
-        {
-            expected = expected.Remove(nameof(IHttpApplicationEventsFeature.RaiseSessionEnd));
-        }
-
-        if (state is not TestSessionState.None)
-        {
-            var attribute = new SessionAttribute();
-            var sessionManager = new Mock<ISessionManager>();
-
-            sessionManager.Setup(s => s.CreateAsync(httpContext, attribute)).ReturnsAsync(session.Object);
-
-            services.AddSingleton(sessionManager.Object);
-            httpContext.SetEndpoint(new Endpoint(null, new EndpointMetadataCollection(attribute), null));
-        }
-
         using var provider = services.BuildServiceProvider();
 
         httpContext.RequestServices = provider;
 
-        var pipeline = CreatePipeline(provider, app =>
+        var pipeline = CreatePipeline(services =>
+        {
+            services.AddLogging();
+            services.AddSystemWebAdapters()
+                .AddHttpModule<TestModule>();
+
+            var session = new Mock<ISessionState>();
+
+            if (state is TestSessionState.New)
+            {
+                session.Setup(s => s.IsNewSession).Returns(true);
+            }
+            else
+            {
+                expected = expected.Remove(nameof(IHttpApplicationEventsFeature.RaiseSessionStart));
+            }
+
+            if (state is TestSessionState.Abandoned)
+            {
+                session.Setup(s => s.IsAbandoned).Returns(true);
+            }
+            else
+            {
+                expected = expected.Remove(nameof(IHttpApplicationEventsFeature.RaiseSessionEnd));
+            }
+
+            if (state is not TestSessionState.None)
+            {
+                var attribute = new SessionAttribute();
+                var sessionManager = new Mock<ISessionManager>();
+
+                sessionManager.Setup(s => s.CreateAsync(httpContext, attribute)).ReturnsAsync(session.Object);
+
+                services.AddSingleton(sessionManager.Object);
+                httpContext.SetEndpoint(new Endpoint(null, new EndpointMetadataCollection(attribute), null));
+            }
+        }, app =>
         {
             if (useAuthentication)
             {
@@ -156,6 +168,7 @@ public class SystemWebAdaptersAppBuilderTests
         {
             typeof(SetHttpContextTimestampMiddleware).FullName,
             typeof(SetHttpApplicationMiddleware).FullName,
+            typeof(EndRequestShortCircuitMiddleware).FullName,
             typeof(HttpApplicationExtensions.RaiseAuthenticateRequest).FullName,
             typeof(HttpApplicationExtensions.RaiseAuthorizeRequest).FullName,
             typeof(HttpApplicationMiddleEventsMiddleware).FullName,
@@ -171,15 +184,14 @@ public class SystemWebAdaptersAppBuilderTests
 
         var httpContext = new DefaultHttpContext();
         var events = new Mock<IHttpApplicationEventsFeature>();
-        var services = new ServiceCollection();
 
-        services.AddLogging();
-        services.AddOptions();
-        services.AddSystemWebAdapters();
-
-        using var provider = services.BuildServiceProvider();
-
-        var pipeline = CreatePipeline(provider, builder =>
+        var pipeline = CreatePipeline(services =>
+        {
+            services.AddLogging();
+            services.AddOptions();
+            services.AddSystemWebAdapters()
+                .AddHttpModule<TestModule>();
+        }, builder =>
         {
             builder.UseRaiseAuthenticationEvents();
             builder.UseRaiseAuthorizationEvents();
@@ -193,6 +205,17 @@ public class SystemWebAdaptersAppBuilderTests
         Assert.Equal(expected, targets);
     }
 
+    private sealed class TestModule : IHttpModule
+    {
+        public void Dispose()
+        {
+        }
+
+        public void Init(HttpApplication application)
+        {
+        }
+    }
+
     public enum TestSessionState
     {
         None,
@@ -201,9 +224,15 @@ public class SystemWebAdaptersAppBuilderTests
         Abandoned
     }
 
-    private static RequestDelegate CreatePipeline(IServiceProvider provider, Action<IApplicationBuilder> configure)
+    private static RequestDelegate CreatePipeline(Action<IServiceCollection> serviceConfigure, Action<IApplicationBuilder> configure)
     {
-        var startupFilters = provider.GetService<IEnumerable<IStartupFilter>>();
+        var serviceBuilder = new ServiceCollection();
+
+        serviceConfigure(serviceBuilder);
+
+        var services = serviceBuilder.BuildServiceProvider();
+        var app = new ApplicationBuilder(services);
+        var startupFilters = services.GetService<IEnumerable<IStartupFilter>>();
 
         if (startupFilters is not null)
         {
@@ -213,9 +242,9 @@ public class SystemWebAdaptersAppBuilderTests
             }
         }
 
-        var builder = new ApplicationBuilder(provider);
-        configure(builder);
-        return builder.Build();
+        configure(app);
+
+        return ((IApplicationBuilder)app).Build();
     }
 
     private static IEnumerable<string> GetPipelineTargets(RequestDelegate del)
