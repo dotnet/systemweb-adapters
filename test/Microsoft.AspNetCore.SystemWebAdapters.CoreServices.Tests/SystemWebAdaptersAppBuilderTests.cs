@@ -11,6 +11,7 @@ using System.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -18,15 +19,6 @@ using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-public class ModuleTests
-{
-    [Fact]
-    public void BeginRequestEvent()
-    {
-        // Arrange
-        var context = new DefaultHttpContext();
-    }
-}
 public class SystemWebAdaptersAppBuilderTests
 {
     private static readonly ImmutableList<string> AllOrderedExpectedEvents = new[]
@@ -53,6 +45,7 @@ public class SystemWebAdaptersAppBuilderTests
         nameof(IHttpApplicationEventsFeature.RaiseLogRequestAsync),
         nameof(IHttpApplicationEventsFeature.RaisePostLogRequestAsync),
         nameof(IHttpApplicationEventsFeature.RaiseEndRequestAsync),
+        nameof(IHttpApplicationEventsFeature.RaisePreSendRequestHeaders),
         nameof(IHttpApplicationEventsFeature.RaiseRequestCompletedAsync),
     }.ToImmutableList();
 
@@ -79,51 +72,38 @@ public class SystemWebAdaptersAppBuilderTests
     public async Task EventRaising(bool useAuthentication, bool useAuthorization, TestSessionState state)
     {
         // Arrange
-        var httpContext = new DefaultHttpContext();
         var events = new Mock<IHttpApplicationEventsFeature>();
-        var services = new ServiceCollection();
         var expected = AllOrderedExpectedEvents;
+        var attribute = new SessionAttribute();
+        var session = new Mock<ISessionState>();
 
-        using var provider = services.BuildServiceProvider();
+        if (state is TestSessionState.New)
+        {
+            session.Setup(s => s.IsNewSession).Returns(true);
+        }
+        else
+        {
+            expected = expected.Remove(nameof(IHttpApplicationEventsFeature.RaiseSessionStart));
+        }
 
-        httpContext.RequestServices = provider;
+        if (state is TestSessionState.Abandoned)
+        {
+            session.Setup(s => s.IsAbandoned).Returns(true);
+        }
+        else
+        {
+            expected = expected.Remove(nameof(IHttpApplicationEventsFeature.RaiseSessionEnd));
+        }
 
-        var pipeline = CreatePipeline(services =>
+        var sessionManager = new Mock<ISessionManager>();
+        sessionManager.Setup(s => s.CreateAsync(It.IsAny<HttpContextCore>(), attribute)).ReturnsAsync(session.Object);
+
+        var (services, pipeline) = CreatePipeline(services =>
         {
             services.AddLogging();
             services.AddSystemWebAdapters()
                 .AddHttpModule<TestModule>();
-
-            var session = new Mock<ISessionState>();
-
-            if (state is TestSessionState.New)
-            {
-                session.Setup(s => s.IsNewSession).Returns(true);
-            }
-            else
-            {
-                expected = expected.Remove(nameof(IHttpApplicationEventsFeature.RaiseSessionStart));
-            }
-
-            if (state is TestSessionState.Abandoned)
-            {
-                session.Setup(s => s.IsAbandoned).Returns(true);
-            }
-            else
-            {
-                expected = expected.Remove(nameof(IHttpApplicationEventsFeature.RaiseSessionEnd));
-            }
-
-            if (state is not TestSessionState.None)
-            {
-                var attribute = new SessionAttribute();
-                var sessionManager = new Mock<ISessionManager>();
-
-                sessionManager.Setup(s => s.CreateAsync(httpContext, attribute)).ReturnsAsync(session.Object);
-
-                services.AddSingleton(sessionManager.Object);
-                httpContext.SetEndpoint(new Endpoint(null, new EndpointMetadataCollection(attribute), null));
-            }
+            services.AddTransient<ISessionManager>(_ => sessionManager.Object);
         }, app =>
         {
             if (useAuthentication)
@@ -139,7 +119,12 @@ public class SystemWebAdaptersAppBuilderTests
             app.UseSystemWebAdapters();
         });
 
+        var httpContext = new DefaultHttpContext();
+        httpContext.RequestServices = services;
         httpContext.Features.Set(events.Object);
+        httpContext.SetEndpoint(new Endpoint(null, new EndpointMetadataCollection(attribute), null));
+        var responseFeature = new TestHttpResponseFeature();
+        httpContext.Features.Set<IHttpResponseFeature>(responseFeature);
 
         if (!useAuthentication)
         {
@@ -153,11 +138,37 @@ public class SystemWebAdaptersAppBuilderTests
 
         // Act
         await pipeline(httpContext);
+        await responseFeature.Finalize();
 
         // Assert
         var names = events.Invocations.Select(i => i.Method.Name).ToImmutableList();
-        Assert.Equal(expected.Count, names.Count);
+        //Assert.Equal(expected.Count, names.Count);
         Assert.Equal(expected, names);
+    }
+
+    private class TestHttpResponseFeature : HttpResponseFeature
+    {
+        private readonly List<Func<Task>> _onCompleted = new();
+        private readonly List<Func<Task>> _onStarting = new();
+
+        public override void OnCompleted(Func<object, Task> callback, object state)
+            => _onCompleted.Add(() => callback(state));
+
+        public override void OnStarting(Func<object, Task> callback, object state)
+            => _onStarting.Add(() => callback(state));
+
+        public async Task Finalize()
+        {
+            foreach (var onStarting in _onStarting)
+            {
+                await onStarting();
+            }
+
+            foreach (var onCompleted in _onCompleted)
+            {
+                await onCompleted();
+            }
+        }
     }
 
     [Fact]
@@ -168,9 +179,9 @@ public class SystemWebAdaptersAppBuilderTests
         {
             typeof(SetHttpContextTimestampMiddleware).FullName,
             typeof(SetHttpApplicationMiddleware).FullName,
-            typeof(EndRequestShortCircuitMiddleware).FullName,
             typeof(HttpApplicationExtensions.RaiseAuthenticateRequest).FullName,
             typeof(HttpApplicationExtensions.RaiseAuthorizeRequest).FullName,
+            typeof(EndRequestShortCircuitMiddleware).FullName,
             typeof(HttpApplicationMiddleEventsMiddleware).FullName,
             typeof(SessionMiddleware).FullName,
             typeof(SetDefaultResponseHeadersMiddleware).FullName,
@@ -185,7 +196,7 @@ public class SystemWebAdaptersAppBuilderTests
         var httpContext = new DefaultHttpContext();
         var events = new Mock<IHttpApplicationEventsFeature>();
 
-        var pipeline = CreatePipeline(services =>
+        var (_, pipeline) = CreatePipeline(services =>
         {
             services.AddLogging();
             services.AddOptions();
@@ -224,7 +235,7 @@ public class SystemWebAdaptersAppBuilderTests
         Abandoned
     }
 
-    private static RequestDelegate CreatePipeline(Action<IServiceCollection> serviceConfigure, Action<IApplicationBuilder> configure)
+    private static (IServiceProvider, RequestDelegate) CreatePipeline(Action<IServiceCollection> serviceConfigure, Action<IApplicationBuilder> configure)
     {
         var serviceBuilder = new ServiceCollection();
 
@@ -244,7 +255,7 @@ public class SystemWebAdaptersAppBuilderTests
 
         configure(app);
 
-        return ((IApplicationBuilder)app).Build();
+        return (services, ((IApplicationBuilder)app).Build());
     }
 
     private static IEnumerable<string> GetPipelineTargets(RequestDelegate del)
