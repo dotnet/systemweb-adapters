@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
@@ -20,6 +21,15 @@ internal class SetHttpApplicationMiddleware
     {
         _next = next;
         _pool = pool;
+    }
+
+    /// <summary>
+    /// Initializes the registered HttpApplication to force the Start method to be invoked if present.
+    /// </summary>
+    public static void InitializeHttpApplication(IServiceProvider services)
+    {
+        var pool = services.GetRequiredService<ObjectPool<HttpApplication>>();
+        pool.Return(pool.Get());
     }
 
     public async Task InvokeAsync(HttpContextCore context)

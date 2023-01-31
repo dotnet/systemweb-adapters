@@ -85,6 +85,8 @@ public static class SystemWebAdaptersExtensions
 
                 if (builder.IsHttpApplicationRegistered())
                 {
+                    SetHttpApplicationMiddleware.InitializeHttpApplication(builder.ApplicationServices);
+
                     builder.UseMiddleware<SetHttpApplicationMiddleware>();
                 }
 

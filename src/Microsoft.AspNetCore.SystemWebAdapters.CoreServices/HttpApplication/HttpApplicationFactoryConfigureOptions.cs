@@ -147,11 +147,11 @@ internal partial class HttpApplicationFactoryConfigureOptions : IPostConfigureOp
 
             if (current == 0)
             {
-                // This is invoked the first time an HttpApplication is constructed
+                // This is only invoked on the first HttpApplication that is constructed
                 initializer.Application_Start?.Invoke(app)?.Invoke(app, EventArgs.Empty);
             }
 
-            // This is invoked the first time an HttpApplication is constructed
+            // This is invoked each time an HttpApplication is constructed
             initializer.Application_Init?.Invoke(app)?.Invoke(app, EventArgs.Empty);
 
             initializer.Initialize?.Invoke(app);
