@@ -1,28 +1,92 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Globalization;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace System.Web.Configuration;
 
 public class HttpCapabilitiesBase
 {
-    private readonly ParsedBrowserResult _data;
+    private readonly HttpContextCore _context;
 
-    private protected HttpCapabilitiesBase(BrowserCapabilitiesFactory factory, string userAgent)
+    private FeatureReference<IHttpBrowserCapabilityFeature> _capability;
+
+    private protected HttpCapabilitiesBase(HttpContextCore context)
     {
-        _data = factory.Process(userAgent);
+        _context = context;
+        _capability = FeatureReference<IHttpBrowserCapabilityFeature>.Default;
     }
 
-    public string? Browser => _data["browser"];
+    private IHttpBrowserCapabilityFeature Capability
+    {
+        get
+        {
+            if (_capability.Fetch(_context.Features) is { } existing)
+            {
+                return existing;
+            }
 
-    public string? Version => _data["version"];
+            return _capability.Update(_context.Features, _context.RequestServices.GetRequiredService<IBrowserCapabilitiesFactory>().Create(_context.Request));
+        }
+    }
 
-    public int MajorVersion => _data.GetInt("majorversion");
+    public string? Browser => Capability["browser"];
 
-    public double MinorVersion => _data.GetDouble("minorversion");
+    public string? Version => Capability["version"];
 
-    public string? Platform => _data["platform"];
+    public int MajorVersion => GetInt("majorversion");
 
-    public bool Crawler => _data.GetBoolean("crawler");
+    public double MinorVersion => GetDouble("minorversion");
 
-    public bool IsMobileDevice => _data.GetBoolean("isMobileDevice");
+    public string? Platform => Capability["platform"];
+
+    public bool Crawler => GetBoolean("crawler");
+
+    public string? Type => Capability["type"];
+
+    public string? PreferredRequestEncoding => Capability["preferredRequestEncoding"];
+
+    public string? this[string key] => Capability[key];
+
+    public bool IsMobileDevice => GetBoolean("isMobileDevice");
+
+    private int GetInt(string key) => int.TryParse(Capability[key], NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : throw new HttpUnhandledException($"Invalid string from browser capabilities '{key}'");
+
+    private bool GetBoolean(string key) => bool.TryParse(Capability[key], out var result) && result;
+
+    private double GetDouble(string key)
+    {
+        const NumberStyles Style = NumberStyles.Float | NumberStyles.AllowDecimalPoint;
+
+        var value = Capability[key];
+
+        if (value is not null)
+        {
+            if (double.TryParse(value, Style, CultureInfo.InvariantCulture, out var result))
+            {
+                return result;
+            }
+
+            // Handle if there's more than one decimal i.e. .4.1 -> .4
+            var firstDecimal = value.IndexOf('.', StringComparison.Ordinal);
+
+            if (firstDecimal != -1)
+            {
+                var nextDecimal = value.IndexOf('.', firstDecimal + 1);
+
+                if (nextDecimal != -1)
+                {
+                    if (double.TryParse(value.AsSpan()[..nextDecimal], Style, CultureInfo.InvariantCulture, out var result2))
+                    {
+                        return result2;
+                    }
+                }
+            }
+        }
+
+        throw new HttpUnhandledException($"Invalid string from browser capabilities '{key}'");
+    }
 }

@@ -20,7 +20,7 @@ public class BrowserCapabilitiesFactoryTests
         var browserFactory = new BrowserCapabilitiesFactory();
 
         // Act
-        var result = browserFactory.Process(data.UserAgent);
+        var result = browserFactory.Parse(data.UserAgent);
 
         // Assert
         Assert.Equal(data.Browser, result["browser"]);
