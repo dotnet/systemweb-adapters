@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -252,7 +253,11 @@ namespace System.Web
 
         public void SetCookie(HttpCookie cookie) => Cookies.Set(cookie);
 
-        public void End() => AdapterFeature.EndAsync().GetAwaiter().GetResult();
+        public void Flush() => Task.Run(() => _response.CompleteAsync()).Wait();
+
+        public Task FlushAsync() => _response.CompleteAsync();
+
+        public void End() => Task.Run(() => AdapterFeature.EndAsync()).Wait();
 
         public void Write(char ch) => Output.Write(ch);
 
