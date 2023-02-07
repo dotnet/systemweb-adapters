@@ -196,25 +196,7 @@ namespace System.Web
 
         public string? UserHostName => _request.HttpContext.Connection.RemoteIpAddress?.ToString();
 
-        public HttpBrowserCapabilities Browser
-        {
-            get
-            {
-                if (_browser is null)
-                {
-                    var factory = _request.HttpContext.RequestServices.GetService<BrowserCapabilitiesFactory>();
-
-                    if (factory is null)
-                    {
-                        throw new InvalidOperationException("Browser capabilities requires AddSystemWebAdapters() to be called on service collection");
-                    }
-
-                    _browser = new(factory, _request.Headers.UserAgent);
-                }
-
-                return _browser;
-            }
-        }
+        public HttpBrowserCapabilities Browser => _browser ??= new(_request.HttpContext);
 
         public string? this[string key] => Params[key];
 

@@ -1,7 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace System.Web.Configuration;
 
@@ -18,7 +23,7 @@ namespace System.Web.Configuration;
 ///   to do custom stuff. These are not implemented in the framework and are potentially added by uses. For now, we don't
 ///   support that pattern.
 /// </summary>
-internal class BrowserCapabilitiesFactory
+internal sealed class BrowserCapabilitiesFactory : IBrowserCapabilitiesFactory
 {
     // Func will return true if we want to end the processing of further funcs
     private readonly Func<string, ParsedBrowserResult, bool>[] _processList;
@@ -40,7 +45,30 @@ internal class BrowserCapabilitiesFactory
         };
     }
 
-    public ParsedBrowserResult Process(string userAgent)
+    IHttpBrowserCapabilityFeature IBrowserCapabilitiesFactory.Create(HttpRequestCore request)
+    {
+        var userAgent = request.Headers.UserAgent;
+
+        if (string.IsNullOrWhiteSpace(userAgent))
+        {
+            return EmptyBrowserFeatures.Instance;
+        }
+        else if (request.HttpContext.RequestServices.GetService<IMemoryCache>() is { } cache)
+        {
+            return cache.GetOrCreate<IHttpBrowserCapabilityFeature>(userAgent, entry =>
+            {
+                entry.SlidingExpiration = TimeSpan.FromMinutes(2);
+
+                return Parse(userAgent);
+            });
+        }
+        else
+        {
+            return Parse(userAgent);
+        }
+    }
+
+    public IHttpBrowserCapabilityFeature Parse(string userAgent)
     {
         var dictionary = new ParsedBrowserResult();
 
@@ -621,7 +649,23 @@ internal class BrowserCapabilitiesFactory
         return false;
     }
 
-    private struct RegexResult
+    private sealed class ParsedBrowserResult : Dictionary<string, string?>, IHttpBrowserCapabilityFeature
+    {
+        public ParsedBrowserResult()
+            : base(StringComparer.OrdinalIgnoreCase)
+        {
+        }
+
+        [Conditional("NotNeededYet")]
+        [Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Retained in case we need the data later")]
+        public void AddBrowser(string browser)
+        {
+        }
+
+        string? IHttpBrowserCapabilityFeature.this[string key] => TryGetValue(key, out var value) ? value : null;
+    }
+
+    private readonly struct RegexResult
     {
         private readonly Match? _match;
         private readonly Match? _match2;
@@ -655,7 +699,7 @@ internal class BrowserCapabilitiesFactory
         }
     }
 
-    private class RegexWorker
+    private sealed class RegexWorker
     {
         private readonly Regex _regex;
         private readonly Regex? _regex2;
@@ -672,5 +716,12 @@ internal class BrowserCapabilitiesFactory
 
         public RegexResult Process(string userAgent)
             => new(_regex?.Match(userAgent), _regex2?.Match(userAgent));
+    }
+
+    private sealed class EmptyBrowserFeatures : IHttpBrowserCapabilityFeature
+    {
+        public static IHttpBrowserCapabilityFeature Instance { get; } = new EmptyBrowserFeatures();
+
+        public string? this[string key] => null;
     }
 }
