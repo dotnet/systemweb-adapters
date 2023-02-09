@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -171,6 +172,36 @@ public class HttpResponseTests
 
         // Act/Assert
         Assert.Throws<InvalidOperationException>(() => response.End());
+    }
+
+    [Fact]
+    public void Flush()
+    {
+        // Arrange
+        var responseCore = new Mock<HttpResponseCore>();
+
+        var response = new HttpResponse(responseCore.Object);
+
+        // Act
+        response.Flush();
+
+        // Assert
+        responseCore.Verify(r => r.CompleteAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task FlushAsync()
+    {
+        // Arrange
+        var responseCore = new Mock<HttpResponseCore>();
+
+        var response = new HttpResponse(responseCore.Object);
+
+        // Act
+        await response.FlushAsync();
+
+        // Assert
+        responseCore.Verify(r => r.CompleteAsync(), Times.Once);
     }
 
     [Fact]
