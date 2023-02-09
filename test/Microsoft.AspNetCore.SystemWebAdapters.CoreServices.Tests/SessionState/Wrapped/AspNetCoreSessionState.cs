@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.SessionState;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
@@ -127,6 +128,19 @@ public class AspNetCoreSessionStateTests
 
         // Assert
         Assert.Equal(isReadOnly, result);
+    }
+
+    [Fact]
+    public void Mode()
+    {
+        // Arrange
+        var manager = new AspNetCoreSessionManager(new Mock<ISessionKeySerializer>().Object, new Mock<ILoggerFactory>().Object, Options.Create(new SessionSerializerOptions()));
+
+        // Act
+        var result = ((ISessionManager)manager).Mode;
+
+        // Assert
+        Assert.Equal(SessionStateMode.InProc, result);
     }
 
     [Fact]
@@ -282,10 +296,10 @@ public class AspNetCoreSessionStateTests
         var loggerFactory = new Mock<ILoggerFactory>();
         var httpContextCore = new Mock<HttpContextCore>();
         httpContextCore.Setup(s => s.Session).Returns(session.Object);
-        var sessionSerializerOptions = new SessionSerializerOptions() {ThrowOnUnknownSessionKey = throwOnUnknown};
+        var sessionSerializerOptions = new SessionSerializerOptions() { ThrowOnUnknownSessionKey = throwOnUnknown };
         var options = Options.Create(sessionSerializerOptions);
 
         var aspNetCoreSessionManager = new AspNetCoreSessionManager(serializer.Object, loggerFactory.Object, options);
-        return await aspNetCoreSessionManager.CreateAsync(httpContextCore.Object, new SessionAttribute(){IsReadOnly = isReadOnly});
+        return await aspNetCoreSessionManager.CreateAsync(httpContextCore.Object, new SessionAttribute() { IsReadOnly = isReadOnly });
     }
 }

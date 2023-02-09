@@ -37,6 +37,23 @@ public class HttpSessionStateTests
     }
 
     [Fact]
+    public void Mode()
+    {
+        // Arrange
+        var mode = _fixture.Create<SessionStateMode>();
+
+        var session = new Mock<ISessionState>();
+
+        var state = new HttpSessionState(session.Object, mode);
+
+        // Act
+        var result = state.Mode;
+
+        // Assert
+        Assert.Equal(mode, result);
+    }
+
+    [Fact]
     public void Count()
     {
         // Arrange
