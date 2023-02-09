@@ -13,22 +13,6 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class SystemWebAdaptersExtensions
 {
-    public static ISystemWebAdapterBuilder AddSystemWebAdapters(this IServiceCollection services, Action<SystemWebAdapterOptions> configure)
-    {
-        services.Configure(configure);
-        return services.AddSystemWebAdapters();
-    }
-
-    private static ISystemWebAdapterBuilder AddDefaultExtensions(this ISystemWebAdapterBuilder builder)
-    {
-        builder.Services.Configure<SystemWebAdapterOptions>(option =>
-        {
-            option.Extensions.Add(".aspx");
-        });
-
-        return builder;
-    }
-
     public static ISystemWebAdapterBuilder AddSystemWebAdapters(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
@@ -38,7 +22,6 @@ public static class SystemWebAdaptersExtensions
         services.AddTransient<IStartupFilter, HttpContextStartupFilter>();
 
         return new SystemWebAdapterBuilder(services)
-            .AddDefaultExtensions()
             .AddMvc();
     }
 
