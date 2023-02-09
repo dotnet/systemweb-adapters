@@ -347,7 +347,7 @@ namespace System.Web
         private void GetFileInfoPath(out StringSegment filePath, out StringSegment pathInfo)
         {
             var path = new StringSegment(Path);
-            var extensionIndex = path.IndexOf('.');
+            var extensionIndex = path.LastIndexOf('.');
 
             // If no extension, just return the path
             if (extensionIndex == -1)

@@ -68,6 +68,9 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         [InlineData("/some/path.txt/", "/some/path.txt", "/")]
         [InlineData("/some/path.txt/after", "/some/path.txt", "/after")]
         [InlineData("/some/path.txt/after/", "/some/path.txt", "/after/")]
+        [InlineData("/some/path.not/file.txt", "/some/path.not/file.txt", "")]
+        [InlineData("/some/path.not/file.txt/", "/some/path.not/file.txt", "/")]
+        [InlineData("/some/path.not/file.txt/subpath", "/some/path.not/file.txt", "/subpath")]
         public void FilePath(string path, string expectedFilePath, string expectedPathInfo)
         {
             // Arrange
