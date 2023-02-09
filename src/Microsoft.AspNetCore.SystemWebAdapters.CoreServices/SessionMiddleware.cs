@@ -69,7 +69,7 @@ internal partial class SessionMiddleware
             var behavior => throw new InvalidOperationException($"Unknown session behavior {behavior}"),
         };
 
-        context.Features.Set(new HttpSessionState(state));
+        context.Features.Set(new HttpSessionState(state, manager.Mode));
 
         try
         {

@@ -15,6 +15,13 @@ public class HttpSessionState : ICollection
     public HttpSessionState(ISessionState container)
     {
         _container = container;
+        Mode = SessionStateMode.Custom;
+    }
+
+    internal HttpSessionState(ISessionState container, SessionStateMode mode)
+    {
+        _container = container;
+        Mode = mode;
     }
 
     public string SessionID => _container.SessionID;
@@ -34,6 +41,8 @@ public class HttpSessionState : ICollection
     public bool IsSynchronized => _container.IsSynchronized;
 
     public object SyncRoot => _container.SyncRoot;
+
+    public SessionStateMode Mode { get; }
 
     public void Abandon() => _container.IsAbandoned = true;
 
