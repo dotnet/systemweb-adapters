@@ -45,7 +45,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void Path()
         {
             // Arrange
-            var path = new PathString("/" + _fixture.Create<string>());
+            var path = new PathString(CreateRandomPath());
             var coreRequest = new Mock<HttpRequestCore>();
             coreRequest.Setup(c => c.Path).Returns(path);
 
@@ -56,6 +56,101 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
 
             // Assert
             Assert.Equal(path.Value, result);
+        }
+
+        [Fact]
+        public void FilePathNoFeature()
+        {
+            // Arrange
+            var context = new Mock<HttpContextCore>();
+            context.Setup(c => c.Features).Returns(new FeatureCollection());
+
+            var coreRequest = new Mock<HttpRequestCore>();
+            var path = new PathString(CreateRandomPath());
+            coreRequest.Setup(c => c.Path).Returns(path);
+            coreRequest.Setup(c => c.HttpContext).Returns(context.Object);
+
+            var request = new HttpRequest(coreRequest.Object);
+
+            // Act
+            var result = request.FilePath;
+
+            // Assert
+            Assert.Equal(path, result);
+        }
+
+        [Fact]
+        public void FilePathFeature()
+        {
+            // Arrange
+            var feature = new Mock<IPathInfoFeature>();
+            var path = CreateRandomPath();
+            feature.Setup(f => f.FileInfo).Returns(path);
+
+            var features = new FeatureCollection();
+            features.Set(feature.Object);
+
+            var context = new Mock<HttpContextCore>();
+            context.Setup(c => c.Features).Returns(features);
+
+            var coreRequest = new Mock<HttpRequestCore>();
+            coreRequest.Setup(c => c.Path).Returns(CreateRandomPath());
+            coreRequest.Setup(c => c.HttpContext).Returns(context.Object);
+
+            var request = new HttpRequest(coreRequest.Object);
+
+            // Act
+            var result = request.FilePath;
+
+            // Assert
+            Assert.Equal(path, result);
+        }
+
+        [Fact]
+        public void PathInfoNoFeature()
+        {
+            // Arrange
+            var context = new Mock<HttpContextCore>();
+            context.Setup(c => c.Features).Returns(new FeatureCollection());
+
+            var coreRequest = new Mock<HttpRequestCore>();
+            coreRequest.Setup(c => c.Path).Returns(CreateRandomPath());
+            coreRequest.Setup(c => c.HttpContext).Returns(context.Object);
+
+            var request = new HttpRequest(coreRequest.Object);
+
+            // Act
+            var result = request.PathInfo;
+
+            // Assert
+            Assert.Same(string.Empty, result);
+        }
+
+        [Fact]
+        public void PathInfoFeature()
+        {
+            // Arrange
+            var feature = new Mock<IPathInfoFeature>();
+            var path = CreateRandomPath();
+            feature.Setup(f => f.PathInfo).Returns(path);
+
+            var features = new FeatureCollection();
+            features.Set(feature.Object);
+
+            var context = new Mock<HttpContextCore>();
+            context.Setup(c => c.Features).Returns(features);
+
+            var coreRequest = new Mock<HttpRequestCore>();
+            coreRequest.Setup(c => c.Path).Returns(CreateRandomPath());
+            coreRequest.Setup(c => c.HttpContext).Returns(context.Object);
+
+            var request = new HttpRequest(coreRequest.Object);
+
+            // Act
+            var result = request.PathInfo;
+
+            // Assert
+            Assert.Equal(path, result);
         }
 
         [Fact]
@@ -395,17 +490,20 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void AppRelativeCurrentExecutionFilePath()
         {
             // Arrange
+            var context = new Mock<HttpContextCore>();
+            context.Setup(c => c.Features).Returns(new FeatureCollection());
+
             var coreRequest = new Mock<HttpRequestCore>();
             coreRequest.Setup(c => c.Scheme).Returns("http");
             coreRequest.Setup(c => c.Host).Returns(new HostString("www.A.com"));
             coreRequest.Setup(c => c.Path).Returns("/B/ C");
             coreRequest.Setup(c => c.QueryString).Returns(new QueryString("?D=E"));
             coreRequest.Setup(c => c.PathBase).Returns("/F");
+            coreRequest.Setup(c => c.HttpContext).Returns(context.Object);
 
             var request = new HttpRequest(coreRequest.Object);
 
             // Act
-            var url = request.Url;
             var result = request.AppRelativeCurrentExecutionFilePath;
 
             // Assert
@@ -1134,5 +1232,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Assert
             Assert.Equal(mode, result);
         }
+
+        private string CreateRandomPath() => "/" + _fixture.Create<string>();
     }
 }
