@@ -31,6 +31,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
             var result = context.Cache;
 
             // Assert
+            Assert.Same(cache, result);
         }
 
         [Fact]
