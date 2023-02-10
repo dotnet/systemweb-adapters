@@ -22,13 +22,12 @@ internal static class HttpRuntimeFactory
 
     internal abstract class BaseHttpRuntime 
     {
-        private readonly IServiceProvider serviceProvider;
-
         protected BaseHttpRuntime(IServiceProvider serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
+            Cache = serviceProvider.GetRequiredService<Cache>();
         }
-        public Cache Cache => serviceProvider.GetRequiredService<Cache>();
+
+        public Cache Cache { get; }
     }
 
     internal class DefaultHttpRuntime : BaseHttpRuntime, IHttpRuntime
