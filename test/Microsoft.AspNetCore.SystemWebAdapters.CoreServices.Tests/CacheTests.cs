@@ -2,18 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Security.Principal;
 using System.Web;
 using System.Web.Caching;
-using System.Web.SessionState;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters
+namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
 {
     public class CacheTests
     {
@@ -27,10 +22,9 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider.Setup(s => s.GetService(typeof(Cache))).Returns(cache);
 
-            var httpRuntime = Microsoft.Extensions.DependencyInjection.HttpRuntimeFactory.Create(serviceProvider.Object);
-            HttpRuntime.Current = httpRuntime;
-
             var coreContext = new Mock<HttpContextCore>();
+            coreContext.Setup(c => c.RequestServices).Returns(serviceProvider.Object);
+
             var context = new HttpContext(coreContext.Object);
             
             // Act
@@ -48,10 +42,9 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider.Setup(s => s.GetService(typeof(Cache))).Returns(cache);
 
-            var httpRuntime = Microsoft.Extensions.DependencyInjection.HttpRuntimeFactory.Create(serviceProvider.Object);
-            HttpRuntime.Current = httpRuntime;
-
             var coreContext = new Mock<HttpContextCore>();
+            coreContext.Setup(c => c.RequestServices).Returns(serviceProvider.Object);
+
             var context = new HttpContext(coreContext.Object);
             var contextWrapper = new HttpContextWrapper(context);
 
@@ -68,14 +61,34 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Arrange
             var cache = new Cache();
 
+            var httpRuntime = new Mock<IHttpRuntime>();
+            httpRuntime.Setup(c=>c.Cache).Returns(cache);
+
+            HttpRuntime.Current = httpRuntime.Object;
+
+            // Act
+            var result = System.Web.HttpRuntime.Cache;
+
+            // Assert
+            Assert.Same(cache, result);
+        }
+
+        [Fact]
+        public void CacheFromHttpRuntimeFactory()
+        {
+            // Arrange
+            var cache = new Cache();
+
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider.Setup(s => s.GetService(typeof(Cache))).Returns(cache);
 
-            var httpRuntime = Microsoft.Extensions.DependencyInjection.HttpRuntimeFactory.Create(serviceProvider.Object);
+            var httpRuntime = HttpRuntimeFactory.Create(serviceProvider.Object);
             HttpRuntime.Current = httpRuntime;
 
             // Act
             var result = System.Web.HttpRuntime.Cache;
+
+            // Assert
             Assert.Same(cache, result);
         }
     }
