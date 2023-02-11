@@ -5,6 +5,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Web;
+using System.Web.Caching;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -24,10 +25,14 @@ public class HttpServerUtilityTests
 
     internal sealed class TestHttpRuntime : IHttpRuntime
     {
+        private Cache? _cache;
+
         public string AppDomainAppVirtualPath => "/";
 
         public string AppDomainAppPath => System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
             "C:\\ExampleSites\\TestMapPath" : "/apps/test-map-path";
+
+        public Cache Cache => _cache ??= new Cache();
     }
 
     [Fact]

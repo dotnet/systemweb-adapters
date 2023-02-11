@@ -2,36 +2,50 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Web.Caching;
 using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 internal static class HttpRuntimeFactory
 {
-    public static IHttpRuntime Create()
+    public static IHttpRuntime Create(IServiceProvider serviceProvider)
     {
         if (NativeMethods.IsAspNetCoreModuleLoaded())
         {
             var config = NativeMethods.HttpGetApplicationProperties();
-
-            return new IISHttpRuntime(config);
+            return new IISHttpRuntime(config, serviceProvider);
         }
 
-        return new DefaultHttpRuntime();
+        return new DefaultHttpRuntime(serviceProvider);
     }
 
-    internal class DefaultHttpRuntime : IHttpRuntime
+    internal abstract class BaseHttpRuntime 
     {
+        protected BaseHttpRuntime(IServiceProvider serviceProvider)
+        {
+            Cache = serviceProvider.GetRequiredService<Cache>();
+        }
+
+        public Cache Cache { get; }
+    }
+
+    internal class DefaultHttpRuntime : BaseHttpRuntime, IHttpRuntime
+    {
+        public DefaultHttpRuntime(IServiceProvider sp) : base(sp)
+        {
+        }
+
         public string AppDomainAppVirtualPath => "/";
 
         public string AppDomainAppPath => AppContext.BaseDirectory;
     }
 
-    internal class IISHttpRuntime : IHttpRuntime
+    internal class IISHttpRuntime : BaseHttpRuntime, IHttpRuntime
     {
         private readonly NativeMethods.IISConfigurationData _config;
 
-        public IISHttpRuntime(NativeMethods.IISConfigurationData config)
+        public IISHttpRuntime(NativeMethods.IISConfigurationData config, IServiceProvider sp) : base(sp)
         {
             _config = config;
         }

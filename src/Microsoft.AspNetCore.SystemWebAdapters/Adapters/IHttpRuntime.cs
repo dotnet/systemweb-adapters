@@ -7,4 +7,6 @@ internal interface IHttpRuntime
 {
     string AppDomainAppVirtualPath { get; }
     string AppDomainAppPath { get; }
+
+    System.Web.Caching.Cache Cache { get; }
 }
