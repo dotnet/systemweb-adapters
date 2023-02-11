@@ -14,19 +14,16 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal class HttpRequestAdapterFeature : IHttpRequestAdapterFeature, IHttpRequestFeature, IRequestBodyPipeFeature, IDisposable
+internal class HttpRequestInputStreamFeature : IHttpRequestInputStreamFeature, IHttpRequestFeature, IRequestBodyPipeFeature, IDisposable
 {
-    private readonly int _bufferThreshold;
-    private readonly long? _bufferLimit;
     private readonly IHttpRequestFeature _other;
 
     private PipeReader? _pipeReader;
     private Stream? _bufferedStream;
 
-    public HttpRequestAdapterFeature(IHttpRequestFeature other, int bufferThreshold, long? bufferLimit)
+    public HttpRequestInputStreamFeature(IHttpRequestFeature other)
     {
-        _bufferThreshold = bufferThreshold;
-        _bufferLimit = bufferLimit;
+        BufferThreshold = PreBufferRequestStreamAttribute.DefaultBufferThreshold;
         _other = other;
     }
 
@@ -44,13 +41,17 @@ internal class HttpRequestAdapterFeature : IHttpRequestAdapterFeature, IHttpRequ
         {
             Mode = ReadEntityBodyMode.Buffered;
 
-            return _bufferedStream = new FileBufferingReadStream(_other.Body, _bufferThreshold, _bufferLimit, AspNetCoreTempDirectory.TempDirectoryFactory);
+            return _bufferedStream = new FileBufferingReadStream(_other.Body, BufferThreshold, BufferLimit, AspNetCoreTempDirectory.TempDirectoryFactory);
         }
 
         throw new InvalidOperationException("GetBufferlessInputStream cannot be called after other stream access");
     }
 
-    Stream IHttpRequestAdapterFeature.GetBufferlessInputStream()
+    public int BufferThreshold { get; set; }
+
+    public long? BufferLimit { get; set; }
+
+    Stream IHttpRequestInputStreamFeature.GetBufferlessInputStream()
     {
         if (Mode is ReadEntityBodyMode.Bufferless or ReadEntityBodyMode.None)
         {
@@ -61,7 +62,7 @@ internal class HttpRequestAdapterFeature : IHttpRequestAdapterFeature, IHttpRequ
         throw new InvalidOperationException("GetBufferlessInputStream cannot be called after other stream access");
     }
 
-    Stream IHttpRequestAdapterFeature.InputStream
+    Stream IHttpRequestInputStreamFeature.InputStream
     {
         get
         {
@@ -74,13 +75,7 @@ internal class HttpRequestAdapterFeature : IHttpRequestAdapterFeature, IHttpRequ
         }
     }
 
-    async Task<Stream> IHttpRequestAdapterFeature.GetInputStreamAsync(CancellationToken token)
-    {
-        await BufferInputStreamAsync(token);
-        return GetBody();
-    }
-
-    public async Task BufferInputStreamAsync(CancellationToken token)
+    async ValueTask IHttpRequestInputStreamFeature.BufferInputStreamAsync(CancellationToken token)
     {
         if (Mode is ReadEntityBodyMode.Classic)
         {

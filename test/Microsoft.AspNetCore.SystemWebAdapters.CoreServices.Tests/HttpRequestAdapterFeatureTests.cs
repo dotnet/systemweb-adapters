@@ -9,14 +9,10 @@ using Microsoft.AspNetCore.Http.Features;
 using Moq;
 using Xunit;
 
-#pragma warning disable CA1859 // Use concrete types when possible for improved performance
-
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public class HttpRequestAdapterFeatureTests
 {
-    private const int DefaultThreshold = 500;
-
     [Fact]
     public void InputStream()
     {
@@ -26,8 +22,8 @@ public class HttpRequestAdapterFeatureTests
         var other = new Mock<IHttpRequestFeature>();
         other.Setup(o => o.Body).Returns(stream.Object);
 
-        using var feature = new HttpRequestAdapterFeature(other.Object, DefaultThreshold, default);
-        var adapterFeature = (IHttpRequestAdapterFeature)feature;
+        using var feature = new HttpRequestInputStreamFeature(other.Object);
+        var adapterFeature = (IHttpRequestInputStreamFeature)feature;
 
         // Assert/Act
         Assert.Equal(ReadEntityBodyMode.None, adapterFeature.Mode);
@@ -45,10 +41,10 @@ public class HttpRequestAdapterFeatureTests
         var other = new Mock<IHttpRequestFeature>();
         other.Setup(o => o.Body).Returns(stream);
 
-        using var feature = new HttpRequestAdapterFeature(other.Object, DefaultThreshold, default);
-        await feature.BufferInputStreamAsync(default);
+        using var feature = new HttpRequestInputStreamFeature(other.Object);
 
-        var adapterFeature = (IHttpRequestAdapterFeature)feature;
+        var adapterFeature = (IHttpRequestInputStreamFeature)feature;
+        await adapterFeature.BufferInputStreamAsync(default);
 
         // Act
         var mode1 = adapterFeature.Mode;
@@ -73,8 +69,8 @@ public class HttpRequestAdapterFeatureTests
         var other = new Mock<IHttpRequestFeature>();
         other.Setup(o => o.Body).Returns(stream);
 
-        using var feature = new HttpRequestAdapterFeature(other.Object, DefaultThreshold, default);
-        var adapterFeature = (IHttpRequestAdapterFeature)feature;
+        using var feature = new HttpRequestInputStreamFeature(other.Object);
+        var adapterFeature = (IHttpRequestInputStreamFeature)feature;
 
         // Act
         var bufferelessStream = adapterFeature.GetBufferlessInputStream();
@@ -97,8 +93,8 @@ public class HttpRequestAdapterFeatureTests
         var other = new Mock<IHttpRequestFeature>();
         other.Setup(o => o.Body).Returns(stream);
 
-        using var feature = new HttpRequestAdapterFeature(other.Object, DefaultThreshold, default);
-        var adapterFeature = (IHttpRequestAdapterFeature)feature;
+        using var feature = new HttpRequestInputStreamFeature(other.Object);
+        var adapterFeature = (IHttpRequestInputStreamFeature)feature;
 
         // Act
         var bufferedStream = adapterFeature.GetBufferedInputStream();

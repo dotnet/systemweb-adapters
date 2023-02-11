@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.IO;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
@@ -23,7 +24,7 @@ public class PreBufferRequestStreamMiddlewareTests
         var next = new Mock<RequestDelegate>();
         using var mock = AutoMock.GetLoose(c => c.RegisterMock(next));
 
-        var logger = new Mock<ILogger<PreBufferRequestStreamMiddleware>>();
+        var logger = new Mock<ILogger<HttpRequestAdapterMiddleware>>();
 
         var metadata = new PreBufferRequestStreamAttribute { IsDisabled = isDisabled };
 
@@ -44,11 +45,12 @@ public class PreBufferRequestStreamMiddlewareTests
         features.Set(endpointFeature.Object);
         features.Set(requestFeature.Object);
         features.Set(responseFeature.Object);
+        features.Set(new Mock<IHttpResponseBodyFeature>().Object);
 
         var context = new DefaultHttpContext(features);
 
         // Act
-        await mock.Create<PreBufferRequestStreamMiddleware>().InvokeAsync(context);
+        await mock.Create<HttpRequestAdapterMiddleware>().InvokeAsync(context);
 
         // Assert
         Assert.Equal(!isDisabled, context.Request.Body.CanSeek);

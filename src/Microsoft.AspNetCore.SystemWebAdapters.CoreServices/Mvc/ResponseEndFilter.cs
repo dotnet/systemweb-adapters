@@ -20,7 +20,7 @@ internal partial class ResponseEndFilter : IActionFilter
 
     public void OnActionExecuted(ActionExecutedContext context)
     {
-        if (context.Result is not null && context.HttpContext.Features.Get<IHttpResponseAdapterFeature>() is { IsEnded: true })
+        if (context.Result is not null && context.HttpContext.Features.Get<IHttpResponseEndFeature>() is { IsEnded: true })
         {
             LogClearingResult();
             context.Result = null;
