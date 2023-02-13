@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Security.Principal;
+using System.Web.Caching;
 using System.Web.SessionState;
 
 namespace System.Web
@@ -28,32 +29,10 @@ namespace System.Web
 
         public override bool IsDebuggingEnabled => _context.IsDebuggingEnabled;
 
-        public override HttpRequestBase Request
-        {
-            get
-            {
-                if (_request is null)
-                {
-                    _request = new HttpRequestWrapper(_context.Request);
-                }
+        public override HttpRequestBase Request => _request ??= new HttpRequestWrapper(_context.Request);
 
-                return _request;
-            }
-        }
-
-        public override HttpResponseBase Response
-        {
-            get
-            {
-                if (_response is null)
-                {
-                    _response = new HttpResponseWrapper(_context.Response);
-                }
-
-                return _response;
-            }
-        }
-
+        public override HttpResponseBase Response => _response ??= new HttpResponseWrapper(_context.Response);
+        
         public override HttpSessionStateBase? Session
         {
             get
@@ -72,5 +51,7 @@ namespace System.Web
             get => _context.User;
             set => _context.User = value;
         }
+
+        public override Cache Cache => _context.Cache;
     }
 }

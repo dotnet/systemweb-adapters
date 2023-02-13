@@ -21,4 +21,6 @@ public sealed class HttpRuntime
 
     public static string AppDomainAppVirtualPath => Current.AppDomainAppVirtualPath;
 	public static string AppDomainAppPath => Current.AppDomainAppPath;
+
+    public static System.Web.Caching.Cache Cache => Current.Cache;
 }

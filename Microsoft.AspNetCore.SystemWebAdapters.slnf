@@ -8,7 +8,9 @@
       "src\\Microsoft.AspNetCore.SystemWebAdapters\\Microsoft.AspNetCore.SystemWebAdapters.csproj",
       "test\\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests\\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests.csproj",
       "test\\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.Tests\\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.Tests.csproj",
-      "test\\Microsoft.AspNetCore.SystemWebAdapters.Tests\\Microsoft.AspNetCore.SystemWebAdapters.Tests.csproj"
+      "test\\Microsoft.AspNetCore.SystemWebAdapters.Tests\\Microsoft.AspNetCore.SystemWebAdapters.Tests.csproj",
+      "test\\Samples.MVCApp.Tests\\Samples.MVCApp.Tests.csproj",
+      "test\\Samples.RemoteAuth.Forms.Tests\\Samples.RemoteAuth.Forms.Tests.csproj"
     ]
   }
 }

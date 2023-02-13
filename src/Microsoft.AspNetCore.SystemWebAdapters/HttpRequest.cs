@@ -53,23 +53,9 @@ namespace System.Web
 
         public string? Path => _request.Path.Value;
 
-        public string? PathInfo
-        {
-            get
-            {
-                GetFileInfoPath(out _, out var pathInfo);
-                return pathInfo.ToString();
-            }
-        }
+        public string? PathInfo => _request.HttpContext.Features.Get<IPathInfoFeature>()?.PathInfo ?? string.Empty;
 
-        public string? FilePath
-        {
-            get
-            {
-                GetFileInfoPath(out var filePath, out _);
-                return filePath.ToString();
-            }
-        }
+        public string? FilePath => _request.HttpContext.Features.Get<IPathInfoFeature>()?.FileInfo ?? Path;
 
         public NameValueCollection Headers => _headers ??= _request.Headers.ToNameValueCollection();
 
@@ -201,7 +187,7 @@ namespace System.Web
             }
         }
 
-        public string AppRelativeCurrentExecutionFilePath => $"~{_request.Path.Value}";
+        public string AppRelativeCurrentExecutionFilePath => $"~{FilePath}";
 
         public string ApplicationPath => _request.HttpContext.RequestServices.GetRequiredService<IHttpRuntime>().AppDomainAppVirtualPath;
 

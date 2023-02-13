@@ -49,6 +49,14 @@ public sealed class Cache : IEnumerable
         return _cache.AddOrGetExisting(key, value, policy);
     }
 
+    private static void AddChangeMonitors(CacheDependency? dependencies, CacheItemPolicy policy)
+    {
+        if (dependencies?.ChangeMonitors is not null)
+        {
+            policy.ChangeMonitors.Add(dependencies.GetChangeMonitor());
+        }
+    }
+
     public object Get(string key) => _cache.Get(key);
 
     public void Insert(string key, object value) => _cache.Set(key, value, new CacheItemPolicy());
@@ -158,6 +166,8 @@ public sealed class Cache : IEnumerable
     }
 
     public int Count => (int)_cache.GetCount();
+
+    internal ObjectCache ObjectCache => _cache;
 
     public IEnumerator GetEnumerator() => ((IEnumerable)_cache).GetEnumerator();
 }

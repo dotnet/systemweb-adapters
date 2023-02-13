@@ -1,5 +1,6 @@
 using System;
 using System.Web;
+using System.Web.Caching;
 using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
@@ -10,9 +11,13 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
 
         internal sealed class TestRuntime : IHttpRuntime
         {
+            private Cache? _cache;
+
             public string AppDomainAppVirtualPath => "/";
 
             public string AppDomainAppPath => "C:\\";
+
+            public Cache Cache => _cache ??= new Cache();
         }
 
         [InlineData("/", "/")]

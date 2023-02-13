@@ -1,3 +1,7 @@
 <!-- Disable any build stuff brought in by arcade for the samples.
      By default, Arcade will bring in PackageReferences which will break any old-style projects (they will prefer those packages over packages.config) -->
-<Project />
+<Project>
+  <!-- CI builds will run `dotnet test` which expects a target named test. The samples have no target for that, so this enables
+       an empty target so that this command will work and be a no-op for the tests. -->
+  <Target Name="Test"></Target>
+</Project>
