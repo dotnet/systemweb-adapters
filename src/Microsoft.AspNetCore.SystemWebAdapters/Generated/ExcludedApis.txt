@@ -14,3 +14,6 @@ T:Microsoft.AspNetCore.SystemWebAdapters.SessionState.ISessionState
 
 # We manually type forward this only for .NET 4.7.2+
 T:System.Web.SameSiteMode
+
+T:Microsoft.AspNetCore.SystemWebAdapters.IBrowserCapabilitiesFactory
+T:Microsoft.AspNetCore.SystemWebAdapters.IHttpBrowserCapabilityFeature

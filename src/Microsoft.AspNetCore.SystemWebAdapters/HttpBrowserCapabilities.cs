@@ -7,8 +7,8 @@ namespace System.Web;
 
 public class HttpBrowserCapabilities : HttpCapabilitiesBase
 {
-    internal HttpBrowserCapabilities(BrowserCapabilitiesFactory factory, string userAgent)
-        : base(factory, userAgent)
+    internal HttpBrowserCapabilities(HttpContextCore core)
+        : base(core)
     {
     }
 }
