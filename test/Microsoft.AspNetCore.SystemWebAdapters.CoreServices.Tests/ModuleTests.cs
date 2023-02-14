@@ -17,8 +17,13 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests;
 
 public class ModuleTests
 {
-    [Fact]
-    public async Task AllModuleEvents()
+    [InlineData("")]
+    [InlineData("LogRequest")]
+    [InlineData("PostLogRequest")]
+    [InlineData("EndRequest")]
+    [InlineData("PreSendRequestHeaders")]
+    [Theory]
+    public async Task AllModuleEvents(string notification)
     {
         const string Expected = """
             BeginRequest
@@ -43,13 +48,13 @@ public class ModuleTests
             EndRequest
             PreSendRequestHeaders
             """;
-        var result = await RunAsync<EventsModule>("/");
+        var result = await RunAsync<EventsModule>($"/?action=end&notification={notification}");
 
         Assert.Equal(Expected, result);
     }
 
     [Fact]
-    public async Task CallEndInBeginModule()
+    public async Task CallEndBeginRequest()
     {
         const string Expected = """
             BeginRequest
@@ -60,6 +65,344 @@ public class ModuleTests
             """;
 
         var result = await RunAsync<EventsModule>("/?action=end&notification=BeginRequest");
+
+        Assert.Equal(Expected, result);
+    }
+
+    [Fact]
+    public async Task CallEndAuthenticateRequest()
+    {
+        const string Expected = """
+            BeginRequest
+            AuthenticateRequest
+            LogRequest
+            PostLogRequest
+            EndRequest
+            PreSendRequestHeaders
+            """;
+
+        var result = await RunAsync<EventsModule>("/?action=end&notification=AuthenticateRequest");
+
+        Assert.Equal(Expected, result);
+    }
+
+    [Fact]
+    public async Task CallEndPostAuthenticateRequest()
+    {
+        const string Expected = """
+            BeginRequest
+            AuthenticateRequest
+            PostAuthenticateRequest
+            LogRequest
+            PostLogRequest
+            EndRequest
+            PreSendRequestHeaders
+            """;
+
+        var result = await RunAsync<EventsModule>("/?action=end&notification=PostAuthenticateRequest");
+
+        Assert.Equal(Expected, result);
+    }
+
+    [Fact]
+    public async Task CallEndAuthorizeRequest()
+    {
+        const string Expected = """
+            BeginRequest
+            AuthenticateRequest
+            PostAuthenticateRequest
+            AuthorizeRequest
+            LogRequest
+            PostLogRequest
+            EndRequest
+            PreSendRequestHeaders
+            """;
+
+        var result = await RunAsync<EventsModule>("/?action=end&notification=AuthorizeRequest");
+
+        Assert.Equal(Expected, result);
+    }
+
+    [Fact]
+    public async Task CallEndPostAuthorizeRequest()
+    {
+        const string Expected = """
+            BeginRequest
+            AuthenticateRequest
+            PostAuthenticateRequest
+            AuthorizeRequest
+            PostAuthorizeRequest
+            LogRequest
+            PostLogRequest
+            EndRequest
+            PreSendRequestHeaders
+            """;
+
+        var result = await RunAsync<EventsModule>("/?action=end&notification=PostAuthorizeRequest");
+
+        Assert.Equal(Expected, result);
+    }
+
+    [Fact]
+    public async Task CallEndResolveRequestCache()
+    {
+        const string Expected = """
+            BeginRequest
+            AuthenticateRequest
+            PostAuthenticateRequest
+            AuthorizeRequest
+            PostAuthorizeRequest
+            ResolveRequestCache
+            LogRequest
+            PostLogRequest
+            EndRequest
+            PreSendRequestHeaders
+            """;
+
+        var result = await RunAsync<EventsModule>("/?action=end&notification=ResolveRequestCache");
+
+        Assert.Equal(Expected, result);
+    }
+
+    [Fact]
+    public async Task CallEndPostResolveRequestCache()
+    {
+        const string Expected = """
+            BeginRequest
+            AuthenticateRequest
+            PostAuthenticateRequest
+            AuthorizeRequest
+            PostAuthorizeRequest
+            ResolveRequestCache
+            PostResolveRequestCache
+            LogRequest
+            PostLogRequest
+            EndRequest
+            PreSendRequestHeaders
+            """;
+
+        var result = await RunAsync<EventsModule>("/?action=end&notification=PostResolveRequestCache");
+
+        Assert.Equal(Expected, result);
+    }
+
+    [Fact]
+    public async Task CallEndMapRequestHandler()
+    {
+        const string Expected = """
+            BeginRequest
+            AuthenticateRequest
+            PostAuthenticateRequest
+            AuthorizeRequest
+            PostAuthorizeRequest
+            ResolveRequestCache
+            PostResolveRequestCache
+            MapRequestHandler
+            LogRequest
+            PostLogRequest
+            EndRequest
+            PreSendRequestHeaders
+            """;
+
+        var result = await RunAsync<EventsModule>("/?action=end&notification=MapRequestHandler");
+
+        Assert.Equal(Expected, result);
+    }
+
+    [Fact]
+    public async Task CallEndPostMapRequestHandler()
+    {
+        const string Expected = """
+            BeginRequest
+            AuthenticateRequest
+            PostAuthenticateRequest
+            AuthorizeRequest
+            PostAuthorizeRequest
+            ResolveRequestCache
+            PostResolveRequestCache
+            MapRequestHandler
+            PostMapRequestHandler
+            LogRequest
+            PostLogRequest
+            EndRequest
+            PreSendRequestHeaders
+            """;
+
+        var result = await RunAsync<EventsModule>("/?action=end&notification=PostMapRequestHandler");
+
+        Assert.Equal(Expected, result);
+    }
+
+    [Fact]
+    public async Task CallEndAcquireRequestState()
+    {
+        const string Expected = """
+            BeginRequest
+            AuthenticateRequest
+            PostAuthenticateRequest
+            AuthorizeRequest
+            PostAuthorizeRequest
+            ResolveRequestCache
+            PostResolveRequestCache
+            MapRequestHandler
+            PostMapRequestHandler
+            AcquireRequestState
+            LogRequest
+            PostLogRequest
+            EndRequest
+            PreSendRequestHeaders
+            """;
+
+        var result = await RunAsync<EventsModule>("/?action=end&notification=AcquireRequestState");
+
+        Assert.Equal(Expected, result);
+    }
+
+    [Fact]
+    public async Task CallEndPostAcquireRequestState()
+    {
+        const string Expected = """
+            BeginRequest
+            AuthenticateRequest
+            PostAuthenticateRequest
+            AuthorizeRequest
+            PostAuthorizeRequest
+            ResolveRequestCache
+            PostResolveRequestCache
+            MapRequestHandler
+            PostMapRequestHandler
+            AcquireRequestState
+            PostAcquireRequestState
+            LogRequest
+            PostLogRequest
+            EndRequest
+            PreSendRequestHeaders
+            """;
+
+        var result = await RunAsync<EventsModule>("/?action=end&notification=PostAcquireRequestState");
+
+        Assert.Equal(Expected, result);
+    }
+
+    [Fact]
+    public async Task CallEndPreRequestHandlerExecute()
+    {
+        const string Expected = """
+            BeginRequest
+            AuthenticateRequest
+            PostAuthenticateRequest
+            AuthorizeRequest
+            PostAuthorizeRequest
+            ResolveRequestCache
+            PostResolveRequestCache
+            MapRequestHandler
+            PostMapRequestHandler
+            AcquireRequestState
+            PostAcquireRequestState
+            PreRequestHandlerExecute
+            PostRequestHandlerExecute
+            ReleaseRequestState
+            PostReleaseRequestState
+            UpdateRequestCache
+            PostUpdateRequestCache
+            LogRequest
+            PostLogRequest
+            EndRequest
+            PreSendRequestHeaders
+            """;
+
+        var result = await RunAsync<EventsModule>("/?action=end&notification=PreRequestHandlerExecute");
+
+        Assert.Equal(Expected, result);
+    }
+
+    [Fact(Skip = "Names don't match")]
+    public async Task CallEndPostRequestHandlerExecute()
+    {
+        const string Expected = """
+            BeginRequest
+            AuthenticateRequest
+            PostAuthenticateRequest
+            AuthorizeRequest
+            PostAuthorizeRequest
+            ResolveRequestCache
+            PostResolveRequestCache
+            MapRequestHandler
+            PostMapRequestHandler
+            AcquireRequestState
+            PostAcquireRequestState
+            PreRequestHandlerExecute
+            PostRequestHandlerExecute
+            LogRequest
+            PostLogRequest
+            EndRequest
+            PreSendRequestHeaders
+            """;
+
+        var result = await RunAsync<EventsModule>("/?action=end&notification=PostRequestHandlerExecute");
+
+        Assert.Equal(Expected, result);
+    }
+
+    [Fact]
+    public async Task CallEndUpdateRequestCache()
+    {
+        const string Expected = """
+            BeginRequest
+            AuthenticateRequest
+            PostAuthenticateRequest
+            AuthorizeRequest
+            PostAuthorizeRequest
+            ResolveRequestCache
+            PostResolveRequestCache
+            MapRequestHandler
+            PostMapRequestHandler
+            AcquireRequestState
+            PostAcquireRequestState
+            PreRequestHandlerExecute
+            PostRequestHandlerExecute
+            ReleaseRequestState
+            PostReleaseRequestState
+            UpdateRequestCache
+            LogRequest
+            PostLogRequest
+            EndRequest
+            PreSendRequestHeaders
+            """;
+
+        var result = await RunAsync<EventsModule>("/?action=end&notification=UpdateRequestCache");
+
+        Assert.Equal(Expected, result);
+    }
+
+    [Fact]
+    public async Task CallEndPostUpdateRequestCache()
+    {
+        const string Expected = """
+            BeginRequest
+            AuthenticateRequest
+            PostAuthenticateRequest
+            AuthorizeRequest
+            PostAuthorizeRequest
+            ResolveRequestCache
+            PostResolveRequestCache
+            MapRequestHandler
+            PostMapRequestHandler
+            AcquireRequestState
+            PostAcquireRequestState
+            PreRequestHandlerExecute
+            PostRequestHandlerExecute
+            ReleaseRequestState
+            PostReleaseRequestState
+            UpdateRequestCache
+            PostUpdateRequestCache
+            LogRequest
+            PostLogRequest
+            EndRequest
+            PreSendRequestHeaders
+            """;
+
+        var result = await RunAsync<EventsModule>("/?action=end&notification=PostUpdateRequestCache");
 
         Assert.Equal(Expected, result);
     }

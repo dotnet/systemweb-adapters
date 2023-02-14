@@ -434,8 +434,17 @@ internal class SetHttpApplicationMiddleware
             return true;
         }
 
+        bool _isEnding;
+
         async Task IHttpResponseEndFeature.EndAsync()
         {
+            if (_isEnding)
+            {
+                return;
+            }
+
+            _isEnding = true;
+
             var events = (IHttpApplicationEventsFeature)this;
 
             await events.RaiseLogRequestAsync(default);
@@ -444,6 +453,8 @@ internal class SetHttpApplicationMiddleware
             await events.RaisePreSendRequestHeaders(default);
 
             await _previous.EndAsync();
+
+            _isEnding = false;
         }
     }
 }
