@@ -40,11 +40,20 @@ internal class SetHttpApplicationMiddleware
             context.Features.Set(app);
             app.Context = context;
 
-            var feature = SetRequiredFeatures(context, app);
+            SetRequiredFeatures(context, app);
 
-            await _next(context);
+            context.Features.GetRequired<IHttpResponseBufferingFeature>().EnableBuffering(BufferResponseStreamAttribute.DefaultMemoryThreshold, default);
 
-            await feature.EndAsync();
+            await context.Features.GetRequired<IHttpApplicationEventsFeature>().RaiseBeginRequestAsync(context.RequestAborted);
+
+            var endFeature = context.Features.GetRequired<IHttpResponseEndFeature>();
+
+            if (!endFeature.IsEnded)
+            {
+                await _next(context);
+            }
+
+            await endFeature.EndAsync();
         }
         finally
         {
@@ -54,24 +63,13 @@ internal class SetHttpApplicationMiddleware
         }
     }
 
-    private static IHttpResponseEndFeature SetRequiredFeatures(HttpContextCore context, HttpApplication application)
+    private static void SetRequiredFeatures(HttpContextCore context, HttpApplication application)
     {
         var setNotification = new RequestHttpApplicationEventsFeature(application, context);
 
         context.Features.Set<INotificationFeature>(setNotification);
         context.Features.Set<IHttpResponseEndFeature>(setNotification);
-
-        if (context.Features.Get<IHttpApplicationEventsFeature>() is { } existingEventFeature)
-        {
-            var eventsFeature = new CompositeHttpApplicationEventsFeature(existingEventFeature, setNotification);
-            context.Features.Set<IHttpApplicationEventsFeature>(eventsFeature);
-        }
-        else
-        {
-            context.Features.Set<IHttpApplicationEventsFeature>(setNotification);
-        }
-
-        return setNotification;
+        context.Features.Set<IHttpApplicationEventsFeature>(setNotification);
     }
 
     private class RequestHttpApplicationEventsFeature : IHttpApplicationEventsFeature, INotificationFeature, IHttpResponseEndFeature
@@ -95,11 +93,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaiseAcquireRequestStateAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetNotification(RequestNotification.AcquireRequestState))
             {
                 await _app.RaiseAcquireRequestStateAsync(token);
@@ -108,24 +101,12 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaiseAuthenticateRequestAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
-            if (TrySetNotification(RequestNotification.AuthenticateRequest))
-            {
-                await _app.RaiseAuthenticateRequestAsync(token);
-            }
+            TrySetNotification(RequestNotification.AuthenticateRequest);
+            await _app.RaiseAuthenticateRequestAsync(token);
         }
 
         async ValueTask IHttpApplicationEventsFeature.RaiseAuthorizeRequestAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetNotification(RequestNotification.AuthorizeRequest))
             {
                 await _app.RaiseAuthorizeRequestAsync(token);
@@ -134,11 +115,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaiseBeginRequestAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetNotification(RequestNotification.BeginRequest))
             {
                 await _app.RaiseBeginRequestAsync(token);
@@ -147,11 +123,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaiseEndRequestAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetNotification(RequestNotification.EndRequest))
             {
                 await _app.RaiseEndRequestAsync(token);
@@ -160,12 +131,7 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaiseErrorAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
-            if (_app is not null)
+            if (!IsEnded)
             {
                 await _app.RaiseErrorAsync(token);
             }
@@ -173,11 +139,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaiseLogRequestAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetNotification(RequestNotification.LogRequest))
             {
                 await _app.RaiseLogRequestAsync(token);
@@ -186,11 +147,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaiseMapRequestHandlerAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetNotification(RequestNotification.MapRequestHandler))
             {
                 await _app.RaiseMapRequestHandlerAsync(token);
@@ -199,11 +155,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaisePostAcquireRequestStateAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetPostNotification(RequestNotification.AcquireRequestState))
             {
                 await _app.RaisePostAcquireRequestStateAsync(token);
@@ -212,11 +163,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaisePostAuthenticateRequestAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetPostNotification(RequestNotification.AuthenticateRequest))
             {
                 await _app.RaisePostAuthenticateRequestAsync(token);
@@ -225,11 +171,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaisePostAuthorizeRequestAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetPostNotification(RequestNotification.AuthorizeRequest))
             {
                 await _app.RaisePostAuthorizeRequestAsync(token);
@@ -238,11 +179,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaisePostLogRequestAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetPostNotification(RequestNotification.LogRequest))
             {
                 await _app.RaisePostLogRequestAsync(token);
@@ -251,11 +187,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaisePostMapRequestHandlerAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetPostNotification(RequestNotification.MapRequestHandler))
             {
                 await _app.RaisePostMapRequestHandlerAsync(token);
@@ -264,11 +195,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaisePostReleaseRequestStateAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetPostNotification(RequestNotification.ReleaseRequestState))
             {
                 await _app.RaisePostReleaseRequestStateAsync(token);
@@ -277,11 +203,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaisePostRequestHandlerExecuteAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetPostNotification(RequestNotification.ExecuteRequestHandler))
             {
                 await _app.RaisePostRequestHandlerExecuteAsync(token);
@@ -290,11 +211,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaisePostResolveRequestCacheAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetPostNotification(RequestNotification.ResolveRequestCache))
             {
                 await _app.RaisePostResolveRequestCacheAsync(token);
@@ -303,11 +219,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaisePostUpdateRequestCacheAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetPostNotification(RequestNotification.UpdateRequestCache))
             {
                 await _app.RaisePostUpdateRequestCacheAsync(token);
@@ -316,11 +227,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaisePreRequestHandlerExecuteAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetNotification(RequestNotification.PreExecuteRequestHandler))
             {
                 await _app.RaisePreRequestHandlerExecuteAsync(token);
@@ -329,11 +235,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaiseReleaseRequestStateAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetNotification(RequestNotification.ReleaseRequestState))
             {
                 await _app.RaiseReleaseRequestStateAsync(token);
@@ -342,11 +243,6 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaiseRequestCompletedAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetNotification(RequestNotification.EndRequest))
             {
                 await _app.RaiseRequestCompletedAsync(token);
@@ -355,73 +251,42 @@ internal class SetHttpApplicationMiddleware
 
         async ValueTask IHttpApplicationEventsFeature.RaiseResolveRequestCacheAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetNotification(RequestNotification.ResolveRequestCache))
             {
                 await _app.RaiseResolveRequestCacheAsync(token);
             }
         }
 
-        public ValueTask RaiseSessionEnd(CancellationToken token)
+        async ValueTask IHttpApplicationEventsFeature.RaiseSessionEnd(CancellationToken token)
         {
-            if (IsEnded)
+            if (!IsEnded)
             {
-                return ValueTask.CompletedTask;
+                await _app.RaiseSessionEnd(token);
             }
-
-            if (_app is not null)
-            {
-                return _app.RaiseSessionEnd(token);
-            }
-
-            return ValueTask.CompletedTask;
         }
 
-        public ValueTask RaiseSessionStart(CancellationToken token)
+        async ValueTask IHttpApplicationEventsFeature.RaiseSessionStart(CancellationToken token)
         {
-            if (IsEnded)
+            if (!IsEnded)
             {
-                return ValueTask.CompletedTask;
+                await _app.RaiseSessionStart(token);
             }
-
-            if (_app is not null)
-            {
-                return _app.RaiseSessionStart(token);
-            }
-
-            return ValueTask.CompletedTask;
         }
 
         async ValueTask IHttpApplicationEventsFeature.RaiseUpdateRequestCacheAsync(CancellationToken token)
         {
-            if (IsEnded)
-            {
-                return;
-            }
-
             if (TrySetNotification(RequestNotification.UpdateRequestCache))
             {
                 await _app.RaiseUpdateRequestCacheAsync(token);
             }
         }
 
-        ValueTask IHttpApplicationEventsFeature.RaisePreSendRequestHeaders(CancellationToken token)
+        async ValueTask IHttpApplicationEventsFeature.RaisePreSendRequestHeaders(CancellationToken token)
         {
-            if (IsEnded)
+            if (!IsEnded)
             {
-                return ValueTask.CompletedTask;
+                await _app.RaisePreSendRequestHeaders(token);
             }
-
-            if (_app is not null)
-            {
-                return _app.RaisePreSendRequestHeaders(token);
-            }
-
-            return ValueTask.CompletedTask;
         }
 
         private bool TrySetPostNotification(RequestNotification notification)
@@ -431,19 +296,14 @@ internal class SetHttpApplicationMiddleware
         {
             CurrentNotification = notification;
             IsPostNotification = isPost;
-            return true;
-        }
 
-        bool _isEnding;
+            return !IsEnded;
+        }
 
         async Task IHttpResponseEndFeature.EndAsync()
         {
-            if (_isEnding)
-            {
-                return;
-            }
-
-            _isEnding = true;
+            // Prevent subsequent calls to HttpResponse.End() to go through this path and make them no-ops
+            _context.Features.Set<IHttpResponseEndFeature>(NonReentrantFeatures.Instance);
 
             var events = (IHttpApplicationEventsFeature)this;
 
@@ -453,8 +313,15 @@ internal class SetHttpApplicationMiddleware
             await events.RaisePreSendRequestHeaders(default);
 
             await _previous.EndAsync();
+        }
 
-            _isEnding = false;
+        private sealed class NonReentrantFeatures : IHttpResponseEndFeature
+        {
+            public static NonReentrantFeatures Instance { get; } = new();
+
+            public bool IsEnded => true;
+
+            public Task EndAsync() => Task.CompletedTask;
         }
     }
 }

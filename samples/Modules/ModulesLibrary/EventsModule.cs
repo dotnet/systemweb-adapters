@@ -11,20 +11,15 @@ namespace ModulesLibrary
 
             context.Response.Output.WriteLine(name);
 
-            if (string.Equals(context.Request.QueryString["action"], "end", StringComparison.Ordinal))
+            if (string.Equals(name, context.Request.QueryString["notification"], StringComparison.OrdinalIgnoreCase))
             {
-                var isPost = false;
-                var notification = context.Request.QueryString["notification"];
-
-                if (notification.StartsWith("Post", StringComparison.OrdinalIgnoreCase))
-                {
-                    notification = notification.Substring(4);
-                    isPost = true;
-                }
-
-                if (string.Equals(notification, context.CurrentNotification.ToString(), StringComparison.OrdinalIgnoreCase) && isPost == context.IsPostNotification)
+                if (string.Equals(context.Request.QueryString["action"], "end", StringComparison.Ordinal))
                 {
                     context.Response.End();
+                }
+                else if (string.Equals(context.Request.QueryString["action"], "complete", StringComparison.Ordinal))
+                {
+                    context.ApplicationInstance.CompleteRequest();
                 }
             }
         }

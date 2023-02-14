@@ -96,7 +96,6 @@ public static class SystemWebAdaptersExtensions
                     SetHttpApplicationMiddleware.InitializeHttpApplication(builder.ApplicationServices);
 
                     builder.UseMiddleware<SetHttpApplicationMiddleware>();
-                    builder.UseMiddleware<BeginEndEventMiddleware>();
                     builder.UseMiddleware<RequestEndShortCircuitMiddleware>();
                 }
 
