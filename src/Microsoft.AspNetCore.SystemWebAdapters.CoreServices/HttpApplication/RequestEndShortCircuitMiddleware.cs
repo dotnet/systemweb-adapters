@@ -3,18 +3,15 @@
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.SystemWebAdapters;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-/// <summary>
-/// A middleware that will short circuit things if CompleteRequest/EndRequest has been called 
-/// </summary>
-internal sealed class EndRequestShortCircuitMiddleware
+internal sealed class RequestEndShortCircuitMiddleware
 {
     private readonly RequestDelegate _next;
 
-    public EndRequestShortCircuitMiddleware(RequestDelegate next) => _next = next;
+    public RequestEndShortCircuitMiddleware(RequestDelegate next)
+        => _next = next;
 
     public Task InvokeAsync(HttpContext context)
     {

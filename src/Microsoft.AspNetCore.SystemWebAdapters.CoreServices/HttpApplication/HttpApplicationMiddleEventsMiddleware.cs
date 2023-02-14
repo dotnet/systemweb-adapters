@@ -24,7 +24,5 @@ internal class HttpApplicationMiddleEventsMiddleware : HttpApplicationEventsMidd
 
         await events.RaiseUpdateRequestCacheAsync(context.RequestAborted);
         await events.RaisePostUpdateRequestCacheAsync(context.RequestAborted);
-        await events.RaiseLogRequestAsync(context.RequestAborted);
-        await events.RaisePostLogRequestAsync(context.RequestAborted);
     }
 }

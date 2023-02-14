@@ -1,213 +1,103 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using ModulesLibrary;
 using Xunit;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+namespace Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests;
 
 public class ModuleTests
 {
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public async Task EventsRaisedAsExpectedAsync(bool endEarly)
+    [Fact]
+    public async Task AllModuleEvents()
     {
-        // Arrange
-        var tracker = new EventTracker();
-        var pipeline = CreatePipeline(services =>
-        {
-            services.AddLogging();
-            services.AddSingleton<EventTracker>(tracker);
-            services.AddSystemWebAdapters()
-                .AddHttpModule<MyModule1>()
-                .AddHttpModule<MyModule2>()
-                .AddHttpModule<MyModule3>();
-        }, app =>
-        {
-            app.UseRaiseAuthenticationEvents();
-            app.UseRaiseAuthorizationEvents();
-            app.UseSystemWebAdapters();
-        });
+        const string Expected = """
+            BeginRequest
+            AuthenticateRequest
+            PostAuthenticateRequest
+            AuthorizeRequest
+            PostAuthorizeRequest
+            ResolveRequestCache
+            PostResolveRequestCache
+            MapRequestHandler
+            PostMapRequestHandler
+            AcquireRequestState
+            PostAcquireRequestState
+            PreRequestHandlerExecute
+            PostRequestHandlerExecute
+            ReleaseRequestState
+            PostReleaseRequestState
+            UpdateRequestCache
+            PostUpdateRequestCache
+            LogRequest
+            PostLogRequest
+            EndRequest
+            PreSendRequestHeaders
+            """;
+        var result = await RunAsync<AllEventsModule>();
 
-        var context = new DefaultHttpContext();
-
-        if (endEarly)
-        {
-            context.Items["end"] = true;
-        }
-
-        // Act
-        await pipeline(context);
-
-        // Assert
-        if (endEarly)
-        {
-            Assert.Collection(tracker,
-                r => Assert.Equal("MyModule1.BeginRequest", r),
-                r => Assert.Equal("MyModule2.BeginRequest", r),
-                r => Assert.Equal("MyModule3.BeginRequest", r),
-                r => Assert.Equal("MyModule2.EndRequest", r),
-                r => Assert.Equal("MyModule3.EndRequest", r));
-        }
-        else
-        {
-            Assert.Collection(tracker,
-                r => Assert.Equal("MyModule1.BeginRequest", r),
-                r => Assert.Equal("MyModule2.BeginRequest", r),
-                r => Assert.Equal("MyModule3.BeginRequest", r),
-                r => Assert.Equal("MyModule1.PostAuthenticateRequest", r),
-                r => Assert.Equal("MyModule2.PostAuthenticateRequest", r),
-                r => Assert.Equal("MyModule1.MapRequestHandler", r),
-                r => Assert.Equal("MyModule2.MapRequestHandler", r),
-                r => Assert.Equal("MyModule2.EndRequest", r),
-                r => Assert.Equal("MyModule3.EndRequest", r));
-        }
+        Assert.Equal(Expected, result);
     }
 
-    private static RequestDelegate CreatePipeline(Action<IServiceCollection> serviceConfigure, Action<IApplicationBuilder> configure)
+    [Fact]
+    public async Task CallEndInBeginModule()
     {
-        var serviceBuilder = new ServiceCollection();
+        const string Expected = """
+            BeginRequest
+            LogRequest
+            PostLogRequest
+            EndRequest
+            PreSendRequestHeaders
+            """;
 
-        serviceConfigure(serviceBuilder);
+        var result = await RunAsync<CallEndInBeginModule>();
 
-        var services = serviceBuilder.BuildServiceProvider();
-        var app = new ApplicationBuilder(services);
-        var startupFilters = services.GetService<IEnumerable<IStartupFilter>>();
-
-        if (startupFilters is not null)
-        {
-            foreach (var filter in startupFilters.Reverse())
-            {
-                configure = filter.Configure(configure);
-            }
-        }
-
-        configure(app);
-
-        return ((IApplicationBuilder)app).Build();
+        Assert.Equal(Expected, result);
     }
 
-    class EventTracker : IReadOnlyList<string>
+    private static async Task<string> RunAsync<TModule>()
+        where TModule : class, IHttpModule
     {
-        private readonly List<string> _events = new();
-
-        public string this[int index] => _events[index];
-
-        public int Count => _events.Count;
-
-        public void Add(Type type, string name) => _events.Add($"{type.Name}.{name}");
-
-        public IEnumerator<string> GetEnumerator() => _events.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
-    class MyModule1 : System.Web.IHttpModule
-    {
-        private readonly EventTracker _tracker;
-
-        public MyModule1(EventTracker tracker)
-        {
-            _tracker = tracker;
-        }
-
-        public void Dispose()
-        {
-        }
-
-        public void Init(System.Web.HttpApplication application)
-        {
-            application.BeginRequest += (s, e) =>
+        using var host = await new HostBuilder()
+            .ConfigureWebHost(webBuilder =>
             {
-                var context = ((System.Web.HttpApplication)s).Context;
-                _tracker.Add(typeof(MyModule1), nameof(application.BeginRequest));
-            };
-            application.PostAuthenticateRequest += (s, e) =>
-            {
-                var context = ((System.Web.HttpApplication)s).Context;
-                _tracker.Add(typeof(MyModule1), nameof(application.PostAuthenticateRequest));
-            };
-            application.MapRequestHandler += (s, e) =>
-            {
-                var context = ((System.Web.HttpApplication)s).Context;
-                _tracker.Add(typeof(MyModule1), nameof(application.MapRequestHandler));
-            };
-        }
-    }
-    class MyModule2 : System.Web.IHttpModule
-    {
-        private readonly EventTracker _tracker;
+                webBuilder
+                    .UseTestServer(options =>
+                    {
+                        options.AllowSynchronousIO = true;
+                    })
+                    .ConfigureServices(services =>
+                    {
+                        services.AddRouting();
+                        services.AddSystemWebAdapters()
+                            .AddHttpModule<TModule>();
+                    })
+                    .Configure(app =>
+                    {
+                        app.UseRouting();
 
-        public MyModule2(EventTracker tracker)
-        {
-            _tracker = tracker;
-        }
+                        app.UseRaiseAuthenticationEvents();
+                        app.UseRaiseAuthorizationEvents();
+                        app.UseSystemWebAdapters();
 
-        public void Dispose()
-        {
-        }
+                        app.Run(ctx => Task.CompletedTask);
+                    });
+            })
+            .StartAsync();
 
-        public void Init(System.Web.HttpApplication application)
-        {
-            application.BeginRequest += (s, e) =>
-            {
-                var context = ((System.Web.HttpApplication)s).Context;
-                _tracker.Add(typeof(MyModule2), nameof(application.BeginRequest));
-            };
-            application.PostAuthenticateRequest += (s, e) =>
-            {
-                var context = ((System.Web.HttpApplication)s).Context;
-                _tracker.Add(typeof(MyModule2), nameof(application.PostAuthenticateRequest));
-            };
-            application.EndRequest += (s, e) =>
-            {
-                var context = ((System.Web.HttpApplication)s).Context;
-                _tracker.Add(typeof(MyModule2), nameof(application.EndRequest));
-            };
-            application.MapRequestHandler += (s, e) =>
-            {
-                var context = ((System.Web.HttpApplication)s).Context;
-                _tracker.Add(typeof(MyModule2), nameof(application.MapRequestHandler));
-            };
-        }
-    }
-    class MyModule3 : System.Web.IHttpModule
-    {
-        private readonly EventTracker _tracker;
+        using var response = await host.GetTestClient().GetAsync(new Uri("/", UriKind.Relative));
 
-        public MyModule3(EventTracker tracker)
-        {
-            _tracker = tracker;
-        }
+        var result = await response.Content.ReadAsStringAsync();
 
-        public void Dispose()
-        {
-        }
-        public void Init(System.Web.HttpApplication application)
-        {
-            application.BeginRequest += (s, e) =>
-            {
-                var context = ((System.Web.HttpApplication)s).Context;
-                _tracker.Add(typeof(MyModule3), nameof(application.BeginRequest));
-                if (context.Items.Contains("end"))
-                {
-                    application.CompleteRequest();
-                }
-            };
-            application.EndRequest += (s, e) =>
-            {
-                var context = ((System.Web.HttpApplication)s).Context;
-                _tracker.Add(typeof(MyModule3), nameof(application.EndRequest));
-            };
-        }
+        return result.Trim();
     }
 }

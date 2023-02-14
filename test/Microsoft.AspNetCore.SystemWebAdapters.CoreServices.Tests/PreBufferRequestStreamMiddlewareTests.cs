@@ -24,7 +24,7 @@ public class PreBufferRequestStreamMiddlewareTests
         var next = new Mock<RequestDelegate>();
         using var mock = AutoMock.GetLoose(c => c.RegisterMock(next));
 
-        var logger = new Mock<ILogger<HttpRequestAdapterMiddleware>>();
+        var logger = new Mock<ILogger<BufferInputStreamMiddleware>>();
 
         var metadata = new PreBufferRequestStreamAttribute { IsDisabled = isDisabled };
 
@@ -50,7 +50,7 @@ public class PreBufferRequestStreamMiddlewareTests
         var context = new DefaultHttpContext(features);
 
         // Act
-        await mock.Create<HttpRequestAdapterMiddleware>().InvokeAsync(context);
+        await mock.Create<BufferInputStreamMiddleware>().InvokeAsync(context);
 
         // Assert
         Assert.Equal(!isDisabled, context.Request.Body.CanSeek);

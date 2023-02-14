@@ -2,7 +2,7 @@ using System.Web;
 
 namespace ModulesLibrary
 {
-    public class Module1 : IHttpModule
+    public abstract class BaseModule : IHttpModule
     {
         public void Dispose()
         {
@@ -39,15 +39,10 @@ namespace ModulesLibrary
         {
             if (sender is HttpApplication { Context: { } context })
             {
-                WriteDetails(context, name);
+                InvokeEvent(context, name);
             }
         }
 
-        private void WriteDetails(HttpContext context, string name)
-        {
-            context.Response.ContentType = "text/plain";
-
-            context.Response.Output.WriteLine(name);
-        }
+        protected abstract void InvokeEvent(HttpContext context, string name);
     }
 }

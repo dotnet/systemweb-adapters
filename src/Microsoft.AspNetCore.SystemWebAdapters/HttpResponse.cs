@@ -256,7 +256,7 @@ namespace System.Web
 
         public Task FlushAsync() => _response.CompleteAsync();
 
-        public void End() => Task.Run(() => AdapterFeature.EndAsync()).Wait();
+        public void End() => _response.HttpContext.Features.GetRequired<IHttpResponseEndFeature>().EndAsync().GetAwaiter().GetResult();
 
         public void Write(char ch) => Output.Write(ch);
 

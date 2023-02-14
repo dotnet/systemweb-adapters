@@ -14,11 +14,6 @@ internal abstract class HttpApplicationEventsMiddleware
 
     public Task InvokeAsync(HttpContextCore context)
     {
-        if (context.Features.Get<IHttpResponseAdapterFeature>() is { IsEnded: true })
-        {
-            return Task.CompletedTask;
-        }
-
         return context.Features.Get<IHttpApplicationEventsFeature>() is { } events
             ? InvokeEventsAsync(_next, context, events)
             : _next(context);

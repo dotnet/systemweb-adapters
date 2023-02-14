@@ -33,25 +33,32 @@ public static class SystemWebAdaptersExtensions
 
         HttpRuntime.Current = app.ApplicationServices.GetRequiredService<IHttpRuntime>();
 
-        app.UseMiddleware<EndRequestShortCircuitMiddleware>();
+        app.UseMiddleware<BufferInputStreamMiddleware>();
+        app.UseMiddleware<HttpResponseAdapterMiddleware>();
 
         var isHttpApplication = app.IsHttpApplicationRegistered();
 
         if (isHttpApplication)
         {
             app.UseMiddleware<HttpApplicationMiddleEventsMiddleware>();
+            app.UseMiddleware<RequestEndShortCircuitMiddleware>();
         }
 
         app.UseMiddleware<SessionMiddleware>();
+
+        if (isHttpApplication)
+        {
+            app.UseMiddleware<RequestEndShortCircuitMiddleware>();
+        }
+
         app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
-        app.UseMiddleware<PreBufferRequestStreamMiddleware>();
-        app.UseMiddleware<BufferResponseStreamMiddleware>();
         app.UseMiddleware<SingleThreadedRequestMiddleware>();
         app.UseMiddleware<CurrentPrincipalMiddleware>();
 
         if (isHttpApplication)
         {
             app.UseMiddleware<HttpApplicationEventsHandlerMiddleware>();
+            app.UseMiddleware<RequestEndShortCircuitMiddleware>();
         }
     }
 
@@ -82,12 +89,15 @@ public static class SystemWebAdaptersExtensions
             => builder =>
             {
                 builder.UseMiddleware<SetHttpContextTimestampMiddleware>();
+                builder.UseMiddleware<AdapterFeaturesMiddleware>();
 
                 if (builder.IsHttpApplicationRegistered())
                 {
                     SetHttpApplicationMiddleware.InitializeHttpApplication(builder.ApplicationServices);
 
                     builder.UseMiddleware<SetHttpApplicationMiddleware>();
+                    builder.UseMiddleware<BeginEndEventMiddleware>();
+                    builder.UseMiddleware<RequestEndShortCircuitMiddleware>();
                 }
 
                 next(builder);

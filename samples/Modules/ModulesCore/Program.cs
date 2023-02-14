@@ -3,7 +3,7 @@ using ModulesLibrary;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSystemWebAdapters()
-    .AddHttpModule<Module1>();
+    .AddHttpModule<AllEventsModule>();
 
 var app = builder.Build();
 
