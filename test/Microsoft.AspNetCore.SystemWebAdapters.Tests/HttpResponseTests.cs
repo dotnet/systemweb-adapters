@@ -179,6 +179,8 @@ public class HttpResponseTests
     {
         // Arrange
         var responseCore = new Mock<HttpResponseCore>();
+        var stream = new Mock<Stream>();
+        responseCore.Setup(r => r.Body).Returns(stream.Object);
 
         var response = new HttpResponse(responseCore.Object);
 
@@ -186,14 +188,21 @@ public class HttpResponseTests
         response.Flush();
 
         // Assert
-        responseCore.Verify(r => r.CompleteAsync(), Times.Once);
+        stream.Verify(s => s.Flush(), Times.Once);
     }
 
     [Fact]
     public async Task FlushAsync()
     {
         // Arrange
+        using var tcs = new CancellationTokenSource();
+        var contextCore = new Mock<HttpContextCore>();
+        contextCore.Setup(s => s.RequestAborted).Returns(tcs.Token);
+
         var responseCore = new Mock<HttpResponseCore>();
+        var stream = new Mock<Stream>();
+        responseCore.Setup(r => r.Body).Returns(stream.Object);
+        responseCore.Setup(r => r.HttpContext).Returns(contextCore.Object);
 
         var response = new HttpResponse(responseCore.Object);
 
@@ -201,7 +210,7 @@ public class HttpResponseTests
         await response.FlushAsync();
 
         // Assert
-        responseCore.Verify(r => r.CompleteAsync(), Times.Once);
+        stream.Verify(s => s.FlushAsync(tcs.Token), Times.Once);
     }
 
     [Fact]

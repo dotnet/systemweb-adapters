@@ -253,9 +253,9 @@ namespace System.Web
 
         public void SetCookie(HttpCookie cookie) => Cookies.Set(cookie);
 
-        public void Flush() => _response.CompleteAsync().GetAwaiter().GetResult();
+        public void Flush() => _response.Body.Flush();
 
-        public Task FlushAsync() => _response.CompleteAsync();
+        public Task FlushAsync() => _response.Body.FlushAsync(_response.HttpContext.RequestAborted);
 
         public void End() => AdapterFeature.EndAsync().GetAwaiter().GetResult();
 
