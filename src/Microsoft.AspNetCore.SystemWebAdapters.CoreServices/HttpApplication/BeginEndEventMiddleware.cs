@@ -19,7 +19,5 @@ internal sealed class BeginEndEventMiddleware
 
         await context.Features.GetRequired<IHttpApplicationEventsFeature>().RaiseBeginRequestAsync(context.RequestAborted);
         await _next(context);
-
-        await context.Features.GetRequired<IHttpResponseBufferingFeature>().FlushAsync();
     }
 }

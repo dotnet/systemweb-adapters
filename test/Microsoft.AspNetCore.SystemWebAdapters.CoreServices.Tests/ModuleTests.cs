@@ -43,7 +43,7 @@ public class ModuleTests
             EndRequest
             PreSendRequestHeaders
             """;
-        var result = await RunAsync<AllEventsModule>();
+        var result = await RunAsync<EventsModule>("/");
 
         Assert.Equal(Expected, result);
     }
@@ -59,12 +59,12 @@ public class ModuleTests
             PreSendRequestHeaders
             """;
 
-        var result = await RunAsync<CallEndInBeginModule>();
+        var result = await RunAsync<EventsModule>("/?action=end&notification=BeginRequest");
 
         Assert.Equal(Expected, result);
     }
 
-    private static async Task<string> RunAsync<TModule>()
+    private static async Task<string> RunAsync<TModule>(string url)
         where TModule : class, IHttpModule
     {
         using var host = await new HostBuilder()
@@ -94,7 +94,7 @@ public class ModuleTests
             })
             .StartAsync();
 
-        using var response = await host.GetTestClient().GetAsync(new Uri("/", UriKind.Relative));
+        using var response = await host.GetTestClient().GetAsync(new Uri(url, UriKind.Relative));
 
         var result = await response.Content.ReadAsStringAsync();
 
