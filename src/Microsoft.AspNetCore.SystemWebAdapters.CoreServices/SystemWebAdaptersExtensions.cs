@@ -2,15 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Caching;
 using System.Web.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SystemWebAdapters;
-using Microsoft.Extensions.ObjectPool;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class SystemWebAdaptersExtensions
@@ -21,10 +20,31 @@ public static class SystemWebAdaptersExtensions
         services.AddSingleton<IHttpRuntime>(sp => HttpRuntimeFactory.Create(sp));
         services.AddSingleton<Cache>();
         services.AddSingleton<IBrowserCapabilitiesFactory, BrowserCapabilitiesFactory>();
-        services.AddTransient<IStartupFilter, SystemWebAdaptersStartupFilter>();
+        services.AddTransient<IStartupFilter, HttpContextStartupFilter>();
 
         return new SystemWebAdapterBuilder(services)
             .AddMvc();
+    }
+
+    internal static void UseSystemWebAdapterFeatures(this IApplicationBuilder app)
+    {
+        const string Key = "SystemWebAdapterFeatures";
+
+        if (app.Properties.ContainsKey(Key))
+        {
+            return;
+        }
+
+        app.Properties[Key] = true;
+
+        app.UseMiddleware<PreBufferRequestStreamMiddleware>();
+        app.UseMiddleware<BufferResponseStreamMiddleware>();
+
+        app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
+        app.UseMiddleware<SingleThreadedRequestMiddleware>();
+        app.UseMiddleware<CurrentPrincipalMiddleware>();
+
+        app.UseHttpApplication();
     }
 
     public static void UseSystemWebAdapters(this IApplicationBuilder app)
@@ -33,32 +53,26 @@ public static class SystemWebAdaptersExtensions
 
         HttpRuntime.Current = app.ApplicationServices.GetRequiredService<IHttpRuntime>();
 
-        app.UseMiddleware<BufferInputStreamMiddleware>();
-        app.UseMiddleware<HttpResponseAdapterMiddleware>();
+        app.UseSystemWebAdapterFeatures();
 
-        var isHttpApplication = app.IsHttpApplicationRegistered();
-
-        if (isHttpApplication)
+        if (app.IsHttpApplicationRegistered())
         {
-            app.UseMiddleware<HttpApplicationMiddleEventsMiddleware>();
-            app.UseMiddleware<RequestEndShortCircuitMiddleware>();
+            app.UseHttpApplicationEvent((e, token) => e.RaiseResolveRequestCacheAsync(token));
+            app.UseHttpApplicationEvent((e, token) => e.RaisePostResolveRequestCacheAsync(token));
+            app.UseHttpApplicationEvent((e, token) => e.RaiseMapRequestHandlerAsync(token));
+            app.UseHttpApplicationEvent((e, token) => e.RaisePostMapRequestHandlerAsync(token));
+
+            app.UsePostHttpApplicationEvent((e, token) => e.RaisePostUpdateRequestCacheAsync(token));
+            app.UsePostHttpApplicationEvent((e, token) => e.RaiseUpdateRequestCacheAsync(token));
         }
 
         app.UseMiddleware<SessionMiddleware>();
 
-        if (isHttpApplication)
+        if (app.IsHttpApplicationRegistered())
         {
-            app.UseMiddleware<RequestEndShortCircuitMiddleware>();
-        }
-
-        app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
-        app.UseMiddleware<SingleThreadedRequestMiddleware>();
-        app.UseMiddleware<CurrentPrincipalMiddleware>();
-
-        if (isHttpApplication)
-        {
-            app.UseMiddleware<HttpApplicationEventsHandlerMiddleware>();
-            app.UseMiddleware<RequestEndShortCircuitMiddleware>();
+            app.UseResponseEndShortCircuit();
+            app.UseHttpApplicationEvent((e, token) => e.RaisePreRequestHandlerExecuteAsync(token));
+            app.UsePostHttpApplicationEvent((e, token) => e.RaisePostRequestHandlerExecuteAsync(token));
         }
     }
 
@@ -83,21 +97,12 @@ public static class SystemWebAdaptersExtensions
         where TBuilder : IEndpointConventionBuilder
         => builder.WithMetadata(metadata ?? new BufferResponseStreamAttribute());
 
-    internal class SystemWebAdaptersStartupFilter : IStartupFilter
+    internal sealed class HttpContextStartupFilter : IStartupFilter
     {
         public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
             => builder =>
             {
                 builder.UseMiddleware<SetHttpContextTimestampMiddleware>();
-                builder.UseMiddleware<AdapterFeaturesMiddleware>();
-
-                if (builder.IsHttpApplicationRegistered())
-                {
-                    SetHttpApplicationMiddleware.InitializeHttpApplication(builder.ApplicationServices);
-
-                    builder.UseMiddleware<SetHttpApplicationMiddleware>();
-                    builder.UseMiddleware<RequestEndShortCircuitMiddleware>();
-                }
 
                 next(builder);
             };

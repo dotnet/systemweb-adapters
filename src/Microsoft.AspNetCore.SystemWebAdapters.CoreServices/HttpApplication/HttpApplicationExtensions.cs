@@ -2,10 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.ObjectPool;
@@ -58,6 +58,19 @@ public static class HttpApplicationExtensions
         return builder;
     }
 
+    internal static void UseResponseEndShortCircuit(this IApplicationBuilder app)
+    {
+        app.Use((ctx, next) =>
+        {
+            if (ctx.Features.Get<IHttpResponseEndFeature>() is { IsEnded: true })
+            {
+                return Task.CompletedTask;
+            }
+
+            return next(ctx);
+        });
+    }
+
     public static ISystemWebAdapterBuilder AddHttpApplication<TApp>(this ISystemWebAdapterBuilder builder)
         where TApp : HttpApplication
     {
@@ -71,14 +84,60 @@ public static class HttpApplicationExtensions
         return builder;
     }
 
+    internal static void UseHttpApplication(this IApplicationBuilder app)
+    {
+        if (app.IsHttpApplicationRegistered())
+        {
+            app.UseMiddleware<SetHttpApplicationMiddleware>();
+            app.UseHttpApplicationEvent((f, token) => f.RaiseBeginRequestAsync(token));
+        }
+    }
+
+    internal static void UsePostHttpApplicationEvent(this IApplicationBuilder app, Func<IHttpApplicationEventsFeature, CancellationToken, ValueTask> appEvent)
+    {
+        if (app.IsHttpApplicationRegistered())
+        {
+            app.Use(async (ctx, next) =>
+            {
+                await next(ctx);
+
+                if (ctx.Features.Get<IHttpResponseEndFeature>() is not { IsEnded: true } &&
+                    ctx.Features.Get<IHttpApplicationEventsFeature>() is { } feature)
+                {
+                    await appEvent(feature, ctx.RequestAborted);
+                }
+            });
+        }
+    }
+
+    internal static void UseHttpApplicationEvent(this IApplicationBuilder app, Func<IHttpApplicationEventsFeature, CancellationToken, ValueTask> appEvent)
+    {
+        if (app.IsHttpApplicationRegistered())
+        {
+            app.Use(async (ctx, next) =>
+            {
+                if (ctx.Features.Get<IHttpApplicationEventsFeature>() is { } feature)
+                {
+                    await appEvent(feature, ctx.RequestAborted);
+
+                    if (ctx.Features.Get<IHttpResponseEndFeature>() is { IsEnded: true })
+                    {
+                        return;
+                    }
+                }
+
+                await next(ctx);
+            });
+        }
+    }
+
     public static IApplicationBuilder UseRaiseAuthenticationEvents(this IApplicationBuilder app)
     {
         ArgumentNullException.ThrowIfNull(app);
 
-        if (app.IsHttpApplicationRegistered())
-        {
-            app.UseMiddleware<RaiseAuthenticateRequest>();
-        }
+        app.UseSystemWebAdapterFeatures();
+        app.UseHttpApplicationEvent((e, token) => e.RaiseAuthenticateRequestAsync(token));
+        app.UseHttpApplicationEvent((e, token) => e.RaisePostAuthenticateRequestAsync(token));
 
         return app;
     }
@@ -87,44 +146,13 @@ public static class HttpApplicationExtensions
     {
         ArgumentNullException.ThrowIfNull(app);
 
-        if (app.IsHttpApplicationRegistered())
-        {
-            app.UseMiddleware<RaiseAuthorizeRequest>();
-        }
+        app.UseSystemWebAdapterFeatures();
+        app.UseHttpApplicationEvent((e, token) => e.RaiseAuthorizeRequestAsync(token));
+        app.UseHttpApplicationEvent((e, token) => e.RaisePostAuthorizeRequestAsync(token));
 
         return app;
     }
 
     internal static bool IsHttpApplicationRegistered(this IApplicationBuilder builder)
         => builder.ApplicationServices.GetRequiredService<IOptions<HttpApplicationOptions>>().Value.IsHttpApplicationNeeded;
-
-    internal sealed class RaiseAuthenticateRequest : HttpApplicationEventsMiddleware
-    {
-        public RaiseAuthenticateRequest(RequestDelegate next)
-            : base(next)
-        {
-        }
-
-        protected override async Task InvokeEventsAsync(RequestDelegate next, HttpContextCore context, IHttpApplicationEventsFeature events)
-        {
-            await events.RaiseAuthenticateRequestAsync(context.RequestAborted);
-            await events.RaisePostAuthenticateRequestAsync(context.RequestAborted);
-            await next(context);
-        }
-    }
-
-    internal sealed class RaiseAuthorizeRequest : HttpApplicationEventsMiddleware
-    {
-        public RaiseAuthorizeRequest(RequestDelegate next)
-            : base(next)
-        {
-        }
-
-        protected override async Task InvokeEventsAsync(RequestDelegate next, HttpContextCore context, IHttpApplicationEventsFeature events)
-        {
-            await events.RaiseAuthorizeRequestAsync(context.RequestAborted);
-            await events.RaisePostAuthorizeRequestAsync(context.RequestAborted);
-            await next(context);
-        }
-    }
 }

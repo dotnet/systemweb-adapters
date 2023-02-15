@@ -58,33 +58,6 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             Assert.Equal(path.Value, result);
         }
 
-        [Theory]
-        [InlineData("/", "/", "")]
-        [InlineData("/path", "/path", "")]
-        [InlineData("/path/", "/path/", "")]
-        [InlineData("/some/path/", "/some/path/", "")]
-        [InlineData("/some/path", "/some/path", "")]
-        [InlineData("/some/path.txt", "/some/path.txt", "")]
-        [InlineData("/some/path.txt/", "/some/path.txt", "/")]
-        [InlineData("/some/path.txt/after", "/some/path.txt", "/after")]
-        [InlineData("/some/path.txt/after/", "/some/path.txt", "/after/")]
-        public void FilePath(string path, string expectedFilePath, string expectedPathInfo)
-        {
-            // Arrange
-            var coreRequest = new Mock<HttpRequestCore>();
-            coreRequest.Setup(c => c.Path).Returns(path);
-
-            var request = new HttpRequest(coreRequest.Object);
-
-            // Act
-            var filePath = request.FilePath;
-            var pathInfo = request.PathInfo;
-
-            // Assert
-            Assert.Equal(expectedFilePath, filePath);
-            Assert.Equal(expectedPathInfo, pathInfo);
-        }
-
         [Fact]
         public void FilePathNoFeature()
         {

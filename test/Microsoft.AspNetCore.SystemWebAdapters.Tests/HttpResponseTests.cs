@@ -111,7 +111,7 @@ public class HttpResponseTests
         feature.SetupProperty(f => f.SuppressContent);
 
         var features = new Mock<IFeatureCollection>();
-        features.Setup(f => f[typeof(IHttpResponseBufferingFeature)]).Returns(feature.Object);
+        features.Setup(f => f.Get<IHttpResponseBufferingFeature>()).Returns(feature.Object);
 
         var context = new Mock<HttpContextCore>();
         context.Setup(c => c.Features).Returns(features.Object);
@@ -302,7 +302,7 @@ public class HttpResponseTests
         var responseFeature = new Mock<IHttpResponseFeature>();
 
         var features = new Mock<IFeatureCollection>();
-        features.Setup(f => f[typeof(IHttpResponseBufferingFeature)]).Returns(feature.Object);
+        features.Setup(f => f.Get<IHttpResponseBufferingFeature>()).Returns(feature.Object);
         features.Setup(f => f.Get<IHttpResponseFeature>()).Returns(responseFeature.Object);
 
         var body = new Mock<Stream>();
@@ -334,7 +334,7 @@ public class HttpResponseTests
         var body = new Mock<Stream>();
 
         var features = new Mock<IFeatureCollection>();
-        features.Setup(f => f[typeof(IHttpResponseBufferingFeature)]).Returns(feature.Object);
+        features.Setup(f => f.Get<IHttpResponseBufferingFeature>()).Returns(feature.Object);
 
         var context = new Mock<HttpContextCore>();
         context.Setup(c => c.Features).Returns(features.Object);

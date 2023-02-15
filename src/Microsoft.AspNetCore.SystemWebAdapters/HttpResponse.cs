@@ -27,17 +27,13 @@ namespace System.Web
 
         private NameValueCollection? _headers;
         private ResponseHeaders? _typedHeaders;
-        private FeatureReference<IHttpResponseBufferingFeature> _bufferingFeature;
         private TextWriter? _writer;
         private HttpCookieCollection? _cookies;
 
         internal HttpResponse(HttpResponseCore response)
         {
             _response = response;
-            _bufferingFeature = FeatureReference<IHttpResponseBufferingFeature>.Default;
         }
-
-        private IHttpResponseBufferingFeature BufferingFeature => _bufferingFeature.Fetch(_response.HttpContext.Features) ?? throw new InvalidOperationException($"Ensure System.Web adapter services and middleware are set up correctly");
 
         internal ResponseHeaders TypedHeaders => _typedHeaders ??= new(_response.Headers);
 
@@ -84,8 +80,8 @@ namespace System.Web
 
         public bool SuppressContent
         {
-            get => BufferingFeature.SuppressContent;
-            set => BufferingFeature.SuppressContent = value;
+            get => _response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().SuppressContent;
+            set => _response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().SuppressContent = value;
         }
 
         public Encoding ContentEncoding
@@ -285,7 +281,7 @@ namespace System.Web
             }
             else
             {
-                BufferingFeature.ClearContent();
+                _response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().ClearContent();
             }
         }
 
