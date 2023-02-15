@@ -22,7 +22,7 @@ public static class HttpApplicationExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
-        builder.Services.TryAddSingleton<HttpApplicationFactoryConfigureOptions>();
+        builder.Services.TryAddSingleton<IHttpApplicationFactory, HttpApplicationFactory>();
         builder.Services.TryAddTransient<HttpApplicationPolicy>();
         builder.Services.TryAddSingleton<ObjectPool<HttpApplication>>(sp =>
         {
@@ -37,10 +37,9 @@ public static class HttpApplicationExtensions
             return provider.Create(policy);
         });
 
-        builder.Services.TryAddTransient<IPostConfigureOptions<HttpApplicationOptions>, HttpApplicationFactoryConfigureOptions>();
-
         builder.Services.AddOptions<HttpApplicationOptions>()
-            .Configure(configure);
+            .Configure(configure)
+            .PostConfigure(c => c.MakeReadOnly());
 
         return builder;
     }

@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal partial class HttpApplicationFactoryConfigureOptions : IPostConfigureOptions<HttpApplicationOptions>
+internal partial class HttpApplicationFactory : IHttpApplicationFactory
 {
     private readonly HashSet<string> UnsupportedEvents = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -82,17 +82,18 @@ internal partial class HttpApplicationFactoryConfigureOptions : IPostConfigureOp
     [LoggerMessage(2, LogLevel.Warning, "{ApplicationType}.{EventName} has unsupported signature")]
     private partial void LogInvalid(string applicationType, string eventName);
 
-    private readonly ILogger<HttpApplicationFactoryConfigureOptions> _logger;
+    private readonly ILogger<HttpApplicationFactory> _logger;
+    private readonly IServiceProvider _services;
+    private readonly Lazy<Func<IServiceProvider, HttpApplication>> _factory;
 
-    public HttpApplicationFactoryConfigureOptions(ILogger<HttpApplicationFactoryConfigureOptions> logger)
+    public HttpApplicationFactory(IServiceProvider services, IOptions<HttpApplicationOptions> options, ILogger<HttpApplicationFactory> logger)
     {
         _logger = logger;
+        _services = services;
+        _factory = new Lazy<Func<IServiceProvider, HttpApplication>>(() => CreateFactory(options.Value));
     }
 
-    void IPostConfigureOptions<HttpApplicationOptions>.PostConfigure(string name, HttpApplicationOptions options)
-    {
-        options.Factory = CreateFactory(options);
-    }
+    HttpApplication IHttpApplicationFactory.Create() => _factory.Value(_services);
 
     private Func<IServiceProvider, HttpApplication> CreateFactory(HttpApplicationOptions options)
     {
@@ -239,6 +240,7 @@ internal partial class HttpApplicationFactoryConfigureOptions : IPostConfigureOp
         state = EventParseState.InvalidSignature;
         return null;
     }
+
 
     private delegate EventHandler BindableEventHandler(HttpApplication app);
 

@@ -23,26 +23,21 @@ internal partial class HttpApplicationPolicy : PooledObjectPolicy<HttpApplicatio
     [LoggerMessage(0, LogLevel.Debug, "Created HttpApplication instance ({Count})")]
     partial void HttpApplicationCreated(long count);
 
-    private readonly IServiceProvider _sp;
+    private readonly IHttpApplicationFactory _factory;
     private readonly ILogger _logger;
-    private readonly IOptions<HttpApplicationOptions> _options;
 
     private long _count;
 
-    public HttpApplicationPolicy(
-        IServiceProvider sp,
-        IOptions<HttpApplicationOptions> options,
-        ILogger<HttpApplicationPolicy> logger)
+    public HttpApplicationPolicy(IHttpApplicationFactory factory, ILogger<HttpApplicationPolicy> logger)
     {
-        _sp = sp;
+        _factory = factory;
         _logger = logger;
-        _options = options;
         _count = 0;
     }
 
     public override HttpApplication Create()
     {
-        var app = _options.Value.Factory(_sp);
+        var app = _factory.Create();
 
         var count = Interlocked.Increment(ref _count);
         HttpApplicationCreated(count);
