@@ -57,13 +57,15 @@ public static class SystemWebAdaptersExtensions
 
         if (app.IsHttpApplicationRegistered())
         {
-            app.UseHttpApplicationEvent((e, token) => e.RaiseResolveRequestCacheAsync(token));
-            app.UseHttpApplicationEvent((e, token) => e.RaisePostResolveRequestCacheAsync(token));
-            app.UseHttpApplicationEvent((e, token) => e.RaiseMapRequestHandlerAsync(token));
-            app.UseHttpApplicationEvent((e, token) => e.RaisePostMapRequestHandlerAsync(token));
+            app.UseHttpApplicationEvent(
+                ApplicationEvent.ResolveRequestCache,
+                ApplicationEvent.PostResolveRequestCache,
+                ApplicationEvent.MapRequestHandler,
+                ApplicationEvent.PostMapRequestHandler);
 
-            app.UsePostHttpApplicationEvent((e, token) => e.RaisePostUpdateRequestCacheAsync(token));
-            app.UsePostHttpApplicationEvent((e, token) => e.RaiseUpdateRequestCacheAsync(token));
+            app.UsePostHttpApplicationEvent(
+                ApplicationEvent.UpdateRequestCache,
+                ApplicationEvent.PostUpdateRequestCache);
         }
 
         app.UseMiddleware<SessionMiddleware>();
@@ -71,8 +73,8 @@ public static class SystemWebAdaptersExtensions
         if (app.IsHttpApplicationRegistered())
         {
             app.UseResponseEndShortCircuit();
-            app.UseHttpApplicationEvent((e, token) => e.RaisePreRequestHandlerExecuteAsync(token));
-            app.UsePostHttpApplicationEvent((e, token) => e.RaisePostRequestHandlerExecuteAsync(token));
+            app.UseHttpApplicationEvent(ApplicationEvent.PreRequestHandlerExecute);
+            app.UsePostHttpApplicationEvent(ApplicationEvent.PostRequestHandlerExecute);
         }
     }
 

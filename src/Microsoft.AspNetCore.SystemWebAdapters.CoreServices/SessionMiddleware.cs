@@ -37,25 +37,25 @@ internal partial class SessionMiddleware
             : NoSessionAsync(context);
 
     private Task NoSessionAsync(HttpContextCore context)
-        => context.Features.Get<IHttpApplicationEventsFeature>() is { } events ? RaiseEventsNoSessionAsync(context, events) : _next(context);
+        => context.Features.Get<IHttpApplicationFeature>() is { } events ? RaiseEventsNoSessionAsync(context, events) : _next(context);
 
-    private async Task RaiseEventsNoSessionAsync(HttpContextCore context, IHttpApplicationEventsFeature events)
+    private async Task RaiseEventsNoSessionAsync(HttpContextCore context, IHttpApplicationFeature appFeature)
     {
-        await events.RaiseAcquireRequestStateAsync(context.RequestAborted);
-        await events.RaisePostAcquireRequestStateAsync(context.RequestAborted);
+        await appFeature.RaiseEventAsync(ApplicationEvent.AcquireRequestState);
+        await appFeature.RaiseEventAsync(ApplicationEvent.PostAcquireRequestState);
 
         await _next(context);
 
-        await events.RaiseReleaseRequestStateAsync(context.RequestAborted);
-        await events.RaisePostReleaseRequestStateAsync(context.RequestAborted);
+        await appFeature.RaiseEventAsync(ApplicationEvent.ReleaseRequestState);
+        await appFeature.RaiseEventAsync(ApplicationEvent.PostReleaseRequestState);
     }
 
     private async Task ManageStateAsync(HttpContextCore context, SessionAttribute metadata)
     {
         LogMessage(metadata.Behavior);
 
-        var events = context.Features.Get<IHttpApplicationEventsFeature>();
-        var manager = GetSessionManager(context, events);
+        var appFeature = context.Features.Get<IHttpApplicationFeature>();
+        var manager = GetSessionManager(context, appFeature);
 
         using var state = metadata.Behavior switch
         {
@@ -80,9 +80,9 @@ internal partial class SessionMiddleware
 
             if (state.IsAbandoned)
             {
-                if (events is { })
+                if (appFeature is { })
                 {
-                    await events.RaiseSessionEnd(cts.Token);
+                    await appFeature.RaiseEventAsync(ApplicationEvent.SessionEnd);
                 }
             }
         }
@@ -90,35 +90,35 @@ internal partial class SessionMiddleware
         {
             context.Features.Set<HttpSessionState?>(null);
 
-            if (events is { })
+            if (appFeature is { })
             {
-                await events.RaiseReleaseRequestStateAsync(context.RequestAborted);
-                await events.RaisePostReleaseRequestStateAsync(context.RequestAborted);
+                await appFeature.RaiseEventAsync(ApplicationEvent.ReleaseRequestState);
+                await appFeature.RaiseEventAsync(ApplicationEvent.PostReleaseRequestState);
             }
         }
     }
 
-    private static ISessionManager GetSessionManager(HttpContext context, IHttpApplicationEventsFeature? events)
+    private static ISessionManager GetSessionManager(HttpContext context, IHttpApplicationFeature? appFeature)
     {
         var manager = context.RequestServices.GetRequiredService<ISessionManager>();
 
-        if (events is null)
+        if (appFeature is null)
         {
             return manager;
         }
 
-        return new EventingSessionManager(manager, events);
+        return new EventingSessionManager(manager, appFeature);
     }
 
     private class EventingSessionManager : ISessionManager
     {
         private readonly ISessionManager _other;
-        private readonly IHttpApplicationEventsFeature _events;
+        private readonly IHttpApplicationFeature _appFeature;
 
-        public EventingSessionManager(ISessionManager other, IHttpApplicationEventsFeature events)
+        public EventingSessionManager(ISessionManager other, IHttpApplicationFeature appFeature)
         {
             _other = other;
-            _events = events;
+            _appFeature = appFeature;
         }
 
         public async Task<ISessionState> CreateAsync(HttpContext context, SessionAttribute metadata)
@@ -127,11 +127,11 @@ internal partial class SessionMiddleware
 
             if (result.IsNewSession)
             {
-                await _events.RaiseSessionStart(context.RequestAborted);
+                await _appFeature.RaiseEventAsync(ApplicationEvent.SessionStart);
             }
 
-            await _events.RaiseAcquireRequestStateAsync(context.RequestAborted);
-            await _events.RaisePostAcquireRequestStateAsync(context.RequestAborted);
+            await _appFeature.RaiseEventAsync(ApplicationEvent.AcquireRequestState);
+            await _appFeature.RaiseEventAsync(ApplicationEvent.PostAcquireRequestState);
 
             return result;
         }

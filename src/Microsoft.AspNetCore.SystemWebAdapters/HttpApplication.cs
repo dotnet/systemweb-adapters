@@ -2,16 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Security.Principal;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace System.Web;
 
 [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = Constants.ApiFromAspNet)]
-public class HttpApplication : IDisposable, IHttpApplicationEventsFeature
+public class HttpApplication : IDisposable
 {
     private IHttpModule[]? _modules;
     private HttpApplicationState _state = null!;
@@ -19,7 +18,10 @@ public class HttpApplication : IDisposable, IHttpApplicationEventsFeature
 
     public HttpApplication()
     {
+        Events = new(this);
     }
+
+    internal EventCollection Events { get; }
 
     internal void Initialize(IHttpModule[] modules, HttpApplicationState state, Action<HttpApplication> eventInitializer)
     {
@@ -61,191 +63,148 @@ public class HttpApplication : IDisposable, IHttpApplicationEventsFeature
 
     public void CompleteRequest() => Context.Response.End();
 
-    public event EventHandler? BeginRequest;
-
-    ValueTask IHttpApplicationEventsFeature.RaiseBeginRequestAsync(CancellationToken token)
+    public event EventHandler? BeginRequest
     {
-        BeginRequest?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? AuthenticateRequest;
-
-    ValueTask IHttpApplicationEventsFeature.RaiseAuthenticateRequestAsync(CancellationToken token)
+    public event EventHandler? AuthenticateRequest
     {
-        AuthenticateRequest?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? PostAuthenticateRequest;
-
-    ValueTask IHttpApplicationEventsFeature.RaisePostAuthenticateRequestAsync(CancellationToken token)
+    public event EventHandler? PostAuthenticateRequest
     {
-        PostAuthenticateRequest?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? AuthorizeRequest;
-
-    ValueTask IHttpApplicationEventsFeature.RaiseAuthorizeRequestAsync(CancellationToken token)
+    public event EventHandler? AuthorizeRequest
     {
-        AuthorizeRequest?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? PostAuthorizeRequest;
-
-    ValueTask IHttpApplicationEventsFeature.RaisePostAuthorizeRequestAsync(CancellationToken token)
+    public event EventHandler? PostAuthorizeRequest
     {
-        PostAuthorizeRequest?.Invoke(this, EventArgs.Empty);
-
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? ResolveRequestCache;
-
-    ValueTask IHttpApplicationEventsFeature.RaiseResolveRequestCacheAsync(CancellationToken token)
+    public event EventHandler? ResolveRequestCache
     {
-        ResolveRequestCache?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? PostResolveRequestCache;
-
-    ValueTask IHttpApplicationEventsFeature.RaisePostResolveRequestCacheAsync(CancellationToken token)
+    public event EventHandler? PostResolveRequestCache
     {
-        PostResolveRequestCache?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? MapRequestHandler;
-
-    ValueTask IHttpApplicationEventsFeature.RaiseMapRequestHandlerAsync(CancellationToken token)
+    public event EventHandler? MapRequestHandler
     {
-        MapRequestHandler?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? PostMapRequestHandler;
-
-    ValueTask IHttpApplicationEventsFeature.RaisePostMapRequestHandlerAsync(CancellationToken token)
+    public event EventHandler? PostMapRequestHandler
     {
-        PostMapRequestHandler?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? AcquireRequestState;
-
-    ValueTask IHttpApplicationEventsFeature.RaiseAcquireRequestStateAsync(CancellationToken token)
+    public event EventHandler? AcquireRequestState
     {
-        AcquireRequestState?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? PostAcquireRequestState;
-
-    ValueTask IHttpApplicationEventsFeature.RaisePostAcquireRequestStateAsync(CancellationToken token)
+    public event EventHandler? PostAcquireRequestState
     {
-        PostAcquireRequestState?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? PreRequestHandlerExecute;
-
-    ValueTask IHttpApplicationEventsFeature.RaisePreRequestHandlerExecuteAsync(CancellationToken token)
+    public event EventHandler? PreRequestHandlerExecute
     {
-        PreRequestHandlerExecute?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? PostRequestHandlerExecute;
-
-    ValueTask IHttpApplicationEventsFeature.RaisePostRequestHandlerExecuteAsync(CancellationToken token)
+    public event EventHandler? PostRequestHandlerExecute
     {
-        PostRequestHandlerExecute?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? ReleaseRequestState;
-
-    ValueTask IHttpApplicationEventsFeature.RaiseReleaseRequestStateAsync(CancellationToken token)
+    public event EventHandler? ReleaseRequestState
     {
-        ReleaseRequestState?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? PostReleaseRequestState;
-
-    ValueTask IHttpApplicationEventsFeature.RaisePostReleaseRequestStateAsync(CancellationToken token)
+    public event EventHandler? PostReleaseRequestState
     {
-        PostReleaseRequestState?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? UpdateRequestCache;
-
-    ValueTask IHttpApplicationEventsFeature.RaiseUpdateRequestCacheAsync(CancellationToken token)
+    public event EventHandler? UpdateRequestCache
     {
-        UpdateRequestCache?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? PostUpdateRequestCache;
-
-    ValueTask IHttpApplicationEventsFeature.RaisePostUpdateRequestCacheAsync(CancellationToken token)
+    public event EventHandler? PostUpdateRequestCache
     {
-        PostUpdateRequestCache?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? LogRequest;
-
-    ValueTask IHttpApplicationEventsFeature.RaiseLogRequestAsync(CancellationToken token)
+    public event EventHandler? LogRequest
     {
-        LogRequest?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? PostLogRequest;
-
-    ValueTask IHttpApplicationEventsFeature.RaisePostLogRequestAsync(CancellationToken token)
+    public event EventHandler? PostLogRequest
     {
-        PostLogRequest?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? EndRequest;
-
-    ValueTask IHttpApplicationEventsFeature.RaiseEndRequestAsync(CancellationToken token)
+    public event EventHandler? EndRequest
     {
-        EndRequest?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? Error;
-
-    ValueTask IHttpApplicationEventsFeature.RaiseErrorAsync(CancellationToken token)
+    public event EventHandler? Error
     {
-        Error?.Invoke(this, EventArgs.Empty);
-
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? RequestCompleted;
-
-    ValueTask IHttpApplicationEventsFeature.RaiseRequestCompletedAsync(CancellationToken token)
+    public event EventHandler? RequestCompleted
     {
-        RequestCompleted?.Invoke(this, EventArgs.Empty);
-
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? Disposed;
+    public event EventHandler? Disposed
+    {
+        add => Events.Add(value);
+        remove => Events.Remove(value);
+    }
 
     [Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1816:Dispose methods should call SuppressFinalize", Justification = Constants.ApiFromAspNet)]
     public void Dispose()
     {
-        Disposed?.Invoke(this, EventArgs.Empty);
+        Events.Invoke(ApplicationEvent.Disposed);
 
         if (_modules is { } modules)
         {
@@ -256,27 +215,102 @@ public class HttpApplication : IDisposable, IHttpApplicationEventsFeature
         }
     }
 
-    internal EventHandler? SessionStart { get; set; }
-
-    ValueTask IHttpApplicationEventsFeature.RaiseSessionStart(CancellationToken token)
+    internal event EventHandler? SessionStart
     {
-        SessionStart?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    internal EventHandler? SessionEnd { get; set; }
-
-    ValueTask IHttpApplicationEventsFeature.RaiseSessionEnd(CancellationToken token)
+    internal event EventHandler? SessionEnd
     {
-        SessionEnd?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
     }
 
-    public event EventHandler? PreSendRequestHeaders;
-
-    ValueTask IHttpApplicationEventsFeature.RaisePreSendRequestHeaders(CancellationToken token)
+    public event EventHandler? PreSendRequestHeaders
     {
-        PreSendRequestHeaders?.Invoke(this, EventArgs.Empty);
-        return ValueTask.CompletedTask;
+        add => Events.Add(value);
+        remove => Events.Remove(value);
+    }
+
+    internal sealed class EventCollection
+    {
+        private readonly Dictionary<ApplicationEvent, EventHandler> _events = new();
+        private readonly HttpApplication _app;
+
+        public EventCollection(HttpApplication app)
+        {
+            _app = app;
+        }
+
+        public void Add(EventHandler? handler, [CallerMemberName] string? name = null)
+        {
+            if (handler is null)
+            {
+                return;
+            }
+
+            if (Enum.TryParse<ApplicationEvent>(name, out var eventName))
+            {
+                Add(eventName, handler);
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException(nameof(name));
+            }
+        }
+
+        public void Remove(EventHandler? handler, [CallerMemberName] string? name = null)
+        {
+            if (handler is null)
+            {
+                return;
+            }
+
+            if (Enum.TryParse<ApplicationEvent>(name, out var eventName))
+            {
+                Remove(eventName, handler);
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException(nameof(name));
+            }
+        }
+
+
+        public void Add(ApplicationEvent appEvent, EventHandler handler)
+        {
+            if (_events.TryGetValue(appEvent, out var existing))
+            {
+                _events[appEvent] = existing + handler;
+            }
+            else
+            {
+                _events.Add(appEvent, handler);
+            }
+        }
+
+        public void Remove(ApplicationEvent appEvent, EventHandler handler)
+        {
+            if (_events.TryGetValue(appEvent, out var existing))
+            {
+                if (existing - handler is { } updated)
+                {
+                    _events[appEvent] = updated;
+                }
+                else
+                {
+                    _events.Remove(appEvent);
+                }
+            }
+        }
+
+        public void Invoke(ApplicationEvent appEvent)
+        {
+            if (_events.TryGetValue(appEvent, out var @event))
+            {
+                @event(_app, EventArgs.Empty);
+            }
+        }
     }
 }

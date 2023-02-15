@@ -89,11 +89,11 @@ public static class HttpApplicationExtensions
         if (app.IsHttpApplicationRegistered())
         {
             app.UseMiddleware<SetHttpApplicationMiddleware>();
-            app.UseHttpApplicationEvent((f, token) => f.RaiseBeginRequestAsync(token));
+            app.UseHttpApplicationEvent(ApplicationEvent.BeginRequest);
         }
     }
 
-    internal static void UsePostHttpApplicationEvent(this IApplicationBuilder app, Func<IHttpApplicationEventsFeature, CancellationToken, ValueTask> appEvent)
+    internal static void UsePostHttpApplicationEvent(this IApplicationBuilder app, params ApplicationEvent[] events)
     {
         if (app.IsHttpApplicationRegistered())
         {
@@ -101,28 +101,38 @@ public static class HttpApplicationExtensions
             {
                 await next(ctx);
 
-                if (ctx.Features.Get<IHttpResponseEndFeature>() is not { IsEnded: true } &&
-                    ctx.Features.Get<IHttpApplicationEventsFeature>() is { } feature)
+                if (ctx.Features.Get<IHttpApplicationFeature>() is { } feature)
                 {
-                    await appEvent(feature, ctx.RequestAborted);
+                    foreach (var @event in events)
+                    {
+                        if (ctx.Features.Get<IHttpResponseEndFeature>() is { IsEnded: true })
+                        {
+                            return;
+                        }
+
+                        await feature.RaiseEventAsync(@event);
+                    }
                 }
             });
         }
     }
 
-    internal static void UseHttpApplicationEvent(this IApplicationBuilder app, Func<IHttpApplicationEventsFeature, CancellationToken, ValueTask> appEvent)
+    internal static void UseHttpApplicationEvent(this IApplicationBuilder app, params ApplicationEvent[] events)
     {
         if (app.IsHttpApplicationRegistered())
         {
             app.Use(async (ctx, next) =>
             {
-                if (ctx.Features.Get<IHttpApplicationEventsFeature>() is { } feature)
+                if (ctx.Features.Get<IHttpApplicationFeature>() is { } feature)
                 {
-                    await appEvent(feature, ctx.RequestAborted);
-
-                    if (ctx.Features.Get<IHttpResponseEndFeature>() is { IsEnded: true })
+                    foreach (var @event in events)
                     {
-                        return;
+                        await feature.RaiseEventAsync(@event);
+
+                        if (ctx.Features.Get<IHttpResponseEndFeature>() is { IsEnded: true })
+                        {
+                            return;
+                        }
                     }
                 }
 
@@ -136,8 +146,7 @@ public static class HttpApplicationExtensions
         ArgumentNullException.ThrowIfNull(app);
 
         app.UseSystemWebAdapterFeatures();
-        app.UseHttpApplicationEvent((e, token) => e.RaiseAuthenticateRequestAsync(token));
-        app.UseHttpApplicationEvent((e, token) => e.RaisePostAuthenticateRequestAsync(token));
+        app.UseHttpApplicationEvent(ApplicationEvent.AuthenticateRequest, ApplicationEvent.PostAuthenticateRequest);
 
         return app;
     }
@@ -147,8 +156,7 @@ public static class HttpApplicationExtensions
         ArgumentNullException.ThrowIfNull(app);
 
         app.UseSystemWebAdapterFeatures();
-        app.UseHttpApplicationEvent((e, token) => e.RaiseAuthorizeRequestAsync(token));
-        app.UseHttpApplicationEvent((e, token) => e.RaisePostAuthorizeRequestAsync(token));
+        app.UseHttpApplicationEvent(ApplicationEvent.AuthorizeRequest, ApplicationEvent.PostAuthorizeRequest);
 
         return app;
     }
