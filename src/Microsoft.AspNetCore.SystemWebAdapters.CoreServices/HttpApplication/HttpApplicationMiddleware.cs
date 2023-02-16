@@ -10,12 +10,12 @@ using Microsoft.Extensions.ObjectPool;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal class SetHttpApplicationMiddleware
+internal class HttpApplicationMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ObjectPool<HttpApplication> _pool;
 
-    public SetHttpApplicationMiddleware(RequestDelegate next, ObjectPool<HttpApplication> pool)
+    public HttpApplicationMiddleware(RequestDelegate next, ObjectPool<HttpApplication> pool)
     {
         _next = next;
         _pool = pool;

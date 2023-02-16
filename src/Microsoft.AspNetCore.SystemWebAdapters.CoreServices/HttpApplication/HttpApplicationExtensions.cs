@@ -87,7 +87,7 @@ public static class HttpApplicationExtensions
     {
         if (app.IsHttpApplicationRegistered())
         {
-            app.UseMiddleware<SetHttpApplicationMiddleware>();
+            app.UseMiddleware<HttpApplicationMiddleware>();
             app.UseHttpApplicationEvent(ApplicationEvent.BeginRequest);
         }
     }
