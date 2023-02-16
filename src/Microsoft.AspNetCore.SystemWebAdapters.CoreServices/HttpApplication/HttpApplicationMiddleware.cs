@@ -21,15 +21,6 @@ internal class HttpApplicationMiddleware
         _pool = pool;
     }
 
-    /// <summary>
-    /// Initializes the registered HttpApplication to force the Start method to be invoked if present.
-    /// </summary>
-    public static void InitializeHttpApplication(IServiceProvider services)
-    {
-        var pool = services.GetRequiredService<ObjectPool<HttpApplication>>();
-        pool.Return(pool.Get());
-    }
-
     public async Task InvokeAsync(HttpContextCore context)
     {
         var app = _pool.Get();
