@@ -46,6 +46,8 @@ internal class SetHttpApplicationMiddleware
             await _next(context);
 
             await context.Features.GetRequired<IHttpResponseEndFeature>().EndAsync();
+
+            await context.Features.GetRequired<IHttpApplicationFeature>().RaiseEventAsync(ApplicationEvent.RequestCompleted);
         }
         finally
         {
