@@ -35,6 +35,9 @@ public class HttpApplicationOptions
 
     internal void MakeReadOnly() => _modules.MakeReadOnly();
 
+    /// <summary>
+    /// Gets or sets the number of <see cref="HttpApplication"/> retained for reuse.
+    /// </summary>
     public int PoolSize { get; set; } = 10;
 
     public void RegisterModule<T>()
