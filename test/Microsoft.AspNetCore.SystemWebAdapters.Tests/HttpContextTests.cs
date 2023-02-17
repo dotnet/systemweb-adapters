@@ -77,7 +77,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         }
 
         [Fact]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "Use for tests")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = Constants.CA1859)]
         public void GetServiceReturnsExpected()
         {
             var coreContext = new DefaultHttpContext();

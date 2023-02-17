@@ -85,6 +85,7 @@ public class HttpRequestAdapterFeatureTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = Constants.CA1859)]
     public void GetBuffered(bool canSeek)
     {
         // Arrange

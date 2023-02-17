@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Http;
@@ -19,33 +20,41 @@ internal sealed class RegisterAdapterFeaturesMiddleware
 
     public async Task InvokeAsync(HttpContextCore context)
     {
-        RegisterRequestFeatures(context);
-        var buffering = RegisterResponseFeatures(context);
-
-        try
+        using (RegisterRequestFeatures(context))
+        using (RegisterResponseFeatures(context))
         {
-            await _next(context);
-        }
-        finally
-        {
-            await buffering.FlushAsync();
+            try
+            {
+                await _next(context);
+            }
+            finally
+            {
+                await context.Features.GetRequired<IHttpResponseBufferingFeature>().FlushAsync();
+            }
         }
     }
 
-    private static void RegisterRequestFeatures(HttpContextCore context)
+    private static DelegateDisposable RegisterRequestFeatures(HttpContextCore context)
     {
         var existing = context.Features.GetRequired<IHttpRequestFeature>();
+        var existingPipe = context.Features.Get<IRequestBodyPipeFeature>();
 
-        var adapterFeature = new HttpRequestInputStreamFeature(existing);
+        var inputStreamFeature = new HttpRequestInputStreamFeature(existing);
 
-        context.Response.RegisterForDispose(adapterFeature);
-        context.Features.Set<IHttpRequestFeature>(adapterFeature);
-        context.Features.Set<IHttpRequestInputStreamFeature>(adapterFeature);
-        context.Features.Set<IRequestBodyPipeFeature>(adapterFeature);
+        context.Response.RegisterForDispose(inputStreamFeature);
+        context.Features.Set<IHttpRequestFeature>(inputStreamFeature);
+        context.Features.Set<IHttpRequestInputStreamFeature>(inputStreamFeature);
+        context.Features.Set<IRequestBodyPipeFeature>(inputStreamFeature);
+
+        return new DelegateDisposable(() =>
+        {
+            context.Features.Set<IHttpRequestFeature>(existing);
+            context.Features.Set<IRequestBodyPipeFeature>(existingPipe);
+            context.Features.Set<IHttpRequestInputStreamFeature>(null);
+        });
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "False positive fixed by https://github.com/dotnet/roslyn-analyzers/pull/6421 but not integrated in yet")]
-    private static IHttpResponseBufferingFeature RegisterResponseFeatures(HttpContextCore context)
+    private static DelegateDisposable RegisterResponseFeatures(HttpContextCore context)
     {
         var responseBodyFeature = context.Features.GetRequired<IHttpResponseBodyFeature>();
 
@@ -58,6 +67,21 @@ internal sealed class RegisterAdapterFeaturesMiddleware
 
         context.Response.RegisterForDisposeAsync(adapterFeature);
 
-        return adapterFeature;
+        return new DelegateDisposable(() =>
+        {
+            context.Features.Set<IHttpResponseBodyFeature>(responseBodyFeature);
+            context.Features.Set<IHttpResponseBufferingFeature>(null);
+            context.Features.Set<IHttpResponseEndFeature>(null);
+            context.Features.Set<IHttpResponseContentFeature>(null);
+        });
+    }
+
+    private sealed class DelegateDisposable : IDisposable
+    {
+        private readonly Action _action;
+
+        public DelegateDisposable(Action action) => _action = action;
+
+        public void Dispose() => _action();
     }
 }
