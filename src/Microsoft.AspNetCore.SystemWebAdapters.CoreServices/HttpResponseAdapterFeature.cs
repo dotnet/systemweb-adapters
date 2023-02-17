@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Pipelines;
 using System.Threading;
@@ -12,17 +14,7 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-/// <summary>
-/// This feature implements the <see cref="IHttpResponseAdapterFeature"/> to expose functionality for the adapters. As part of that,
-/// it overrides the following features as well:
-/// 
-/// <list>
-///   <item>
-///     <see cref="IHttpResponseBodyFeature"/>: Provide ability to turn off writing to the stream, while also supporting the ability to clear and suppress output
-///   </item>
-/// </list> 
-/// </summary>
-internal class HttpResponseAdapterFeature : Stream, IHttpResponseBodyFeature, IHttpResponseAdapterFeature
+internal class HttpResponseAdapterFeature : Stream, IHttpResponseBodyFeature, IHttpResponseBufferingFeature, IHttpResponseEndFeature, IHttpResponseContentFeature
 {
     private enum StreamState
     {
@@ -33,17 +25,16 @@ internal class HttpResponseAdapterFeature : Stream, IHttpResponseBodyFeature, IH
     }
 
     private readonly IHttpResponseBodyFeature _responseBodyFeature;
-    private readonly BufferResponseStreamAttribute _metadata;
 
     private FileBufferingWriteStream? _bufferedStream;
     private PipeWriter? _pipeWriter;
+    private StreamState _state;
+    private Func<FileBufferingWriteStream>? _factory;
     private bool _suppressContent;
-    private StreamState _state; 
 
-    public HttpResponseAdapterFeature(IHttpResponseBodyFeature httpResponseBody, BufferResponseStreamAttribute metadata)
+    public HttpResponseAdapterFeature(IHttpResponseBodyFeature httpResponseBody)
     {
         _responseBodyFeature = httpResponseBody;
-        _metadata = metadata;
         _state = StreamState.NotStarted;
     }
 
@@ -59,55 +50,101 @@ internal class HttpResponseAdapterFeature : Stream, IHttpResponseBodyFeature, IH
         }
     }
 
+    void IHttpResponseBufferingFeature.EnableBuffering(int memoryThreshold, long? bufferLimit)
+    {
+        if (_state == StreamState.NotStarted)
+        {
+            Debug.Assert(_bufferedStream is null);
+
+            _state = StreamState.Buffering;
+            _factory = () => new FileBufferingWriteStream(memoryThreshold, bufferLimit);
+        }
+        else
+        {
+            throw new InvalidOperationException("Cannot enable buffering if writing has begun");
+        }
+    }
+
     Task IHttpResponseBodyFeature.StartAsync(CancellationToken cancellationToken)
     {
         if (_state == StreamState.NotStarted)
         {
-            _state = StreamState.Buffering;
+            _state = StreamState.NotBuffering;
         }
 
         return _responseBodyFeature.StartAsync(cancellationToken);
+    }
+
+    private async ValueTask FlushInternalAsync()
+    {
+        if (_state is StreamState.Buffering && _bufferedStream is not null && !SuppressContent)
+        {
+            await _bufferedStream.DrainBufferAsync(_responseBodyFeature.Stream);
+            await _bufferedStream.DisposeAsync();
+            _bufferedStream = null;
+        }
     }
 
     Stream IHttpResponseBodyFeature.Stream => this;
 
     PipeWriter IHttpResponseBodyFeature.Writer => _pipeWriter ??= PipeWriter.Create(this, new StreamPipeWriterOptions(leaveOpen: true));
 
-    bool IHttpResponseAdapterFeature.SuppressContent
+    public bool SuppressContent
     {
         get => _suppressContent;
-        set => _suppressContent = value;
-    }
-
-    Task IHttpResponseAdapterFeature.EndAsync() => CompleteAsync();
-
-    bool IHttpResponseAdapterFeature.IsEnded => _state == StreamState.Complete;
-
-    void IHttpResponseAdapterFeature.ClearContent()
-    {
-        if (_bufferedStream is not null)
+        set
         {
-            _bufferedStream.Dispose();
-            _bufferedStream = null;
+            if (value)
+            {
+                VerifyBuffering();
+            }
+
+            _suppressContent = value;
         }
     }
+
+    Task IHttpResponseEndFeature.EndAsync() => CompleteAsync();
+
+    bool IHttpResponseEndFeature.IsEnded => _state == StreamState.Complete;
+
+    void IHttpResponseContentFeature.ClearContent()
+    {
+        VerifyBuffering();
+
+        _bufferedStream?.Dispose();
+        _bufferedStream = null;
+    }
+
+    [MemberNotNull(nameof(_factory))]
+    private void VerifyBuffering()
+    {
+        if (_state != StreamState.Buffering)
+        {
+            throw new InvalidOperationException("Can only clear content if response is buffered.");
+        }
+
+        Debug.Assert(_factory is not null);
+    }
+
+    ValueTask IHttpResponseBufferingFeature.FlushAsync() => FlushInternalAsync();
 
     private Stream CurrentStream
     {
         get
         {
-            if (_state == StreamState.NotBuffering)
+            if (_state == StreamState.Buffering)
             {
-                return _responseBodyFeature.Stream;
-            }
-            else if (_state == StreamState.Complete)
-            {
-                return Null;
+                VerifyBuffering();
+                return _bufferedStream ??= _factory();
             }
             else
             {
-                _state = StreamState.Buffering;
-                return _bufferedStream ??= new FileBufferingWriteStream(_metadata.MemoryThreshold, _metadata.BufferLimit);
+                if (_state != StreamState.Complete)
+                {
+                    _state = StreamState.NotBuffering;
+                }
+
+                return _responseBodyFeature.Stream;
             }
         }
     }
@@ -122,15 +159,7 @@ internal class HttpResponseAdapterFeature : Stream, IHttpResponseBodyFeature, IH
         await base.DisposeAsync();
     }
 
-    public async ValueTask FlushBufferedStreamAsync()
-    {
-        if (_state is StreamState.Buffering && _bufferedStream is not null && !_suppressContent)
-        {
-            await _bufferedStream.DrainBufferAsync(_responseBodyFeature.Stream);
-        }
-    }
-
-    public override bool CanRead => true;
+    public override bool CanRead => false;
 
     public override bool CanSeek => false;
 
@@ -144,12 +173,18 @@ internal class HttpResponseAdapterFeature : Stream, IHttpResponseBodyFeature, IH
         set => throw new NotSupportedException();
     }
 
-
     private async Task CompleteAsync()
     {
-        await FlushBufferedStreamAsync();
-        await _responseBodyFeature.CompleteAsync();
+        if (_state == StreamState.Complete)
+        {
+            return;
+        }
+
+        await FlushInternalAsync();
+
         _state = StreamState.Complete;
+
+        await _responseBodyFeature.CompleteAsync();
     }
 
     public override void Flush() => CurrentStream.Flush();

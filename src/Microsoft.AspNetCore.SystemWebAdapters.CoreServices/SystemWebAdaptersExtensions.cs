@@ -31,6 +31,7 @@ public static class SystemWebAdaptersExtensions
 
         HttpRuntime.Current = app.ApplicationServices.GetRequiredService<IHttpRuntime>();
 
+        app.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
         app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
         app.UseMiddleware<PreBufferRequestStreamMiddleware>();
         app.UseMiddleware<SessionMiddleware>();
@@ -60,12 +61,13 @@ public static class SystemWebAdaptersExtensions
         where TBuilder : IEndpointConventionBuilder
         => builder.WithMetadata(metadata ?? new BufferResponseStreamAttribute());
 
-    internal class HttpContextStartupFilter : IStartupFilter
+    internal sealed class HttpContextStartupFilter : IStartupFilter
     {
         public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
             => builder =>
             {
                 builder.UseMiddleware<SetHttpContextTimestampMiddleware>();
+
                 next(builder);
             };
     }

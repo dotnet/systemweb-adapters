@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.IO;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
@@ -44,10 +45,12 @@ public class PreBufferRequestStreamMiddlewareTests
         features.Set(endpointFeature.Object);
         features.Set(requestFeature.Object);
         features.Set(responseFeature.Object);
+        features.Set(new Mock<IHttpResponseBodyFeature>().Object);
 
         var context = new DefaultHttpContext(features);
 
         // Act
+        await mock.Create<RegisterAdapterFeaturesMiddleware>().InvokeAsync(context);
         await mock.Create<PreBufferRequestStreamMiddleware>().InvokeAsync(context);
 
         // Assert

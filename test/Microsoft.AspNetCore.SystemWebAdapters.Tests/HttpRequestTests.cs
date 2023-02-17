@@ -573,7 +573,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             var context = new Mock<HttpContextCore>();
             context.Setup(c => c.Features).Returns(features);
 
-            var requestFeature = new Mock<IHttpRequestAdapterFeature>();
+            var requestFeature = new Mock<IHttpRequestInputStreamFeature>();
             requestFeature.Setup(r => r.InputStream).Returns(stream.Object);
 
             features.Set(requestFeature.Object);
@@ -1023,7 +1023,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             var context = new Mock<HttpContextCore>();
             context.Setup(c => c.Features).Returns(features);
 
-            var requestFeature = new Mock<IHttpRequestAdapterFeature>();
+            var requestFeature = new Mock<IHttpRequestInputStreamFeature>();
             requestFeature.Setup(r => r.InputStream).Returns(body);
 
             features.Set(requestFeature.Object);
@@ -1051,7 +1051,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             var context = new Mock<HttpContextCore>();
             context.Setup(c => c.Features).Returns(features);
 
-            var requestFeature = new Mock<IHttpRequestAdapterFeature>();
+            var requestFeature = new Mock<IHttpRequestInputStreamFeature>();
             requestFeature.Setup(r => r.InputStream).Returns(body);
 
             features.Set(requestFeature.Object);
@@ -1143,7 +1143,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Arrange
             var stream = new Mock<Stream>();
 
-            var adapterFeature = new Mock<IHttpRequestAdapterFeature>();
+            var adapterFeature = new Mock<IHttpRequestInputStreamFeature>();
             adapterFeature.Setup(f => f.InputStream).Returns(stream.Object);
 
             var features = new FeatureCollection();
@@ -1166,7 +1166,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Arrange
             var stream = new Mock<Stream>();
 
-            var adapterFeature = new Mock<IHttpRequestAdapterFeature>();
+            var adapterFeature = new Mock<IHttpRequestInputStreamFeature>();
             adapterFeature.Setup(f => f.GetBufferedInputStream()).Returns(stream.Object);
 
             var features = new FeatureCollection();
@@ -1189,7 +1189,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Arrange
             var stream = new Mock<Stream>();
 
-            var adapterFeature = new Mock<IHttpRequestAdapterFeature>();
+            var adapterFeature = new Mock<IHttpRequestInputStreamFeature>();
             adapterFeature.Setup(f => f.GetBufferlessInputStream()).Returns(stream.Object);
 
             var features = new FeatureCollection();
@@ -1216,7 +1216,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Arrange
             var stream = new Mock<Stream>();
 
-            var adapterFeature = new Mock<IHttpRequestAdapterFeature>();
+            var adapterFeature = new Mock<IHttpRequestInputStreamFeature>();
             adapterFeature.Setup(f => f.Mode).Returns(mode);
 
             var features = new FeatureCollection();
