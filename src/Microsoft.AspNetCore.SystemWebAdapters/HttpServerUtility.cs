@@ -1,7 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,16 +22,24 @@ public class HttpServerUtility
 
     public string MapPath(string? path)
     {
-        var appPath = (string.IsNullOrEmpty(path) ? VirtualPathUtility.GetDirectory(_context.Request.Path) :
-            VirtualPathUtility.Combine(
-                VirtualPathUtility.GetDirectory(_context.Request.Path) ?? "/"
-                , path));
-        var rootPath = HttpRuntime.AppDomainAppPath;
-        if (string.IsNullOrEmpty(appPath)) return rootPath;
-        return System.IO.Path.Combine(rootPath,
+        var runtime = _context.RequestServices.GetRequiredService<IHttpRuntime>();
+
+        var appPath = string.IsNullOrEmpty(path)
+            ? VirtualPathUtilityImpl.GetDirectory(_context.Request.Path)
+            : new VirtualPathUtilityImpl(runtime).Combine(VirtualPathUtilityImpl.GetDirectory(_context.Request.Path) ?? "/", path);
+
+        var rootPath = runtime.AppDomainAppPath;
+
+        if (string.IsNullOrEmpty(appPath))
+        {
+            return rootPath;
+        }
+
+        return Path.Combine(
+            rootPath,
             appPath[1..]
-            .Replace('/', System.IO.Path.DirectorySeparatorChar))
-            .TrimEnd(System.IO.Path.DirectorySeparatorChar);
+            .Replace('/', Path.DirectorySeparatorChar))
+            .TrimEnd(Path.DirectorySeparatorChar);
     }
 
     [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1024:Use properties where appropriate", Justification = Constants.ApiFromAspNet)]

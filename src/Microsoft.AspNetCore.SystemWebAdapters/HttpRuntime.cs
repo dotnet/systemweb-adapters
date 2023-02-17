@@ -9,6 +9,10 @@ public sealed class HttpRuntime
 {
     private static IHttpRuntime? _current;
 
+    /// <summary>
+    /// Gets the current <see cref="IHttpRuntime"/>. This should not be used internally besides where is strictly necessary.
+    /// If this is needed, it should be retrieved through dependency injection.
+    /// </summary>
     internal static IHttpRuntime Current
     {
         get => _current ?? throw new InvalidOperationException("HttpRuntime is not available in the current environment");
@@ -20,7 +24,8 @@ public sealed class HttpRuntime
     }
 
     public static string AppDomainAppVirtualPath => Current.AppDomainAppVirtualPath;
-	public static string AppDomainAppPath => Current.AppDomainAppPath;
 
-    public static System.Web.Caching.Cache Cache => Current.Cache;
+    public static string AppDomainAppPath => Current.AppDomainAppPath;
+
+    public static Caching.Cache Cache => Current.Cache;
 }

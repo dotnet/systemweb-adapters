@@ -1,47 +1,41 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using System;
 using System.Web;
-using System.Web.Caching;
+using Moq;
 using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
 {
     public class VirtualPathUtilityTests
     {
-        public VirtualPathUtilityTests() => HttpRuntime.Current = new TestRuntime();
-
-        internal sealed class TestRuntime : IHttpRuntime
-        {
-            private Cache? _cache;
-
-            public string AppDomainAppVirtualPath => "/";
-
-            public string AppDomainAppPath => "C:\\";
-
-            public Cache Cache => _cache ??= new Cache();
-        }
-
         [InlineData("/", "/")]
         [InlineData("~/", "/")]
         [InlineData("~/test/../other", "/other")]
         [Theory]
         public void ToAbsolute(string virtualPath, string expected)
         {
-            Assert.Equal(expected, (string?)VirtualPathUtility.ToAbsolute(virtualPath, "/"));
+            var virtualPathUtility = CreateUtility();
+
+            Assert.Equal(expected, virtualPathUtility.ToAbsolute(virtualPath, "/"));
         }
 
         [Fact]
         public void ToAbsoluteError()
         {
+            var virtualPathUtility = CreateUtility();
+
             // This does not match the documentation
-            // https://docs.microsoft.com/en-us/dotnet/api/system.web.virtualpathutility.toabsolute?view=netframework-4.8
+            // https://docs.microsoft.com/en-us/dotnet/api/system.web._utility.toabsolute?view=netframework-4.8
             // but it does match the actual framework
-            Assert.Throws<ArgumentException>(() => VirtualPathUtility.ToAbsolute("hello", "/"));
-            Assert.Throws<ArgumentException>(() => VirtualPathUtility.ToAbsolute("../../test", "/"));
-            Assert.Throws<ArgumentException>(() => VirtualPathUtility.ToAbsolute("~hello", "/"));
-            Assert.Throws<HttpException>(() => VirtualPathUtility.ToAbsolute("~/../../test", "/"));
-            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.ToAbsolute("~/hello", null!));
-            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.ToAbsolute("~/hello", ""));
-            Assert.Throws<ArgumentException>(() => VirtualPathUtility.ToAbsolute("~/hello", "world"));
+            Assert.Throws<ArgumentException>(() => virtualPathUtility.ToAbsolute("hello", "/"));
+            Assert.Throws<ArgumentException>(() => virtualPathUtility.ToAbsolute("../../test", "/"));
+            Assert.Throws<ArgumentException>(() => virtualPathUtility.ToAbsolute("~hello", "/"));
+            Assert.Throws<HttpException>(() => virtualPathUtility.ToAbsolute("~/../../test", "/"));
+            Assert.Throws<ArgumentNullException>(() => virtualPathUtility.ToAbsolute("~/hello", null!));
+            Assert.Throws<ArgumentNullException>(() => virtualPathUtility.ToAbsolute("~/hello", ""));
+            Assert.Throws<ArgumentException>(() => virtualPathUtility.ToAbsolute("~/hello", "world"));
         }
 
         [InlineData("/", "~/")]
@@ -49,9 +43,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Theory]
         public void ToAppRelative(string virtualPath, string expected)
         {
-            Assert.Equal(expected, (string?)VirtualPathUtility.ToAppRelative(virtualPath, "/"));
+            Assert.Equal(expected, VirtualPathUtilityImpl.ToAppRelative(virtualPath, "/"));
         }
-
 
         [InlineData("~/test", "hello", "~/hello")]
         [InlineData("~/test/world", "hello", "~/test/hello")]
@@ -59,13 +52,17 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Theory]
         public void Combine(string basePath, string relativePath, string expected)
         {
-            Assert.Equal(expected, (string?)VirtualPathUtility.Combine(basePath, relativePath));
+            var virtualPathUtility = CreateUtility();
+
+            Assert.Equal(expected, virtualPathUtility.Combine(basePath, relativePath));
         }
 
         [Fact]
         public void CombineError()
         {
-            Assert.Throws<System.Web.HttpException>(() => VirtualPathUtility.Combine("~/", "../../"));
+            var virtualPathUtility = CreateUtility();
+
+            Assert.Throws<HttpException>(() => virtualPathUtility.Combine("~/", "../../"));
         }
 
         [InlineData("", "")]        // This isn't mentioned in the docs but matches the behaviour of ASP.NET 4.x
@@ -76,7 +73,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Theory]
         public void AppendTrailingSlash(string virtualPath, string expected)
         {
-            Assert.Equal(expected, (string?)VirtualPathUtility.AppendTrailingSlash(virtualPath));
+            Assert.Equal(expected, VirtualPathUtilityImpl.AppendTrailingSlash(virtualPath));
         }
 
         [InlineData(null, null)]
@@ -86,7 +83,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Theory]
         public void RemoveTrailingSlash(string virtualPath, string expected)
         {
-            Assert.Equal(expected, (string?)VirtualPathUtility.RemoveTrailingSlash(virtualPath));
+            Assert.Equal(expected, VirtualPathUtilityImpl.RemoveTrailingSlash(virtualPath));
         }
 
         // These are conditional so that these tests can be run against net48.
@@ -103,16 +100,16 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Theory]
         public void GetDirectory(string virtualPath, string expected)
         {
-            Assert.Equal(expected, (string?)VirtualPathUtility.GetDirectory(virtualPath));
+            Assert.Equal(expected, VirtualPathUtilityImpl.GetDirectory(virtualPath));
         }
 
         [Fact]
         public void GetDirectoryError()
         {
-            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetDirectory(null!));
-            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetDirectory(""));
-            Assert.Throws<ArgumentException>(() => VirtualPathUtility.GetDirectory("test"));
-            Assert.Throws<ArgumentException>(() => VirtualPathUtility.GetDirectory("test/world.jpg"));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtilityImpl.GetDirectory(null!));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtilityImpl.GetDirectory(""));
+            Assert.Throws<ArgumentException>(() => VirtualPathUtilityImpl.GetDirectory("test"));
+            Assert.Throws<ArgumentException>(() => VirtualPathUtilityImpl.GetDirectory("test/world.jpg"));
         }
 
         [InlineData("/", "")]
@@ -123,14 +120,14 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Theory]
         public void GetExtension(string virtualPath, string expected)
         {
-            Assert.Equal(expected, (string?)VirtualPathUtility.GetExtension(virtualPath));
+            Assert.Equal(expected, VirtualPathUtilityImpl.GetExtension(virtualPath));
         }
 
         [Fact]
         public void GetExtensionError()
         {
-            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetExtension(null!));
-            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetExtension(""));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtilityImpl.GetExtension(null!));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtilityImpl.GetExtension(""));
         }
 
         [InlineData("/", "")]
@@ -142,16 +139,16 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Theory]
         public void GetFileName(string virtualPath, string expected)
         {
-            Assert.Equal(expected, (string?)VirtualPathUtility.GetFileName(virtualPath));
+            Assert.Equal(expected, VirtualPathUtilityImpl.GetFileName(virtualPath));
         }
 
         [Fact]
         public void GetFileNameError()
         {
-            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetFileName(null!));
-            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.GetFileName(""));
-            Assert.Throws<ArgumentException>(() => VirtualPathUtility.GetFileName("test"));
-            Assert.Throws<ArgumentException>(() => VirtualPathUtility.GetFileName("test/world.jpg"));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtilityImpl.GetFileName(null!));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtilityImpl.GetFileName(""));
+            Assert.Throws<ArgumentException>(() => VirtualPathUtilityImpl.GetFileName("test"));
+            Assert.Throws<ArgumentException>(() => VirtualPathUtilityImpl.GetFileName("test/world.jpg"));
         }
 
         [InlineData("~", false)]
@@ -166,14 +163,14 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Theory]
         public void IsAbsolute(string virtualPath, bool expected)
         {
-            Assert.Equal(expected, VirtualPathUtility.IsAbsolute(virtualPath));
+            Assert.Equal(expected, VirtualPathUtilityImpl.IsAbsolute(virtualPath));
         }
 
         [Fact]
         public void IsAbsoluteError()
         {
-            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.IsAbsolute(null!));
-            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.IsAbsolute(""));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtilityImpl.IsAbsolute(null!));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtilityImpl.IsAbsolute(""));
         }
 
         [InlineData("~", true)]
@@ -188,14 +185,14 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Theory]
         public void IsAppRelative(string virtualPath, bool expected)
         {
-            Assert.Equal(expected, VirtualPathUtility.IsAppRelative(virtualPath));
+            Assert.Equal(expected, VirtualPathUtilityImpl.IsAppRelative(virtualPath));
         }
 
         [Fact]
         public void IsAppRelativeError()
         {
-            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.IsAppRelative(null!));
-            Assert.Throws<ArgumentNullException>(() => VirtualPathUtility.IsAppRelative(""));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtilityImpl.IsAppRelative(null!));
+            Assert.Throws<ArgumentNullException>(() => VirtualPathUtilityImpl.IsAppRelative(""));
         }
 
         // These are conditional so that these tests can be run against net48.
@@ -218,16 +215,30 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Theory]
         public void MakeRelative(string fromPath, string toPath, string expected)
         {
-            Assert.Equal(expected, VirtualPathUtility.MakeRelative(fromPath, toPath));
+            var virtualPathUtility = CreateUtility();
+
+            Assert.Equal(expected, virtualPathUtility.MakeRelative(fromPath, toPath));
         }
 
         [Fact]
         public void MakeRelativeError()
         {
-            Assert.Throws<NullReferenceException>(() => VirtualPathUtility.MakeRelative("~/", null!));
-            Assert.Throws<NullReferenceException>(() => VirtualPathUtility.MakeRelative(null!, "~/"));
-            Assert.Throws<ArgumentOutOfRangeException>(() => VirtualPathUtility.MakeRelative("~/hello/", "test"));
-            Assert.Throws<ArgumentOutOfRangeException>(() => VirtualPathUtility.MakeRelative("test", "~/hello/"));
+            var virtualPathUtility = CreateUtility();
+
+            Assert.Throws<NullReferenceException>(() => virtualPathUtility.MakeRelative("~/", null!));
+            Assert.Throws<NullReferenceException>(() => virtualPathUtility.MakeRelative(null!, "~/"));
+            Assert.Throws<ArgumentOutOfRangeException>(() => virtualPathUtility.MakeRelative("~/hello/", "test"));
+            Assert.Throws<ArgumentOutOfRangeException>(() => virtualPathUtility.MakeRelative("test", "~/hello/"));
+        }
+
+        private static VirtualPathUtilityImpl CreateUtility()
+        {
+            var runtime = new Mock<IHttpRuntime>();
+
+            runtime.Setup(r => r.AppDomainAppPath).Returns(@"C:\");
+            runtime.Setup(r => r.AppDomainAppVirtualPath).Returns("/");
+
+            return new VirtualPathUtilityImpl(runtime.Object);
         }
     }
 }

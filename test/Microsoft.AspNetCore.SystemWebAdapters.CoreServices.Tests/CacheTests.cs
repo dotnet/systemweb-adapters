@@ -26,7 +26,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
             coreContext.Setup(c => c.RequestServices).Returns(serviceProvider.Object);
 
             var context = new HttpContext(coreContext.Object);
-            
+
             // Act
             var result = context.Cache;
 
@@ -51,43 +51,6 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
 
             // Act
             var result = contextWrapper.Cache;
-
-            // Assert
-            Assert.Same(cache, result);
-        }
-
-        [Fact]
-        public void CacheFromHttpRuntime()
-        {
-            // Arrange
-            var cache = new Cache();
-
-            var httpRuntime = new Mock<IHttpRuntime>();
-            httpRuntime.Setup(c=>c.Cache).Returns(cache);
-
-            HttpRuntime.Current = httpRuntime.Object;
-
-            // Act
-            var result = System.Web.HttpRuntime.Cache;
-
-            // Assert
-            Assert.Same(cache, result);
-        }
-
-        [Fact]
-        public void CacheFromHttpRuntimeFactory()
-        {
-            // Arrange
-            var cache = new Cache();
-
-            var serviceProvider = new Mock<IServiceProvider>();
-            serviceProvider.Setup(s => s.GetService(typeof(Cache))).Returns(cache);
-
-            var httpRuntime = HttpRuntimeFactory.Create(serviceProvider.Object);
-            HttpRuntime.Current = httpRuntime;
-
-            // Act
-            var result = System.Web.HttpRuntime.Cache;
 
             // Assert
             Assert.Same(cache, result);

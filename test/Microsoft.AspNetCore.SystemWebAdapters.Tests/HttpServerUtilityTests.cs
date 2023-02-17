@@ -6,8 +6,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Web;
 using System.Web.Caching;
-using AutoFixture;
-using Microsoft.AspNetCore.Http;
 using Moq;
 using Xunit;
 
@@ -15,14 +13,6 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public class HttpServerUtilityTests
 {
-    private readonly Fixture _fixture;
-
-    public HttpServerUtilityTests()
-    {
-        _fixture = new Fixture();
-        HttpRuntime.Current = new TestHttpRuntime();
-    }
-
     internal sealed class TestHttpRuntime : IHttpRuntime
     {
         private Cache? _cache;
@@ -96,13 +86,13 @@ public class HttpServerUtilityTests
     }
 
     // Test data from https://docs.microsoft.com/en-us/dotnet/api/system.web.httpserverutility.mappath?view=netframework-4.8
-    [InlineData("/RootLevelPage.aspx",null,"")]
+    [InlineData("/RootLevelPage.aspx", null, "")]
     [InlineData("/RootLevelPage.aspx", "", "")]
-    [InlineData("/RootLevelPage.aspx", "/DownOneLevel/DownLevelPage.aspx", "DownOneLevel","DownLevelPage.aspx")]
+    [InlineData("/RootLevelPage.aspx", "/DownOneLevel/DownLevelPage.aspx", "DownOneLevel", "DownLevelPage.aspx")]
     [InlineData("/RootLevelPage.aspx", "/NotRealFolder", "NotRealFolder")]
     [InlineData("/DownOneLevel/DownLevelPage.aspx", null, "DownOneLevel")]
     [InlineData("/DownOneLevel/DownLevelPage.aspx", "../RootLevelPage.aspx", "RootLevelPage.aspx")]
-    [InlineData("/api/test/request/info", null, "api","test","request")]
+    [InlineData("/api/test/request/info", null, "api", "test", "request")]
     [InlineData("/api/test/request/info", "", "api", "test", "request")]
     [InlineData("/api/test/request/info", "/UploadedFiles", "UploadedFiles")]
     [InlineData("/api/test/request/info", "UploadedFiles", "api", "test", "request", "UploadedFiles")]
@@ -111,10 +101,21 @@ public class HttpServerUtilityTests
     public void MapPath(string page, string? path, params string[] segments)
     {
         // Arrange
-        var coreContext = new Mock<HttpContextCore>();
+        var runtime = new Mock<IHttpRuntime>();
+
+        runtime.Setup(r => r.AppDomainAppVirtualPath).Returns("/");
+        runtime.Setup(r => r.AppDomainAppPath).Returns(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
+            @"C:\ExampleSites\TestMapPath" : "/apps/test-map-path");
+
+        var services = new Mock<IServiceProvider>();
+        services.Setup(s => s.GetService(typeof(IHttpRuntime))).Returns(runtime.Object);
+
         var coreRequest = new Mock<HttpRequestCore>();
         coreRequest.Setup(c => c.Path).Returns(page);
+
+        var coreContext = new Mock<HttpContextCore>();
         coreContext.Setup(c => c.Request).Returns(coreRequest.Object);
+        coreContext.Setup(c => c.RequestServices).Returns(services.Object);
 
         var context = new HttpContext(coreContext.Object);
 
@@ -122,7 +123,7 @@ public class HttpServerUtilityTests
         var result = context.Server.MapPath(path);
 
         var relative = System.IO.Path.Combine(segments);
-        var expected = System.IO.Path.Combine(HttpRuntime.Current.AppDomainAppPath, relative);
+        var expected = System.IO.Path.Combine(runtime.Object.AppDomainAppPath, relative);
 
         // Assert
         Assert.Equal(expected, result);
@@ -136,14 +137,25 @@ public class HttpServerUtilityTests
     public void MapPathException(string page, string? path, Type expected)
     {
         // Arrange
-        var coreContext = new Mock<HttpContextCore>();
+        var runtime = new Mock<IHttpRuntime>();
+
+        runtime.Setup(r => r.AppDomainAppVirtualPath).Returns("/");
+        runtime.Setup(r => r.AppDomainAppPath).Returns(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
+            @"C:\ExampleSites\TestMapPath" : "/apps/test-map-path");
+
+        var services = new Mock<IServiceProvider>();
+        services.Setup(s => s.GetService(typeof(IHttpRuntime))).Returns(runtime.Object);
+
         var coreRequest = new Mock<HttpRequestCore>();
         coreRequest.Setup(c => c.Path).Returns(page);
+
+        var coreContext = new Mock<HttpContextCore>();
         coreContext.Setup(c => c.Request).Returns(coreRequest.Object);
+        coreContext.Setup(c => c.RequestServices).Returns(services.Object);
 
         var context = new HttpContext(coreContext.Object);
 
         // Assert
-        Assert.Throws(expected, ()=> context.Server.MapPath(path));
+        Assert.Throws(expected, () => context.Server.MapPath(path));
     }
 }
