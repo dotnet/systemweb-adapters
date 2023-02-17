@@ -64,5 +64,19 @@ public class RemoteAppAuthenticationServiceTests
             new Dictionary<string, StringValues>(){ { "Cookie", new StringValues(new[] { "1", "2" }) } },
             new Dictionary<string, StringValues>(){ { "Cookie", new StringValues(new[] { "1; 2" }) } }
         };
+
+        // Authorization header with a token
+        yield return new object[]
+        {
+            new Dictionary<string, StringValues>(){ { "Authorization", new StringValues("TOKEN") } },
+            new Dictionary<string, StringValues>(){ { "Authorization", new StringValues("TOKEN") } }
+        };
+
+        // Empty authorization header
+        yield return new object[]
+        {
+            new Dictionary<string, StringValues>(){ { "Authorization", new StringValues(string.Empty) } },
+            new Dictionary<string, StringValues>()
+        };
     }
 }
