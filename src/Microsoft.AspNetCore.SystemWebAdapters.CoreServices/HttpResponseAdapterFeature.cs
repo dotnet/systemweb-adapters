@@ -109,6 +109,12 @@ internal class HttpResponseAdapterFeature : Stream, IHttpResponseBodyFeature, IH
 
     void IHttpResponseContentFeature.ClearContent()
     {
+        if (CurrentStream is { CanSeek: true } body)
+        {
+            body.SetLength(0);
+            return;
+        }
+
         VerifyBuffering();
 
         _bufferedStream?.Dispose();

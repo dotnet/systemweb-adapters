@@ -273,17 +273,7 @@ namespace System.Web
             ClearContent();
         }
 
-        public void ClearContent()
-        {
-            if (_response.Body.CanSeek)
-            {
-                _response.Body.SetLength(0);
-            }
-            else
-            {
-                _response.HttpContext.Features.GetRequired<IHttpResponseContentFeature>().ClearContent();
-            }
-        }
+        public void ClearContent() => _response.HttpContext.Features.GetRequired<IHttpResponseContentFeature>().ClearContent();
 
         public void WriteFile(string filename)
             => TransmitFile(filename);

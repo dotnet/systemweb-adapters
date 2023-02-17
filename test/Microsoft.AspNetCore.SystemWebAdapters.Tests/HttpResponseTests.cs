@@ -352,25 +352,6 @@ public class HttpResponseTests
         feature.Verify(f => f.ClearContent(), Times.Once);
     }
 
-    [Fact]
-    public void ClearContentsStreamSeekable()
-    {
-        // Arrange
-        var body = new Mock<Stream>();
-        body.Setup(b => b.CanSeek).Returns(true);
-
-        var responseCore = new Mock<HttpResponseCore>();
-        responseCore.Setup(r => r.Body).Returns(body.Object);
-
-        var response = new HttpResponse(responseCore.Object);
-
-        // Act
-        response.ClearContent();
-
-        // Assert
-        body.Verify(b => b.SetLength(0), Times.Once);
-    }
-
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
@@ -436,7 +417,8 @@ public class HttpResponseTests
         response.Headers.Add(_fixture.Create<string>(), _fixture.Create<string>());
         response.Cookies.Add(new(_fixture.Create<string>()));
 
-        // Ensure IsRequestBeingRedirected is set to true
+        // Ensure IsRequestBeingRedirected is set to true. Redirection requires the content feature to be set.
+        context.Features.Set(new Mock<IHttpResponseContentFeature>().Object);
         response.RedirectPermanent(_fixture.Create<string>(), false);
 
         // Act
@@ -579,6 +561,7 @@ public class HttpResponseTests
 
         var context = new DefaultHttpContext();
         context.Features.Set(endFeature.Object);
+        context.Features.Set(new Mock<IHttpResponseContentFeature>().Object);
         context.RequestServices = services.Object;
 
         var response = new HttpResponse(context.Response);
