@@ -113,7 +113,7 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
 
         foreach (var headerName in headerNames)
         {
-            var originalHeaders = originalRequest.Headers[headerName].ToArray();
+            var originalHeaders = (IEnumerable<string>)originalRequest.Headers[headerName];
 
             // Workaround for an issue identified by https://github.com/dotnet/systemweb-adapters/issues/228.
             // HttpClient wrongly uses comma (",") instead of semi-colon (";") as a separator for Cookie headers.
@@ -128,7 +128,7 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
             // Workaround for an issue when adding an empty Authorization header
             if (string.Equals(headerName, HeaderNames.Authorization, StringComparison.OrdinalIgnoreCase))
             {
-                originalHeaders = originalHeaders.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                originalHeaders = originalHeaders.Where(x => !string.IsNullOrEmpty(x));
             }
 
             authRequest.Headers.Add(headerName, originalHeaders);
