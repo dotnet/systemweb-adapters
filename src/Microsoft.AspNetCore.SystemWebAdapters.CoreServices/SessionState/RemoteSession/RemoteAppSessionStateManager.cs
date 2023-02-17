@@ -8,7 +8,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.SessionState;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -46,8 +45,6 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
 
     [LoggerMessage(EventId = 3, Level = LogLevel.Trace, Message = "Received {StatusCode} response committing remote session state")]
     private partial void LogCommitResponse(HttpStatusCode statusCode);
-
-    SessionStateMode ISessionManager.Mode => SessionStateMode.StateServer;
 
     public async Task<ISessionState> CreateAsync(HttpContextCore context, SessionAttribute metadata)
     {

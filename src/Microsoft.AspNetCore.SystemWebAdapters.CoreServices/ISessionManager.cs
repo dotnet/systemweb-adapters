@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Threading.Tasks;
-using System.Web.SessionState;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
@@ -18,6 +17,4 @@ public interface ISessionManager
     /// <param name="context">Current <see cref="HttpContextCore"/>.</param>
     /// <param name="metadata">Metadata for the session.</param>
     Task<ISessionState> CreateAsync(HttpContextCore context, SessionAttribute metadata);
-
-    public SessionStateMode Mode => SessionStateMode.Custom;
 }

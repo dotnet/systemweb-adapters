@@ -15,13 +15,6 @@ public class HttpSessionState : ICollection
     public HttpSessionState(ISessionState container)
     {
         _container = container;
-        Mode = SessionStateMode.Custom;
-    }
-
-    internal HttpSessionState(ISessionState container, SessionStateMode mode)
-    {
-        _container = container;
-        Mode = mode;
     }
 
     public string SessionID => _container.SessionID;
@@ -42,7 +35,8 @@ public class HttpSessionState : ICollection
 
     public object SyncRoot => _container.SyncRoot;
 
-    public SessionStateMode Mode { get; }
+    [Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = Constants.ApiFromAspNet)]
+    public SessionStateMode Mode => SessionStateMode.Custom;
 
     public void Abandon() => _container.IsAbandoned = true;
 

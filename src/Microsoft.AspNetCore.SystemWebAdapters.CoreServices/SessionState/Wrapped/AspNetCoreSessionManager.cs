@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Threading.Tasks;
-using System.Web.SessionState;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,6 +23,4 @@ internal class AspNetCoreSessionManager : ISessionManager
 
     public Task<ISessionState> CreateAsync(HttpContextCore context, SessionAttribute metadata)
         => Task.FromResult<ISessionState>(new AspNetCoreSessionState(context.Session, _serializer, _loggerFactory, metadata.IsReadOnly, _options.Value.ThrowOnUnknownSessionKey));
-
-    SessionStateMode ISessionManager.Mode => SessionStateMode.InProc;
 }
