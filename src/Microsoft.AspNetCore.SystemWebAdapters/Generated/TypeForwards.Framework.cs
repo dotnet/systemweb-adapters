@@ -53,3 +53,4 @@
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Caching.CacheItemUpdateReason))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Configuration.HttpCapabilitiesBase))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.SessionState.HttpSessionState))]
+[assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.SessionState.SessionStateMode))]

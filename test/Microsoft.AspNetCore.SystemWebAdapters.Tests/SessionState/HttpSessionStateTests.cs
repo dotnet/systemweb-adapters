@@ -37,6 +37,21 @@ public class HttpSessionStateTests
     }
 
     [Fact]
+    public void Mode()
+    {
+        // Arrange
+        var session = new Mock<ISessionState>();
+
+        var state = new HttpSessionState(session.Object);
+
+        // Act
+        var result = state.Mode;
+
+        // Assert
+        Assert.Equal(SessionStateMode.Custom, result);
+    }
+
+    [Fact]
     public void Count()
     {
         // Arrange

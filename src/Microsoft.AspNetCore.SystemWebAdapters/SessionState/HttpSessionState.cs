@@ -35,6 +35,9 @@ public class HttpSessionState : ICollection
 
     public object SyncRoot => _container.SyncRoot;
 
+    [Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = Constants.ApiFromAspNet)]
+    public SessionStateMode Mode => SessionStateMode.Custom;
+
     public void Abandon() => _container.IsAbandoned = true;
 
     public object? this[string name]
