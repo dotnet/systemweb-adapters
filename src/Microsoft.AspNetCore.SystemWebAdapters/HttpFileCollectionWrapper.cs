@@ -8,16 +8,13 @@ using System.Linq;
 namespace System.Web;
 
 [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Generic interface should also be implemented", Justification = Constants.ApiFromAspNet)]
-public class HttpFileCollectionWrapper: HttpFileCollectionBase
+public class HttpFileCollectionWrapper : HttpFileCollectionBase
 {
     private readonly HttpFileCollection _collection;
 
     public HttpFileCollectionWrapper(HttpFileCollection httpFileCollection)
     {
-        if (httpFileCollection == null)
-        {
-            throw new ArgumentNullException(nameof(httpFileCollection));
-        }
+        ArgumentNullException.ThrowIfNull(httpFileCollection);
 
         _collection = httpFileCollection;
     }
@@ -38,7 +35,7 @@ public class HttpFileCollectionWrapper: HttpFileCollectionBase
 
     public override IList<HttpPostedFileBase> GetMultiple(string name)
          => _collection.GetMultiple(name)
-            .Select(x=> (HttpPostedFileBase)new HttpPostedFileWrapper(x))
+            .Select(x => (HttpPostedFileBase)new HttpPostedFileWrapper(x))
             .ToList()
             .AsReadOnly();
 

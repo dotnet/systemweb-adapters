@@ -11,10 +11,7 @@ public class HttpPostedFileWrapper : HttpPostedFileBase
 
     public HttpPostedFileWrapper(HttpPostedFile httpPostedFile)
     {
-        if (httpPostedFile == null)
-        {
-            throw new ArgumentNullException(nameof(httpPostedFile));
-        }
+        ArgumentNullException.ThrowIfNull(httpPostedFile);
 
         _file = httpPostedFile;
     }
