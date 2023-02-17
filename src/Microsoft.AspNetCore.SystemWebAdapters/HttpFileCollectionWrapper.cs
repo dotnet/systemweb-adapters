@@ -7,6 +7,7 @@ using System.Linq;
 
 namespace System.Web;
 
+[Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Generic interface should also be implemented", Justification = Constants.ApiFromAspNet)]
 public class HttpFileCollectionWrapper: HttpFileCollectionBase
 {
     private readonly HttpFileCollection _collection;
