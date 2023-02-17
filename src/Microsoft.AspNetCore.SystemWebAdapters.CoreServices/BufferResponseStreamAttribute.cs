@@ -8,9 +8,11 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
 public sealed class BufferResponseStreamAttribute : Attribute
 {
+    internal const int DefaultMemoryThreshold = 32768; // Same default as FileBufferingWriteStream
+
     public bool IsDisabled { get; set; }
 
-    public int MemoryThreshold { get; set; } = 32768; // Same default as FileBufferingWriteStream
+    public int MemoryThreshold { get; set; } = DefaultMemoryThreshold;
 
     public long? BufferLimit { get; set; }
 }

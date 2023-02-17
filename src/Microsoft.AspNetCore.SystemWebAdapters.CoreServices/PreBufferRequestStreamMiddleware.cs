@@ -3,36 +3,30 @@
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal partial class PreBufferRequestStreamMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly PreBufferRequestStreamAttribute _defaultMetadata = new() { IsDisabled = true };
 
     public PreBufferRequestStreamMiddleware(RequestDelegate next) => _next = next;
 
     public async Task InvokeAsync(HttpContextCore context)
     {
-        var metadata = context.GetEndpoint()?.Metadata.GetMetadata<PreBufferRequestStreamAttribute>() ?? _defaultMetadata;
-        var existing = context.Features.GetRequired<IHttpRequestFeature>();
-
-#pragma warning disable CA2000 // Dispose objects before losing scope
-        // This is registered to be disposed with the HttpContext below
-        var requestFeature = new HttpRequestAdapterFeature(existing, metadata.BufferThreshold, metadata.BufferLimit);
-#pragma warning restore CA2000 // Dispose objects before losing scope
-
-        if (!metadata.IsDisabled)
+        if (context.GetEndpoint()?.Metadata.GetMetadata<PreBufferRequestStreamAttribute>() is { IsDisabled: false } metadata)
         {
-            await requestFeature.BufferInputStreamAsync(context.RequestAborted);
-        }
+            var inputStreamFeature = context.Features.GetRequired<IHttpRequestInputStreamFeature>();
 
-        context.Response.RegisterForDispose(requestFeature);
-        context.Features.Set<IHttpRequestFeature>(requestFeature);
-        context.Features.Set<IHttpRequestAdapterFeature>(requestFeature);
-        context.Features.Set<IRequestBodyPipeFeature>(requestFeature);
+            inputStreamFeature.BufferThreshold = metadata.BufferThreshold;
+
+            if (metadata.BufferLimit is { } limit)
+            {
+                inputStreamFeature.BufferLimit = limit;
+            }
+
+            await inputStreamFeature.BufferInputStreamAsync(context.RequestAborted);
+        }
 
         await _next(context);
     }

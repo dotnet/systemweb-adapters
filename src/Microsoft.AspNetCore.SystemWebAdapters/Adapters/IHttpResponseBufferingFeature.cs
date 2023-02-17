@@ -7,15 +7,11 @@ using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal interface IHttpResponseAdapterFeature
+internal interface IHttpResponseBufferingFeature
 {
-    bool IsEnded { get; }
+    void EnableBuffering(int memoryThreshold, long? bufferLimit);
 
-    bool SuppressContent { get; set; }
-
-    Task EndAsync();
-
-    void ClearContent();
+    ValueTask FlushAsync();
 }
 
 #endif

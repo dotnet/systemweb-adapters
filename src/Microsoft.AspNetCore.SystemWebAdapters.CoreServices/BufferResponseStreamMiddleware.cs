@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
@@ -23,30 +22,14 @@ internal partial class BufferResponseStreamMiddleware
     }
 
     public Task InvokeAsync(HttpContextCore context)
-        => context.GetEndpoint()?.Metadata.GetMetadata<BufferResponseStreamAttribute>() is { IsDisabled: false } metadata
-            ? BufferResponseStreamAsync(context, metadata)
-            : _next(context);
-
-    private async Task BufferResponseStreamAsync(HttpContextCore context, BufferResponseStreamAttribute metadata)
     {
-        LogBuffering(metadata.BufferLimit, metadata.MemoryThreshold);
-
-        var responseBodyFeature = context.Features.GetRequired<IHttpResponseBodyFeature>();
-
-        await using var bufferedFeature = new HttpResponseAdapterFeature(responseBodyFeature, metadata);
-
-        context.Features.Set<IHttpResponseBodyFeature>(bufferedFeature);
-        context.Features.Set<IHttpResponseAdapterFeature>(bufferedFeature);
-
-        try
+        if (context.GetEndpoint()?.Metadata.GetMetadata<BufferResponseStreamAttribute>() is { IsDisabled: false } metadata)
         {
-            await _next(context);
-            await bufferedFeature.FlushBufferedStreamAsync();
+            LogBuffering(metadata.BufferLimit, metadata.MemoryThreshold);
+
+            context.Features.GetRequired<IHttpResponseBufferingFeature>().EnableBuffering(metadata.MemoryThreshold, metadata.BufferLimit);
         }
-        finally
-        {
-            context.Features.Set(responseBodyFeature);
-            context.Features.Set<IHttpResponseAdapterFeature>(null);
-        }
+
+        return _next(context);
     }
 }

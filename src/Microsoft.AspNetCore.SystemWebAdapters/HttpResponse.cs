@@ -27,17 +27,13 @@ namespace System.Web
 
         private NameValueCollection? _headers;
         private ResponseHeaders? _typedHeaders;
-        private FeatureReference<IHttpResponseAdapterFeature> _adapterFeature;
         private TextWriter? _writer;
         private HttpCookieCollection? _cookies;
 
         internal HttpResponse(HttpResponseCore response)
         {
             _response = response;
-            _adapterFeature = FeatureReference<IHttpResponseAdapterFeature>.Default;
         }
-
-        private IHttpResponseAdapterFeature AdapterFeature => _adapterFeature.Fetch(_response.HttpContext.Features) ?? throw new InvalidOperationException($"Response buffering must be enabled on this endpoint for this API via the BufferResponseStreamAttribute metadata item");
 
         internal ResponseHeaders TypedHeaders => _typedHeaders ??= new(_response.Headers);
 
@@ -84,8 +80,8 @@ namespace System.Web
 
         public bool SuppressContent
         {
-            get => AdapterFeature.SuppressContent;
-            set => AdapterFeature.SuppressContent = value;
+            get => _response.HttpContext.Features.GetRequired<IHttpResponseContentFeature>().SuppressContent;
+            set => _response.HttpContext.Features.GetRequired<IHttpResponseContentFeature>().SuppressContent = value;
         }
 
         public Encoding ContentEncoding
@@ -153,12 +149,11 @@ namespace System.Web
             {
                 if (_writer is null)
                 {
+                    // No need to dispose the stream writer as it doesn't own the stream and autoflushes
                     _writer = new StreamWriter(_response.Body, ContentEncoding, leaveOpen: true)
                     {
                         AutoFlush = true,
                     };
-
-                    _response.RegisterForDispose(_writer);
                 }
 
                 return _writer;
@@ -257,7 +252,7 @@ namespace System.Web
 
         public Task FlushAsync() => _response.Body.FlushAsync(_response.HttpContext.RequestAborted);
 
-        public void End() => AdapterFeature.EndAsync().GetAwaiter().GetResult();
+        public void End() => _response.HttpContext.Features.GetRequired<IHttpResponseEndFeature>().EndAsync().GetAwaiter().GetResult();
 
         public void Write(char ch) => Output.Write(ch);
 
@@ -278,17 +273,7 @@ namespace System.Web
             ClearContent();
         }
 
-        public void ClearContent()
-        {
-            if (_response.Body.CanSeek)
-            {
-                _response.Body.SetLength(0);
-            }
-            else
-            {
-                AdapterFeature.ClearContent();
-            }
-        }
+        public void ClearContent() => _response.HttpContext.Features.GetRequired<IHttpResponseContentFeature>().ClearContent();
 
         public void WriteFile(string filename)
             => TransmitFile(filename);
