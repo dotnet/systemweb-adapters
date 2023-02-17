@@ -10,7 +10,6 @@ namespace System.Web.Caching;
 public class CacheDependency : IDisposable
 {
     private readonly List<ChangeMonitor> changeMonitors = new();
-    private bool hasChanged;
     private bool disposedValue;
     private DateTime utcLastModified;
     private Action<object, EventArgs>? dependencyChangedAction;
@@ -56,8 +55,7 @@ public class CacheDependency : IDisposable
 
         if (cachekeys is not null && cachekeys.Length != 0)
         {
-            changeMonitors.Add(HttpRuntime.Cache.ObjectCache
-                                .CreateCacheEntryChangeMonitor(cachekeys));
+            changeMonitors.Add(HttpRuntime.Cache.ObjectCache.CreateCacheEntryChangeMonitor(cachekeys));
         }
 
         if (dependency is not null)
@@ -70,9 +68,9 @@ public class CacheDependency : IDisposable
 
     protected internal void FinishInit()
     {
-        hasChanged = changeMonitors.Any(cm => cm.HasChanged && (cm.GetLastModifiedUtc() > utcStart));
+        HasChanged = changeMonitors.Any(cm => cm.HasChanged && (cm.GetLastModifiedUtc() > utcStart));
         utcLastModified = changeMonitors.Max(cm => cm.GetLastModifiedUtc());
-        if (hasChanged)
+        if (HasChanged)
         {
             NotifyDependencyChanged(this, EventArgs.Empty);
         }
@@ -93,7 +91,7 @@ public class CacheDependency : IDisposable
     {
         if (initCompleted && DateTime.UtcNow > utcStart)
         {
-            hasChanged = true;
+            HasChanged = true;
             utcLastModified = DateTime.UtcNow;
             dependencyChangedAction?.Invoke(sender, e);
         }
@@ -104,9 +102,9 @@ public class CacheDependency : IDisposable
     public void SetCacheDependencyChanged(Action<object, EventArgs> dependencyChangedAction) =>
         this.dependencyChangedAction = dependencyChangedAction;
 
-    public virtual string[] GetFileDependencies() => changeMonitors.OfType<FileChangeMonitor>().SelectMany(cm=>cm.FilePaths).ToArray();
+    public virtual string[] GetFileDependencies() => changeMonitors.OfType<FileChangeMonitor>().SelectMany(cm => cm.FilePaths).ToArray();
 
-    public bool HasChanged => hasChanged;
+    public bool HasChanged { get; private set; }
 
     public DateTime UtcLastModified => changeMonitors
         .OfType<FileChangeMonitor>()
@@ -116,7 +114,8 @@ public class CacheDependency : IDisposable
 
     public virtual string? GetUniqueID()
     {
-        if (!uniqueIdInitialized) {
+        if (!uniqueIdInitialized)
+        {
             uniqueId = changeMonitors.Any(cm => cm.UniqueId is null) ?
                 null :
                 string.Join(":", changeMonitors.Select(cm => cm.UniqueId));
