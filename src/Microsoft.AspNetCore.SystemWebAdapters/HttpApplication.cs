@@ -16,12 +16,11 @@ public class HttpApplication : IDisposable
     private HttpApplicationState _state = null!;
     private HttpContext? _context;
 
+    private Dictionary<ApplicationEvent, EventHandler>? _events;
+
     public HttpApplication()
     {
-        Events = new(this);
     }
-
-    internal EventCollection Events { get; }
 
     internal void Initialize(IHttpModule[] modules, HttpApplicationState state, Action<HttpApplication> eventInitializer)
     {
@@ -30,11 +29,6 @@ public class HttpApplication : IDisposable
 
         eventInitializer(this);
 
-        if (_modules is null)
-        {
-            return;
-        }
-
         foreach (var m in _modules)
         {
             m.Init(this);
@@ -42,11 +36,11 @@ public class HttpApplication : IDisposable
     }
 
     public HttpApplicationState Application
-        => _state ?? throw new InvalidOperationException("Can only be accessed during valid requests");
+        => _state ?? throw new InvalidOperationException("HttpApplication must be initialized before use.");
 
     public HttpContext Context
     {
-        get => _context ?? throw new InvalidOperationException("Can only be accessed during valid request.");
+        get => _context ?? throw new InvalidOperationException("HttpContext can only be accessed during valid request.");
         internal set => _context = value;
     }
 
@@ -65,146 +59,146 @@ public class HttpApplication : IDisposable
 
     public event EventHandler? BeginRequest
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? AuthenticateRequest
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? PostAuthenticateRequest
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? AuthorizeRequest
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? PostAuthorizeRequest
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? ResolveRequestCache
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? PostResolveRequestCache
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? MapRequestHandler
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? PostMapRequestHandler
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? AcquireRequestState
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? PostAcquireRequestState
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? PreRequestHandlerExecute
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? PostRequestHandlerExecute
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? ReleaseRequestState
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? PostReleaseRequestState
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? UpdateRequestCache
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? PostUpdateRequestCache
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? LogRequest
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? PostLogRequest
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? EndRequest
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? Error
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? RequestCompleted
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? Disposed
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     [Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1816:Dispose methods should call SuppressFinalize", Justification = Constants.ApiFromAspNet)]
     public void Dispose()
     {
-        Events.Invoke(ApplicationEvent.Disposed);
+        InvokeEvent(ApplicationEvent.Disposed);
 
         if (_modules is { } modules)
         {
@@ -217,100 +211,100 @@ public class HttpApplication : IDisposable
 
     internal event EventHandler? SessionStart
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     internal event EventHandler? SessionEnd
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
     public event EventHandler? PreSendRequestHeaders
     {
-        add => Events.Add(value);
-        remove => Events.Remove(value);
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
     }
 
-    internal sealed class EventCollection
+    private void AddEvent(EventHandler? handler, [CallerMemberName] string? name = null)
     {
-        private readonly Dictionary<ApplicationEvent, EventHandler> _events = new();
-        private readonly HttpApplication _app;
-
-        public EventCollection(HttpApplication app)
+        if (handler is null)
         {
-            _app = app;
+            return;
         }
 
-        public void Add(EventHandler? handler, [CallerMemberName] string? name = null)
+        if (Enum.TryParse<ApplicationEvent>(name, out var eventName))
         {
-            if (handler is null)
-            {
-                return;
-            }
+            AddEvent(eventName, handler);
+        }
+        else
+        {
+            throw new ArgumentOutOfRangeException(nameof(name));
+        }
+    }
 
-            if (Enum.TryParse<ApplicationEvent>(name, out var eventName))
+    private void RemoveEvent(EventHandler? handler, [CallerMemberName] string? name = null)
+    {
+        if (handler is null)
+        {
+            return;
+        }
+
+        if (Enum.TryParse<ApplicationEvent>(name, out var eventName))
+        {
+            RemoveEvent(eventName, handler);
+        }
+        else
+        {
+            throw new ArgumentOutOfRangeException(nameof(name));
+        }
+    }
+
+    private void AddEvent(ApplicationEvent appEvent, EventHandler handler)
+    {
+        _events ??= new();
+
+        if (_events.TryGetValue(appEvent, out var existing))
+        {
+            _events[appEvent] = existing + handler;
+        }
+        else
+        {
+            _events.Add(appEvent, handler);
+        }
+    }
+
+    private void RemoveEvent(ApplicationEvent appEvent, EventHandler handler)
+    {
+        if (_events is null)
+        {
+            return;
+        }
+
+        if (_events.TryGetValue(appEvent, out var existing))
+        {
+            if (existing - handler is { } updated)
             {
-                Add(eventName, handler);
+                _events[appEvent] = updated;
             }
             else
             {
-                throw new ArgumentOutOfRangeException(nameof(name));
+                _events.Remove(appEvent);
             }
         }
+    }
 
-        public void Remove(EventHandler? handler, [CallerMemberName] string? name = null)
+    internal void InvokeEvent(ApplicationEvent appEvent)
+    {
+        if (_events is null)
         {
-            if (handler is null)
-            {
-                return;
-            }
-
-            if (Enum.TryParse<ApplicationEvent>(name, out var eventName))
-            {
-                Remove(eventName, handler);
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException(nameof(name));
-            }
+            return;
         }
 
-
-        public void Add(ApplicationEvent appEvent, EventHandler handler)
+        if (_events.TryGetValue(appEvent, out var @event))
         {
-            if (_events.TryGetValue(appEvent, out var existing))
-            {
-                _events[appEvent] = existing + handler;
-            }
-            else
-            {
-                _events.Add(appEvent, handler);
-            }
-        }
-
-        public void Remove(ApplicationEvent appEvent, EventHandler handler)
-        {
-            if (_events.TryGetValue(appEvent, out var existing))
-            {
-                if (existing - handler is { } updated)
-                {
-                    _events[appEvent] = updated;
-                }
-                else
-                {
-                    _events.Remove(appEvent);
-                }
-            }
-        }
-
-        public void Invoke(ApplicationEvent appEvent)
-        {
-            if (_events.TryGetValue(appEvent, out var @event))
-            {
-                @event(_app, EventArgs.Empty);
-            }
+            @event(this, EventArgs.Empty);
         }
     }
 }

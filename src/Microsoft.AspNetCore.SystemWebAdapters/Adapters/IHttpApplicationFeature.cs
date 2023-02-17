@@ -10,18 +10,28 @@ using System.Web;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-/// <summary>
-/// A feature that exposes ability to raise events on the current <see cref="HttpApplication"/>. 
-/// See https://docs.microsoft.com/en-us/dotnet/api/system.web.httpapplication#remarks for details on how this worked in .NET Framework.
-/// </summary>
 internal interface IHttpApplicationFeature
 {
+    /// <summary>
+    /// Gets the <see cref="HttpApplication"/> that is assigned to the current request.
+    /// </summary>
     HttpApplication Application { get; }
 
+    /// <summary>
+    /// Raises events for the current application assigned to the request. See https://docs.microsoft.com/en-us/dotnet/api/system.web.httpapplication#remarks for details on how this worked in .NET Framework.
+    /// </summary>
+    /// <param name="event"></param>
+    /// <returns></returns>
     ValueTask RaiseEventAsync(ApplicationEvent @event);
 
+    /// <summary>
+    /// Gets the current <see cref="RequestNotification"/> of where the request is in an emulated IIS pipeline.
+    /// </summary>
     RequestNotification CurrentNotification { get; }
 
+    /// <summary>
+    /// Gets whether the <see cref="CurrentNotification"/> of the emulated IIS pipeline is in a post condition.
+    /// </summary>
     bool IsPostNotification { get; }
 }
 

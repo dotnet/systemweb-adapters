@@ -9,6 +9,7 @@
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.13" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\samples\Modules\ModulesLibrary\ModulesLibrary.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.CoreServices\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.csproj" />
   </ItemGroup>
   <ItemGroup>

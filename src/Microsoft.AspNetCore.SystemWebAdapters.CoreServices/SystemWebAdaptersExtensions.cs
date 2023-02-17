@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Caching;
 using System.Web.Configuration;
@@ -25,19 +27,55 @@ public static class SystemWebAdaptersExtensions
             .AddMvc();
     }
 
+    internal static void UseSystemWebAdapterFeatures(this IApplicationBuilder app)
+    {
+        const string Key = "SystemWebAdapterFeatures";
+
+        if (app.Properties.ContainsKey(Key))
+        {
+            return;
+        }
+
+        app.Properties[Key] = true;
+
+        app.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
+        app.UseMiddleware<PreBufferRequestStreamMiddleware>();
+        app.UseMiddleware<BufferResponseStreamMiddleware>();
+
+        app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
+        app.UseMiddleware<SingleThreadedRequestMiddleware>();
+        app.UseMiddleware<CurrentPrincipalMiddleware>();
+
+        app.UseHttpApplication();
+    }
+
     public static void UseSystemWebAdapters(this IApplicationBuilder app)
     {
         ArgumentNullException.ThrowIfNull(app);
 
         HttpRuntime.Current = app.ApplicationServices.GetRequiredService<IHttpRuntime>();
 
-        app.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
-        app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
-        app.UseMiddleware<PreBufferRequestStreamMiddleware>();
+        app.UseSystemWebAdapterFeatures();
+
+        app.UseHttpApplicationEvent(
+             preEvents: new[]
+             {
+                    ApplicationEvent.ResolveRequestCache,
+                    ApplicationEvent.PostResolveRequestCache,
+                    ApplicationEvent.MapRequestHandler,
+                    ApplicationEvent.PostMapRequestHandler,
+            },
+            postEvents: new[]
+            {
+                    ApplicationEvent.UpdateRequestCache,
+                    ApplicationEvent.PostUpdateRequestCache,
+            });
+
         app.UseMiddleware<SessionMiddleware>();
-        app.UseMiddleware<BufferResponseStreamMiddleware>();
-        app.UseMiddleware<SingleThreadedRequestMiddleware>();
-        app.UseMiddleware<CurrentPrincipalMiddleware>();
+
+        app.UseHttpApplicationEvent(
+            preEvents: new[] { ApplicationEvent.PreRequestHandlerExecute },
+            postEvents: new[] { ApplicationEvent.PostRequestHandlerExecute });
     }
 
     /// <summary>
