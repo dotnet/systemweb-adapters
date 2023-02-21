@@ -22,6 +22,7 @@ internal sealed class RegisterAdapterFeaturesMiddleware
     {
         using (RegisterRequestFeatures(context))
         using (RegisterResponseFeatures(context))
+        using (RegisterEndpointHandlerFeature(context))
         {
             try
             {
@@ -32,6 +33,24 @@ internal sealed class RegisterAdapterFeaturesMiddleware
                 await context.Features.GetRequired<IHttpResponseBufferingFeature>().FlushAsync();
             }
         }
+    }
+
+    private static DelegateDisposable RegisterEndpointHandlerFeature(HttpContextCore context)
+    {
+        var existingEndpointFeature = context.Features.Get<IEndpointFeature>();
+        var request = context.Features.GetRequired<IHttpRequestFeature>();
+        var feature = new HttpHandlerEndpointFeature(context, request, existingEndpointFeature);
+
+        context.Features.Set<IHttpHandlerFeature>(feature);
+        context.Features.Set<IEndpointFeature>(feature);
+        context.Features.Set<IHttpRequestPathFeature>(feature);
+
+        return new DelegateDisposable(() =>
+        {
+            context.Features.Set<IHttpHandlerFeature>(null);
+            context.Features.Set<IHttpRequestFeature>(request);
+            context.Features.Set<IEndpointFeature>(existingEndpointFeature);
+        });
     }
 
     private static DelegateDisposable RegisterRequestFeatures(HttpContextCore context)

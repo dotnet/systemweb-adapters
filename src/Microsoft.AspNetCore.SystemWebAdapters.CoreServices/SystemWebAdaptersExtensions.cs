@@ -7,7 +7,9 @@ using System.Web.Caching;
 using System.Web.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -18,6 +20,8 @@ public static class SystemWebAdaptersExtensions
         services.AddHttpContextAccessor();
         services.AddSingleton<IHttpRuntime>(sp => HttpRuntimeFactory.Create(sp));
         services.AddSingleton<Cache>();
+        services.TryAddSingleton<IHttpHandlerEndpointFactory, HttpHandlerEndpointFactory>();
+        services.TryAddEnumerable(ServiceDescriptor.Transient<MatcherPolicy, HandlerMatchPolicy>());
         services.AddSingleton<IBrowserCapabilitiesFactory, BrowserCapabilitiesFactory>();
         services.AddTransient<IStartupFilter, HttpContextStartupFilter>();
 

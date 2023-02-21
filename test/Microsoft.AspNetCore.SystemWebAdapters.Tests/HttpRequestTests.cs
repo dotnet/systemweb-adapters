@@ -45,35 +45,17 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void Path()
         {
             // Arrange
-            var path = new PathString(CreateRandomPath());
-            var coreRequest = new Mock<HttpRequestCore>();
-            coreRequest.Setup(c => c.Path).Returns(path);
+            var context = new DefaultHttpContext();
 
-            var request = new HttpRequest(coreRequest.Object);
+            var pathFeature = new Mock<IHttpRequestPathFeature>();
+            var path = CreateRandomPath();
+            pathFeature.Setup(p => p.Path).Returns(path);
+            context.Features.Set(pathFeature.Object);
+
+            var request = new HttpRequest(context.Request);
 
             // Act
             var result = request.Path;
-
-            // Assert
-            Assert.Equal(path.Value, result);
-        }
-
-        [Fact]
-        public void FilePathNoFeature()
-        {
-            // Arrange
-            var context = new Mock<HttpContextCore>();
-            context.Setup(c => c.Features).Returns(new FeatureCollection());
-
-            var coreRequest = new Mock<HttpRequestCore>();
-            var path = new PathString(CreateRandomPath());
-            coreRequest.Setup(c => c.Path).Returns(path);
-            coreRequest.Setup(c => c.HttpContext).Returns(context.Object);
-
-            var request = new HttpRequest(coreRequest.Object);
-
-            // Act
-            var result = request.FilePath;
 
             // Assert
             Assert.Equal(path, result);
@@ -83,9 +65,9 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void FilePathFeature()
         {
             // Arrange
-            var feature = new Mock<IPathInfoFeature>();
+            var feature = new Mock<IHttpRequestPathFeature>();
             var path = CreateRandomPath();
-            feature.Setup(f => f.FileInfo).Returns(path);
+            feature.Setup(f => f.FilePath).Returns(path);
 
             var features = new FeatureCollection();
             features.Set(feature.Object);
@@ -107,30 +89,10 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         }
 
         [Fact]
-        public void PathInfoNoFeature()
-        {
-            // Arrange
-            var context = new Mock<HttpContextCore>();
-            context.Setup(c => c.Features).Returns(new FeatureCollection());
-
-            var coreRequest = new Mock<HttpRequestCore>();
-            coreRequest.Setup(c => c.Path).Returns(CreateRandomPath());
-            coreRequest.Setup(c => c.HttpContext).Returns(context.Object);
-
-            var request = new HttpRequest(coreRequest.Object);
-
-            // Act
-            var result = request.PathInfo;
-
-            // Assert
-            Assert.Same(string.Empty, result);
-        }
-
-        [Fact]
         public void PathInfoFeature()
         {
             // Arrange
-            var feature = new Mock<IPathInfoFeature>();
+            var feature = new Mock<IHttpRequestPathFeature>();
             var path = CreateRandomPath();
             feature.Setup(f => f.PathInfo).Returns(path);
 
@@ -490,18 +452,13 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void AppRelativeCurrentExecutionFilePath()
         {
             // Arrange
-            var context = new Mock<HttpContextCore>();
-            context.Setup(c => c.Features).Returns(new FeatureCollection());
+            var context = new DefaultHttpContext();
 
-            var coreRequest = new Mock<HttpRequestCore>();
-            coreRequest.Setup(c => c.Scheme).Returns("http");
-            coreRequest.Setup(c => c.Host).Returns(new HostString("www.A.com"));
-            coreRequest.Setup(c => c.Path).Returns("/B/ C");
-            coreRequest.Setup(c => c.QueryString).Returns(new QueryString("?D=E"));
-            coreRequest.Setup(c => c.PathBase).Returns("/F");
-            coreRequest.Setup(c => c.HttpContext).Returns(context.Object);
+            var pathFeature = new Mock<IHttpRequestPathFeature>();
+            pathFeature.Setup(p => p.FilePath).Returns("/B/ C");
+            context.Features.Set(pathFeature.Object);
 
-            var request = new HttpRequest(coreRequest.Object);
+            var request = new HttpRequest(context.Request);
 
             // Act
             var result = request.AppRelativeCurrentExecutionFilePath;

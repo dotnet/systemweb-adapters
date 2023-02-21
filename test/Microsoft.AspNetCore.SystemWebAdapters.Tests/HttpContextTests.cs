@@ -9,6 +9,7 @@ using System.Web;
 using System.Web.Caching;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 using Moq;
 using Xunit;
@@ -273,6 +274,11 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             var coreContext = new DefaultHttpContext();
             var context = new HttpContext(coreContext);
             var rewritePath = "/path1 withspace?q=1";
+
+            var requestFeature = coreContext.Features.GetRequired<IHttpRequestFeature>();
+            var pathFeature = new Mock<IHttpRequestPathFeature>();
+            pathFeature.Setup(p => p.Path).Returns(() => requestFeature.Path);
+            coreContext.Features.Set(pathFeature.Object);
 
             // Act
             context.RewritePath(rewritePath);
