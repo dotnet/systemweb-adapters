@@ -54,6 +54,16 @@ public class HttpContext : IServiceProvider
         set => _context.User = value is ClaimsPrincipal claims ? claims : new ClaimsPrincipal(value);
     }
 
+    public IHttpHandler? Handler
+    {
+        get => _context.Features.GetRequired<IHttpHandlerFeature>().Current;
+        set => _context.Features.GetRequired<IHttpHandlerFeature>().Current = value;
+    }
+
+    public IHttpHandler? CurrentHandler => Handler;
+
+    public IHttpHandler? PreviousHandler => _context.Features.GetRequired<IHttpHandlerFeature>().Previous;
+
     public HttpSessionState? Session => _context.Features.Get<HttpSessionState>();
 
     [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = Constants.ApiFromAspNet)]
