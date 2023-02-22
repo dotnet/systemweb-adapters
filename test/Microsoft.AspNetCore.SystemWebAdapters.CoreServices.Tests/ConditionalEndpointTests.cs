@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests;
 
-public class SkippableEndpointTests
+public class ConditionalEndpointTests
 {
     [Theory]
     [InlineData("?", false)]
@@ -19,7 +19,7 @@ public class SkippableEndpointTests
 
         // Arrange
         var builder = WebApplication.CreateBuilder();
-        builder.Services.AddSkippableEndpoint<TestSkippable>();
+        builder.Services.AddConditionalEndpoints<TestSkippable>();
 
         var app = builder.Build();
         var marker = new Marker();
@@ -29,7 +29,7 @@ public class SkippableEndpointTests
         {
             endpoints.Map(EndpointPath, () => "response1")
                 .WithMetadata(marker)
-                .EnableSkipping();
+                .WithConditionalRoute();
         });
 
         var request = ((IApplicationBuilder)app).Build();
@@ -60,9 +60,9 @@ public class SkippableEndpointTests
     {
     }
 
-    private sealed class TestSkippable : ISkippableEndpointSelector
+    private sealed class TestSkippable : IConditionalEndpointSelector
     {
-        public ValueTask<bool> ShouldSkipAsync(HttpContextCore context)
+        public ValueTask<bool> IsEnabledAsync(HttpContextCore context, Endpoint candidate)
         {
             var result = context.Request.Query.ContainsKey("skip");
 
