@@ -4,7 +4,7 @@
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 #if NET6_0_OR_GREATER
-public interface IHttpBrowserCapabilityFeature
+internal interface IHttpBrowserCapabilityFeature
 {
     string? this[string key] { get; }
 }

@@ -4,7 +4,7 @@
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 #if NET6_0_OR_GREATER
-public interface IBrowserCapabilitiesFactory
+internal interface IBrowserCapabilitiesFactory
 {
     IHttpBrowserCapabilityFeature Create(HttpRequestCore request);
 }
