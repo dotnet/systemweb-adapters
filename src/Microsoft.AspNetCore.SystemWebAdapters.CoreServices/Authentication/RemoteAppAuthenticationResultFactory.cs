@@ -39,9 +39,10 @@ internal class RemoteAppAuthenticationResultFactory : IAuthenticationResultFacto
         }
 
         // Copy expected response headers
+        bool forwardAllResponseHeaders = options.ResponseHeadersToForward.Count == 0;
         foreach (var responseHeader in response.Headers)
         {
-            if (!options.ResponseHeadersToForward.Any() || options.ResponseHeadersToForward.Contains(responseHeader.Key))
+            if (forwardAllResponseHeaders || options.ResponseHeadersToForward.Contains(responseHeader.Key))
             {
                 ret.ResponseHeaders.Add(responseHeader.Key, responseHeader.Value.ToArray());
             }
