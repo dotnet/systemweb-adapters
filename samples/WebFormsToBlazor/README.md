@@ -1,6 +1,6 @@
 # WebForms Migration to Blazor
 
-Migrating WebForms to .NET Core is not a straightforward approach. This sample shows how the incremental migration can be used to start migrating to Blazor by using Blazor pages for completed routes and Blazor components in the WebForms project for controls.
+Migrating WebForms to .NET Core is not a straightforward approach. This sample shows how the incremental migration can be used to start migrating to Blazor by using Blazor pages for completed routes and Blazor components in the WebForms project for controls. It registers custom components that allows non-Blazor applications to start using Blazor controls.
 
 Things to look at in this sample:
 
