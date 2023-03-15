@@ -19,6 +19,10 @@ namespace System.Web
 
         public virtual HttpResponseBase Response => throw new NotImplementedException();
 
+        public virtual HttpApplication ApplicationInstance => throw new NotImplementedException();
+
+        public virtual HttpApplicationState Application => throw new NotImplementedException();
+
         public virtual IDictionary Items => throw new NotImplementedException();
 
         public virtual DateTime Timestamp => throw new NotImplementedException();
