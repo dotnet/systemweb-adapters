@@ -17,7 +17,7 @@ builder.Services.AddAuthentication()
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSystemWebAdapters()
-    .AddHttpModule<MyModule>()
+    .AddHttpModule<MyModule>("MyModule")
     .AddHttpApplication<MyApp>()
     .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys));
 

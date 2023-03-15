@@ -101,7 +101,7 @@ internal partial class HttpApplicationFactory : IHttpApplicationFactory
         var state = new HttpApplicationState();
         var factory = ActivatorUtilities.CreateFactory(options.ApplicationType, Array.Empty<Type>());
         var moduleFactories = options.Modules
-            .Select(m => ActivatorUtilities.CreateFactory(m, Array.Empty<Type>()))
+            .Select(m => (m.Key, ActivatorUtilities.CreateFactory(m.Value, Array.Empty<Type>())))
             .ToList();
 
         if (moduleFactories.Count == 0)
@@ -109,7 +109,7 @@ internal partial class HttpApplicationFactory : IHttpApplicationFactory
             return sp =>
             {
                 var app = (HttpApplication)factory(sp, null);
-                app.Initialize(Array.Empty<IHttpModule>(), state, eventInitializer);
+                app.Initialize(Array.Empty<(string, IHttpModule)>(), state, eventInitializer);
                 return app;
             };
         }
@@ -117,11 +117,12 @@ internal partial class HttpApplicationFactory : IHttpApplicationFactory
         return sp =>
         {
             var app = (HttpApplication)factory(sp, null);
-            var modules = new IHttpModule[moduleFactories.Count];
+            var modules = new (string, IHttpModule)[moduleFactories.Count];
 
             for (var i = 0; i < moduleFactories.Count; i++)
             {
-                modules[i] = (IHttpModule)moduleFactories[i](sp, null);
+                var module = (IHttpModule)moduleFactories[i].Item2(sp, null);
+                modules[i] = (moduleFactories[i].Key, module);
             }
 
             app.Initialize(modules, state, eventInitializer);

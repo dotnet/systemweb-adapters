@@ -39,14 +39,14 @@ public static class HttpApplicationExtensions
         return builder;
     }
 
-    public static ISystemWebAdapterBuilder AddHttpModule<TModule>(this ISystemWebAdapterBuilder builder)
+    public static ISystemWebAdapterBuilder AddHttpModule<TModule>(this ISystemWebAdapterBuilder builder, string name)
         where TModule : class, IHttpModule
     {
         ArgumentNullException.ThrowIfNull(builder);
 
         builder.ConfigureApplication(options =>
         {
-            options.RegisterModule<TModule>();
+            options.RegisterModule<TModule>(name);
         });
 
         return builder;

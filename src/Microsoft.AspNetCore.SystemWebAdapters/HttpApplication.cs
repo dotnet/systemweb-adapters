@@ -12,7 +12,6 @@ namespace System.Web;
 [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = Constants.ApiFromAspNet)]
 public class HttpApplication : IDisposable
 {
-    private IHttpModule[]? _modules;
     private HttpApplicationState _state = null!;
     private HttpContext? _context;
 
@@ -22,18 +21,20 @@ public class HttpApplication : IDisposable
     {
     }
 
-    internal void Initialize(IHttpModule[] modules, HttpApplicationState state, Action<HttpApplication> eventInitializer)
+    internal void Initialize((string Name, IHttpModule Module)[] modules, HttpApplicationState state, Action<HttpApplication> eventInitializer)
     {
-        _modules = modules;
         _state = state;
 
         eventInitializer(this);
 
-        foreach (var m in _modules)
+        foreach (var (name, m) in modules)
         {
             m.Init(this);
+            Modules.AddModule(name, m);
         }
     }
+
+    public HttpModuleCollection Modules { get; } = new();
 
     public HttpApplicationState Application
         => _state ?? throw new InvalidOperationException("HttpApplication must be initialized before use.");
@@ -200,12 +201,9 @@ public class HttpApplication : IDisposable
     {
         InvokeEvent(ApplicationEvent.Disposed);
 
-        if (_modules is { } modules)
+        foreach (var module in Modules.Modules)
         {
-            foreach (var module in modules)
-            {
-                module.Dispose();
-            }
+            module.Dispose();
         }
     }
 
