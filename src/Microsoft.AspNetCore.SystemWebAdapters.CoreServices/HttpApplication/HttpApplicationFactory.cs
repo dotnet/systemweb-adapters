@@ -109,7 +109,7 @@ internal partial class HttpApplicationFactory : IHttpApplicationFactory
             return sp =>
             {
                 var app = (HttpApplication)factory(sp, null);
-                app.Initialize(Array.Empty<(string, IHttpModule)>(), state, eventInitializer);
+                app.Initialize(HttpModuleCollection.Empty, state, eventInitializer);
                 return app;
             };
         }
@@ -125,7 +125,7 @@ internal partial class HttpApplicationFactory : IHttpApplicationFactory
                 modules[i] = (moduleFactories[i].Key, module);
             }
 
-            app.Initialize(modules, state, eventInitializer);
+            app.Initialize(new(modules), state, eventInitializer);
 
             return app;
         };

@@ -9,12 +9,26 @@ namespace System.Web;
 [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Generic interface should also be implemented", Justification = Constants.ApiFromAspNet)]
 public sealed class HttpModuleCollection : NameObjectCollectionBase
 {
+    internal static HttpModuleCollection Empty { get; } = new();
+
     private IHttpModule?[]? _all;
     private string?[]? _allKeys;
 
     internal HttpModuleCollection()
         : base(StringComparer.InvariantCultureIgnoreCase)
     {
+        IsReadOnly = true;
+    }
+
+    internal HttpModuleCollection(IEnumerable<(string Key, IHttpModule Module)> modules)
+        : base(StringComparer.InvariantCultureIgnoreCase)
+    {
+        foreach (var (name, module) in modules)
+        {
+            BaseAdd(name, module);
+        }
+
+        IsReadOnly = true;
     }
 
     public void CopyTo(Array dest, int index)
@@ -45,14 +59,6 @@ public sealed class HttpModuleCollection : NameObjectCollectionBase
                 }
             }
         }
-    }
-
-    internal void AddModule(string name, IHttpModule m)
-    {
-        _all = null;
-        _allKeys = null;
-
-        BaseAdd(name, m);
     }
 
     public IHttpModule? Get(string name) => (IHttpModule?)BaseGet(name);
