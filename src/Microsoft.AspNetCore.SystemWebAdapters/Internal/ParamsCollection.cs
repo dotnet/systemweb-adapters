@@ -35,7 +35,7 @@ internal class ParamsCollection : NoGetByIntNameValueCollection
             return query;
         }
 
-        if (_request.Form.TryGetValue(key, out var form))
+        if (_request.HasFormContentType && _request.Form.TryGetValue(key, out var form))
         {
             return form;
         }
