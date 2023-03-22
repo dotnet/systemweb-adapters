@@ -40,6 +40,8 @@ namespace System.Web
 
         public virtual HttpFileCollectionBase Files => throw new NotImplementedException();
 
+        public virtual NameValueCollection Form => throw new NotImplementedException();
+
         public virtual string? this[string key] => throw new NotImplementedException();
 
         public virtual NameValueCollection Params => throw new NotImplementedException();
