@@ -13,7 +13,7 @@ using ModulesLibrary;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSystemWebAdapters()
-    // . AddHttpApplication(options => // Use non-generic version if no custom HttpApplication
+    // Non-generic version available if no custom HttpApplication is needed
     .AddHttpApplication<MyApp>(options =>
     {
         // Size of pool for HttpApplication instances. Should be what the expected concurrent requests will be
@@ -31,6 +31,22 @@ app.Run();
 
 class MyApp : HttpApplication
 {
+  protected void Application_Start()
+  {
+    ...
+  }
+
+  protected void Session_Start()
+  {
+    ...
+  }
+
+  protected void Begin_Request()
+  {
+    ...
+  }
+
+  ...
 }
 
 ```
