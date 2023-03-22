@@ -813,6 +813,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             form.Setup(f => f.Count).Returns(0);
 
             var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.HasFormContentType).Returns(true);
             requestCore.Setup(r => r.Form).Returns(form.Object);
 
             var request = new HttpRequest(requestCore.Object);
@@ -824,6 +825,28 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Assert
             Assert.Same(formCollection1, formCollection2);
             Assert.IsType<StringValuesReadOnlyDictionaryNameValueCollection>(formCollection1);
+        }
+
+        [Fact]
+        public void FormEmptyWithoutFormContentType()
+        {
+            // Arrange
+            var form = new Mock<IFormCollection>();
+            form.Setup(f => f.Count).Returns(0);
+
+            var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.HasFormContentType).Returns(false);
+            requestCore.Setup(r => r.Form).Throws(new InvalidOperationException("Incorrect Content-Type"));
+
+            var request = new HttpRequest(requestCore.Object);
+
+            // Act
+            var formCollection1 = request.Form;
+            var formCollection2 = request.Form;
+
+            // Assert
+            Assert.Same(formCollection1, formCollection2);
+            Assert.Empty(formCollection1);
         }
 
         [Fact]
@@ -843,6 +866,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             });
 
             var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.HasFormContentType).Returns(true);
             requestCore.Setup(r => r.Form).Returns(formCollection);
 
             var request = new HttpRequest(requestCore.Object);
@@ -1141,6 +1165,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             form.Setup(f => f.Files).Returns(formFiles.Object);
 
             var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.HasFormContentType).Returns(true);
             requestCore.Setup(r => r.Form).Returns(form.Object);
 
             var request = new HttpRequest(requestCore.Object);
@@ -1152,6 +1177,25 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Assert
             Assert.Same(files1, files2);
             Assert.Same(files1.FormFiles, formFiles.Object);
+        }
+
+        [Fact]
+        public void FilesEmptyWithoutFormContentType()
+        {
+            // Arrange
+            var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.HasFormContentType).Returns(false);
+            requestCore.Setup(r => r.Form).Throws(new InvalidOperationException("Incorrect Content-Type"));
+
+            var request = new HttpRequest(requestCore.Object);
+
+            // Act
+            var files1 = request.Files;
+            var files2 = request.Files;
+
+            // Assert
+            Assert.Same(files1, files2);
+            Assert.Empty(files1.FormFiles);
         }
 
         [Fact]
