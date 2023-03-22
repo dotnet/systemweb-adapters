@@ -13,16 +13,16 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class HttpApplicationExtensions
 {
-    public static ISystemWebAdapterBuilder ConfigureApplication(this ISystemWebAdapterBuilder builder, Action<HttpApplicationOptions> configure)
+    public static ISystemWebAdapterBuilder AddHttpApplication(this ISystemWebAdapterBuilder builder, Action<HttpApplicationOptions> configure)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
         builder.Services.TryAddSingleton<IHttpApplicationFactory, HttpApplicationFactory>();
-        builder.Services.TryAddTransient<HttpApplicationPolicy>();
+        builder.Services.TryAddTransient<IPooledObjectPolicy<HttpApplication>, HttpApplicationPolicy>();
         builder.Services.TryAddSingleton<ObjectPool<HttpApplication>>(sp =>
         {
             var options = sp.GetRequiredService<IOptions<HttpApplicationOptions>>();
-            var policy = sp.GetRequiredService<HttpApplicationPolicy>();
+            var policy = sp.GetRequiredService<IPooledObjectPolicy<HttpApplication>>();
 
             var provider = new DefaultObjectPoolProvider
             {
@@ -39,27 +39,17 @@ public static class HttpApplicationExtensions
         return builder;
     }
 
-    public static ISystemWebAdapterBuilder AddHttpModule<TModule>(this ISystemWebAdapterBuilder builder, string name)
-        where TModule : class, IHttpModule
-    {
-        ArgumentNullException.ThrowIfNull(builder);
-
-        builder.ConfigureApplication(options =>
-        {
-            options.RegisterModule<TModule>(name);
-        });
-
-        return builder;
-    }
-
-    public static ISystemWebAdapterBuilder AddHttpApplication<TApp>(this ISystemWebAdapterBuilder builder)
+    public static ISystemWebAdapterBuilder AddHttpApplication<TApp>(this ISystemWebAdapterBuilder builder, Action<HttpApplicationOptions> configure)
         where TApp : HttpApplication
     {
         ArgumentNullException.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(configure);
 
-        builder.ConfigureApplication(options =>
+        builder.AddHttpApplication(options =>
         {
             options.ApplicationType = typeof(TApp);
+
+            configure(options);
         });
 
         return builder;

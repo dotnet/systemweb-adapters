@@ -1,15 +1,38 @@
 # IHttpModules and Emulated Pipeline Support
 
-> **Note**: This implementation is not tied to IIS and does not hook into any of their events if ran on IIS.
+> **Note**: This implementation is not tied to IIS and does not hook into any of IIS events if ran on IIS.
 
-Support for HttpApplication and IHttpModule is emulated as best as possible on the ASP.NET Core pipeline. This is not tied to IIS and will work on Kestrel or any other host by using middleware to invoke the expected events at the times that best approximate the timing from ASP.NET Core. An attempt has been made to get the events to fire at the appropriate time, but because of the substantial difference between ASP.NET and ASP.NET Core there may still be unexpected behavior.
+Support for `HttpApplication` and `IHttpModule` is emulated as best as possible on the ASP.NET Core pipeline. This is not tied to IIS and will work on Kestrel or any other host by using middleware to invoke the expected events at the times that best approximate the timing from ASP.NET Core. An attempt has been made to get the events to fire at the appropriate time, but because of the substantial difference between ASP.NET and ASP.NET Core there may still be unexpected behavior.
 
 In order to register either an `HttpApplication` or `IHttpModule` instance, use the following pattern:
 
 ```csharp
+using System.Web;
+using ModulesLibrary;
+
+var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddSystemWebAdapters()
-  .AddHttpApplication<MyApp>()
-  .AddHttpModule<MyModule>();
+    // . AddHttpApplication(options => // Use non-generic version if no custom HttpApplication
+    .AddHttpApplication<MyApp>(options =>
+    {
+        // Size of pool for HttpApplication instances. Should be what the expected concurrent requests will be
+        options.PoolSize = 10;
+
+        // Register a module by name
+        options.RegisterModule<EventsModule>("Events");
+    });
+
+var app = builder.Build();
+
+app.UseSystemWebAdapters();
+
+app.Run();
+
+class MyApp : HttpApplication
+{
+}
+
 ```
 
 The normal `.UseSystemWebAdapters()` middleware builder will enable majority of the events. However, the authentication and authorization events require two additional middleware calls in order to enable them if you want the events to fire in the expected order. If they are omitted, they will be called at the point `UseSystemWebAdapters()` is added.

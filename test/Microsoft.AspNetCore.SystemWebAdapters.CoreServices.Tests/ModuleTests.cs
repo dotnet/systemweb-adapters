@@ -451,7 +451,11 @@ public class ModuleTests
                     {
                         services.AddRouting();
                         services.AddSystemWebAdapters()
-                            .AddHttpModule<TModule>(typeof(TModule).Name);
+                            .AddHttpApplication(options =>
+                            {
+                                options.RegisterModule<TModule>(typeof(TModule).Name);
+                            });
+
                     })
                     .Configure(app =>
                     {

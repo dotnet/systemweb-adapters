@@ -1,24 +1,27 @@
+using System.Web;
 using ModulesLibrary;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSystemWebAdapters()
-    .AddHttpModule<EventsModule>("Events");
+    .AddHttpApplication(options =>
+    {
+        // Size of pool for HttpApplication instances. Should be what the expected concurrent requests will be
+        options.PoolSize = 10;
+
+        // Set the HttpApplication type. By default will be HttpApplication, but anything that derives from it is allowed
+        options.ApplicationType = typeof(HttpApplication);
+
+        // Register a module by name
+        options.RegisterModule<EventsModule>("Events");
+    });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
 app.UseSystemWebAdapters();
 
 app.Run();
+
+class MyApp : HttpApplication
+{
+}

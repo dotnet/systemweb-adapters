@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Caching;
 using System.Web.Configuration;
@@ -58,17 +56,17 @@ public static class SystemWebAdaptersExtensions
         app.UseSystemWebAdapterFeatures();
 
         app.UseHttpApplicationEvent(
-             preEvents: new[]
-             {
-                    ApplicationEvent.ResolveRequestCache,
-                    ApplicationEvent.PostResolveRequestCache,
-                    ApplicationEvent.MapRequestHandler,
-                    ApplicationEvent.PostMapRequestHandler,
+            preEvents: new[]
+            {
+                ApplicationEvent.ResolveRequestCache,
+                ApplicationEvent.PostResolveRequestCache,
+                ApplicationEvent.MapRequestHandler,
+                ApplicationEvent.PostMapRequestHandler,
             },
             postEvents: new[]
             {
-                    ApplicationEvent.UpdateRequestCache,
-                    ApplicationEvent.PostUpdateRequestCache,
+                ApplicationEvent.UpdateRequestCache,
+                ApplicationEvent.PostUpdateRequestCache,
             });
 
         app.UseMiddleware<SessionMiddleware>();
