@@ -110,11 +110,11 @@ namespace System.Web
 
         public string RequestType => HttpMethod;
 
-        public NameValueCollection Form => _form ??= _request.Form.ToNameValueCollection();
+        public NameValueCollection Form => _form ??= _request.HasFormContentType ? _request.Form.ToNameValueCollection() : StringValuesReadOnlyDictionaryNameValueCollection.Empty;
 
         public HttpCookieCollection Cookies => _cookies ??= new(_request.Cookies);
 
-        public HttpFileCollection Files => _files ??= new(_request.Form.Files);
+        public HttpFileCollection Files => _files ??= _request.HasFormContentType ? new(_request.Form.Files) : HttpFileCollection.Empty;
 
         public int ContentLength => (int)(_request.ContentLength ?? 0);
 
