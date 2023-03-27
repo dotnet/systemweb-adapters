@@ -1,7 +1,11 @@
+using System;
 using System.Web;
+
+#nullable disable
 
 namespace ModulesLibrary
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1510:Use ArgumentNullException throw helper", Justification = "Source shared with .NET Framework that does not have the method")]
     public abstract class BaseModule : IHttpModule
     {
         public void Dispose()
@@ -10,6 +14,11 @@ namespace ModulesLibrary
 
         public void Init(HttpApplication application)
         {
+            if (application is null)
+            {
+                throw new ArgumentNullException(nameof(application));
+            }
+
             application.AcquireRequestState += (s, e) => WriteDetails(s, nameof(application.AcquireRequestState));
             application.AuthenticateRequest += (s, e) => WriteDetails(s, nameof(application.AuthenticateRequest));
             application.AuthorizeRequest += (s, e) => WriteDetails(s, nameof(application.AuthorizeRequest));
