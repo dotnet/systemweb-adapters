@@ -17,8 +17,7 @@ public static class HttpApplicationExtensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.Services.TryAddSingleton<IHttpApplicationFactory, HttpApplicationFactory>();
-        builder.Services.TryAddTransient<IPooledObjectPolicy<HttpApplication>, HttpApplicationPolicy>();
+        builder.Services.TryAddSingleton<IPooledObjectPolicy<HttpApplication>, HttpApplicationPooledObjectPolicy>();
         builder.Services.TryAddSingleton<ObjectPool<HttpApplication>>(sp =>
         {
             var options = sp.GetRequiredService<IOptions<HttpApplicationOptions>>();

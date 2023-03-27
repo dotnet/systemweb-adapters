@@ -9,11 +9,12 @@ using System.Threading;
 using System.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.ObjectPool;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal partial class HttpApplicationFactory : IHttpApplicationFactory
+internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPolicy<HttpApplication>
 {
     private readonly HashSet<string> UnsupportedEvents = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -82,18 +83,25 @@ internal partial class HttpApplicationFactory : IHttpApplicationFactory
     [LoggerMessage(2, LogLevel.Warning, "{ApplicationType}.{EventName} has unsupported signature")]
     private partial void LogInvalid(string applicationType, string eventName);
 
-    private readonly ILogger<HttpApplicationFactory> _logger;
+    private readonly ILogger<HttpApplicationPooledObjectPolicy> _logger;
     private readonly IServiceProvider _services;
     private readonly Lazy<Func<IServiceProvider, HttpApplication>> _factory;
 
-    public HttpApplicationFactory(IServiceProvider services, IOptions<HttpApplicationOptions> options, ILogger<HttpApplicationFactory> logger)
+    public HttpApplicationPooledObjectPolicy(IServiceProvider services, IOptions<HttpApplicationOptions> options, ILogger<HttpApplicationPooledObjectPolicy> logger)
     {
         _logger = logger;
         _services = services;
-        _factory = new Lazy<Func<IServiceProvider, HttpApplication>>(() => CreateFactory(options.Value));
+        _factory = new Lazy<Func<IServiceProvider, HttpApplication>>(() => CreateFactory(options.Value), isThreadSafe: true);
     }
 
-    HttpApplication IHttpApplicationFactory.Create() => _factory.Value(_services);
+    public override HttpApplication Create()
+        => _factory.Value(_services);
+
+    public override bool Return(HttpApplication obj)
+    {
+        obj.Context = null!;
+        return true;
+    }
 
     private Func<IServiceProvider, HttpApplication> CreateFactory(HttpApplicationOptions options)
     {
