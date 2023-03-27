@@ -104,6 +104,6 @@ On ASP.NET Framework, each request would get an individual `HttpApplication` ins
 - Event callbacks registered either on the `HttpApplication` type itself or on registered modules
 - Any state contained in the `HttpApplication` instance or its registered modules
 
-In order to support this, one of the first middlewares invoked will retrieve an instance of `HttpApplication`. This uses a `PooledObjectPolicy<HttpApplication>` that will create an instance of the application's `HttpApplication` type and register all modules on it. When the request is existing that middleware, it will return the `HttpApplication` instance. Upon return, it the `HttpContext` instance assigned to it is removed.
+In order to support this, one of the first middlewares invoked will retrieve an instance of `HttpApplication`. This uses a `PooledObjectPolicy<HttpApplication>` that will create an instance of the application's `HttpApplication` type and register all modules on it. When the request is exiting that middleware, it will return the `HttpApplication` instance to the pool which will also remove the `HttpContext` instance assigned to it.
 
 This can potentially create a number of instances of `HttpApplication` that are only used a limited number of times. The pool can be controlled by customizing the `HttpApplicationOptions.PoolSize` option or providing a custom implementation of `ObjectPool<HttpApplication>` that can use the `PooledObjectPolicy<HttpApplication>` provided to override the pooling behavior.
