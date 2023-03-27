@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Web;
 using System.Web.Caching;
 using System.Web.Configuration;
@@ -25,16 +26,23 @@ public static class SystemWebAdaptersExtensions
             .AddMvc();
     }
 
+    internal static bool HasBeenAdded(this IApplicationBuilder app, [CallerMemberName] string key = null!)
+    {
+        if (app.Properties.ContainsKey(key))
+        {
+            return true;
+        }
+
+        app.Properties[key] = true;
+        return false;
+    }
+
     internal static void UseSystemWebAdapterFeatures(this IApplicationBuilder app)
     {
-        const string Key = "SystemWebAdapterFeatures";
-
-        if (app.Properties.ContainsKey(Key))
+        if (app.HasBeenAdded())
         {
             return;
         }
-
-        app.Properties[Key] = true;
 
         app.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
         app.UseMiddleware<PreBufferRequestStreamMiddleware>();
@@ -54,6 +62,8 @@ public static class SystemWebAdaptersExtensions
         HttpRuntime.Current = app.ApplicationServices.GetRequiredService<IHttpRuntime>();
 
         app.UseSystemWebAdapterFeatures();
+        app.UseRaiseAuthenticationEvents();
+        app.UseRaiseAuthorizationEvents();
 
         app.UseHttpApplicationEvent(
             preEvents: new[]
