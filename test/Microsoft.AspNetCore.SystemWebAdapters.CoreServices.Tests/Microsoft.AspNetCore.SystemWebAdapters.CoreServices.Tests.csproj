@@ -9,8 +9,14 @@
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.13" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\samples\Modules\ModulesLibrary\ModulesLibrary.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.CoreServices\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.csproj" />
+  </ItemGroup>
+
+  <!-- These items are shared via linked files due to the samples not being compiled with a strong name and
+       the Arcade build system doesn't support non-PackageReference projects that we use in the samples -->
+  <ItemGroup>
+    <Compile Include="..\..\samples\Modules\ModulesLibrary\BaseModule.cs" Link="Modules\BaseModule.cs" />
+    <Compile Include="..\..\samples\Modules\ModulesLibrary\EventsModule.cs" Link="Modules\EventsModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Microsoft.AspNetCore.Http.HttpContext" Alias="HttpContextCore" />
