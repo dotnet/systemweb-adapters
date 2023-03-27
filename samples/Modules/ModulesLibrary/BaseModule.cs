@@ -1,7 +1,7 @@
 using System;
 using System.Web;
 
-#nullable disable
+#nullable enable
 
 namespace ModulesLibrary
 {
@@ -44,7 +44,7 @@ namespace ModulesLibrary
             application.UpdateRequestCache += (s, e) => WriteDetails(s, nameof(application.UpdateRequestCache));
         }
 
-        private void WriteDetails(object sender, string name)
+        private void WriteDetails(object? sender, string name)
         {
             if (sender is HttpApplication { Context: { } context })
             {
