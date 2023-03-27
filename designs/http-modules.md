@@ -20,7 +20,7 @@ builder.Services.AddSystemWebAdapters()
         options.PoolSize = 10;
 
         // Register a module by name
-        options.RegisterModule<EventsModule>("Events");
+        options.RegisterModule<MyModule>("Module");
     });
 
 var app = builder.Build();
@@ -49,6 +49,17 @@ class MyApp : HttpApplication
   ...
 }
 
+class MyModule : IHttpModule
+{
+  public void Init(HttpApplication app)
+  {
+    ...
+  }
+  
+  public void Dispose()
+  {
+  }
+}
 ```
 
 The normal `.UseSystemWebAdapters()` middleware builder will enable majority of the events. However, the authentication and authorization events require two additional middleware calls in order to enable them if you want the events to fire in the expected order. If they are omitted, they will be called at the point `UseSystemWebAdapters()` is added.
