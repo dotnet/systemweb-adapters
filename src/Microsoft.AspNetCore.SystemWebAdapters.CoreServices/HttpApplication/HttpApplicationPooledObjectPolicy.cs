@@ -245,11 +245,6 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
 
     private delegate EventHandler BindableEventHandler(HttpApplication app);
 
-    private class EventManager
-    {
-        public Action<HttpApplication>? Initialize { get; set; }
-    }
-
     private enum EventParseState
     {
         None,
