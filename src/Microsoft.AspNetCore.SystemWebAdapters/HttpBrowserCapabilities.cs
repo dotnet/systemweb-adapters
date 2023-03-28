@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Web.Configuration;
-using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace System.Web;
 

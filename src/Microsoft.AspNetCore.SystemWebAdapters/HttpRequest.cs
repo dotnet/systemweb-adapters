@@ -9,16 +9,12 @@ using System.IO;
 using System.Net;
 using System.Security.Principal;
 using System.Text;
-using System.Web.Configuration;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Http.Headers;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 
 namespace System.Web
@@ -293,45 +289,6 @@ namespace System.Web
                 var yValue = y?.Quality ?? 1;
 
                 return yValue.CompareTo(xValue);
-            }
-        }
-
-        /// <summary>
-        /// Gets the section of a path that could be interpreted as a file path and the subsequent path.
-        ///
-        /// For example:
-        ///
-        /// Path:     /path/file.txt/subpath
-        /// FilePath: /path/file.txt
-        /// PathInfo: /subpath
-        /// </summary>
-        /// <see cref="https://learn.microsoft.com/dotnet/api/system.web.httprequest.filepath"/>
-        /// <see cref="https://learn.microsoft.com/dotnet/api/system.web.httprequest.pathinfo"/>
-        private void GetFileInfoPath(out StringSegment filePath, out StringSegment pathInfo)
-        {
-            var path = new StringSegment(Path);
-            var extensionIndex = path.IndexOf('.');
-
-            // If no extension, just return the path
-            if (extensionIndex == -1)
-            {
-                filePath = path;
-                pathInfo = string.Empty;
-                return;
-            }
-
-            var endIndex = path.IndexOf('/', extensionIndex, path.Length - extensionIndex);
-
-            // If no filepath, just return the path
-            if (endIndex == -1)
-            {
-                filePath = path;
-                pathInfo = string.Empty;
-            }
-            else
-            {
-                filePath = path.Subsegment(0, endIndex);
-                pathInfo = path.Subsegment(endIndex);
             }
         }
     }

@@ -23,6 +23,10 @@ namespace System.Web
 
         public virtual HttpApplicationState Application => throw new NotImplementedException();
 
+        public virtual bool IsPostNotification => throw new NotImplementedException();
+
+        public virtual RequestNotification CurrentNotification => throw new NotImplementedException();
+
         public virtual IDictionary Items => throw new NotImplementedException();
 
         public virtual DateTime Timestamp => throw new NotImplementedException();
