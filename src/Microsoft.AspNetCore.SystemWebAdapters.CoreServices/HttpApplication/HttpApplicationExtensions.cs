@@ -4,6 +4,7 @@
 using System;
 using System.Web;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.ObjectPool;
@@ -17,7 +18,9 @@ public static class HttpApplicationExtensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.Services.TryAddSingleton<IPooledObjectPolicy<HttpApplication>, HttpApplicationPooledObjectPolicy>();
+        builder.Services.TryAddSingleton<HttpApplicationPooledObjectPolicy>();
+        builder.Services.AddTransient<IStartupFilter>(ctx => ctx.GetRequiredService<HttpApplicationPooledObjectPolicy>());
+        builder.Services.TryAddSingleton<IPooledObjectPolicy<HttpApplication>>(ctx => ctx.GetRequiredService<HttpApplicationPooledObjectPolicy>());
         builder.Services.TryAddSingleton<ObjectPool<HttpApplication>>(sp =>
         {
             var options = sp.GetRequiredService<IOptions<HttpApplicationOptions>>();

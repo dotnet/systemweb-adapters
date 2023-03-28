@@ -7,6 +7,10 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal enum ApplicationEvent
 {
+    ApplicationStart,
+
+    ApplicationInit,
+
     BeginRequest,
 
     AuthenticateRequest,

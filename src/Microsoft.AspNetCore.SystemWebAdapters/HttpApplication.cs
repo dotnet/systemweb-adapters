@@ -223,6 +223,18 @@ public class HttpApplication : IDisposable
         remove => RemoveEvent(value);
     }
 
+    internal event EventHandler? ApplicationStart
+    {
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
+    }
+
+    internal event EventHandler? ApplicationInit
+    {
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
+    }
+
     public event EventHandler? PreSendRequestHeaders
     {
         add => AddEvent(value);

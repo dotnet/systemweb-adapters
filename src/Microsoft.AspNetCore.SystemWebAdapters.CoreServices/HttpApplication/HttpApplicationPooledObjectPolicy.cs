@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Web;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
@@ -14,7 +16,7 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPolicy<HttpApplication>, IDisposable
+internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPolicy<HttpApplication>, IStartupFilter, IDisposable
 {
     private readonly HashSet<string> UnsupportedEvents = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -26,7 +28,13 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
     };
 
     private readonly Dictionary<string, Action<HttpApplication, EventHandler>> KnownEvents = new(StringComparer.OrdinalIgnoreCase)
-    {   
+    {
+        // Fired when the first instance of the HttpApplication class is created. It allows you to create objects that are accessible by all HttpApplication instances.
+        { "Application_Start", (app, handler) => app.ApplicationStart += handler },
+
+        // Fired when an application initializes or is first called. It's invoked for all HttpApplication object instances.
+        { "Application_Init", (app, handler) => app.ApplicationInit += handler },
+        
         // Fired just before an application is destroyed. This is the ideal location for cleaning up previously used resources.
         { "Application_Disposed", (app, handler) => app.Disposed += handler },
 
@@ -96,8 +104,33 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
         _factory = new Lazy<Func<IServiceProvider, HttpApplication>>(() => CreateFactory(options.Value), isThreadSafe: true);
     }
 
+    Action<IApplicationBuilder> IStartupFilter.Configure(Action<IApplicationBuilder> next) => builder =>
+    {
+        using var scope = builder.ApplicationServices.CreateScope();
+
+        var app = _factory.Value(_services);
+
+        // ASP.NET Framework provided an HttpContext instance that was not tied to a request for Start
+        app.Context = new DefaultHttpContext
+        {
+            RequestServices = scope.ServiceProvider,
+        };
+
+        // This is only invoked at the beginning of the application
+        app.InvokeEvent(ApplicationEvent.ApplicationStart);
+
+        next(builder);
+    };
+
     public override HttpApplication Create()
-        => _factory.Value(_services);
+    {
+        var app = _factory.Value(_services);
+
+        // This is invoked each time an HttpApplication is constructed
+        app.InvokeEvent(ApplicationEvent.ApplicationInit);
+
+        return app;
+    }
 
     public override bool Return(HttpApplication obj)
     {
@@ -140,39 +173,11 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
         };
     }
 
-
     private Action<HttpApplication> GetEventInitializer(HttpApplicationOptions options)
     {
-        var initializer = BuildEventManager(options.ApplicationType);
-
-        if (!initializer.HasInitializers)
-        {
-            return _ => { };
-        }
-
-        var firstTime = 0;
-
-        return app =>
-        {
-            var current = Interlocked.CompareExchange(ref firstTime, 1, 0);
-
-            if (current == 0)
-            {
-                // This is only invoked on the first HttpApplication that is constructed
-                initializer.Application_Start?.Invoke(app)?.Invoke(app, EventArgs.Empty);
-            }
-
-            // This is invoked each time an HttpApplication is constructed
-            initializer.Application_Init?.Invoke(app)?.Invoke(app, EventArgs.Empty);
-
-            initializer.Initialize?.Invoke(app);
-        };
-    }
-
-    private EventManager BuildEventManager(Type type)
-    {
+        var type = options.ApplicationType;
         var typeName = type.FullName ?? type.Name;
-        var known = new EventManager();
+        Action<HttpApplication>? known = default;
 
         foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
         {
@@ -182,27 +187,9 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
             {
                 state = EventParseState.NotSupported;
             }
-            else if (KnownEvents.TryGetValue(method.Name, out var registration))
+            else if (KnownEvents.TryGetValue(method.Name, out var registration) && CreateHandler(method, ref state) is { } handler)
             {
-                if (CreateHandler(method, ref state) is { } handler)
-                {
-                    known.Initialize += app => registration(app, handler(app));
-                }
-            }
-            else
-            {
-                switch (method.Name)
-                {
-                    // Fired when an application initializes or is first called. It's invoked for all HttpApplication object instances.
-                    case "Application_Init":
-                        known.Application_Init = CreateHandler(method, ref state);
-                        break;
-
-                    // Fired when the first instance of the HttpApplication class is created. It allows you to create objects that are accessible by all HttpApplication instances.
-                    case "Application_Start":
-                        known.Application_Start = CreateHandler(method, ref state);
-                        break;
-                }
+                known += app => registration(app, handler(app));
             }
 
             if (state is EventParseState.Registered)
@@ -219,7 +206,7 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
             }
         }
 
-        return known;
+        return known ?? (_ => { });
     }
 
     private static BindableEventHandler? CreateHandler(MethodInfo method, ref EventParseState state)
@@ -260,16 +247,7 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
 
     private class EventManager
     {
-        public BindableEventHandler? Application_Init { get; set; }
-
-        public BindableEventHandler? Application_Start { get; set; }
-
         public Action<HttpApplication>? Initialize { get; set; }
-
-        public bool HasInitializers =>
-            Application_Init is not null &&
-            Application_Start is not null &&
-            Initialize is not null;
     }
 
     private enum EventParseState
