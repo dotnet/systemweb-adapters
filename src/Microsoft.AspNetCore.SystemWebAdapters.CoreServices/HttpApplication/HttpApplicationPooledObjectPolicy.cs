@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPolicy<HttpApplication>
+internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPolicy<HttpApplication>, IDisposable
 {
     private readonly HashSet<string> UnsupportedEvents = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -86,11 +86,13 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
     private readonly ILogger<HttpApplicationPooledObjectPolicy> _logger;
     private readonly IServiceProvider _services;
     private readonly Lazy<Func<IServiceProvider, HttpApplication>> _factory;
+    private readonly HttpApplicationState _state;
 
     public HttpApplicationPooledObjectPolicy(IServiceProvider services, IOptions<HttpApplicationOptions> options, ILogger<HttpApplicationPooledObjectPolicy> logger)
     {
         _logger = logger;
         _services = services;
+        _state = new HttpApplicationState();
         _factory = new Lazy<Func<IServiceProvider, HttpApplication>>(() => CreateFactory(options.Value), isThreadSafe: true);
     }
 
@@ -106,7 +108,6 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
     private Func<IServiceProvider, HttpApplication> CreateFactory(HttpApplicationOptions options)
     {
         var eventInitializer = GetEventInitializer(options);
-        var state = new HttpApplicationState();
         var factory = ActivatorUtilities.CreateFactory(options.ApplicationType, Array.Empty<Type>());
         var moduleFactories = options.Modules
             .Select(m => (m.Key, ActivatorUtilities.CreateFactory(m.Value, Array.Empty<Type>())))
@@ -117,7 +118,7 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
             return sp =>
             {
                 var app = (HttpApplication)factory(sp, null);
-                app.Initialize(HttpModuleCollection.Empty, state, eventInitializer);
+                app.Initialize(HttpModuleCollection.Empty, _state, eventInitializer);
                 return app;
             };
         }
@@ -133,7 +134,7 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
                 modules[i] = (moduleFactories[i].Key, module);
             }
 
-            app.Initialize(new(modules), state, eventInitializer);
+            app.Initialize(new(modules), _state, eventInitializer);
 
             return app;
         };
@@ -250,6 +251,10 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
         return null;
     }
 
+    public void Dispose()
+    {
+        _state.Dispose();
+    }
 
     private delegate EventHandler BindableEventHandler(HttpApplication app);
 

@@ -8,9 +8,10 @@ using System.Threading;
 namespace System.Web;
 
 [SuppressMessage("Design", "CA1010:Generic interface should also be implemented", Justification = Constants.ApiFromAspNet)]
+[SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "This is internally disposed")]
 public sealed class HttpApplicationState : NameObjectCollectionBase
 {
-    private readonly HttpApplicationStateLock _lock = new HttpApplicationStateLock();
+    private readonly ReaderWriterLockSlim _lock = new();
 
     internal HttpApplicationState()
     {
@@ -20,14 +21,14 @@ public sealed class HttpApplicationState : NameObjectCollectionBase
     {
         get
         {
-            _lock.AcquireRead();
+            _lock.EnterReadLock();
             try
             {
                 return base.Count;
             }
             finally
             {
-                _lock.ReleaseRead();
+                _lock.ExitReadLock();
             }
         }
     }
@@ -37,14 +38,14 @@ public sealed class HttpApplicationState : NameObjectCollectionBase
     /// </summary>
     public void Add(string name, object value)
     {
-        _lock.AcquireWrite();
+        _lock.EnterWriteLock();
         try
         {
             BaseAdd(name, value);
         }
         finally
         {
-            _lock.ReleaseWrite();
+            _lock.ExitWriteLock();
         }
     }
 
@@ -53,14 +54,14 @@ public sealed class HttpApplicationState : NameObjectCollectionBase
     /// </summary>
     public void Set(string name, object value)
     {
-        _lock.AcquireWrite();
+        _lock.EnterWriteLock();
         try
         {
             BaseSet(name, value);
         }
         finally
         {
-            _lock.ReleaseWrite();
+            _lock.ExitWriteLock();
         }
     }
 
@@ -69,14 +70,14 @@ public sealed class HttpApplicationState : NameObjectCollectionBase
     /// </summary>
     public void Remove(string name)
     {
-        _lock.AcquireWrite();
+        _lock.EnterWriteLock();
         try
         {
             BaseRemove(name);
         }
         finally
         {
-            _lock.ReleaseWrite();
+            _lock.ExitWriteLock();
         }
     }
 
@@ -85,14 +86,14 @@ public sealed class HttpApplicationState : NameObjectCollectionBase
     /// </summary>
     public void RemoveAt(int index)
     {
-        _lock.AcquireWrite();
+        _lock.EnterWriteLock();
         try
         {
             BaseRemoveAt(index);
         }
         finally
         {
-            _lock.ReleaseWrite();
+            _lock.ExitWriteLock();
         }
     }
 
@@ -101,14 +102,14 @@ public sealed class HttpApplicationState : NameObjectCollectionBase
     /// </summary>
     public void Clear()
     {
-        _lock.AcquireWrite();
+        _lock.EnterWriteLock();
         try
         {
             BaseClear();
         }
         finally
         {
-            _lock.ReleaseWrite();
+            _lock.ExitWriteLock();
         }
     }
 
@@ -122,14 +123,14 @@ public sealed class HttpApplicationState : NameObjectCollectionBase
     /// </summary>
     public object? Get(string name)
     {
-        _lock.AcquireRead();
+        _lock.EnterReadLock();
         try
         {
             return BaseGet(name);
         }
         finally
         {
-            _lock.ReleaseRead();
+            _lock.ExitReadLock();
         }
     }
 
@@ -149,14 +150,14 @@ public sealed class HttpApplicationState : NameObjectCollectionBase
     /// </summary>
     public object? Get(int index)
     {
-        _lock.AcquireRead();
+        _lock.EnterReadLock();
         try
         {
             return BaseGet(index);
         }
         finally
         {
-            _lock.ReleaseRead();
+            _lock.ExitReadLock();
         }
     }
 
@@ -165,14 +166,14 @@ public sealed class HttpApplicationState : NameObjectCollectionBase
     /// </summary>
     public string? GetKey(int index)
     {
-        _lock.AcquireRead();
+        _lock.EnterReadLock();
         try
         {
             return BaseGetKey(index);
         }
         finally
         {
-            _lock.ReleaseRead();
+            _lock.ExitReadLock();
         }
     }
 
@@ -190,14 +191,14 @@ public sealed class HttpApplicationState : NameObjectCollectionBase
     {
         get
         {
-            _lock.AcquireRead();
+            _lock.EnterReadLock();
             try
             {
                 return BaseGetAllKeys();
             }
             finally
             {
-                _lock.ReleaseRead();
+                _lock.ExitReadLock();
             }
         }
     }
@@ -205,29 +206,18 @@ public sealed class HttpApplicationState : NameObjectCollectionBase
     /// <summary>
     /// Locks access to all application state variables. Facilitates access synchronization.
     /// </summary>
-    public void Lock() => _lock.AcquireWrite();
+    public void Lock() => _lock.EnterWriteLock();
 
     /// <summary>
     /// Unocks access to all application state variables. Facilitates access synchronization.
     /// </summary>
-    public void UnLock() => _lock.ReleaseWrite();
+    public void UnLock() => _lock.ExitWriteLock();
 
-    [SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "Should dispose but WIP")]
-    private class HttpApplicationStateLock
+    /// <summary>
+    /// HttpApplication does not implement IDisposable since that wouldn't work for a .NET Standard build
+    /// </summary>
+    internal void Dispose()
     {
-        private readonly ReaderWriterLockSlim _lock;
-
-        internal HttpApplicationStateLock()
-        {
-            _lock = new ReaderWriterLockSlim();
-        }
-
-        internal void AcquireRead() => _lock.EnterReadLock();
-
-        internal void ReleaseRead() => _lock.ExitReadLock();
-
-        internal void AcquireWrite() => _lock.EnterWriteLock();
-
-        internal void ReleaseWrite() => _lock.ExitWriteLock();
+        _lock.Dispose();
     }
 }
