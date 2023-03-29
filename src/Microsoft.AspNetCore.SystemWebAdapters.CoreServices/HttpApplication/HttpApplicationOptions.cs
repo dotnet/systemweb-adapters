@@ -5,7 +5,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Web;
+
+using static System.FormattableString;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
@@ -43,9 +46,20 @@ public class HttpApplicationOptions
     /// </summary>
     public int PoolSize { get; set; } = 100;
 
-    public void RegisterModule<T>(string name)
+    public void RegisterModule<T>(string? name = null)
          where T : IHttpModule
-        => Modules.Add(name, typeof(T));
+        => RegisterModule(typeof(T), name);
+
+    public void RegisterModule(Type type, string? name = null)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+
+        Modules.Add(name ?? MakeUniqueModuleName(type), type);
+
+        // Gets a dynamic name similar to how ASP.NET Framework did in the static HttpApplication.RegisterModule(Type moduleType) method
+        static string MakeUniqueModuleName(Type type)
+            => Invariant($"__DynamicModule_{type.AssemblyQualifiedName}_{Guid.NewGuid()}");
+    }
 
     /// <summary>
     /// A collection that validates that the types added are actual IHttpModule types

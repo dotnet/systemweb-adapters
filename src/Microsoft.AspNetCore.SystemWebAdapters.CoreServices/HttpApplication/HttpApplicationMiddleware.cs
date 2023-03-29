@@ -24,7 +24,7 @@ internal class HttpApplicationMiddleware
         var app = _pool.Get();
 
         var endFeature = context.Features.GetRequired<IHttpResponseEndFeature>();
-        var setNotification = new RequestHttpApplicationFeature(app, endFeature, context);
+        var setNotification = new RequestHttpApplicationFeature(app, endFeature);
 
         context.Features.Set<IHttpApplicationFeature>(setNotification);
         context.Features.Set<IHttpResponseEndFeature>(setNotification);

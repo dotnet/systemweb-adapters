@@ -8,31 +8,35 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, IHttpResponseEndFeature
 {
-    private readonly HttpContextCore _context;
     private readonly IHttpResponseEndFeature _previous;
+    private State _state;
 
-    public RequestHttpApplicationFeature(HttpApplication app, IHttpResponseEndFeature previousEnd, HttpContextCore context)
+    public RequestHttpApplicationFeature(HttpApplication app, IHttpResponseEndFeature previousEnd)
     {
         Application = app;
         _previous = previousEnd;
-        _context = context;
     }
 
     public RequestNotification CurrentNotification { get; set; }
 
     public bool IsPostNotification { get; set; }
 
-    public bool IsEnded => _previous.IsEnded;
+    public bool IsEnded => _state != State.Running;
 
     public HttpApplication Application { get; }
 
-    public ValueTask RaiseEventAsync(ApplicationEvent @event)
+    ValueTask IHttpApplicationFeature.RaiseEventAsync(ApplicationEvent @event)
     {
         if (IsEnded)
         {
             return ValueTask.CompletedTask;
         }
 
+        return RaiseEventAsync(@event);
+    }
+
+    public ValueTask RaiseEventAsync(ApplicationEvent @event)
+    {
         (CurrentNotification, IsPostNotification) = @event switch
         {
             ApplicationEvent.BeginRequest => (RequestNotification.BeginRequest, false),
@@ -67,23 +71,27 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
 
     async Task IHttpResponseEndFeature.EndAsync()
     {
-        // Prevent subsequent calls from going through this pathway again
-        _context.Features.Set(NoopEndFeature.Instance);
+        if (_state != State.Running)
+        {
+            return;
+        }
+
+        _state = State.Ending;
 
         await RaiseEventAsync(ApplicationEvent.LogRequest);
         await RaiseEventAsync(ApplicationEvent.PostLogRequest);
         await RaiseEventAsync(ApplicationEvent.EndRequest);
         await RaiseEventAsync(ApplicationEvent.PreSendRequestHeaders);
 
+        _state = State.Ended;
+
         await _previous.EndAsync();
     }
 
-    private sealed class NoopEndFeature : IHttpResponseEndFeature
+    private enum State
     {
-        public static IHttpResponseEndFeature Instance { get; } = new NoopEndFeature();
-
-        public bool IsEnded => true;
-
-        public Task EndAsync() => Task.CompletedTask;
+        Running,
+        Ending,
+        Ended
     }
 }
