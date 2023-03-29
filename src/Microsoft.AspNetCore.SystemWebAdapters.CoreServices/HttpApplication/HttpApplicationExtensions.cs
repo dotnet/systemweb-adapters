@@ -103,7 +103,7 @@ public static class HttpApplicationExtensions
         }
     }
 
-    public static IApplicationBuilder UseRaiseAuthenticationEvents(this IApplicationBuilder app)
+    public static IApplicationBuilder UseAuthenticationEvents(this IApplicationBuilder app)
     {
         ArgumentNullException.ThrowIfNull(app);
 
@@ -118,7 +118,7 @@ public static class HttpApplicationExtensions
         return app;
     }
 
-    public static IApplicationBuilder UseRaiseAuthorizationEvents(this IApplicationBuilder app)
+    public static IApplicationBuilder UseAuthorizationEvents(this IApplicationBuilder app)
     {
         ArgumentNullException.ThrowIfNull(app);
 
@@ -128,7 +128,7 @@ public static class HttpApplicationExtensions
         }
 
         app.UseSystemWebAdapterFeatures();
-        app.UseRaiseAuthenticationEvents();
+        app.UseAuthenticationEvents();
         app.UseHttpApplicationEvent(ApplicationEvent.AuthorizeRequest, ApplicationEvent.PostAuthorizeRequest);
 
         return app;

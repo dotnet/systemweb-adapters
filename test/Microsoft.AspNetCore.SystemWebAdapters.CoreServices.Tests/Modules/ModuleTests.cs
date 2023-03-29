@@ -461,8 +461,8 @@ public class ModuleTests
                     {
                         app.UseRouting();
 
-                        app.UseRaiseAuthenticationEvents();
-                        app.UseRaiseAuthorizationEvents();
+                        app.UseAuthenticationEvents();
+                        app.UseAuthorizationEvents();
                         app.UseSystemWebAdapters();
 
                         app.Run(ctx => Task.CompletedTask);

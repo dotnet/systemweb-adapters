@@ -62,8 +62,8 @@ public static class SystemWebAdaptersExtensions
         HttpRuntime.Current = app.ApplicationServices.GetRequiredService<IHttpRuntime>();
 
         app.UseSystemWebAdapterFeatures();
-        app.UseRaiseAuthenticationEvents();
-        app.UseRaiseAuthorizationEvents();
+        app.UseAuthenticationEvents();
+        app.UseAuthorizationEvents();
 
         app.UseHttpApplicationEvent(
             preEvents: new[]
