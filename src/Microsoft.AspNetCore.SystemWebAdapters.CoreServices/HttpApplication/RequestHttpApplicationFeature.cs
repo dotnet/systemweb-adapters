@@ -35,12 +35,12 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
             return ValueTask.CompletedTask;
         }
 
-        return RaiseEventAsync(@event, true);
+        return RaiseEventAsync(@event, suppressThrow: false);
     }
 
-    public ValueTask RaiseEventAsync(ApplicationEvent @event, bool @throw)
+    public ValueTask RaiseEventAsync(ApplicationEvent appEvent, bool suppressThrow)
     {
-        (CurrentNotification, IsPostNotification) = @event switch
+        (CurrentNotification, IsPostNotification) = appEvent switch
         {
             ApplicationEvent.BeginRequest => (RequestNotification.BeginRequest, false),
             ApplicationEvent.AuthenticateRequest => (RequestNotification.AuthenticateRequest, false),
@@ -67,22 +67,40 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
             _ => (CurrentNotification, IsPostNotification),
         };
 
+        InvokeEvent(appEvent, suppressThrow);
+
+        return ValueTask.CompletedTask;
+    }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Need to handle all exceptions")]
+    private void InvokeEvent(ApplicationEvent appEvent, bool suppressThrow)
+    {
         try
         {
-            Application.InvokeEvent(@event);
+            Application.InvokeEvent(appEvent);
         }
         catch (Exception ex)
         {
-            Application.InvokeEvent(ApplicationEvent.Error);
             AddError(ex);
+            Application.InvokeEvent(ApplicationEvent.Error);
 
-            if (@throw)
+            if (!suppressThrow)
             {
-                throw;
+                ThrowIfErrors();
             }
         }
+    }
 
-        return ValueTask.CompletedTask;
+    private void ThrowIfErrors()
+    {
+        if (_exceptions is [{ } exception])
+        {
+            throw exception;
+        }
+        else if (_exceptions is { } exceptions)
+        {
+            throw new AggregateException(exceptions);
+        }
     }
 
     async Task IHttpResponseEndFeature.EndAsync()
@@ -94,24 +112,18 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
 
         _state = State.Ending;
 
-        await RaiseEventAsync(ApplicationEvent.LogRequest, false);
-        await RaiseEventAsync(ApplicationEvent.PostLogRequest, false);
-        await RaiseEventAsync(ApplicationEvent.EndRequest, false);
-        await RaiseEventAsync(ApplicationEvent.PreSendRequestHeaders, false);
+        await RaiseEventAsync(ApplicationEvent.LogRequest, suppressThrow: true);
+        await RaiseEventAsync(ApplicationEvent.PostLogRequest, suppressThrow: true);
+        await RaiseEventAsync(ApplicationEvent.EndRequest, suppressThrow: true);
+        await RaiseEventAsync(ApplicationEvent.PreSendRequestHeaders, suppressThrow: true);
 
         _state = State.Ended;
 
         await _previous.EndAsync();
 
-        if (_exceptions is [{ } exception])
-        {
-            throw exception;
-        }
-        else if (_exceptions is { } exceptions)
-        {
-            throw new AggregateException(exceptions);
-        }
+        ThrowIfErrors();
     }
+
     private void AddError(Exception ex)
         => (_exceptions ??= new()).Add(ex);
 
