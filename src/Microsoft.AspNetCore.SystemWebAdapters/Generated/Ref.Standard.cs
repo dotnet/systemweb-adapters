@@ -52,7 +52,6 @@ namespace System.Web
         public event System.EventHandler PreRequestHandlerExecute { add { } remove { } }
         public event System.EventHandler PreSendRequestHeaders { add { } remove { } }
         public event System.EventHandler ReleaseRequestState { add { } remove { } }
-        public event System.EventHandler RequestCompleted { add { } remove { } }
         public event System.EventHandler ResolveRequestCache { add { } remove { } }
         public event System.EventHandler UpdateRequestCache { add { } remove { } }
         public void CompleteRequest() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
