@@ -11,7 +11,6 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, IHttpResponseEndFeature
 {
     private readonly IHttpResponseEndFeature _previous;
-    private State _state;
     private List<Exception>? _exceptions;
 
     public RequestHttpApplicationFeature(HttpApplication app, IHttpResponseEndFeature previousEnd)
@@ -24,21 +23,14 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
 
     public bool IsPostNotification { get; set; }
 
-    public bool IsEnded => _state != State.Running;
+    public bool IsEnded { get; private set; }
 
     public HttpApplication Application { get; }
 
     ValueTask IHttpApplicationFeature.RaiseEventAsync(ApplicationEvent @event)
-    {
-        if (IsEnded)
-        {
-            return ValueTask.CompletedTask;
-        }
+        => RaiseEventAsync(@event, suppressThrow: false);
 
-        return RaiseEventAsync(@event, suppressThrow: false);
-    }
-
-    public ValueTask RaiseEventAsync(ApplicationEvent appEvent, bool suppressThrow)
+    private ValueTask RaiseEventAsync(ApplicationEvent appEvent, bool suppressThrow)
     {
         (CurrentNotification, IsPostNotification) = appEvent switch
         {
@@ -105,32 +97,22 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
 
     async Task IHttpResponseEndFeature.EndAsync()
     {
-        if (_state != State.Running)
+        if (IsEnded)
         {
             return;
         }
 
-        _state = State.Ending;
+        IsEnded = true;
 
         await RaiseEventAsync(ApplicationEvent.LogRequest, suppressThrow: true);
         await RaiseEventAsync(ApplicationEvent.PostLogRequest, suppressThrow: true);
         await RaiseEventAsync(ApplicationEvent.EndRequest, suppressThrow: true);
         await RaiseEventAsync(ApplicationEvent.PreSendRequestHeaders, suppressThrow: true);
 
-        _state = State.Ended;
-
         await _previous.EndAsync();
 
         ThrowIfErrors();
     }
 
-    private void AddError(Exception ex)
-        => (_exceptions ??= new()).Add(ex);
-
-    private enum State
-    {
-        Running,
-        Ending,
-        Ended
-    }
+    private void AddError(Exception ex) => (_exceptions ??= new()).Add(ex);
 }
