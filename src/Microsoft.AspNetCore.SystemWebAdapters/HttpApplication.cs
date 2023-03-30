@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Security.Principal;
 using System.Web.SessionState;
-using System.Web.Util;
 using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace System.Web;
