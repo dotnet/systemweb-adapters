@@ -72,14 +72,23 @@ public static class SystemWebAdaptersExtensions
                 ApplicationEvent.PostResolveRequestCache,
                 ApplicationEvent.MapRequestHandler,
                 ApplicationEvent.PostMapRequestHandler,
+                ApplicationEvent.AcquireRequestState,
+                ApplicationEvent.PostAcquireRequestState,
             },
             postEvents: new[]
             {
+                ApplicationEvent.ReleaseRequestState,
+                ApplicationEvent.PostReleaseRequestState,
                 ApplicationEvent.UpdateRequestCache,
                 ApplicationEvent.PostUpdateRequestCache,
             });
 
         app.UseMiddleware<SessionMiddleware>();
+
+        if (app.AreHttpApplicationEventsRequired())
+        {
+            app.UseMiddleware<SessionEventsMiddleware>();
+        }
 
         app.UseHttpApplicationEvent(
             preEvents: new[] { ApplicationEvent.PreRequestHandlerExecute },

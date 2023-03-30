@@ -11,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
-
 internal partial class SessionMiddleware
 {
     private readonly RequestDelegate _next;
@@ -34,28 +33,13 @@ internal partial class SessionMiddleware
     public Task InvokeAsync(HttpContextCore context)
         => context.GetEndpoint()?.Metadata.GetMetadata<SessionAttribute>() is { Behavior: not SessionBehavior.None } metadata
             ? ManageStateAsync(context, metadata)
-            : NoSessionAsync(context);
-
-    private Task NoSessionAsync(HttpContextCore context)
-        => context.Features.Get<IHttpApplicationFeature>() is { } events ? RaiseEventsNoSessionAsync(context, events) : _next(context);
-
-    private async Task RaiseEventsNoSessionAsync(HttpContextCore context, IHttpApplicationFeature appFeature)
-    {
-        await appFeature.RaiseEventAsync(ApplicationEvent.AcquireRequestState);
-        await appFeature.RaiseEventAsync(ApplicationEvent.PostAcquireRequestState);
-
-        await _next(context);
-
-        await appFeature.RaiseEventAsync(ApplicationEvent.ReleaseRequestState);
-        await appFeature.RaiseEventAsync(ApplicationEvent.PostReleaseRequestState);
-    }
+            : _next(context);
 
     private async Task ManageStateAsync(HttpContextCore context, SessionAttribute metadata)
     {
         LogMessage(metadata.Behavior);
 
-        var appFeature = context.Features.Get<IHttpApplicationFeature>();
-        var manager = GetSessionManager(context, appFeature);
+        var manager = context.RequestServices.GetRequiredService<ISessionManager>();
 
         using var state = metadata.Behavior switch
         {
@@ -77,63 +61,10 @@ internal partial class SessionMiddleware
 
             using var cts = new CancellationTokenSource(CommitTimeout);
             await state.CommitAsync(cts.Token);
-
-            if (state.IsAbandoned)
-            {
-                if (appFeature is { })
-                {
-                    await appFeature.RaiseEventAsync(ApplicationEvent.SessionEnd);
-                }
-            }
         }
         finally
         {
             context.Features.Set<HttpSessionState?>(null);
-
-            if (appFeature is { })
-            {
-                await appFeature.RaiseEventAsync(ApplicationEvent.ReleaseRequestState);
-                await appFeature.RaiseEventAsync(ApplicationEvent.PostReleaseRequestState);
-            }
-        }
-    }
-
-    private static ISessionManager GetSessionManager(HttpContext context, IHttpApplicationFeature? appFeature)
-    {
-        var manager = context.RequestServices.GetRequiredService<ISessionManager>();
-
-        if (appFeature is null)
-        {
-            return manager;
-        }
-
-        return new EventingSessionManager(manager, appFeature);
-    }
-
-    private class EventingSessionManager : ISessionManager
-    {
-        private readonly ISessionManager _other;
-        private readonly IHttpApplicationFeature _appFeature;
-
-        public EventingSessionManager(ISessionManager other, IHttpApplicationFeature appFeature)
-        {
-            _other = other;
-            _appFeature = appFeature;
-        }
-
-        public async Task<ISessionState> CreateAsync(HttpContext context, SessionAttribute metadata)
-        {
-            var result = await _other.CreateAsync(context, metadata);
-
-            if (result.IsNewSession)
-            {
-                await _appFeature.RaiseEventAsync(ApplicationEvent.SessionStart);
-            }
-
-            await _appFeature.RaiseEventAsync(ApplicationEvent.AcquireRequestState);
-            await _appFeature.RaiseEventAsync(ApplicationEvent.PostAcquireRequestState);
-
-            return result;
         }
     }
 
