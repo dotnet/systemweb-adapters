@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Web.Caching;
@@ -41,6 +42,15 @@ public class HttpContext : IServiceProvider
 
     public HttpServerUtility Server => _server ??= new(_context);
 
+    public Exception? Error => _context.Features.Get<IRequestExceptionFeature>()?.Exceptions is [{ } error, ..] ? error : null;
+
+    [SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = Constants.ApiFromAspNet)]
+    public Exception[] AllErrors => _context.Features.Get<IRequestExceptionFeature>()?.Exceptions.ToArray() ?? Array.Empty<Exception>();
+
+    public void ClearError() => _context.Features.Get<IRequestExceptionFeature>()?.Clear();
+
+    public void AddError(Exception ex) => _context.Features.Get<IRequestExceptionFeature>()?.Add(ex);
+
     public RequestNotification CurrentNotification => _context.Features.GetRequired<IHttpApplicationFeature>().CurrentNotification;
 
     public bool IsPostNotification => _context.Features.GetRequired<IHttpApplicationFeature>().IsPostNotification;
@@ -63,12 +73,6 @@ public class HttpContext : IServiceProvider
     }
 
     public HttpSessionState? Session => _context.Features.Get<HttpSessionState>();
-
-    [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = Constants.ApiFromAspNet)]
-    public void ClearError()
-    {
-        // Intentionally implemented without any behavior as there's nothing equivalent in ASP.NET Core
-    }
 
     public DateTime Timestamp { get; } = DateTime.UtcNow.ToLocalTime();
 

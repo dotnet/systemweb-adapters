@@ -29,6 +29,14 @@ namespace System.Web
 
         public override bool IsDebuggingEnabled => _context.IsDebuggingEnabled;
 
+        public override void AddError(Exception ex) => _context.AddError(ex);
+
+        public override Exception[] AllErrors => _context.AllErrors;
+
+        public override void ClearError() => _context.ClearError();
+
+        public override Exception? Error => _context.Error;
+
         public override HttpRequestBase Request => _request ??= new HttpRequestWrapper(_context.Request);
 
         public override HttpResponseBase Response => _response ??= new HttpResponseWrapper(_context.Response);
