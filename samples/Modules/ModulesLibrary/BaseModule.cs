@@ -39,7 +39,6 @@ namespace ModulesLibrary
             application.PreRequestHandlerExecute += (s, e) => WriteDetails(s, nameof(application.PreRequestHandlerExecute));
             application.PreSendRequestHeaders += (s, e) => WriteDetails(s, nameof(application.PreSendRequestHeaders));
             application.ReleaseRequestState += (s, e) => WriteDetails(s, nameof(application.ReleaseRequestState));
-            application.RequestCompleted += (s, e) => WriteDetails(s, nameof(application.RequestCompleted));
             application.ResolveRequestCache += (s, e) => WriteDetails(s, nameof(application.ResolveRequestCache));
             application.UpdateRequestCache += (s, e) => WriteDetails(s, nameof(application.UpdateRequestCache));
         }

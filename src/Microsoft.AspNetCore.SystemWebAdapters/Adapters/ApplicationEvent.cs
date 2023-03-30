@@ -55,8 +55,6 @@ internal enum ApplicationEvent
 
     Error,
 
-    RequestCompleted,
-
     SessionStart,
 
     SessionEnd,

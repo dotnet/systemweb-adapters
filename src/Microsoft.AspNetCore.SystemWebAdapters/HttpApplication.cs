@@ -188,12 +188,6 @@ public class HttpApplication : IDisposable
         remove => RemoveEvent(value);
     }
 
-    public event EventHandler? RequestCompleted
-    {
-        add => AddEvent(value);
-        remove => RemoveEvent(value);
-    }
-
     public event EventHandler? Disposed
     {
         add => AddEvent(value);

@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -10,6 +12,7 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
 {
     private readonly IHttpResponseEndFeature _previous;
     private State _state;
+    private List<Exception>? _exceptions;
 
     public RequestHttpApplicationFeature(HttpApplication app, IHttpResponseEndFeature previousEnd)
     {
@@ -32,10 +35,10 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
             return ValueTask.CompletedTask;
         }
 
-        return RaiseEventAsync(@event);
+        return RaiseEventAsync(@event, true);
     }
 
-    public ValueTask RaiseEventAsync(ApplicationEvent @event)
+    public ValueTask RaiseEventAsync(ApplicationEvent @event, bool @throw)
     {
         (CurrentNotification, IsPostNotification) = @event switch
         {
@@ -64,7 +67,20 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
             _ => (CurrentNotification, IsPostNotification),
         };
 
-        Application.InvokeEvent(@event);
+        try
+        {
+            Application.InvokeEvent(@event);
+        }
+        catch (Exception ex)
+        {
+            Application.InvokeEvent(ApplicationEvent.Error);
+            AddError(ex);
+
+            if (@throw)
+            {
+                throw;
+            }
+        }
 
         return ValueTask.CompletedTask;
     }
@@ -78,15 +94,26 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
 
         _state = State.Ending;
 
-        await RaiseEventAsync(ApplicationEvent.LogRequest);
-        await RaiseEventAsync(ApplicationEvent.PostLogRequest);
-        await RaiseEventAsync(ApplicationEvent.EndRequest);
-        await RaiseEventAsync(ApplicationEvent.PreSendRequestHeaders);
+        await RaiseEventAsync(ApplicationEvent.LogRequest, false);
+        await RaiseEventAsync(ApplicationEvent.PostLogRequest, false);
+        await RaiseEventAsync(ApplicationEvent.EndRequest, false);
+        await RaiseEventAsync(ApplicationEvent.PreSendRequestHeaders, false);
 
         _state = State.Ended;
 
         await _previous.EndAsync();
+
+        if (_exceptions is [{ } exception])
+        {
+            throw exception;
+        }
+        else if (_exceptions is { } exceptions)
+        {
+            throw new AggregateException(exceptions);
+        }
     }
+    private void AddError(Exception ex)
+        => (_exceptions ??= new()).Add(ex);
 
     private enum State
     {

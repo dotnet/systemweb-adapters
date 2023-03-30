@@ -36,15 +36,20 @@ internal class HttpApplicationMiddleware
 
             context.Features.GetRequired<IHttpResponseBufferingFeature>().EnableBuffering(BufferResponseStreamAttribute.DefaultMemoryThreshold, default);
 
-            await _next(context);
-
-            await context.Features.GetRequired<IHttpResponseEndFeature>().EndAsync();
-            await context.Features.GetRequired<IHttpApplicationFeature>().RaiseEventAsync(ApplicationEvent.RequestCompleted);
+            try
+            {
+                await _next(context);
+            }
+            finally
+            {
+                await context.Features.GetRequired<IHttpResponseEndFeature>().EndAsync();
+            }
         }
         finally
         {
             context.Features.Set<IHttpResponseEndFeature>(endFeature);
             context.Features.Set<IHttpApplicationFeature>(null);
+
             _pool.Return(app);
         }
     }
