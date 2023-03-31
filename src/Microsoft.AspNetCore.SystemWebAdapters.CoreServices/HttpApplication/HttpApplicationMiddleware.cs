@@ -31,7 +31,6 @@ internal class HttpApplicationMiddleware
 
         try
         {
-            context.Features.Set(app);
             app.Context = context;
 
             context.Features.GetRequired<IHttpResponseBufferingFeature>().EnableBuffering(BufferResponseStreamAttribute.DefaultMemoryThreshold, default);
