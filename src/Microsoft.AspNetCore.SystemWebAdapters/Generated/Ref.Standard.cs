@@ -56,7 +56,6 @@ namespace System.Web
         public event System.EventHandler UpdateRequestCache { add { } remove { } }
         public void CompleteRequest() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void Dispose() { }
-        public virtual string GetVaryByCustomString(System.Web.HttpContext context, string custom) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
     public sealed partial class HttpApplicationState : System.Collections.Specialized.NameObjectCollectionBase
     {
