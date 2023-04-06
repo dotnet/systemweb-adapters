@@ -9,6 +9,8 @@ public class HttpServerUtilityWrapper : HttpServerUtilityBase
 
     public HttpServerUtilityWrapper(HttpServerUtility utility)
     {
+        ArgumentNullException.ThrowIfNull(utility);
+
         _utility = utility;
     }
 

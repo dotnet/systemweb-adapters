@@ -9,6 +9,8 @@ public class HttpBrowserCapabilitiesWrapper : HttpBrowserCapabilitiesBase
 
     public HttpBrowserCapabilitiesWrapper(HttpBrowserCapabilities capabilities)
     {
+        ArgumentNullException.ThrowIfNull(capabilities);
+
         _capabilities = capabilities;
     }
 

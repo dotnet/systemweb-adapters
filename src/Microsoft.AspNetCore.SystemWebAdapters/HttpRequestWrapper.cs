@@ -14,6 +14,8 @@ namespace System.Web
 
         public HttpRequestWrapper(HttpRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             _request = request;
         }
 
