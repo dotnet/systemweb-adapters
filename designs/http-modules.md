@@ -69,10 +69,10 @@ The normal `.UseSystemWebAdapters()` middleware builder will enable majority of 
 app.UseRouting();
 
 app.UseAuthentication();
-+ app.UseRaiseAuthenticationEvents();
++ app.UseAuthenticationEvents();
 
 app.UseAuthorization();
-+ app.UseRaiseAuthorizationEvents();
++ app.UseAuthorizationEvents();
 
 app.UseSystemWebAdapters();
 ```
