@@ -5,6 +5,7 @@ using System;
 using System.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.ObjectPool;
@@ -19,7 +20,7 @@ public static class HttpApplicationExtensions
         ArgumentNullException.ThrowIfNull(builder);
 
         builder.Services.TryAddSingleton<HttpApplicationPooledObjectPolicy>();
-        builder.Services.AddTransient<IStartupFilter>(ctx => ctx.GetRequiredService<HttpApplicationPooledObjectPolicy>());
+        builder.Services.AddTransient<IStartupFilter, HttpApplicationStartupFilter>();
         builder.Services.TryAddSingleton<IPooledObjectPolicy<HttpApplication>>(ctx => ctx.GetRequiredService<HttpApplicationPooledObjectPolicy>());
         builder.Services.TryAddSingleton<ObjectPool<HttpApplication>>(sp =>
         {
@@ -153,5 +154,44 @@ public static class HttpApplicationExtensions
         builder.Properties[AreHttpApplicationEventsRequired] = areEventsRequired;
 
         return areEventsRequired;
+    }
+
+    private sealed class HttpApplicationStartupFilter : IStartupFilter
+    {
+        private readonly ObjectPool<HttpApplication> _pool;
+
+        public HttpApplicationStartupFilter(ObjectPool<HttpApplication> pool)
+        {
+            _pool = pool;
+        }
+
+        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) => builder =>
+        {
+            CallStartup(builder.ApplicationServices);
+            next(builder);
+        };
+
+        private void CallStartup(IServiceProvider services)
+        {
+            using var scope = services.CreateScope();
+
+            var app = _pool.Get();
+
+            // ASP.NET Framework provided an HttpContext instance that was not tied to a request for Start
+            app.Context = new DefaultHttpContext
+            {
+                RequestServices = scope.ServiceProvider,
+            };
+
+            try
+            {
+                // This is only invoked at the beginning of the application
+                app.InvokeEvent(ApplicationEvent.ApplicationStart);
+            }
+            finally
+            {
+                _pool.Return(app);
+            }
+        }
     }
 }

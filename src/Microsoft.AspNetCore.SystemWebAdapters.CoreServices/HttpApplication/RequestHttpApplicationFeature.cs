@@ -28,9 +28,13 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
     public HttpApplication Application { get; }
 
     ValueTask IHttpApplicationFeature.RaiseEventAsync(ApplicationEvent @event)
-        => RaiseEventAsync(@event, suppressThrow: false);
+    {
+        RaiseEvent(@event, suppressThrow: false);
+        return ValueTask.CompletedTask;
+    }
 
-    private ValueTask RaiseEventAsync(ApplicationEvent appEvent, bool suppressThrow)
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Need to handle all exceptions")]
+    private void RaiseEvent(ApplicationEvent appEvent, bool suppressThrow)
     {
         (CurrentNotification, IsPostNotification) = appEvent switch
         {
@@ -59,14 +63,6 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
             _ => (CurrentNotification, IsPostNotification),
         };
 
-        InvokeEvent(appEvent, suppressThrow);
-
-        return ValueTask.CompletedTask;
-    }
-
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Need to handle all exceptions")]
-    private void InvokeEvent(ApplicationEvent appEvent, bool suppressThrow)
-    {
         try
         {
             Application.InvokeEvent(appEvent);
@@ -104,10 +100,10 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
 
         IsEnded = true;
 
-        await RaiseEventAsync(ApplicationEvent.LogRequest, suppressThrow: true);
-        await RaiseEventAsync(ApplicationEvent.PostLogRequest, suppressThrow: true);
-        await RaiseEventAsync(ApplicationEvent.EndRequest, suppressThrow: true);
-        await RaiseEventAsync(ApplicationEvent.PreSendRequestHeaders, suppressThrow: true);
+        RaiseEvent(ApplicationEvent.LogRequest, suppressThrow: true);
+        RaiseEvent(ApplicationEvent.PostLogRequest, suppressThrow: true);
+        RaiseEvent(ApplicationEvent.EndRequest, suppressThrow: true);
+        RaiseEvent(ApplicationEvent.PreSendRequestHeaders, suppressThrow: true);
 
         await _previous.EndAsync();
 

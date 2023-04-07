@@ -16,7 +16,7 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPolicy<HttpApplication>, IStartupFilter, IDisposable
+internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPolicy<HttpApplication>, IDisposable
 {
     private readonly HashSet<string> UnsupportedEvents = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -103,24 +103,6 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
         _state = new HttpApplicationState();
         _factory = new Lazy<Func<IServiceProvider, HttpApplication>>(() => CreateFactory(options.Value), isThreadSafe: true);
     }
-
-    Action<IApplicationBuilder> IStartupFilter.Configure(Action<IApplicationBuilder> next) => builder =>
-    {
-        using var scope = builder.ApplicationServices.CreateScope();
-
-        var app = _factory.Value(_services);
-
-        // ASP.NET Framework provided an HttpContext instance that was not tied to a request for Start
-        app.Context = new DefaultHttpContext
-        {
-            RequestServices = scope.ServiceProvider,
-        };
-
-        // This is only invoked at the beginning of the application
-        app.InvokeEvent(ApplicationEvent.ApplicationStart);
-
-        next(builder);
-    };
 
     public override HttpApplication Create()
     {
