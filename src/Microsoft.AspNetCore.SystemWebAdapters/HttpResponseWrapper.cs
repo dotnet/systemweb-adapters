@@ -13,6 +13,8 @@ namespace System.Web
 
         public HttpResponseWrapper(HttpResponse response)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             _response = response;
         }
 
