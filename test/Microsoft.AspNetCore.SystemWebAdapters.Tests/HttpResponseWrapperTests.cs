@@ -9,7 +9,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [Fact]
         public void Constructor()
         {
-            Assert.Throws<ArgumentNullException>(() => new HttpServerUtilityWrapper(null));
+            Assert.Throws<ArgumentNullException>(() => new HttpServerUtilityWrapper(null!));
         } 
     }
 }
