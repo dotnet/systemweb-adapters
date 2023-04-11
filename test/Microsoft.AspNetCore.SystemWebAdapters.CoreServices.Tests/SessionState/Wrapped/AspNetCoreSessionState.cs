@@ -37,7 +37,7 @@ public class AspNetCoreSessionStateTests
         var serializer = new Mock<ISessionKeySerializer>();
         serializer.Setup(s => s.TryDeserialize(key, value, out expected)).Returns(true);
 
-        using var state = CreateSesionState(session, serializer);
+        using var state = CreateSessionState(session, serializer);
 
         // Act
         var result = state[key];
@@ -59,7 +59,7 @@ public class AspNetCoreSessionStateTests
         var serializer = new Mock<ISessionKeySerializer>();
         serializer.Setup(s => s.TrySerialize(key, obj, out bytes)).Returns(true);
 
-        using var state = CreateSesionState(session, serializer);
+        using var state = CreateSessionState(session, serializer);
 
         // Act
         state[key] = obj;
@@ -75,7 +75,7 @@ public class AspNetCoreSessionStateTests
         var key = _fixture.Create<string>();
         var obj = new object();
 
-        using var state = CreateSesionState(isReadOnly: true);
+        using var state = CreateSessionState(isReadOnly: true);
 
         // Act/Assert
         Assert.Throws<InvalidOperationException>(() => state[key] = obj);
@@ -90,7 +90,7 @@ public class AspNetCoreSessionStateTests
         var session = new Mock<ISession>();
         session.Setup(s => s.Id).Returns(id);
 
-        using var state = CreateSesionState(session, isReadOnly: true);
+        using var state = CreateSessionState(session, isReadOnly: true);
 
         // Act
         var result = state.SessionID;
@@ -105,7 +105,7 @@ public class AspNetCoreSessionStateTests
     public void IsReadOnly(bool isReadOnly)
     {
         // Arrange
-        using var state = CreateSesionState(isReadOnly: isReadOnly);
+        using var state = CreateSessionState(isReadOnly: isReadOnly);
 
         // Act
         var result = state.IsReadOnly;
@@ -139,7 +139,7 @@ public class AspNetCoreSessionStateTests
         var session = new Mock<ISession>();
         session.Setup(s => s.Keys).Returns(keys);
 
-        using var state = CreateSesionState(session, isReadOnly: true);
+        using var state = CreateSessionState(session, isReadOnly: true);
 
         // Act
         var result = state.Count;
@@ -157,7 +157,7 @@ public class AspNetCoreSessionStateTests
         var session = new Mock<ISession>();
         session.Setup(s => s.Keys).Returns(keys);
 
-        using var state = CreateSesionState(session, isReadOnly: true);
+        using var state = CreateSessionState(session, isReadOnly: true);
 
         // Act
         var result = state.Keys;
@@ -172,7 +172,7 @@ public class AspNetCoreSessionStateTests
         // Arrange
         var session = new Mock<ISession>();
 
-        using var state = CreateSesionState(session);
+        using var state = CreateSessionState(session);
 
         // Act
         state.Clear();
@@ -185,7 +185,7 @@ public class AspNetCoreSessionStateTests
     public void ClearReadOnly()
     {
         // Arrange
-        using var state = CreateSesionState(isReadOnly: true);
+        using var state = CreateSessionState(isReadOnly: true);
 
         // Act/Assert
         Assert.Throws<InvalidOperationException>(() => state.Clear());
@@ -197,7 +197,7 @@ public class AspNetCoreSessionStateTests
         // Arrange
         var session = new Mock<ISession>();
 
-        using var state = CreateSesionState(session);
+        using var state = CreateSessionState(session);
 
         // Act
         await state.CommitAsync(default);
@@ -214,7 +214,7 @@ public class AspNetCoreSessionStateTests
         var session = new Mock<ISession>();
         var serializer = new Mock<ISessionKeySerializer>();
 
-        using var state = CreateSesionState(session);
+        using var state = CreateSessionState(session);
 
         state.IsAbandoned = true;
 
@@ -232,7 +232,7 @@ public class AspNetCoreSessionStateTests
         // Arrange
         var serializer = new Mock<ISessionKeySerializer>();
 
-        using var state = CreateSesionState(isReadOnly: true);
+        using var state = CreateSessionState(isReadOnly: true);
 
         // Act/Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await state.CommitAsync(default));
@@ -245,7 +245,7 @@ public class AspNetCoreSessionStateTests
         var key = _fixture.Create<string>();
         var session = new Mock<ISession>();
 
-        using var state = CreateSesionState(session);
+        using var state = CreateSessionState(session);
 
         // Act
         state.Remove(key);
@@ -260,19 +260,71 @@ public class AspNetCoreSessionStateTests
         // Arrange
         var key = _fixture.Create<string>();
 
-        using var state = CreateSesionState(isReadOnly: true);
+        using var state = CreateSessionState(isReadOnly: true);
 
         // Act/Assert
         Assert.Throws<InvalidOperationException>(() => state.Remove(key));
     }
 
-    private static AspNetCoreSessionState CreateSesionState(Mock<ISession>? session = null, Mock<ISessionKeySerializer>? serializer = null, bool isReadOnly = false, bool throwOnUnknown = false)
+    [Fact]
+    public void MultipleDeserializers()
+    {
+        // Arrange
+        var bytes1 = new byte[] { 1 };
+        var bytes2 = new byte[] { 2 };
+        var obj1 = new object();
+        var obj2 = new object();
+        var session = new Mock<ISession>();
+        session.Setup(s => s.TryGetValue("key1", out bytes1)).Returns(true);
+        session.Setup(s => s.TryGetValue("key2", out bytes2)).Returns(true);
+
+        var serializer1 = new Mock<ISessionKeySerializer>();
+        serializer1.Setup(s => s.TryDeserialize("key1", bytes1, out obj1)).Returns(true);
+        var serializer2 = new Mock<ISessionKeySerializer>();
+        serializer2.Setup(s => s.TryDeserialize("key2", bytes2, out obj2)).Returns(true);
+        var loggerFactory = new Mock<ILoggerFactory>();
+
+        // Act
+        using var state = new AspNetCoreSessionState(session.Object, new[] { serializer1.Object, serializer2.Object }, loggerFactory.Object, isReadOnly: false, throwOnUnknown: true);
+
+        // Assert
+        Assert.Equal(obj1, state["key1"]);
+        Assert.Equal(obj2, state["key2"]);
+    }
+
+    [Fact]
+    public void MultipleSerializers()
+    {
+        // Arrange
+        var bytes1 = new byte[] { 1 };
+        var bytes2 = new byte[] { 2 };
+        var obj1 = new object();
+        var obj2 = new object();
+        var session = new Mock<ISession>();
+
+        var serializer1 = new Mock<ISessionKeySerializer>();
+        serializer1.Setup(s => s.TrySerialize("key1", obj1, out bytes1)).Returns(true);
+        var serializer2 = new Mock<ISessionKeySerializer>();
+        serializer2.Setup(s => s.TrySerialize("key2", obj2, out bytes2)).Returns(true);
+        var loggerFactory = new Mock<ILoggerFactory>();
+
+        // Act
+        using var state = new AspNetCoreSessionState(session.Object, new[] { serializer1.Object, serializer2.Object }, loggerFactory.Object, isReadOnly: false, throwOnUnknown: true);
+        state["key1"] = obj1;
+        state["key2"] = obj2;
+
+        // Assert
+        session.Verify(s => s.Set("key1", bytes1), Times.Once());
+        session.Verify(s => s.Set("key2", bytes2), Times.Once());
+    }
+
+    private static AspNetCoreSessionState CreateSessionState(Mock<ISession>? session = null, Mock<ISessionKeySerializer>? serializer = null, bool isReadOnly = false, bool throwOnUnknown = false)
     {
         session ??= new Mock<ISession>();
         serializer ??= new Mock<ISessionKeySerializer>();
         var loggerFactory = new Mock<ILoggerFactory>();
 
-        return new AspNetCoreSessionState(session.Object, serializer.Object, loggerFactory.Object, isReadOnly: isReadOnly, throwOnUnknown: throwOnUnknown);
+        return new AspNetCoreSessionState(session.Object, new[] { serializer.Object }, loggerFactory.Object, isReadOnly: isReadOnly, throwOnUnknown: throwOnUnknown);
     }
 
     private static async Task<ISessionState> CreateSessionStateFromSessionManager(Mock<ISession>? session = null, Mock<ISessionKeySerializer>? serializer = null, bool isReadOnly = false, bool throwOnUnknown = false)
@@ -282,10 +334,10 @@ public class AspNetCoreSessionStateTests
         var loggerFactory = new Mock<ILoggerFactory>();
         var httpContextCore = new Mock<HttpContextCore>();
         httpContextCore.Setup(s => s.Session).Returns(session.Object);
-        var sessionSerializerOptions = new SessionSerializerOptions() {ThrowOnUnknownSessionKey = throwOnUnknown};
+        var sessionSerializerOptions = new SessionSerializerOptions() { ThrowOnUnknownSessionKey = throwOnUnknown };
         var options = Options.Create(sessionSerializerOptions);
 
-        var aspNetCoreSessionManager = new AspNetCoreSessionManager(serializer.Object, loggerFactory.Object, options);
-        return await aspNetCoreSessionManager.CreateAsync(httpContextCore.Object, new SessionAttribute(){IsReadOnly = isReadOnly});
+        var aspNetCoreSessionManager = new AspNetCoreSessionManager(new[] { serializer.Object }, loggerFactory.Object, options);
+        return await aspNetCoreSessionManager.CreateAsync(httpContextCore.Object, new SessionAttribute() { IsReadOnly = isReadOnly });
     }
 }

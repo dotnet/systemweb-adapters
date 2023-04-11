@@ -19,13 +19,12 @@ internal partial class BinarySessionSerializer : ISessionSerializer
     private const byte Version = 1;
 
     private readonly SessionSerializerOptions _options;
-    private readonly ISessionKeySerializer _serializer;
-
+    private readonly ISessionKeySerializer[] _serializers;
     private readonly ILogger<BinarySessionSerializer> _logger;
 
-    public BinarySessionSerializer(ISessionKeySerializer serializer, IOptions<SessionSerializerOptions> options, ILogger<BinarySessionSerializer> logger)
+    public BinarySessionSerializer(IEnumerable<ISessionKeySerializer> serializers, IOptions<SessionSerializerOptions> options, ILogger<BinarySessionSerializer> logger)
     {
-        _serializer = serializer;
+        _serializers = serializers.ToArray();
         _options = options.Value;
         _logger = logger;
     }
@@ -56,7 +55,7 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 
             if (state[item] is { } obj)
             {
-                if (_serializer.TrySerialize(item, obj, out var result))
+                if (_serializers.TrySerialize(item, obj, out var result))
                 {
                     writer.Write7BitEncodedInt(result.Length);
                     writer.Write(result);
@@ -106,7 +105,7 @@ internal partial class BinarySessionSerializer : ISessionSerializer
             throw new InvalidOperationException("Serialized session state has different version than expected");
         }
 
-        var state = new BinaryReaderSerializedSessionState(reader, _serializer);
+        var state = new BinaryReaderSerializedSessionState(reader, _serializers);
 
         if (state.UnknownKeys is { Count: > 0 } unknownKeys)
         {
@@ -140,9 +139,11 @@ internal partial class BinarySessionSerializer : ISessionSerializer
         return Task.CompletedTask;
     }
 
+  
+
     private class BinaryReaderSerializedSessionState : ISessionState
     {
-        public BinaryReaderSerializedSessionState(BinaryReader reader, ISessionKeySerializer serializer)
+        public BinaryReaderSerializedSessionState(BinaryReader reader, ISessionKeySerializer[] serializers)
         {
             SessionID = reader.ReadString();
             IsNewSession = reader.ReadBoolean();
@@ -158,7 +159,7 @@ internal partial class BinarySessionSerializer : ISessionSerializer
                 var length = reader.Read7BitEncodedInt();
                 var bytes = reader.ReadBytes(length);
 
-                if (serializer.TryDeserialize(key, bytes, out var result))
+                if (serializers.TryDeserialize(key, bytes, out var result))
                 {
                     if (result is not null)
                     {
