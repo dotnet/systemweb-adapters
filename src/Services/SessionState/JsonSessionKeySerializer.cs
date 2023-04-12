@@ -49,7 +49,7 @@ internal partial class JsonSessionKeySerializer : ISessionKeySerializer
     {
         if (_options.Value.KnownKeys.TryGetValue(key, out var type))
         {
-            if (type.IsAssignableFrom(value.GetType()))
+            if (type == value.GetType())
             {
                 try
                 {
