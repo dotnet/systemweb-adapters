@@ -22,6 +22,10 @@ internal partial class JsonSessionKeySerializer : ISessionKeySerializer
     [LoggerMessage(0, LogLevel.Error, "Unexpected JSON serialize/deserialization error for '{Key}' expected type '{Type}'")]
     private partial void LogException(Exception e, string key, string type);
 
+
+    [LoggerMessage(1, LogLevel.Warning, "Session key '{Key}' is registered as {RegisteredType} but was actually {FoundType}")]
+    private partial void UnexpectedType(string key, Type registeredType, Type foundType);
+
     public bool TryDeserialize(string key, byte[] bytes, out object? obj)
     {
         if (_options.Value.KnownKeys.TryGetValue(key, out var type))
@@ -43,16 +47,23 @@ internal partial class JsonSessionKeySerializer : ISessionKeySerializer
 
     public bool TrySerialize(string key, object value, out byte[] bytes)
     {
-        if (_options.Value.KnownKeys.TryGetValue(key, out var type) && type == value.GetType())
+        if (_options.Value.KnownKeys.TryGetValue(key, out var type))
         {
-            try
+            if (type == value.GetType())
             {
-                bytes = JsonSerializer.SerializeToUtf8Bytes(value, type);
-                return true;
+                try
+                {
+                    bytes = JsonSerializer.SerializeToUtf8Bytes(value, type);
+                    return true;
+                }
+                catch (JsonException e)
+                {
+                    LogException(e, key, type.Name);
+                }
             }
-            catch (JsonException e)
+            else
             {
-                LogException(e, key, type.Name);
+                UnexpectedType(key, type, value.GetType());
             }
         }
 
