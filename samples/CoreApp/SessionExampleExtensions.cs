@@ -23,7 +23,16 @@ internal static class SessionExampleExtensions
             return GetValue(ctx);
 
             static object? GetValue(HttpContext context)
-                => context.Session?[SessionKey];
+            {
+                if (context.Session![SessionKey] is { } existing)
+                {
+                    return existing;
+                }
+
+                var temp = new byte[] { 1, 2, 3 };
+                context.Session[SessionKey] = temp;
+                return temp;
+            }
         });
 
         builder.MapPost("/custom", async (HttpContextCore ctx) =>

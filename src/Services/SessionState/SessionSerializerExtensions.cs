@@ -32,6 +32,7 @@ public static class SessionSerializerExtensions
             options.Configure(configure);
         }
 
+        builder.Services.TryAddSingleton<ICompositeSessionKeySerializer, CompositeSessionKeySerializer>();
         builder.Services.TryAddSingleton<ISessionSerializer, BinarySessionSerializer>();
 
         return builder;

@@ -12,17 +12,17 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Wrapped;
 
 internal class AspNetCoreSessionManager : ISessionManager
 {
-    private readonly ISessionKeySerializer[] _serializers;
+    private readonly ISessionKeySerializer _serializer;
     private readonly ILoggerFactory _loggerFactory;
     private readonly IOptions<SessionSerializerOptions> _options;
 
-    public AspNetCoreSessionManager(IEnumerable<ISessionKeySerializer> serializers, ILoggerFactory loggerFactory, IOptions<SessionSerializerOptions> options)
+    public AspNetCoreSessionManager(ICompositeSessionKeySerializer serializer, ILoggerFactory loggerFactory, IOptions<SessionSerializerOptions> options)
     {
-        _serializers = serializers.ToArray();
+        _serializer = serializer;
         _loggerFactory = loggerFactory;
         _options = options;
     }
 
     public Task<ISessionState> CreateAsync(HttpContextCore context, SessionAttribute metadata)
-        => Task.FromResult<ISessionState>(new AspNetCoreSessionState(context.Session, _serializers, _loggerFactory, metadata.IsReadOnly, _options.Value.ThrowOnUnknownSessionKey));
+        => Task.FromResult<ISessionState>(new AspNetCoreSessionState(context.Session, _serializer, _loggerFactory, metadata.IsReadOnly, _options.Value.ThrowOnUnknownSessionKey));
 }

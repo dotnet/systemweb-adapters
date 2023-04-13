@@ -266,65 +266,13 @@ public class AspNetCoreSessionStateTests
         Assert.Throws<InvalidOperationException>(() => state.Remove(key));
     }
 
-    [Fact]
-    public void MultipleDeserializers()
-    {
-        // Arrange
-        var bytes1 = new byte[] { 1 };
-        var bytes2 = new byte[] { 2 };
-        var obj1 = new object();
-        var obj2 = new object();
-        var session = new Mock<ISession>();
-        session.Setup(s => s.TryGetValue("key1", out bytes1)).Returns(true);
-        session.Setup(s => s.TryGetValue("key2", out bytes2)).Returns(true);
-
-        var serializer1 = new Mock<ISessionKeySerializer>();
-        serializer1.Setup(s => s.TryDeserialize("key1", bytes1, out obj1)).Returns(true);
-        var serializer2 = new Mock<ISessionKeySerializer>();
-        serializer2.Setup(s => s.TryDeserialize("key2", bytes2, out obj2)).Returns(true);
-        var loggerFactory = new Mock<ILoggerFactory>();
-
-        // Act
-        using var state = new AspNetCoreSessionState(session.Object, new[] { serializer1.Object, serializer2.Object }, loggerFactory.Object, isReadOnly: false, throwOnUnknown: true);
-
-        // Assert
-        Assert.Equal(obj1, state["key1"]);
-        Assert.Equal(obj2, state["key2"]);
-    }
-
-    [Fact]
-    public void MultipleSerializers()
-    {
-        // Arrange
-        var bytes1 = new byte[] { 1 };
-        var bytes2 = new byte[] { 2 };
-        var obj1 = new object();
-        var obj2 = new object();
-        var session = new Mock<ISession>();
-
-        var serializer1 = new Mock<ISessionKeySerializer>();
-        serializer1.Setup(s => s.TrySerialize("key1", obj1, out bytes1)).Returns(true);
-        var serializer2 = new Mock<ISessionKeySerializer>();
-        serializer2.Setup(s => s.TrySerialize("key2", obj2, out bytes2)).Returns(true);
-        var loggerFactory = new Mock<ILoggerFactory>();
-
-        // Act
-        using var state = new AspNetCoreSessionState(session.Object, new[] { serializer1.Object, serializer2.Object }, loggerFactory.Object, isReadOnly: false, throwOnUnknown: true);
-        state["key1"] = obj1;
-        state["key2"] = obj2;
-
-        // Assert
-        session.Verify(s => s.Set("key1", bytes1), Times.Once());
-        session.Verify(s => s.Set("key2", bytes2), Times.Once());
-    }
-
     private static AspNetCoreSessionState CreateSessionState(Mock<ISession>? session = null, Mock<ISessionKeySerializer>? serializer = null, bool isReadOnly = false, bool throwOnUnknown = false)
     {
         session ??= new Mock<ISession>();
         serializer ??= new Mock<ISessionKeySerializer>();
         var loggerFactory = new Mock<ILoggerFactory>();
 
-        return new AspNetCoreSessionState(session.Object, new[] { serializer.Object }, loggerFactory.Object, isReadOnly: isReadOnly, throwOnUnknown: throwOnUnknown);
+        return new AspNetCoreSessionState(session.Object, serializer.Object, loggerFactory.Object, isReadOnly: isReadOnly, throwOnUnknown: throwOnUnknown);
     }
 
     private static async Task<ISessionState> CreateSessionStateFromSessionManager(Mock<ISession>? session = null, Mock<ISessionKeySerializer>? serializer = null, bool isReadOnly = false, bool throwOnUnknown = false)
@@ -337,7 +285,23 @@ public class AspNetCoreSessionStateTests
         var sessionSerializerOptions = new SessionSerializerOptions() { ThrowOnUnknownSessionKey = throwOnUnknown };
         var options = Options.Create(sessionSerializerOptions);
 
-        var aspNetCoreSessionManager = new AspNetCoreSessionManager(new[] { serializer.Object }, loggerFactory.Object, options);
+        var aspNetCoreSessionManager = new AspNetCoreSessionManager(new Composite(serializer.Object), loggerFactory.Object, options);
         return await aspNetCoreSessionManager.CreateAsync(httpContextCore.Object, new SessionAttribute() { IsReadOnly = isReadOnly });
+    }
+
+    private sealed class Composite : ICompositeSessionKeySerializer
+    {
+        private readonly ISessionKeySerializer _serializer;
+
+        public Composite(ISessionKeySerializer serializer)
+        {
+            _serializer = serializer;
+        }
+
+        public bool TryDeserialize(string key, byte[] bytes, out object? obj)
+            => _serializer.TryDeserialize(key, bytes, out obj);
+
+        public bool TrySerialize(string key, object value, out byte[] bytes)
+            => _serializer.TrySerialize(key, value, out bytes);
     }
 }

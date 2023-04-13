@@ -267,83 +267,30 @@ public class BinarySessionSerializerTests
         Assert.Equal(obj, result["key1"]);
     }
 
-    [Fact]
-    public async Task MultipleSerializersSerialize()
+    private static BinarySessionSerializer CreateSerializer(ISessionKeySerializer? serializer = null)
     {
-        // Arrange
-        var obj1 = new object();
-        var obj2 = new object();
-        var state = new Mock<ISessionState>();
-        state.Setup(s => s["key1"]).Returns(obj1);
-        state.Setup(s => s["key2"]).Returns(obj2);
-        state.Setup(s => s.SessionID).Returns("id");
-        state.Setup(s => s.Keys).Returns(new[] { "key1", "key2" });
-        state.Setup(s => s.Count).Returns(2);
-
-        var keySerializer1 = new Mock<ISessionKeySerializer>();
-        var bytes1 = new byte[] { 42 };
-        keySerializer1.Setup(k => k.TrySerialize("key1", obj1, out bytes1)).Returns(true);
-
-        var keySerializer2 = new Mock<ISessionKeySerializer>();
-        var bytes2 = new byte[] { 43 };
-        keySerializer2.Setup(k => k.TrySerialize("key2", obj2, out bytes2)).Returns(true);
-
-        var serializer = CreateSerializer(keySerializer1.Object, keySerializer2.Object);
-        using var ms = new MemoryStream();
-
-        // Act
-        await serializer.SerializeAsync(state.Object, ms, default);
-
-        // Assert
-        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 2, 4, 107, 101, 121, 49, 1, 42, 4, 107, 101, 121, 50, 1, 43, 0 });
-    }
-
-    [Fact]
-    public async Task MultipleSerializersDeserialize()
-    {
-        // Arrange
-        var obj1 = new object();
-        var bytes1 = new byte[] { 42 };
-        var keySerializer1 = new Mock<ISessionKeySerializer>();
-        keySerializer1.Setup(k => k.TryDeserialize("key1", bytes1, out obj1)).Returns(true);
-
-        var obj2 = new object();
-        var bytes2 = new byte[] { 43 };
-        var keySerializer2 = new Mock<ISessionKeySerializer>();
-        keySerializer1.Setup(k => k.TryDeserialize("key2", bytes2, out obj2)).Returns(true);
-
-        var data = new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 2, 4, 107, 101, 121, 49, 1, 42, 4, 107, 101, 121, 50, 1, 43, 0 };
-        using var ms = new MemoryStream(data);
-
-        var serializer = CreateSerializer(keySerializer1.Object, keySerializer2.Object);
-
-        // Act
-        var result = await serializer.DeserializeAsync(ms, default);
-
-        // Assert
-        Assert.Equal("id", result!.SessionID);
-        Assert.False(result.IsReadOnly);
-        Assert.False(result.IsAbandoned);
-        Assert.False(result.IsNewSession);
-        Assert.Equal(0, result.Timeout);
-        Assert.Equal(2, result.Count);
-        Assert.Equal(result.Keys, new[] { "key1", "key2" });
-        Assert.Equal(obj1, result["key1"]);
-        Assert.Equal(obj2, result["key2"]);
-    }
-
-    private static BinarySessionSerializer CreateSerializer(params ISessionKeySerializer[] keySerializers)
-    {
-        if (keySerializers.Length == 0)
-        {
-            keySerializers = new[] { new Mock<ISessionKeySerializer>().Object };
-        }
-
+        serializer ??= new Mock<ISessionKeySerializer>().Object;
         var logger = new Mock<ILogger<BinarySessionSerializer>>();
 
         var optionContainer = new Mock<IOptions<SessionSerializerOptions>>();
         optionContainer.Setup(o => o.Value).Returns(new SessionSerializerOptions());
 
-        return new BinarySessionSerializer(keySerializers, optionContainer.Object, logger.Object);
+        return new BinarySessionSerializer(new Composite(serializer), optionContainer.Object, logger.Object);
+    }
+
+    private sealed class Composite : ICompositeSessionKeySerializer
+    {
+        private readonly ISessionKeySerializer _serializer;
+
+        public Composite(ISessionKeySerializer serializer)
+        {
+            _serializer = serializer;
+        }
+
+        public bool TryDeserialize(string key, byte[] bytes, out object? obj)
+            => _serializer.TryDeserialize(key, bytes, out obj);
+
+        public bool TrySerialize(string key, object value, out byte[] bytes)
+            => _serializer.TrySerialize(key, value, out bytes);
     }
 }

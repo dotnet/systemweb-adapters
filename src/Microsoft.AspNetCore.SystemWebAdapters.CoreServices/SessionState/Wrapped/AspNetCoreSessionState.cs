@@ -15,14 +15,14 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Wrapped;
 internal sealed partial class AspNetCoreSessionState : ISessionState
 {
     private readonly ISession _session;
-    private readonly ISessionKeySerializer[] _serializers;
+    private readonly ISessionKeySerializer _serializer;
     private readonly ILogger<AspNetCoreSessionState> _logger;
     private readonly bool _throwOnUnknown;
 
-    public AspNetCoreSessionState(ISession session, ISessionKeySerializer[] serializers, ILoggerFactory factory, bool isReadOnly, bool throwOnUnknown)
+    public AspNetCoreSessionState(ISession session, ISessionKeySerializer serializer, ILoggerFactory factory, bool isReadOnly, bool throwOnUnknown)
     {
         _session = session;
-        _serializers = serializers;
+        _serializer = serializer;
         _throwOnUnknown = throwOnUnknown;
         _logger = factory.CreateLogger<AspNetCoreSessionState>();
 
@@ -49,7 +49,7 @@ internal sealed partial class AspNetCoreSessionState : ISessionState
         {
             if (_session.Get(key) is { } value)
             {
-                if (_serializers.TryDeserialize(key, value, out var result))
+                if (_serializer.TryDeserialize(key, value, out var result))
                 {
                     return result;
                 }
@@ -76,7 +76,7 @@ internal sealed partial class AspNetCoreSessionState : ISessionState
             }
             else
             {
-                if (_serializers.TrySerialize(key, value, out var result))
+                if (_serializer.TrySerialize(key, value, out var result))
                 {
                     _session.Set(key, result);
                 }
