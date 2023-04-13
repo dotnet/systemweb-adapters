@@ -139,8 +139,6 @@ internal partial class BinarySessionSerializer : ISessionSerializer
         return Task.CompletedTask;
     }
 
-
-
     private class BinaryReaderSerializedSessionState : ISessionState
     {
         public BinaryReaderSerializedSessionState(BinaryReader reader, ISessionKeySerializer serializer)

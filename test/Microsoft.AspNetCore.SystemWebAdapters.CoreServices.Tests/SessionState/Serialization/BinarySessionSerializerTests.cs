@@ -267,15 +267,15 @@ public class BinarySessionSerializerTests
         Assert.Equal(obj, result["key1"]);
     }
 
-    private static BinarySessionSerializer CreateSerializer(ISessionKeySerializer? serializer = null)
+    private static BinarySessionSerializer CreateSerializer(ISessionKeySerializer? keySerializer = null)
     {
-        serializer ??= new Mock<ISessionKeySerializer>().Object;
+        keySerializer ??= new Mock<ISessionKeySerializer>().Object;
         var logger = new Mock<ILogger<BinarySessionSerializer>>();
 
         var optionContainer = new Mock<IOptions<SessionSerializerOptions>>();
         optionContainer.Setup(o => o.Value).Returns(new SessionSerializerOptions());
 
-        return new BinarySessionSerializer(new Composite(serializer), optionContainer.Object, logger.Object);
+        return new BinarySessionSerializer(new Composite(keySerializer), optionContainer.Object, logger.Object);
     }
 
     private sealed class Composite : ICompositeSessionKeySerializer
