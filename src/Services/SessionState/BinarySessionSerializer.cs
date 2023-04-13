@@ -20,10 +20,9 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 
     private readonly SessionSerializerOptions _options;
     private readonly ISessionKeySerializer _serializer;
-
     private readonly ILogger<BinarySessionSerializer> _logger;
 
-    public BinarySessionSerializer(ISessionKeySerializer serializer, IOptions<SessionSerializerOptions> options, ILogger<BinarySessionSerializer> logger)
+    public BinarySessionSerializer(ICompositeSessionKeySerializer serializer, IOptions<SessionSerializerOptions> options, ILogger<BinarySessionSerializer> logger)
     {
         _serializer = serializer;
         _options = options.Value;

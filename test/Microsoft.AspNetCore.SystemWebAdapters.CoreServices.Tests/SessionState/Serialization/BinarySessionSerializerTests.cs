@@ -270,12 +270,27 @@ public class BinarySessionSerializerTests
     private static BinarySessionSerializer CreateSerializer(ISessionKeySerializer? keySerializer = null)
     {
         keySerializer ??= new Mock<ISessionKeySerializer>().Object;
-
         var logger = new Mock<ILogger<BinarySessionSerializer>>();
 
         var optionContainer = new Mock<IOptions<SessionSerializerOptions>>();
         optionContainer.Setup(o => o.Value).Returns(new SessionSerializerOptions());
 
-        return new BinarySessionSerializer(keySerializer, optionContainer.Object, logger.Object);
+        return new BinarySessionSerializer(new Composite(keySerializer), optionContainer.Object, logger.Object);
+    }
+
+    private sealed class Composite : ICompositeSessionKeySerializer
+    {
+        private readonly ISessionKeySerializer _serializer;
+
+        public Composite(ISessionKeySerializer serializer)
+        {
+            _serializer = serializer;
+        }
+
+        public bool TryDeserialize(string key, byte[] bytes, out object? obj)
+            => _serializer.TryDeserialize(key, bytes, out obj);
+
+        public bool TrySerialize(string key, object value, out byte[] bytes)
+            => _serializer.TrySerialize(key, value, out bytes);
     }
 }

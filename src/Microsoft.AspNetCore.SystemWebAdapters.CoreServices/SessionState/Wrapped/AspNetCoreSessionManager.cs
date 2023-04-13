@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 using Microsoft.Extensions.Logging;
@@ -14,7 +16,7 @@ internal class AspNetCoreSessionManager : ISessionManager
     private readonly ILoggerFactory _loggerFactory;
     private readonly IOptions<SessionSerializerOptions> _options;
 
-    public AspNetCoreSessionManager(ISessionKeySerializer serializer, ILoggerFactory loggerFactory, IOptions<SessionSerializerOptions> options)
+    public AspNetCoreSessionManager(ICompositeSessionKeySerializer serializer, ILoggerFactory loggerFactory, IOptions<SessionSerializerOptions> options)
     {
         _serializer = serializer;
         _loggerFactory = loggerFactory;
