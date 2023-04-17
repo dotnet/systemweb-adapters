@@ -186,6 +186,7 @@ public static class HttpApplicationExtensions
             try
             {
                 // This is only invoked at the beginning of the application
+                // See https://referencesource.microsoft.com/#System.Web/HttpApplication.cs,2417
                 app.InvokeEvent(ApplicationEvent.ApplicationStart);
             }
             finally

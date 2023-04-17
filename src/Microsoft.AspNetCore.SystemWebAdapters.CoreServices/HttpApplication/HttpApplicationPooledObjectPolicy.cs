@@ -121,6 +121,12 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
         return true;
     }
 
+    /// <summary>
+    /// Creates a callback that will regsiter implicit events on <see cref="HttpApplication"/>.
+    /// </summary>
+    /// <param name="options">Options for the <see cref="HttpApplication"/>.</param>
+    /// <returns>A callback to create a new <see cref="HttpApplication"/> instance.</returns>
+    /// <seealso cref="https://referencesource.microsoft.com/#System.Web/HttpApplication.cs,b24816e1097719dd"/>
     private Func<IServiceProvider, HttpApplication> CreateFactory(HttpApplicationOptions options)
     {
         var eventInitializer = GetEventInitializer(options);
