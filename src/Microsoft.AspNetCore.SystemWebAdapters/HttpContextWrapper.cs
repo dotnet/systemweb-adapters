@@ -32,7 +32,17 @@ namespace System.Web
         public override HttpRequestBase Request => _request ??= new HttpRequestWrapper(_context.Request);
 
         public override HttpResponseBase Response => _response ??= new HttpResponseWrapper(_context.Response);
-        
+
+        public override HttpApplication ApplicationInstance => _context.ApplicationInstance;
+
+        public override HttpApplicationState Application => _context.Application;
+
+        public override RequestNotification CurrentNotification => _context.CurrentNotification;
+
+        public override bool IsPostNotification => _context.IsPostNotification;
+
+        public override HttpServerUtilityBase Server => new HttpServerUtilityWrapper(_context.Server);
+
         public override HttpSessionStateBase? Session
         {
             get

@@ -11,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
-
 internal partial class SessionMiddleware
 {
     private readonly RequestDelegate _next;

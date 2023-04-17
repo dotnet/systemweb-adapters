@@ -10,59 +10,59 @@ namespace System.Web.SessionState;
 [Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = Constants.ApiFromAspNet)]
 public class HttpSessionState : ICollection
 {
-    private readonly ISessionState _container;
-
     public HttpSessionState(ISessionState container)
     {
-        _container = container;
+        State = container;
     }
 
-    public string SessionID => _container.SessionID;
+    internal ISessionState State { get; }
 
-    public int Count => _container.Count;
+    public string SessionID => State.SessionID;
 
-    public bool IsReadOnly => _container.IsReadOnly;
+    public int Count => State.Count;
 
-    public bool IsNewSession => _container.IsNewSession;
+    public bool IsReadOnly => State.IsReadOnly;
+
+    public bool IsNewSession => State.IsNewSession;
 
     public int Timeout
     {
-        get => _container.Timeout;
-        set => _container.Timeout = value;
+        get => State.Timeout;
+        set => State.Timeout = value;
     }
 
-    public bool IsSynchronized => _container.IsSynchronized;
+    public bool IsSynchronized => State.IsSynchronized;
 
-    public object SyncRoot => _container.SyncRoot;
+    public object SyncRoot => State.SyncRoot;
 
     [Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = Constants.ApiFromAspNet)]
     public SessionStateMode Mode => SessionStateMode.Custom;
 
-    public void Abandon() => _container.IsAbandoned = true;
+    public void Abandon() => State.IsAbandoned = true;
 
     public object? this[string name]
     {
-        get => _container[name];
-        set => _container[name] = value;
+        get => State[name];
+        set => State[name] = value;
     }
 
-    public void Add(string name, object value) => _container[name] = value;
+    public void Add(string name, object value) => State[name] = value;
 
-    public void Remove(string name) => _container.Remove(name);
+    public void Remove(string name) => State.Remove(name);
 
-    public void RemoveAll() => _container.Clear();
+    public void RemoveAll() => State.Clear();
 
-    public void Clear() => _container.Clear();
+    public void Clear() => State.Clear();
 
     public void CopyTo(Array array, int index)
     {
         ArgumentNullException.ThrowIfNull(array);
 
-        foreach (var key in _container.Keys)
+        foreach (var key in State.Keys)
         {
-            array.SetValue(_container[key], index++);
+            array.SetValue(State[key], index++);
         }
     }
 
-    public IEnumerator GetEnumerator() => _container.Keys.GetEnumerator();
+    public IEnumerator GetEnumerator() => State.Keys.GetEnumerator();
 }
