@@ -13,9 +13,13 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
+/// <summary>
+/// A policy to create an HttpApplication, associated modules, and add intrinsic events. For details, see the official documentation for
+/// how this worked in ASP.NET Framework: https://docs.microsoft.com/en-us/dotnet/api/system.web.httpapplication#remarks
+/// </summary>
 internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPolicy<HttpApplication>, IDisposable
 {
-    private readonly HashSet<string> UnsupportedEvents = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> UnsupportedEvents = new(StringComparer.OrdinalIgnoreCase)
     {
         // Fired before the ASP.NET page framework sends content to a requesting client (browser).
         "Application_PreSendContent",
@@ -24,7 +28,7 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
         "Application_End",
     };
 
-    private readonly Dictionary<string, Action<HttpApplication, EventHandler>> KnownEvents = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, Action<HttpApplication, EventHandler>> KnownEvents = new(StringComparer.OrdinalIgnoreCase)
     {
         // Fired when the first instance of the HttpApplication class is created. It allows you to create objects that are accessible by all HttpApplication instances.
         { "Application_Start", (app, handler) => app.ApplicationStart += handler },
