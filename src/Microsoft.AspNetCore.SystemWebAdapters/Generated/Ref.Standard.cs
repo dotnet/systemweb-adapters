@@ -125,6 +125,9 @@ namespace System.Web
         public void ClearError() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public System.Web.ISubscriptionToken DisposeOnPipelineCompleted(System.IDisposable target) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void RewritePath(string path) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public void RewritePath(string path, bool rebaseClientPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public void RewritePath(string filePath, string pathInfo, string queryString) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public void RewritePath(string filePath, string pathInfo, string queryString, bool setClientFilePath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         object System.IServiceProvider.GetService(System.Type service) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
     public partial class HttpContextBase : System.IServiceProvider

@@ -14,12 +14,15 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal class HttpRequestInputStreamFeature : IHttpRequestInputStreamFeature, IHttpRequestFeature, IRequestBodyPipeFeature, IDisposable
+internal class HttpRequestInputStreamFeature : IHttpRequestInputStreamFeature, IHttpRequestPathFeature, IHttpRequestFeature, IRequestBodyPipeFeature, IDisposable
 {
     private readonly IHttpRequestFeature _other;
 
     private PipeReader? _pipeReader;
     private Stream? _bufferedStream;
+
+    private string? _pathInfo;
+    private string? _filePath;
 
     public HttpRequestInputStreamFeature(IHttpRequestFeature other)
     {
@@ -120,10 +123,15 @@ internal class HttpRequestInputStreamFeature : IHttpRequestInputStreamFeature, I
         set => _other.PathBase = value;
     }
 
-    string IHttpRequestFeature.Path
+    public string Path
     {
         get => _other.Path;
-        set => _other.Path = value;
+        set
+        {
+            _filePath = null;
+            _pathInfo = null;
+            _other.Path = value;
+        }
     }
 
     string IHttpRequestFeature.QueryString
@@ -179,6 +187,34 @@ internal class HttpRequestInputStreamFeature : IHttpRequestInputStreamFeature, I
 
     private Stream GetBody() => _bufferedStream ?? _other.Body;
 
+    void IHttpRequestPathFeature.Rewrite(string filePath, string pathInfo, string? queryString, bool setClientFilePath)
+    {
+        _other.QueryString = queryString ?? string.Empty;
+
+        if (string.IsNullOrEmpty(pathInfo))
+        {
+            Path = filePath;
+        }
+        else if (pathInfo.StartsWith('/'))
+        {
+            Path = $"{filePath}{pathInfo}";
+        }
+        else
+        {
+            Path = $"{filePath}/{pathInfo}";
+        }
+
+        // This must be set after setting Path as it will reset the PathInfo and FilePath instances
+        _pathInfo = pathInfo;
+        _filePath = filePath;
+    }
+
+    string IHttpRequestPathFeature.PathInfo => _pathInfo ?? string.Empty;
+
+    string IHttpRequestPathFeature.FilePath => _filePath ?? Path;
+
+    string IHttpRequestPathFeature.RawUrl => _other.RawTarget;
+
     internal static class AspNetCoreTempDirectory
     {
         private static string? _tempDirectory;
@@ -191,7 +227,7 @@ internal class HttpRequestInputStreamFeature : IHttpRequestInputStreamFeature, I
                 {
                     // Look for folders in the following order.
                     var temp = Environment.GetEnvironmentVariable("ASPNETCORE_TEMP") ?? // ASPNETCORE_TEMP - User set temporary location.
-                               Path.GetTempPath();                                      // Fall back.
+                               System.IO.Path.GetTempPath();                                      // Fall back.
 
                     if (!Directory.Exists(temp))
                     {

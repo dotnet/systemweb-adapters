@@ -45,12 +45,14 @@ internal sealed class RegisterAdapterFeaturesMiddleware
         context.Features.Set<IHttpRequestFeature>(inputStreamFeature);
         context.Features.Set<IHttpRequestInputStreamFeature>(inputStreamFeature);
         context.Features.Set<IRequestBodyPipeFeature>(inputStreamFeature);
+        context.Features.Set<IHttpRequestPathFeature>(inputStreamFeature);
 
         return new DelegateDisposable(() =>
         {
             context.Features.Set<IHttpRequestFeature>(existing);
             context.Features.Set<IRequestBodyPipeFeature>(existingPipe);
             context.Features.Set<IHttpRequestInputStreamFeature>(null);
+            context.Features.Set<IHttpRequestPathFeature>(null);
         });
     }
 

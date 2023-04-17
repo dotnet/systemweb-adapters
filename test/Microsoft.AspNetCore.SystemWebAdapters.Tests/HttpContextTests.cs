@@ -8,6 +8,7 @@ using System.Security.Principal;
 using System.Web;
 using System.Web.Caching;
 using System.Web.SessionState;
+using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 using Moq;
@@ -17,6 +18,13 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
 {
     public class HttpContextTests
     {
+        private readonly Fixture _fixture;
+
+        public HttpContextTests()
+        {
+            _fixture = new Fixture();
+        }
+
         [Fact]
         public void ConstructorChecksNull()
         {
@@ -336,48 +344,79 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             exceptionFeature.Verify(f => f.Add(error), Times.Once);
         }
 
-        [InlineData("path1", "/path1", "", 0)]
-        [InlineData("/path1", "/path1", "", 0)]
-        [InlineData("path1?", "/path1", "", 0)]
-        [InlineData("/path1?", "/path1", "", 0)]
-        [InlineData("path1?q=1", "/path1", "?q=1", 1)]
-        [InlineData("/path1?q=1", "/path1", "?q=1", 1)]
-        [InlineData("/path1 ?q=1", "/path1", "?q=1", 1)]
+        [InlineData("path1", "/path1", null)]
+        [InlineData("/path1", "/path1", null)]
+        [InlineData("path1?", "/path1", "")]
+        [InlineData("/path1?", "/path1", "")]
+        [InlineData("path1?q=1", "/path1", "?q=1")]
+        [InlineData("/path1?q=1", "/path1", "?q=1")]
+        [InlineData("/path1 ?q=1", "/path1", "?q=1")]
         [Theory]
-        public void RewritePath(string rewritePath, string finalPath, string finalQuery, int queryCount)
+        public void RewritePath(string rewritePath, string finalPath, string finalQuery)
         {
             // Arrange
             var coreContext = new DefaultHttpContext();
+            var feature = new Mock<IHttpRequestPathFeature>();
+            coreContext.Features.Set(feature.Object);
             var context = new HttpContext(coreContext);
 
             // Act
             context.RewritePath(rewritePath);
 
             // Assert
-            Assert.Equal(finalPath, coreContext.Request.Path);
-            Assert.Equal(new(finalQuery), coreContext.Request.QueryString);
-            Assert.Equal(queryCount, coreContext.Request.Query.Count);
+            feature.Verify(f => f.Rewrite(finalPath, string.Empty, finalQuery, true), Times.Once);
         }
 
-        [Fact]
-        public void RewritePathWithSpace()
+        [InlineData("path1", "/path1", null, true)]
+        [InlineData("path1", "/path1", null, false)]
+        [InlineData("/path1", "/path1", null, true)]
+        [InlineData("/path1", "/path1", null, false)]
+        [InlineData("path1?", "/path1", "", true)]
+        [InlineData("path1?", "/path1", "", false)]
+        [InlineData("/path1?", "/path1", "", true)]
+        [InlineData("/path1?", "/path1", "", false)]
+        [InlineData("path1?q=1", "/path1", "?q=1", true)]
+        [InlineData("path1?q=1", "/path1", "?q=1", false)]
+        [InlineData("/path1?q=1", "/path1", "?q=1", true)]
+        [InlineData("/path1?q=1", "/path1", "?q=1", false)]
+        [InlineData("/path1 ?q=1", "/path1", "?q=1", true)]
+        [InlineData("/path1 ?q=1", "/path1", "?q=1", false)]
+        [Theory]
+        public void RewritePathWithRebaseValue(string rewritePath, string finalPath, string finalQuery, bool rebase)
         {
             // Arrange
             var coreContext = new DefaultHttpContext();
+            var feature = new Mock<IHttpRequestPathFeature>();
+            coreContext.Features.Set(feature.Object);
             var context = new HttpContext(coreContext);
-            var rewritePath = "/path1 withspace?q=1";
 
             // Act
-            context.RewritePath(rewritePath);
+            context.RewritePath(rewritePath, rebase);
 
             // Assert
-            Assert.Equal("/path1%20withspace", coreContext.Request.Path);
-            Assert.Equal("/path1 withspace", context.Request.Path);
-            Assert.Collection(coreContext.Request.Query, q =>
-            {
-                Assert.Equal("q", q.Key);
-                Assert.Equal("1", q.Value);
-            });
+            feature.Verify(f => f.Rewrite(finalPath, string.Empty, finalQuery, rebase), Times.Once);
+        }
+
+        [InlineData(true)]
+        [InlineData(false)]
+        [Theory]
+        public void RewritePathWithPathInfo(bool rebase)
+        {
+            // Arrange
+            var coreContext = new DefaultHttpContext();
+            var feature = new Mock<IHttpRequestPathFeature>();
+            coreContext.Features.Set(feature.Object);
+            var context = new HttpContext(coreContext);
+
+            var filePath = _fixture.Create<string>();
+            var pathInfo = _fixture.Create<string>();
+            var query = _fixture.Create<string>();
+
+            // Act
+            context.RewritePath(filePath, pathInfo, query, rebase);
+
+            // Assert
+            feature.Verify(f => f.Rewrite(filePath, pathInfo, query, rebase), Times.Once);
         }
     }
 }
