@@ -8,7 +8,7 @@ using System.Web;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, IHttpResponseEndFeature
+internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, IHttpResponseEndFeature, IRequestExceptionFeature
 {
     private readonly IHttpResponseEndFeature _previous;
     private List<Exception>? _exceptions;
@@ -33,7 +33,7 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
         return ValueTask.CompletedTask;
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Need to handle all exceptions")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Must handle all exceptions here")]
     private void RaiseEvent(ApplicationEvent appEvent, bool suppressThrow)
     {
         (CurrentNotification, IsPostNotification) = appEvent switch
@@ -111,4 +111,11 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
     }
 
     private void AddError(Exception ex) => (_exceptions ??= new()).Add(ex);
+
+    void IRequestExceptionFeature.Add(Exception exception) => AddError(exception);
+
+    IReadOnlyList<Exception> IRequestExceptionFeature.Exceptions
+        => ((IReadOnlyList<Exception>?)_exceptions) ?? Array.Empty<Exception>();
+
+    void IRequestExceptionFeature.Clear() => _exceptions = null;
 }

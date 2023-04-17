@@ -243,6 +243,99 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             disposable.Verify(d => d.Dispose(), Times.Once);
         }
 
+        [Fact]
+        public void ErrorNoFeature()
+        {
+            // Arrange
+            var context = new HttpContext(new DefaultHttpContext());
+
+            // Assert
+            var error = context.Error;
+            var allErrors = context.AllErrors;
+
+            // No ops
+            context.ClearError();
+            context.AddError(new InvalidOperationException());
+
+            // Assert
+            Assert.Null(error);
+            Assert.Empty(allErrors);
+        }
+
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [Theory]
+        public void ErrorWithFeatureGet(int length)
+        {
+            // Arrange
+            var coreContext = new DefaultHttpContext();
+            var context = new HttpContext(coreContext);
+
+            var exceptionFeature = new Mock<IRequestExceptionFeature>();
+            var errors = new List<Exception>();
+
+            for (var i = 0; i < length; i++)
+            {
+                errors.Add(new Mock<Exception>().Object);
+            }
+
+            exceptionFeature.Setup(f => f.Exceptions).Returns(errors);
+            coreContext.Features.Set(exceptionFeature.Object);
+
+            // Act
+            var error = context.Error;
+            var allErrors = context.AllErrors;
+
+            // Assert
+            Assert.Equal(allErrors, errors);
+            Assert.NotSame(allErrors, errors);
+
+            if (length > 0)
+            {
+                Assert.Same(error, errors[0]);
+            }
+            else
+            {
+                Assert.Null(error);
+            }
+        }
+
+        [Fact]
+        public void ErrorWithFeatureClear()
+        {
+            // Arrange
+            var coreContext = new DefaultHttpContext();
+            var context = new HttpContext(coreContext);
+
+            var exceptionFeature = new Mock<IRequestExceptionFeature>();
+            coreContext.Features.Set(exceptionFeature.Object);
+
+            // Act
+            context.ClearError();
+
+            // Assert
+            exceptionFeature.Verify(f => f.Clear(), Times.Once);
+        }
+
+        [Fact]
+        public void ErrorWithFeatureAdd()
+        {
+            // Arrange
+            var coreContext = new DefaultHttpContext();
+            var context = new HttpContext(coreContext);
+
+            var error = new InvalidOperationException();
+            var exceptionFeature = new Mock<IRequestExceptionFeature>();
+            coreContext.Features.Set(exceptionFeature.Object);
+
+            // Act
+            context.AddError(error);
+
+            // Assert
+            exceptionFeature.Verify(f => f.Add(error), Times.Once);
+        }
+
         [InlineData("path1", "/path1", "", 0)]
         [InlineData("/path1", "/path1", "", 0)]
         [InlineData("path1?", "/path1", "", 0)]

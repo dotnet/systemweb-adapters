@@ -28,6 +28,7 @@ internal class HttpApplicationMiddleware
 
         context.Features.Set<IHttpApplicationFeature>(httpApplicationFeature);
         context.Features.Set<IHttpResponseEndFeature>(httpApplicationFeature);
+        context.Features.Set<IRequestExceptionFeature>(httpApplicationFeature);
 
         try
         {
@@ -48,6 +49,7 @@ internal class HttpApplicationMiddleware
         {
             context.Features.Set<IHttpResponseEndFeature>(endFeature);
             context.Features.Set<IHttpApplicationFeature>(null);
+            context.Features.Set<IRequestExceptionFeature>(null);
 
             _pool.Return(app);
         }

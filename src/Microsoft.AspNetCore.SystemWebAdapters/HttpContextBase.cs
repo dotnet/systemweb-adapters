@@ -19,6 +19,16 @@ namespace System.Web
 
         public virtual HttpResponseBase Response => throw new NotImplementedException();
 
+        [SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = Constants.ApiFromAspNet)]
+        public virtual Exception? Error => throw new NotImplementedException();
+
+        [SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = Constants.ApiFromAspNet)]
+        public virtual Exception[] AllErrors => throw new NotImplementedException();
+
+        public virtual void ClearError() => throw new NotImplementedException();
+
+        public virtual void AddError(Exception ex) => throw new NotImplementedException();
+
         public virtual HttpApplication ApplicationInstance => throw new NotImplementedException();
 
         public virtual HttpApplicationState Application => throw new NotImplementedException();
