@@ -16,14 +16,14 @@ namespace System.Web
         [Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = Constants.ApiFromAspNet)]
         public virtual string[] AcceptTypes => throw new NotImplementedException();
 
-        public virtual string? Path => throw new NotImplementedException();
+        public virtual string Path => throw new NotImplementedException();
 
         public virtual NameValueCollection Headers => throw new NotImplementedException();
 
         public virtual Uri Url => throw new NotImplementedException();
 
         [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1056:URI-like properties should not be strings", Justification = Constants.ApiFromAspNet)]
-        public virtual string? RawUrl => throw new NotImplementedException();
+        public virtual string RawUrl => throw new NotImplementedException();
 
         public virtual string HttpMethod => throw new NotImplementedException();
 

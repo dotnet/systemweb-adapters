@@ -76,7 +76,9 @@ public class HttpContext : IServiceProvider
 
     public DateTime Timestamp { get; } = DateTime.UtcNow.ToLocalTime();
 
-    public void RewritePath(string path)
+    public void RewritePath(string path) => RewritePath(path, true);
+
+    public void RewritePath(string path, bool rebaseClientPath)
     {
         ArgumentNullException.ThrowIfNull(path);
 
@@ -95,9 +97,14 @@ public class HttpContext : IServiceProvider
             path = "/" + path;
         }
 
-        _context.Request.QueryString = new QueryString(qs);
-        _context.Request.Path = new PathString(path.Trim());
+        RewritePath(path.Trim(), string.Empty, qs, rebaseClientPath);
     }
+
+    public void RewritePath(string filePath, string pathInfo, string? queryString)
+        => RewritePath(filePath, pathInfo, queryString, false);
+
+    public void RewritePath(string filePath, string pathInfo, string? queryString, bool setClientFilePath)
+        => _context.Features.GetRequired<IHttpRequestPathFeature>().Rewrite(filePath, pathInfo, queryString, setClientFilePath);
 
     [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = Constants.ApiFromAspNet)]
     object? IServiceProvider.GetService(Type service)

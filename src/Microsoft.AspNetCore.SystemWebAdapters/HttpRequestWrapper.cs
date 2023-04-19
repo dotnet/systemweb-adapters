@@ -57,13 +57,13 @@ namespace System.Web
 
         public override IIdentity? LogonUserIdentity => _request.LogonUserIdentity;
 
-        public override string? Path => _request.Path;
+        public override string Path => _request.Path;
 
         public override NameValueCollection QueryString => _request.QueryString;
 
         public override HttpBrowserCapabilitiesBase Browser => new HttpBrowserCapabilitiesWrapper(_request.Browser);
 
-        public override string? RawUrl => _request.RawUrl;
+        public override string RawUrl => _request.RawUrl;
 
         public override string RequestType => _request.RequestType;
 

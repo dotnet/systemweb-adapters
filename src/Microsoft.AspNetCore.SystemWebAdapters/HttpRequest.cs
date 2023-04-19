@@ -42,11 +42,14 @@ namespace System.Web
 
         internal RequestHeaders TypedHeaders => _typedHeaders ??= new(_request.Headers);
 
-        public string? Path => _request.Path.Value;
+        public string Path => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().Path;
 
-        public string? PathInfo => _request.HttpContext.Features.Get<IPathInfoFeature>()?.PathInfo ?? string.Empty;
+        public string PathInfo => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().PathInfo;
 
-        public string? FilePath => _request.HttpContext.Features.Get<IPathInfoFeature>()?.FileInfo ?? Path;
+        public string FilePath => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().FilePath;
+
+        [SuppressMessage("Design", "CA1056:URI-like properties should not be strings", Justification = Constants.ApiFromAspNet)]
+        public string RawUrl => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().RawUrl;
 
         public NameValueCollection Headers => _headers ??= _request.Headers.ToNameValueCollection();
 
@@ -57,9 +60,6 @@ namespace System.Web
         public Stream GetBufferlessInputStream() => _request.HttpContext.Features.GetRequired<IHttpRequestInputStreamFeature>().GetBufferlessInputStream();
 
         public Stream GetBufferedInputStream() => _request.HttpContext.Features.GetRequired<IHttpRequestInputStreamFeature>().GetBufferedInputStream();
-
-        [SuppressMessage("Design", "CA1056:URI-like properties should not be strings", Justification = Constants.ApiFromAspNet)]
-        public string? RawUrl => _request.HttpContext.Features.Get<IHttpRequestFeature>()?.RawTarget;
 
         public string HttpMethod => _request.Method;
 
