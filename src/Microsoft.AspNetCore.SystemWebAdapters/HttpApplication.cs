@@ -62,6 +62,16 @@ public class HttpApplication : IDisposable
 
     public void CompleteRequest() => Context.Response.End();
 
+    public virtual string? GetVaryByCustomString(HttpContext context, string custom)
+    {
+        if (string.Equals(custom, "browser", StringComparison.OrdinalIgnoreCase))
+        {
+            return context?.Request.Browser.Type;
+        }
+
+        return null;
+    }
+
     public event EventHandler? BeginRequest
     {
         add => AddEvent(value);
