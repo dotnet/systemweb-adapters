@@ -14,7 +14,7 @@ namespace Microsoft.AspNetCore.OutputCaching;
 public static class HttpApplicationVaryByExtensions
 {
     /// <summary>
-    /// Adds a OutputCache policy to the base policy that will query <see cref="System.Web.HttpApplication.GetVaryByCustomString(System.Web.HttpContext, string)"/>
+    /// Adds an output cache policy to the base policy that will query <see cref="System.Web.HttpApplication.GetVaryByCustomString(System.Web.HttpContext, string)"/>
     /// for values to vary by with the keys supplied by the the <paramref name="keySelector"/>.
     /// </summary>
     /// <param name="options">The <see cref="OutputCacheOptions"/> to add the base policy to.</param>
@@ -28,7 +28,28 @@ public static class HttpApplicationVaryByExtensions
     }
 
     /// <summary>
-    /// Adds a named OutputCache policy that will query <see cref="System.Web.HttpApplication.GetVaryByCustomString(System.Web.HttpContext, string)"/>
+    /// Adds a collection of custom keys to query <see cref="System.Web.HttpApplication.GetVaryByCustomString(System.Web.HttpContext, string)"/> for values to vary by.
+    /// </summary>
+    /// <param name="builder">The <see cref="OutputCachePolicyBuilder"/> to add the values to.</param>
+    /// <param name="customKeys">The custom keys to vary by value.</param>
+    public static void AddHttpApplicationVaryByCustom(this OutputCachePolicyBuilder builder, params string[] customKeys)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(customKeys);
+
+        foreach (var custom in customKeys)
+        {
+            builder.VaryByValue(context =>
+            {
+                var value = context.Features.Get<IHttpApplicationFeature>()?.Application.GetVaryByCustomString(context, custom);
+
+                return new(custom, value ?? string.Empty);
+            });
+        }
+    }
+
+    /// <summary>
+    /// Adds a named output cache policy that will query <see cref="System.Web.HttpApplication.GetVaryByCustomString(System.Web.HttpContext, string)"/>
     /// for values to vary by with the keys supplied by the the <paramref name="keySelector"/>.
     /// </summary>
     /// <param name="options">The <see cref="OutputCacheOptions"/> to add the named policy to.</param>
