@@ -59,5 +59,13 @@ namespace System.Web
         public static implicit operator HttpContextBase?(HttpContextCore? context) => context?.GetAdapterBase();
 
         public virtual System.Web.Caching.Cache Cache => throw new NotImplementedException();
+
+        public virtual void RewritePath(string path) => throw new NotImplementedException();
+
+        public virtual void RewritePath(string path, bool rebaseClientPath) => throw new NotImplementedException();
+
+        public virtual void RewritePath(string filePath, string pathInfo, string? queryString) => throw new NotImplementedException();
+
+        public virtual void RewritePath(string filePath, string pathInfo, string? queryString, bool setClientFilePath) => throw new NotImplementedException();
     }
 }

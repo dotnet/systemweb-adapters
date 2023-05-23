@@ -71,5 +71,13 @@ namespace System.Web
         }
 
         public override Cache Cache => _context.Cache;
+
+        public override void RewritePath(string path) => _context.RewritePath(path);
+
+        public override void RewritePath(string path, bool rebaseClientPath) => _context.RewritePath(path, rebaseClientPath);
+
+        public override void RewritePath(string filePath, string pathInfo, string? queryString) => _context.RewritePath(filePath, pathInfo, queryString);
+
+        public override void RewritePath(string filePath, string pathInfo, string? queryString, bool setClientFilePath) => _context.RewritePath(filePath, pathInfo, queryString, setClientFilePath);
     }
 }
