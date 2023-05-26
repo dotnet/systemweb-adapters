@@ -77,7 +77,7 @@ public class HttpContext : IServiceProvider
             }
             else
             {
-                var newFeature = new PrincipalUserFeature { User = value };
+                var newFeature = new PrincipalUserFeature(_context) { User = value };
 
                 _context.Features.Set<IPrincipalUserFeature>(newFeature);
                 _context.Features.Set<IHttpAuthenticationFeature>(newFeature);
