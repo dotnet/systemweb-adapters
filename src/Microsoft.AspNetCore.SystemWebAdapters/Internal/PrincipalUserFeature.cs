@@ -1,15 +1,15 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Security.Claims;
 using System.Security.Principal;
 using Microsoft.AspNetCore.Http.Features.Authentication;
-using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace System.Web;
+namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal sealed partial class PrincipalUserFeature : IPrincipalUserFeature, IHttpAuthenticationFeature
 {
