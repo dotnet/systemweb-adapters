@@ -73,6 +73,59 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         }
 
         [Fact]
+        public void UserIsProxiedWhenSetOnCoreAfterAdapter()
+        {
+            var coreContext = new DefaultHttpContext();
+            var context = new HttpContext(coreContext);
+
+            Assert.Same(coreContext.User, context.User);
+
+            // Set a user to force the IPrincipalUserFeature to be used
+            var user1 = new ClaimsPrincipal();
+            context.User = user1;
+
+            // Verify a new user sets things correctly if done from the ASP.NET Core side
+            var user2 = new ClaimsPrincipal();
+            coreContext.User = user2;
+
+            Assert.Same(coreContext.User, user2);
+            Assert.Same(context.User, user2);
+        }
+
+        [Fact]
+        public void UserIsNotClaimsPrincipal()
+        {
+            var coreContext = new DefaultHttpContext();
+            var context = new HttpContext(coreContext);
+
+            Assert.Same(coreContext.User, context.User);
+
+            var newUser = new Mock<IPrincipal>();
+            context.User = newUser.Object;
+
+            Assert.NotSame(coreContext.User, newUser.Object);
+            Assert.Same(context.User, newUser.Object);
+        }
+
+        [Fact]
+        public void UserIsDerivedClaimsPrincipal()
+        {
+            var coreContext = new DefaultHttpContext();
+            var context = new HttpContext(coreContext);
+
+            Assert.Same(coreContext.User, context.User);
+
+            var newUser = new MyPrincipal();
+            context.User = newUser;
+
+            Assert.Same(coreContext.User, newUser);
+        }
+
+        private sealed class MyPrincipal : ClaimsPrincipal
+        {
+        }
+
+        [Fact]
         public void NonClaimsPrincipalIsCopied()
         {
             var coreContext = new DefaultHttpContext();

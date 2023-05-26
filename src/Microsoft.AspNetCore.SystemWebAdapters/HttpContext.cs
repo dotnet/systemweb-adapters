@@ -4,12 +4,12 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Security.Claims;
 using System.Security.Principal;
 using System.Web.Caching;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -68,8 +68,21 @@ public class HttpContext : IServiceProvider
 
     public IPrincipal User
     {
-        get => _context.User;
-        set => _context.User = value is ClaimsPrincipal claims ? claims : new ClaimsPrincipal(value);
+        get => _context.Features.Get<IPrincipalUserFeature>()?.User ?? _context.User;
+        set
+        {
+            if (_context.Features.Get<IPrincipalUserFeature>() is { } feature)
+            {
+                feature.User = value;
+            }
+            else
+            {
+                var newFeature = new PrincipalUserFeature { User = value };
+
+                _context.Features.Set<IPrincipalUserFeature>(newFeature);
+                _context.Features.Set<IHttpAuthenticationFeature>(newFeature);
+            }
+        }
     }
 
     public HttpSessionState? Session => _context.Features.Get<HttpSessionState>();
