@@ -13,18 +13,18 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal static class InternalSystemWebExtensions
 {
-    [return: NotNullIfNotNull("request")]
+    [return: NotNullIfNotNull(nameof(request))]
     internal static HttpRequest? GetAdapter(this HttpRequestCore? request)
         => request?.HttpContext.GetAdapter().Request;
 
-    [return: NotNullIfNotNull("request")]
+    [return: NotNullIfNotNull(nameof(request))]
     internal static HttpRequestBase? GetAdapterBase(this HttpRequestCore? request)
         => request?.HttpContext.GetAdapterBase().Request;
 
-    [return: NotNullIfNotNull("request")]
+    [return: NotNullIfNotNull(nameof(request))]
     internal static HttpRequestCore? UnwrapAdapter(this HttpRequest? request) => request;
 
-    [return: NotNullIfNotNull("response")]
+    [return: NotNullIfNotNull(nameof(response))]
     internal static HttpResponse? GetAdapter(this HttpResponseCore? response)
         => response?.HttpContext.GetAdapter().Response;
 
@@ -32,7 +32,7 @@ internal static class InternalSystemWebExtensions
     internal static HttpResponseBase? GetAdapterBase(this HttpResponseCore? response)
         => response?.HttpContext.GetAdapterBase().Response;
 
-    [return: NotNullIfNotNull("response")]
+    [return: NotNullIfNotNull(nameof(response))]
     internal static HttpResponseCore? UnwrapAdapter(this HttpResponse? response) => response;
 
     internal static IDictionary AsNonGeneric(this IDictionary<object, object?> dictionary)
@@ -41,7 +41,7 @@ internal static class InternalSystemWebExtensions
     internal static ICollection AsNonGeneric<T>(this ICollection<T> collection)
         => collection is ICollection c ? c : new NonGenericCollectionWrapper<T>(collection);
 
-    [return: NotNullIfNotNull("context")]
+    [return: NotNullIfNotNull(nameof(context))]
     internal static HttpContext? GetAdapter(this HttpContextCore? context)
     {
         if (context is null)
@@ -60,10 +60,10 @@ internal static class InternalSystemWebExtensions
         return result;
     }
 
-    [return: NotNullIfNotNull("context")]
+    [return: NotNullIfNotNull(nameof(context))]
     internal static HttpContextCore? UnwrapAdapter(this HttpContext? context) => context;
 
-    [return: NotNullIfNotNull("context")]
+    [return: NotNullIfNotNull(nameof(context))]
     internal static HttpContextBase? GetAdapterBase(this HttpContextCore? context)
     {
         if (context is null)
