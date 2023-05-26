@@ -10,28 +10,13 @@ namespace System.Web;
 
 internal sealed class PrincipalUserFeature : IPrincipalUserFeature, IHttpAuthenticationFeature
 {
-    private ClaimsPrincipal? _claims;
-    private IPrincipal? _principal;
-
     ClaimsPrincipal? IHttpAuthenticationFeature.User
     {
-        get => _claims ?? GetClaimsPrincipal(_principal);
-        set
-        {
-            _claims = value;
-            _principal = value;
-        }
+        get => GetClaimsPrincipal(User);
+        set => User = value;
     }
 
-    public IPrincipal? User
-    {
-        get => _claims ?? _principal;
-        set
-        {
-            _principal = value;
-            _claims = null;
-        }
-    }
+    public IPrincipal? User { get; set; }
 
     private static ClaimsPrincipal? GetClaimsPrincipal(IPrincipal? principal) => principal switch
     {
