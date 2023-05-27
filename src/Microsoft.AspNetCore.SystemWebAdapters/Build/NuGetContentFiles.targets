@@ -1,0 +1,60 @@
+<Project>
+
+  <!--
+      Add NuGet content to the build output if specified:
+      <PackageReference Include="..." CopyContent="true" ... />
+       -->
+  <Target Name="AddNugetContentFiles" BeforeTargets="AssignTargetPaths">
+    <PropertyGroup>
+      <EnableSystemWebAdapterNuGetWarnings Condition=" '$(EnableSystemWebAdapterNuGetWarnings)' == '' ">true</EnableSystemWebAdapterNuGetWarnings>
+    </PropertyGroup>
+
+    <!-- Identity PackageReference and paths to packages -->
+    <ItemGroup>
+      <_PackageReferenceProperties Include="Pkg$([System.String]::Copy('%(PackageReference.Identity)').Replace('.','_'))">
+        <PackageName>%(PackageReference.Identity)</PackageName>
+        <CopyContent>%(PackageReference.CopyContent)</CopyContent>
+      </_PackageReferenceProperties>
+      <_PackageReferenceProperties Update="@(_PackageReferenceProperties)" PackageRootPath="$(%(_PackageReferenceProperties.Identity))" />
+    </ItemGroup>
+
+    <!-- Check for tools files -->
+    <ItemGroup>
+      <_ToolsFiles Include="%(_PackageReferenceProperties.PackageRootPath)/tools/*.ps1">
+        <PackageName>%(PackageName)</PackageName>
+      </_ToolsFiles>
+      <_ToolsPackage Include="%(_ToolsFiles.PackageName)" />
+    </ItemGroup>
+
+    <!-- Get content files-->
+    <ItemGroup>
+      <!-- Get all PackageReferences that have 'CopyContent' == 'true' -->
+      <_ContentPkgProperties Include="@(_PackageReferenceProperties)" Condition="'%(CopyContent)' == 'true'" />
+
+      <!-- Filter out packages that need GeneratePathProperty -->
+      <_ValidContentPkgProperties Include="@(_ContentPkgProperties)" Condition=" '%(PackageRootPath)' != '' " />
+      <_InvalidContentPkgProperties Include="@(_ContentPkgProperties)" Condition=" '%(PackageRootPath)' == '' " />
+    </ItemGroup>
+
+    <Warning
+      Condition=" '$(EnableSystemWebAdapterNuGetWarnings)' == 'true' AND '@(_InvalidContentPkgProperties)' != '' "
+      Text="%(_InvalidContentPkgProperties.PackageName) does not contain a tools directory and thus needs 'GeneratePathProperty' == 'true' " />
+
+    <Warning
+      Condition=" '$(EnableSystemWebAdapterNuGetWarnings)' == 'true' AND '@(_ToolsPackage)' != '' "
+      Text="%(_ToolsPackage.Identity) contains PowerShell files that may cause issues when using PackageReference" />
+
+    <ItemGroup Condition=" '@(_ValidContentPkgProperties)' != '' ">
+      <_NuGetContentFiles Include="%(_ValidContentPkgProperties.PackageRootPath)\Content\**\*">
+        <BasePath>%(_ValidContentPkgProperties.PackageRootPath)\Content</BasePath>
+        <PackageIdentity>%(_ValidContentPkgProperties.PackageName)</PackageIdentity>
+      </_NuGetContentFiles>
+
+      <Content Include="@(_NuGetContentFiles)">
+        <Link>$([MSBuild]::MakeRelative(%(_NuGetContentFiles.BasePath),%(_NuGetContentFiles.Identity)))</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+  </Target>
+</Project>
