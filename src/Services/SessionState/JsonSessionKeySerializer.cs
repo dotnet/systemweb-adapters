@@ -51,14 +51,14 @@ internal partial class JsonSessionKeySerializer : ISessionKeySerializer
         {
             if (value is null)
             {
-                if (!type.IsValueType || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)))
+                if (!type.IsValueType || IsNullable(type))
                 {
                     // Create a new one instead of caching since technically the array values could be overwritten
                     bytes = "null"u8.ToArray();
                     return true;
                 }
             }
-            else if (type == value.GetType() || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && type.GenericTypeArguments[0] == value.GetType()))
+            else if (type == value.GetType() || IsNullableType(type, value.GetType()))
             {
                 try
                 {
@@ -79,5 +79,11 @@ internal partial class JsonSessionKeySerializer : ISessionKeySerializer
         bytes = Array.Empty<byte>();
         return false;
     }
+
+    private static bool IsNullable(Type type)
+        => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+
+    private static bool IsNullableType(Type type, Type nullableArg)
+        => IsNullable(type) && nullableArg == type.GenericTypeArguments[0];
 }
 
