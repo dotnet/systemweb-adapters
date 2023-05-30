@@ -90,7 +90,7 @@ namespace System.Web
 
         public virtual void Abort() => throw new NotImplementedException();
 
-        [return: NotNullIfNotNull("request")]
+        [return: NotNullIfNotNull(nameof(request))]
         public static implicit operator HttpRequestBase?(HttpRequestCore? request) => request?.GetAdapterBase();
     }
 }

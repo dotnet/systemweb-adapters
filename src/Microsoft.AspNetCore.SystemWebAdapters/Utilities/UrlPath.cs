@@ -537,7 +537,7 @@ internal sealed class UrlPath
         return virtualPath;
     }
 
-    [return: NotNullIfNotNull("virtualPath")]
+    [return: NotNullIfNotNull(nameof(virtualPath))]
     internal static string? GetExtension(string? virtualPath)
     {
         if (virtualPath is null)

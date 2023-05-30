@@ -15,7 +15,7 @@ public static class VirtualPathUtility
     /// <summary>Appends the literal slash mark (/) to the end of the virtual path, if one does not already exist.</summary>
     /// <returns>The modified virtual path.</returns>
     /// <param name="virtualPath">The virtual path to append the slash mark to.</param>
-    [return: NotNullIfNotNull("virtualPath")]
+    [return: NotNullIfNotNull(nameof(virtualPath))]
     public static string? AppendTrailingSlash(string? virtualPath) => VirtualPathUtilityImpl.AppendTrailingSlash(virtualPath);
 
     /// <summary>Combines a base path and a relative path.</summary>

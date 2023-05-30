@@ -110,7 +110,7 @@ namespace System.Web
 
         public virtual void TransmitFile(string filename, long offset, long length) => throw new NotImplementedException();
 
-        [return: NotNullIfNotNull("response")]
+        [return: NotNullIfNotNull(nameof(response))]
         public static implicit operator HttpResponseBase?(HttpResponseCore? response) => response?.GetAdapterBase();
     }
 }

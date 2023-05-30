@@ -55,7 +55,7 @@ namespace System.Web
 
         public virtual object? GetService(Type serviceType) => throw new NotImplementedException();
 
-        [return: NotNullIfNotNull("context")]
+        [return: NotNullIfNotNull(nameof(context))]
         public static implicit operator HttpContextBase?(HttpContextCore? context) => context?.GetAdapterBase();
 
         public virtual System.Web.Caching.Cache Cache => throw new NotImplementedException();

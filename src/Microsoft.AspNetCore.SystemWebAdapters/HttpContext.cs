@@ -149,10 +149,10 @@ public class HttpContext : IServiceProvider
         return token;
     }
 
-    [return: NotNullIfNotNull("context")]
+    [return: NotNullIfNotNull(nameof(context))]
     public static implicit operator HttpContext?(HttpContextCore? context) => context?.GetAdapter();
 
-    [return: NotNullIfNotNull("context")]
+    [return: NotNullIfNotNull(nameof(context))]
     public static implicit operator HttpContextCore?(HttpContext? context) => context?._context;
 
     private sealed class DisposeOnPipelineSubscriptionToken : ISubscriptionToken, IDisposable
