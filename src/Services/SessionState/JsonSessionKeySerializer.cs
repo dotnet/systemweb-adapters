@@ -45,11 +45,20 @@ internal partial class JsonSessionKeySerializer : ISessionKeySerializer
         return false;
     }
 
-    public bool TrySerialize(string key, object value, out byte[] bytes)
+    public bool TrySerialize(string key, object? value, out byte[] bytes)
     {
         if (_options.Value.KnownKeys.TryGetValue(key, out var type))
         {
-            if (type == value.GetType())
+            if (value is null)
+            {
+                if (!type.IsValueType || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)))
+                {
+                    // Create a new one instead of caching since technically the array values could be overwritten
+                    bytes = "null"u8.ToArray();
+                    return true;
+                }
+            }
+            else if (type == value.GetType() || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && type.GenericTypeArguments[0] == value.GetType()))
             {
                 try
                 {

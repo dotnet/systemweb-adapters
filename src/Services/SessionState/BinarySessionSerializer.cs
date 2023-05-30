@@ -16,7 +16,15 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1510:Use ArgumentNullException throw helper", Justification = "Source shared with .NET Framework that does not have the method")]
 internal partial class BinarySessionSerializer : ISessionSerializer
 {
-    private const byte Version = 1;
+    // Used to ensure format is as expected:
+    /// <summary>
+    /// Magic number used to track which version of the binary session serializer was used.
+    /// <list type="bullet">
+    /// <item>1 - Initial release (v1.0)</item>
+    /// <item>2 - Delegates the handling of null to the serializers rather than special casing them (v1.2)</item>
+    /// </list>
+    /// </summary>
+    internal const byte Version = 2;
 
     private readonly SessionSerializerOptions _options;
     private readonly ISessionKeySerializer _serializer;
@@ -53,21 +61,14 @@ internal partial class BinarySessionSerializer : ISessionSerializer
         {
             writer.Write(item);
 
-            if (state[item] is { } obj)
+            if (_serializer.TrySerialize(item, state[item], out var result))
             {
-                if (_serializer.TrySerialize(item, obj, out var result))
-                {
-                    writer.Write7BitEncodedInt(result.Length);
-                    writer.Write(result);
-                }
-                else
-                {
-                    (unknownKeys ??= new()).Add(item);
-                    writer.Write7BitEncodedInt(0);
-                }
+                writer.Write7BitEncodedInt(result.Length);
+                writer.Write(result);
             }
             else
             {
+                (unknownKeys ??= new()).Add(item);
                 writer.Write7BitEncodedInt(0);
             }
         }
@@ -100,9 +101,11 @@ internal partial class BinarySessionSerializer : ISessionSerializer
             throw new ArgumentNullException(nameof(reader));
         }
 
-        if (reader.ReadByte() != Version)
+        var version = reader.ReadByte();
+
+        if (version != 1 && version != 2)
         {
-            throw new InvalidOperationException("Serialized session state has different version than expected");
+            throw new InvalidOperationException($"Serialized session state has unsupported version: {version}");
         }
 
         var state = new BinaryReaderSerializedSessionState(reader, _serializer);

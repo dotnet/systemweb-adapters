@@ -4,6 +4,10 @@
     <RootNamespace>Microsoft.AspNetCore.SystemWebAdapters.Tests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests\SessionState\Serialization\BinarySessionSerializerTests.cs" Link="SessionState\BinarySessionSerializerTests.cs" />
+    <Compile Include="..\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests\SessionState\Serialization\JsonSessionKeySerializerTests.cs" Link="SessionState\JsonSessionKeySerializerTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Autofac.Extras.Moq" Version="6.0.0" />
     <PackageReference Include="AutoFixture" Version="4.15.0" />
     <PackageReference Include="Moq" Version="4.16.1" />
@@ -16,5 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Web" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="SessionState\" />
   </ItemGroup>
 </Project>

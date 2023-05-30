@@ -13,7 +13,7 @@ internal sealed class CompositeSessionKeySerializer : ICompositeSessionKeySerial
         _serializers = serializers.ToArray();
     }
 
-    public bool TrySerialize(string key, object value, out byte[] bytes)
+    public bool TrySerialize(string key, object? value, out byte[] bytes)
     {
         foreach (var serializer in _serializers)
         {

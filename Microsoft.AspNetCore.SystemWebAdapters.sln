@@ -71,7 +71,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModulesLibrary", "samples\M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModulesFramework", "samples\Modules\ModulesFramework\ModulesFramework.csproj", "{B262AD69-11F0-4AE0-949A-AEAA2300C061}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModulesCore", "samples\Modules\ModulesCore\ModulesCore.csproj", "{F8B33C59-27CF-45DC-955C-2EBF9DA9DB7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModulesCore", "samples\Modules\ModulesCore\ModulesCore.csproj", "{F8B33C59-27CF-45DC-955C-2EBF9DA9DB7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
