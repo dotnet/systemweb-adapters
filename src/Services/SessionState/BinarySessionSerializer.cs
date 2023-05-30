@@ -162,10 +162,7 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 
                 if (serializer.TryDeserialize(key, bytes, out var result))
                 {
-                    if (result is not null)
-                    {
-                        this[key] = result;
-                    }
+                    this[key] = result;
                 }
                 else
                 {
