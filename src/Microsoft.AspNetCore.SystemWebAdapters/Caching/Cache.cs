@@ -61,6 +61,17 @@ public sealed class Cache : IEnumerable
 
     public void Insert(string key, object value) => _cache.Set(key, value, new CacheItemPolicy());
 
+    public void Insert(string key, object value, CacheDependency? dependencies)
+    {
+        var policy = new CacheItemPolicy
+        {
+            AbsoluteExpiration = Convert(NoAbsoluteExpiration),
+            SlidingExpiration = NoSlidingExpiration,
+        };
+
+        _cache.Set(key, value, policy);
+    }
+
     public void Insert(string key, object value, CacheDependency? dependencies, DateTime absoluteExpiration, TimeSpan slidingExpiration)
     {
         var policy = new CacheItemPolicy
