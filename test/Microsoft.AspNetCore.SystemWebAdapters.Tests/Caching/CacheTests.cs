@@ -111,9 +111,10 @@ public class CacheTests
         var cache = new Cache(memCache.Object);
         var key = _fixture.Create<string>();
         var item = new object();
+        var cacheDependency = new Mock<CacheDependency>();
 
         // Act
-        cache.Insert(key, item, null);
+        cache.Insert(key, item, cacheDependency.Object);
 
         // Assert
         memCache.Verify(m => m.Set(key, item, It.Is<CacheItemPolicy>(e => e.AbsoluteExpiration.Equals(Cache.NoAbsoluteExpiration) && e.SlidingExpiration.Equals(Cache.NoSlidingExpiration)), null), Times.Once);

@@ -61,7 +61,7 @@ public sealed class Cache : IEnumerable
 
     public void Insert(string key, object value) => _cache.Set(key, value, new CacheItemPolicy());
 
-    public void Insert(string key, object value, CacheDependency? dependencies)
+    public void Insert(string key, object value, CacheDependency dependencies)
     {
         var policy = new CacheItemPolicy
         {

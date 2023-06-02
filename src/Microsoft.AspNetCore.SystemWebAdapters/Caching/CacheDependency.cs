@@ -68,13 +68,17 @@ public class CacheDependency : IDisposable
 
     protected internal void FinishInit()
     {
-        HasChanged = changeMonitors.Any(cm => cm.HasChanged && (cm.GetLastModifiedUtc() > utcStart));
-        utcLastModified = changeMonitors.Max(cm => cm.GetLastModifiedUtc());
-        if (HasChanged)
+        if (changeMonitors.Count > 0)
         {
-            NotifyDependencyChanged(this, EventArgs.Empty);
+            HasChanged = changeMonitors.Any(cm => cm.HasChanged && (cm.GetLastModifiedUtc() > utcStart));
+            utcLastModified = changeMonitors.Max(cm => cm.GetLastModifiedUtc());
+            if (HasChanged)
+            {
+                NotifyDependencyChanged(this, EventArgs.Empty);
+            }
+            changeMonitors.ForEach(cm => cm.NotifyOnChanged(NotifyOnChanged));
         }
-        changeMonitors.ForEach(cm => cm.NotifyOnChanged(NotifyOnChanged));
+
         initCompleted = true;
     }
 
