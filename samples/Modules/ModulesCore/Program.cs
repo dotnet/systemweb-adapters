@@ -1,4 +1,5 @@
 using System.Web;
+using Microsoft.AspNetCore.OutputCaching;
 using ModulesLibrary;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,9 +14,18 @@ builder.Services.AddSystemWebAdapters()
         options.RegisterModule<EventsModule>("Events");
     });
 
+builder.Services.AddOutputCache(options =>
+{
+    options.AddHttpApplicationBasePolicy(_ => new[] { "browser" });
+});
+
 var app = builder.Build();
 
 app.UseSystemWebAdapters();
+app.UseOutputCache();
+
+app.MapGet("/", () => "Hello")
+    .CacheOutput();
 
 app.Run();
 
@@ -23,5 +33,15 @@ class MyApp : HttpApplication
 {
     protected void Application_Start()
     {
+    }
+
+    public override string? GetVaryByCustomString(System.Web.HttpContext context, string custom)
+    {
+        if (custom == "test")
+        {
+            return "blah";
+        }
+
+        return base.GetVaryByCustomString(context, custom);
     }
 }

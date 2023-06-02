@@ -58,15 +58,6 @@ public static class HttpApplicationExtensions
         return builder;
     }
 
-    internal static void UseHttpApplication(this IApplicationBuilder app)
-    {
-        if (app.AreHttpApplicationEventsRequired())
-        {
-            app.UseMiddleware<HttpApplicationMiddleware>();
-            app.UseHttpApplicationEvent(ApplicationEvent.BeginRequest);
-        }
-    }
-
     internal static void UseHttpApplicationEvent(this IApplicationBuilder app, params ApplicationEvent[] preEvents)
         => app.UseHttpApplicationEvent(preEvents, Array.Empty<ApplicationEvent>());
 
