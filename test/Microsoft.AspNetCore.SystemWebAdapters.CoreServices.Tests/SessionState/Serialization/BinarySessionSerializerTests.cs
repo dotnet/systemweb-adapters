@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -175,6 +173,28 @@ public class BinarySessionSerializerTests
     }
 
     [Fact]
+    public async Task DeserializeIsReadOnlyEmptyNull()
+    {
+        // Arrange
+        var data = new byte[] { 1, 2, 105, 100, 0, 0, 1, 0, 0, 0 };
+        using var ms = new MemoryStream(data);
+
+        var serializer = CreateSerializer();
+
+        // Act
+        var result = await serializer.DeserializeAsync(ms, default);
+
+        // Assert
+        Assert.Equal("id", result!.SessionID);
+        Assert.True(result.IsReadOnly);
+        Assert.False(result.IsAbandoned);
+        Assert.False(result.IsNewSession);
+        Assert.Equal(0, result.Timeout);
+        Assert.Equal(0, result.Count);
+        Assert.Empty(result.Keys);
+    }
+
+    [Fact]
     public async Task SerializeTimeout()
     {
         // Arrange
@@ -240,6 +260,110 @@ public class BinarySessionSerializerTests
     }
 
     [Fact]
+    public async Task Serialize1KeyNull()
+    {
+        // Arrange
+        var obj = default(object);
+        var state = new Mock<ISessionState>();
+        state.Setup(s => s["key1"]).Returns(obj);
+        state.Setup(s => s.SessionID).Returns("id");
+        state.Setup(s => s.Keys).Returns(new[] { "key1" });
+        state.Setup(s => s.Count).Returns(1);
+
+        var keySerializer = new Mock<ISessionKeySerializer>();
+        var bytes = new byte[] { 0 };
+        keySerializer.Setup(k => k.TrySerialize("key1", obj, out bytes)).Returns(true);
+
+        var serializer = CreateSerializer(keySerializer.Object);
+        using var ms = new MemoryStream();
+
+        // Act
+        await serializer.SerializeAsync(state.Object, ms, default);
+
+        // Assert
+        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0 });
+    }
+
+    [Fact]
+    public async Task Deserialize1KeyNull()
+    {
+        // Arrange
+        var data = new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0 };
+        var obj = new object();
+        var value = new byte[] { 0 };
+
+        var keySerializer = new Mock<ISessionKeySerializer>();
+        keySerializer.Setup(k => k.TryDeserialize("key1", value, out obj)).Returns(true);
+
+        var serializer = CreateSerializer(keySerializer.Object);
+
+        // Act
+        var result = await serializer.DeserializeAsync(new MemoryStream(data), default);
+
+        // Assert
+        Assert.Equal("id", result!.SessionID);
+        Assert.False(result.IsReadOnly);
+        Assert.False(result.IsAbandoned);
+        Assert.False(result.IsNewSession);
+        Assert.Equal(0, result.Timeout);
+        Assert.Equal(1, result.Count);
+        Assert.Same(obj, result["key1"]);
+        Assert.Collection(result.Keys, k => Assert.Equal("key1", k));
+    }
+
+    [Fact]
+    public async Task Deserialize1KeyV1()
+    {
+        // Arrange
+        var obj = new object();
+        var keySerializer = new Mock<ISessionKeySerializer>();
+        keySerializer.Setup(k => k.TryDeserialize("key1", Array.Empty<byte>(), out obj)).Returns(true);
+
+        var data = new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 0, 0 };
+        using var ms = new MemoryStream(data);
+
+        var serializer = CreateSerializer(keySerializer.Object);
+
+        // Act
+        var result = await serializer.DeserializeAsync(ms, default);
+
+        // Assert
+        Assert.Equal("id", result!.SessionID);
+        Assert.False(result.IsReadOnly);
+        Assert.False(result.IsAbandoned);
+        Assert.False(result.IsNewSession);
+        Assert.Equal(0, result.Timeout);
+        Assert.Equal(1, result.Count);
+        Assert.Equal(result.Keys, new[] { "key1" });
+        Assert.Equal(obj, result["key1"]);
+    }
+
+    [Fact]
+    public async Task Serialize1KeyNullable()
+    {
+        // Arrange
+        var obj = (int?)5;
+        var state = new Mock<ISessionState>();
+        state.Setup(s => s["key1"]).Returns(obj);
+        state.Setup(s => s.SessionID).Returns("id");
+        state.Setup(s => s.Keys).Returns(new[] { "key1" });
+        state.Setup(s => s.Count).Returns(1);
+
+        var keySerializer = new Mock<ISessionKeySerializer>();
+        var bytes = new byte[] { 0 };
+        keySerializer.Setup(k => k.TrySerialize("key1", obj, out bytes)).Returns(true);
+
+        var serializer = CreateSerializer(keySerializer.Object);
+        using var ms = new MemoryStream();
+
+        // Act
+        await serializer.SerializeAsync(state.Object, ms, default);
+
+        // Assert
+        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0 });
+    }
+
+    [Fact]
     public async Task Deserialize1Key()
     {
         // Arrange
@@ -290,7 +414,7 @@ public class BinarySessionSerializerTests
         public bool TryDeserialize(string key, byte[] bytes, out object? obj)
             => _serializer.TryDeserialize(key, bytes, out obj);
 
-        public bool TrySerialize(string key, object value, out byte[] bytes)
+        public bool TrySerialize(string key, object? value, out byte[] bytes)
             => _serializer.TrySerialize(key, value, out bytes);
     }
 }

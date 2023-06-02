@@ -301,7 +301,7 @@ public class AspNetCoreSessionStateTests
         public bool TryDeserialize(string key, byte[] bytes, out object? obj)
             => _serializer.TryDeserialize(key, bytes, out obj);
 
-        public bool TrySerialize(string key, object value, out byte[] bytes)
+        public bool TrySerialize(string key, object? value, out byte[] bytes)
             => _serializer.TrySerialize(key, value, out bytes);
     }
 }
