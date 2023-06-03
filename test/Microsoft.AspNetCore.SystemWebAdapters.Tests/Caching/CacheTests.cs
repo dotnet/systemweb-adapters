@@ -296,6 +296,39 @@ public class CacheTests
     private sealed record Removal(string Key, object Item, CacheItemRemovedReason Reason);
 
     [Fact]
+    public void InsertNoAbsoluteSlidingExpiration()
+    {
+        // Arrange
+        var memCache = new Mock<MemoryCache>(_fixture.Create<string>(), null);
+        var cache = new Cache(memCache.Object);
+        var key = _fixture.Create<string>();
+        var item = new object();
+
+        // Act
+        cache.Insert(key, item);
+
+        // Assert
+        memCache.Verify(m => m.Set(key, item, It.Is<CacheItemPolicy>(e => e.AbsoluteExpiration.Equals(Cache.NoAbsoluteExpiration) && e.SlidingExpiration.Equals(Cache.NoSlidingExpiration)), null), Times.Once);
+    }
+
+    [Fact]
+    public void InsertWithDependency()
+    {
+        // Arrange
+        var memCache = new Mock<MemoryCache>(_fixture.Create<string>(), null);
+        var cache = new Cache(memCache.Object);
+        var key = _fixture.Create<string>();
+        var item = new object();
+        var cacheDependency = new Mock<CacheDependency>();
+
+        // Act
+        cache.Insert(key, item, cacheDependency.Object);
+
+        // Assert
+        memCache.Verify(m => m.Set(key, item, It.Is<CacheItemPolicy>(e => e.AbsoluteExpiration.Equals(Cache.NoAbsoluteExpiration) && e.SlidingExpiration.Equals(Cache.NoSlidingExpiration)), null), Times.Once);
+    }
+
+    [Fact]
     public async Task DependentFileCallback()
     {
         // Arrange

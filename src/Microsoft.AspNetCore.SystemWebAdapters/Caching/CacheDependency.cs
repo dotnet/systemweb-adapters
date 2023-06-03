@@ -70,7 +70,7 @@ public class CacheDependency : IDisposable
     protected internal void FinishInit()
     {
         HasChanged = changeMonitors.Any(cm => cm.HasChanged && (cm.GetLastModifiedUtc() > utcStart));
-        utcLastModified = changeMonitors.Max(cm => cm.GetLastModifiedUtc());
+        utcLastModified = changeMonitors.Count==0 ? DateTime.MinValue : changeMonitors.Max(cm => cm.GetLastModifiedUtc());
         if (HasChanged)
         {
             NotifyDependencyChanged(this, EventArgs.Empty);
