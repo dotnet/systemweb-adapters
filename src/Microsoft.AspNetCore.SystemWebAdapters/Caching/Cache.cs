@@ -45,6 +45,7 @@ public sealed class Cache : IEnumerable
             Priority = Convert(priority),
             RemovedCallback = Convert(onRemoveCallback),
         };
+        AddChangeMonitors(dependencies, policy);
 
         return _cache.AddOrGetExisting(key, value, policy);
     }
@@ -68,6 +69,7 @@ public sealed class Cache : IEnumerable
             AbsoluteExpiration = Convert(absoluteExpiration),
             SlidingExpiration = slidingExpiration,
         };
+        AddChangeMonitors(dependencies, policy);
 
         _cache.Set(key, value, policy);
     }
@@ -81,6 +83,7 @@ public sealed class Cache : IEnumerable
             Priority = Convert(priority),
             RemovedCallback = Convert(onRemoveCallback),
         };
+        AddChangeMonitors(dependencies, policy);
 
         _cache.Set(key, value, policy);
     }
@@ -93,6 +96,7 @@ public sealed class Cache : IEnumerable
             SlidingExpiration = slidingExpiration,
             UpdateCallback = Convert(onUpdateCallback),
         };
+        AddChangeMonitors(dependencies, policy);
 
         _cache.Set(key, value, policy);
     }

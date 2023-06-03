@@ -18,10 +18,7 @@ public class CacheDependency : IDisposable
     private string? uniqueId;
     private bool uniqueIdInitialized;
 
-    internal CacheDependency()
-    {
-        FinishInit();
-    }
+    protected CacheDependency() => FinishInit();
 
     public CacheDependency(string filename) : this(filename, DateTime.MaxValue) { }
 
@@ -31,9 +28,13 @@ public class CacheDependency : IDisposable
 
     public CacheDependency(string[] filenames, DateTime start) : this(filenames, null, null, start) { }
 
+    public CacheDependency(string[]? filenames, string[]? cachekeys) : this(filenames, cachekeys, null, DateTime.MaxValue) { }
+
     public CacheDependency(string[]? filenames, string[]? cachekeys, DateTime start) :
-        this(filenames, cachekeys, null, start)
-    { }
+        this(filenames, cachekeys, null, start) { }
+
+    public CacheDependency(string[]? filenames, string[]? cachekeys, CacheDependency? dependency) :
+        this(filenames, cachekeys, dependency, DateTime.MaxValue) { }
 
     public CacheDependency(
         string[]? filenames,
@@ -89,7 +90,7 @@ public class CacheDependency : IDisposable
 
     protected void NotifyDependencyChanged(object sender, EventArgs e)
     {
-        if (initCompleted && DateTime.UtcNow > utcStart)
+        if (initCompleted && (utcStart == DateTime.MaxValue || DateTime.UtcNow > utcStart))
         {
             HasChanged = true;
             utcLastModified = DateTime.UtcNow;
