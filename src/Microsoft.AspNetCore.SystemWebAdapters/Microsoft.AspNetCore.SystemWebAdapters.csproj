@@ -28,6 +28,8 @@
     <Compile Include="Properties/PropertyInfo.cs" />
     <Compile Include="Generated/Ref.*.cs" />
     <Compile Include="Adapters/SessionState/ISessionState.cs" />
+    <Compile Include="IHtmlString.cs" />
+    <Compile Include="HtmlString.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
@@ -44,6 +46,9 @@
     <Compile Include="Properties/PropertyInfo.cs" />
     <Compile Include="Adapters/**/*.cs" />
     <Compile Include="Generated/TypeForwards.*.cs" />
+
+    <Compile Include="IHtmlString.cs" />
+    <Compile Include="HtmlString.cs" />
 
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2">
       <PrivateAssets>all</PrivateAssets>
