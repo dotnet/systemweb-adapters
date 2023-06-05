@@ -662,6 +662,7 @@ namespace System.Web.Caching
         public object Get(string key) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public System.Collections.IEnumerator GetEnumerator() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void Insert(string key, object value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public void Insert(string key, object value, System.Web.Caching.CacheDependency dependencies) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void Insert(string key, object value, System.Web.Caching.CacheDependency dependencies, System.DateTime absoluteExpiration, System.TimeSpan slidingExpiration) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void Insert(string key, object value, System.Web.Caching.CacheDependency dependencies, System.DateTime absoluteExpiration, System.TimeSpan slidingExpiration, System.Web.Caching.CacheItemPriority priority, System.Web.Caching.CacheItemRemovedCallback onRemoveCallback) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void Insert(string key, object value, System.Web.Caching.CacheDependency dependencies, System.DateTime absoluteExpiration, System.TimeSpan slidingExpiration, System.Web.Caching.CacheItemUpdateCallback onUpdateCallback) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
@@ -669,11 +670,14 @@ namespace System.Web.Caching
     }
     public partial class CacheDependency : System.IDisposable
     {
+        protected CacheDependency() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public CacheDependency(string filename) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public CacheDependency(string filename, System.DateTime start) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public CacheDependency(string[] filenames) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public CacheDependency(string[] filenames, System.DateTime start) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public CacheDependency(string[] filenames, string[] cachekeys) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public CacheDependency(string[] filenames, string[] cachekeys, System.DateTime start) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public CacheDependency(string[] filenames, string[] cachekeys, System.Web.Caching.CacheDependency dependency) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public CacheDependency(string[] filenames, string[] cachekeys, System.Web.Caching.CacheDependency dependency, System.DateTime start) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public bool HasChanged { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.DateTime UtcLastModified { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }

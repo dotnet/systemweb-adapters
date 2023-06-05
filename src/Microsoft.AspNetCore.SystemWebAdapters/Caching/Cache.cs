@@ -45,21 +45,14 @@ public sealed class Cache : IEnumerable
             Priority = Convert(priority),
             RemovedCallback = Convert(onRemoveCallback),
         };
-
-        return _cache.AddOrGetExisting(key, value, policy);
-    }
-
-    private static void AddChangeMonitors(CacheDependency? dependencies, CacheItemPolicy policy)
-    {
-        if (dependencies?.ChangeMonitors is not null)
-        {
-            policy.ChangeMonitors.Add(dependencies.GetChangeMonitor());
-        }
+        return _cache.AddOrGetExisting(key, value, policy, dependencies);
     }
 
     public object Get(string key) => _cache.Get(key);
 
-    public void Insert(string key, object value) => _cache.Set(key, value, new CacheItemPolicy());
+    public void Insert(string key, object value) => _cache.Set(key, value);
+
+    public void Insert(string key, object value, CacheDependency? dependencies) => _cache.Set(key, value, dependencies);
 
     public void Insert(string key, object value, CacheDependency? dependencies, DateTime absoluteExpiration, TimeSpan slidingExpiration)
     {
@@ -68,8 +61,7 @@ public sealed class Cache : IEnumerable
             AbsoluteExpiration = Convert(absoluteExpiration),
             SlidingExpiration = slidingExpiration,
         };
-
-        _cache.Set(key, value, policy);
+        _cache.Set(key, value, policy, dependencies);
     }
 
     public void Insert(string key, object value, CacheDependency? dependencies, DateTime absoluteExpiration, TimeSpan slidingExpiration, CacheItemPriority priority, CacheItemRemovedCallback? onRemoveCallback)
@@ -81,8 +73,7 @@ public sealed class Cache : IEnumerable
             Priority = Convert(priority),
             RemovedCallback = Convert(onRemoveCallback),
         };
-
-        _cache.Set(key, value, policy);
+        _cache.Set(key, value, policy, dependencies);
     }
 
     public void Insert(string key, object value, CacheDependency? dependencies, DateTime absoluteExpiration, TimeSpan slidingExpiration, CacheItemUpdateCallback onUpdateCallback)
@@ -93,8 +84,7 @@ public sealed class Cache : IEnumerable
             SlidingExpiration = slidingExpiration,
             UpdateCallback = Convert(onUpdateCallback),
         };
-
-        _cache.Set(key, value, policy);
+        _cache.Set(key, value, policy, dependencies);
     }
 
     public object? Remove(string key) => _cache.Remove(key);
