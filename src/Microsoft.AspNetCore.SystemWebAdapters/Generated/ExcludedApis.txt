@@ -9,14 +9,12 @@ M:System.Web.HttpResponse.op_Implicit(Microsoft.AspNetCore.Http.HttpResponse)~Sy
 M:System.Web.HttpResponse.op_Implicit(System.Web.HttpResponse)~Microsoft.AspNetCore.Http.HttpResponse
 M:System.Web.HttpResponseBase.op_Implicit(Microsoft.AspNetCore.Http.HttpResponse)~System.Web.HttpResponseBase
 M:System.Web.HttpRequestBase.op_Implicit(Microsoft.AspNetCore.Http.HttpRequest)~System.Web.HttpRequestBase
+T:Microsoft.AspNetCore.SystemWebAdapters.SystemWebAdapterExtensions
 
 T:Microsoft.AspNetCore.SystemWebAdapters.SessionState.ISessionState
 
 # We manually type forward this only for .NET 4.7.2+
 T:System.Web.SameSiteMode
-
-T:Microsoft.AspNetCore.SystemWebAdapters.IBrowserCapabilitiesFactory
-T:Microsoft.AspNetCore.SystemWebAdapters.IHttpBrowserCapabilityFeature
 
 # We provide implementations of this on .NET Standard 2.0 and .NET 6.0
 T:System.Web.IHtmlString
