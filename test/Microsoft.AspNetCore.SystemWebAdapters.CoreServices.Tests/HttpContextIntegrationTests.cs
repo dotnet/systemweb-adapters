@@ -21,7 +21,7 @@ public class HttpContextIntegrationTests
             Assert.Equal("/", context.Request.Path);
             Assert.Empty(context.Request.Query);
 
-            var adapter = (System.Web.HttpRequest)context.Request;
+            var adapter = context.Request.GetAdapter();
 
             Assert.Equal("", adapter.PathInfo);
             Assert.Equal("/", adapter.FilePath);
@@ -33,7 +33,7 @@ public class HttpContextIntegrationTests
     public Task RewriteRequestPath()
         => RunTest("/", context =>
         {
-            var adapter = (System.Web.HttpContext)context;
+            var adapter = context.GetAdapter();
 
             adapter.RewritePath("/some/path?q=1");
 
@@ -56,7 +56,7 @@ public class HttpContextIntegrationTests
     public Task RewriteRequestPathInfo()
         => RunTest("/", context =>
         {
-            var adapter = (System.Web.HttpContext)context;
+            var adapter = context.GetAdapter();
 
             adapter.RewritePath("/some/path", "/pathInfo", "q=1");
 
@@ -79,7 +79,7 @@ public class HttpContextIntegrationTests
     public Task RewritePathViaCoreApis()
         => RunTest("/", context =>
         {
-            var adapter = (System.Web.HttpContext)context;
+            var adapter = context.GetAdapter();
 
             // This is the same as RewriteRequestPathInfo as above to get a custom PathInfo
             adapter.RewritePath("/some/path", "/pathInfo", "q=1");

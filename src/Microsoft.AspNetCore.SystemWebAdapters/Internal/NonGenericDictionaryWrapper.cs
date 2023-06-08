@@ -36,7 +36,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
             {
                 if (_keys is null)
                 {
-                    _keys = _original.Keys.AsNonGeneric();
+                    _keys = AsNonGeneric(_original.Keys);
                 }
 
                 return _keys;
@@ -49,7 +49,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
             {
                 if (_values is null)
                 {
-                    _values = _original.Values.AsNonGeneric();
+                    _values = AsNonGeneric(_original.Values);
                 }
 
                 return _values;
@@ -77,6 +77,9 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
                 array.SetValue(new DictionaryEntry(item.Key, item.Value), index++);
             }
         }
+
+        private static ICollection AsNonGeneric<T>(ICollection<T> collection)
+            => collection is ICollection c ? c : new NonGenericCollectionWrapper<T>(collection);
 
         public void Remove(object key) => _original.Remove(key);
 

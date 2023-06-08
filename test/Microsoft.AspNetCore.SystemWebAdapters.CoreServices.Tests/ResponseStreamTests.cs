@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -46,7 +44,7 @@ public class ResponseStreamTests
         var result = await RunAsync(async context =>
         {
             context.Response.Write(ContentValue);
-            await ((HttpResponseCore)context.Response).StartAsync();
+            await context.Response.UnwrapAdapter().StartAsync();
         }, builder => builder.BufferResponseStream());
 
         Assert.Equal(ContentValue, result);
@@ -58,7 +56,7 @@ public class ResponseStreamTests
         var result = await RunAsync(async context =>
         {
             context.Response.Write(ContentValue);
-            await ((HttpResponseCore)context.Response).CompleteAsync();
+            await context.Response.UnwrapAdapter().CompleteAsync();
         }, builder => builder.BufferResponseStream());
 
         Assert.Equal(ContentValue, result);

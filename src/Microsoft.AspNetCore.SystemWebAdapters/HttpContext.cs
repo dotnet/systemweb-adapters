@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Principal;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -38,7 +40,19 @@ public class HttpContext : IServiceProvider
 
     public HttpResponse Response => _response ??= new(_context.Response);
 
-    public IDictionary Items => _items ??= _context.Items.AsNonGeneric();
+    public IDictionary Items
+    {
+        get
+        {
+            if (_items is null)
+            {
+                var items = _context.Items;
+                _items = items is IDictionary d ? d : new NonGenericDictionaryWrapper(items);
+            }
+
+            return _items;
+        }
+    }
 
     public HttpServerUtility Server => _server ??= new(_context);
 
