@@ -367,8 +367,11 @@ public class CacheTests
         // Ensure file is updated
         await File.WriteAllTextAsync(file, DateTime.UtcNow.ToString("O"));
 
-        // Wait for call to be called
+        // Wait for callback to be called
         await tcs.Task;
+
+        // Wait for callback to be finalized
+        await Task.Delay(100);
 
         // Assert
         Assert.True(updated);

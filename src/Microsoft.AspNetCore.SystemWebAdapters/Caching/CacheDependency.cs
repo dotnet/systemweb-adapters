@@ -31,10 +31,12 @@ public class CacheDependency : IDisposable
     public CacheDependency(string[]? filenames, string[]? cachekeys) : this(filenames, cachekeys, null, DateTime.MaxValue) { }
 
     public CacheDependency(string[]? filenames, string[]? cachekeys, DateTime start) :
-        this(filenames, cachekeys, null, start) { }
+        this(filenames, cachekeys, null, start)
+    { }
 
     public CacheDependency(string[]? filenames, string[]? cachekeys, CacheDependency? dependency) :
-        this(filenames, cachekeys, dependency, DateTime.MaxValue) { }
+        this(filenames, cachekeys, dependency, DateTime.MaxValue)
+    { }
 
     public CacheDependency(
         string[]? filenames,
@@ -70,7 +72,7 @@ public class CacheDependency : IDisposable
     protected internal void FinishInit()
     {
         HasChanged = changeMonitors.Any(cm => cm.HasChanged && (cm.GetLastModifiedUtc() > utcStart));
-        utcLastModified = changeMonitors.Count==0 ? DateTime.MinValue : changeMonitors.Max(cm => cm.GetLastModifiedUtc());
+        utcLastModified = changeMonitors.Count == 0 ? DateTime.MinValue : changeMonitors.Max(cm => cm.GetLastModifiedUtc());
         if (HasChanged)
         {
             NotifyDependencyChanged(this, EventArgs.Empty);
@@ -135,14 +137,18 @@ public class CacheDependency : IDisposable
         {
             if (disposing)
             {
-                foreach (var changeMonitor in changeMonitors)
+                lock (changeMonitors)
                 {
-                    changeMonitor?.Dispose();
+                    foreach (var changeMonitor in changeMonitors)
+                    {
+                        changeMonitor?.Dispose();
+                    }
+                    changeMonitors.Clear();
                 }
-                changeMonitors.Clear();
 
                 DependencyDispose();
             }
+
             disposedValue = true;
         }
     }
