@@ -137,20 +137,23 @@ public class CacheDependency : IDisposable
         {
             if (disposing)
             {
-                // Ensure that if the Dispose is called by different threads (i.e. the wrapping ChangeMonitor) that it won't enumerate the list at the same time
-                lock (changeMonitors)
+                if (!disposedValue)
                 {
-                    if (!disposedValue)
+                    // Ensure that if the Dispose is called by different threads (i.e. the wrapping ChangeMonitor) that it won't enumerate the list at the same time
+                    lock (changeMonitors)
                     {
-                        foreach (var changeMonitor in changeMonitors)
+                        if (!disposedValue)
                         {
-                            changeMonitor?.Dispose();
+                            foreach (var changeMonitor in changeMonitors)
+                            {
+                                changeMonitor?.Dispose();
+                            }
+                            changeMonitors.Clear();
+
+                            DependencyDispose();
+
+                            disposedValue = true;
                         }
-                        changeMonitors.Clear();
-
-                        DependencyDispose();
-
-                        disposedValue = true;
                     }
                 }
             }
