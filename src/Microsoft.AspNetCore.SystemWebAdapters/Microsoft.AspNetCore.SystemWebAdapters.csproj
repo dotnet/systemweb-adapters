@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;netstandard2.0;net45;net472</TargetFrameworks>
+    <TargetFrameworks>net6.0;net8.0;netstandard2.0;net45;net472</TargetFrameworks>
     <IsPackable>true</IsPackable>
 
     <!-- This will validate that the package will unify correctly with System.Web.dll -->
@@ -32,7 +32,7 @@
     <Compile Include="HtmlString.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'net8.0' ">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
 
     <PackageReference Include="System.Runtime.Caching" Version="6.0.0" />

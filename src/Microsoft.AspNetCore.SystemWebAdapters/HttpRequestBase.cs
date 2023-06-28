@@ -32,7 +32,7 @@ namespace System.Web
         [Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = Constants.ApiFromAspNet)]
         public virtual string[] UserLanguages => throw new NotImplementedException();
 
-        public virtual string UserAgent => throw new NotImplementedException();
+        public virtual string? UserAgent => throw new NotImplementedException();
 
         public virtual string RequestType => HttpMethod;
 
