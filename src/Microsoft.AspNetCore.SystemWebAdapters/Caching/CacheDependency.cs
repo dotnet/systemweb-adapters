@@ -133,32 +133,27 @@ public class CacheDependency : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (disposing)
         {
-            if (disposing)
+            if (!disposedValue)
             {
-                if (!disposedValue)
+                // Ensure that if the Dispose is called by different threads (i.e. the wrapping ChangeMonitor) that it won't enumerate the list at the same time
+                lock (changeMonitors)
                 {
-                    // Ensure that if the Dispose is called by different threads (i.e. the wrapping ChangeMonitor) that it won't enumerate the list at the same time
-                    lock (changeMonitors)
+                    if (!disposedValue)
                     {
-                        if (!disposedValue)
+                        foreach (var changeMonitor in changeMonitors)
                         {
-                            foreach (var changeMonitor in changeMonitors)
-                            {
-                                changeMonitor?.Dispose();
-                            }
-                            changeMonitors.Clear();
-
-                            DependencyDispose();
-
-                            disposedValue = true;
+                            changeMonitor?.Dispose();
                         }
+                        changeMonitors.Clear();
+
+                        DependencyDispose();
+
+                        disposedValue = true;
                     }
                 }
             }
-
-            disposedValue = true;
         }
     }
 
