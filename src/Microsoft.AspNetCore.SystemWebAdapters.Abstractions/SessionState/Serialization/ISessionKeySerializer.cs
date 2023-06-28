@@ -12,7 +12,7 @@ public interface ISessionKeySerializer
     /// <param name="value">Object to serialize.</param>,
     /// <param name="bytes">Bytes if successful.</param>
     /// <returns><c>true</c> if successful. If key is unknown, <c>false</c> will be returned.</returns>
-    bool TrySerialize(string key, object value, out byte[] bytes);
+    bool TrySerialize(string key, object? value, out byte[] bytes);
 
     /// <summary>
     /// Deserializes a session object for a given key.

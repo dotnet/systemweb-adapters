@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Web;
 using System.Web.Caching;
 using System.Web.Configuration;
@@ -25,19 +26,69 @@ public static class SystemWebAdaptersExtensions
             .AddMvc();
     }
 
+    internal static bool HasBeenAdded(this IApplicationBuilder app, [CallerMemberName] string key = null!)
+    {
+        if (app.Properties.ContainsKey(key))
+        {
+            return true;
+        }
+
+        app.Properties[key] = true;
+        return false;
+    }
+
+    internal static void UseSystemWebAdapterFeatures(this IApplicationBuilder app)
+    {
+        if (app.HasBeenAdded())
+        {
+            return;
+        }
+
+        app.UseMiddleware<PreBufferRequestStreamMiddleware>();
+        app.UseMiddleware<BufferResponseStreamMiddleware>();
+        app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
+        app.UseMiddleware<SingleThreadedRequestMiddleware>();
+        app.UseMiddleware<CurrentPrincipalMiddleware>();
+    }
+
     public static void UseSystemWebAdapters(this IApplicationBuilder app)
     {
         ArgumentNullException.ThrowIfNull(app);
 
         HttpRuntime.Current = app.ApplicationServices.GetRequiredService<IHttpRuntime>();
 
-        app.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
-        app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
-        app.UseMiddleware<PreBufferRequestStreamMiddleware>();
+        app.UseSystemWebAdapterFeatures();
+        app.UseAuthenticationEvents();
+        app.UseAuthorizationEvents();
+
+        app.UseHttpApplicationEvent(
+            preEvents: new[]
+            {
+                ApplicationEvent.ResolveRequestCache,
+                ApplicationEvent.PostResolveRequestCache,
+                ApplicationEvent.MapRequestHandler,
+                ApplicationEvent.PostMapRequestHandler,
+                ApplicationEvent.AcquireRequestState,
+                ApplicationEvent.PostAcquireRequestState,
+            },
+            postEvents: new[]
+            {
+                ApplicationEvent.ReleaseRequestState,
+                ApplicationEvent.PostReleaseRequestState,
+                ApplicationEvent.UpdateRequestCache,
+                ApplicationEvent.PostUpdateRequestCache,
+            });
+
         app.UseMiddleware<SessionMiddleware>();
-        app.UseMiddleware<BufferResponseStreamMiddleware>();
-        app.UseMiddleware<SingleThreadedRequestMiddleware>();
-        app.UseMiddleware<CurrentPrincipalMiddleware>();
+
+        if (app.AreHttpApplicationEventsRequired())
+        {
+            app.UseMiddleware<SessionEventsMiddleware>();
+        }
+
+        app.UseHttpApplicationEvent(
+            preEvents: new[] { ApplicationEvent.PreRequestHandlerExecute },
+            postEvents: new[] { ApplicationEvent.PostRequestHandlerExecute });
     }
 
     /// <summary>
@@ -67,6 +118,13 @@ public static class SystemWebAdaptersExtensions
             => builder =>
             {
                 builder.UseMiddleware<SetHttpContextTimestampMiddleware>();
+                builder.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
+
+                if (builder.AreHttpApplicationEventsRequired())
+                {
+                    builder.UseMiddleware<HttpApplicationMiddleware>();
+                    builder.UseHttpApplicationEvent(ApplicationEvent.BeginRequest);
+                }
 
                 next(builder);
             };

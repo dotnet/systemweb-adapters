@@ -14,6 +14,8 @@ namespace System.Web
 
         public HttpRequestWrapper(HttpRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             _request = request;
         }
 
@@ -39,6 +41,8 @@ namespace System.Web
 
         public override HttpFileCollectionBase Files => new HttpFileCollectionWrapper(_request.Files);
 
+        public override NameValueCollection Form => _request.Form;
+
         public override string HttpMethod => _request.HttpMethod;
 
         public override Stream InputStream => _request.InputStream;
@@ -53,13 +57,13 @@ namespace System.Web
 
         public override IIdentity? LogonUserIdentity => _request.LogonUserIdentity;
 
-        public override string? Path => _request.Path;
+        public override string Path => _request.Path;
 
         public override NameValueCollection QueryString => _request.QueryString;
 
         public override HttpBrowserCapabilitiesBase Browser => new HttpBrowserCapabilitiesWrapper(_request.Browser);
 
-        public override string? RawUrl => _request.RawUrl;
+        public override string RawUrl => _request.RawUrl;
 
         public override string RequestType => _request.RequestType;
 

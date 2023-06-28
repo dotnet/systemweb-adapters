@@ -12,6 +12,8 @@ namespace System.Web;
 [SuppressMessage("Design", "CA1010:Collections should implement generic interface", Justification = Constants.ApiFromAspNet)]
 public sealed class HttpFileCollection : NameObjectCollectionBase
 {
+    internal static readonly HttpFileCollection Empty = new(new FormFileCollection());
+
     private string[]? _keys;
 
     internal HttpFileCollection(IFormFileCollection files)

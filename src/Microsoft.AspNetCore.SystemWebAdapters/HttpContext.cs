@@ -3,12 +3,13 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Security.Claims;
+using System.Linq;
 using System.Security.Principal;
 using System.Web.Caching;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -41,6 +42,23 @@ public class HttpContext : IServiceProvider
 
     public HttpServerUtility Server => _server ??= new(_context);
 
+    public Exception? Error => _context.Features.Get<IRequestExceptionFeature>()?.Exceptions is [{ } error, ..] ? error : null;
+
+    [SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = Constants.ApiFromAspNet)]
+    public Exception[] AllErrors => _context.Features.Get<IRequestExceptionFeature>()?.Exceptions.ToArray() ?? Array.Empty<Exception>();
+
+    public void ClearError() => _context.Features.Get<IRequestExceptionFeature>()?.Clear();
+
+    public void AddError(Exception ex) => _context.Features.Get<IRequestExceptionFeature>()?.Add(ex);
+
+    public RequestNotification CurrentNotification => _context.Features.GetRequired<IHttpApplicationFeature>().CurrentNotification;
+
+    public bool IsPostNotification => _context.Features.GetRequired<IHttpApplicationFeature>().IsPostNotification;
+
+    public HttpApplication ApplicationInstance => _context.Features.GetRequired<IHttpApplicationFeature>().Application;
+
+    public HttpApplicationState Application => ApplicationInstance.Application;
+
     public Cache Cache => _context.RequestServices.GetRequiredService<Cache>();
 
     /// <summary>
@@ -50,21 +68,30 @@ public class HttpContext : IServiceProvider
 
     public IPrincipal User
     {
-        get => _context.User;
-        set => _context.User = value is ClaimsPrincipal claims ? claims : new ClaimsPrincipal(value);
+        get => _context.Features.Get<IPrincipalUserFeature>()?.User ?? _context.User;
+        set
+        {
+            if (_context.Features.Get<IPrincipalUserFeature>() is { } feature)
+            {
+                feature.User = value;
+            }
+            else
+            {
+                var newFeature = new PrincipalUserFeature(_context) { User = value };
+
+                _context.Features.Set<IPrincipalUserFeature>(newFeature);
+                _context.Features.Set<IHttpAuthenticationFeature>(newFeature);
+            }
+        }
     }
 
     public HttpSessionState? Session => _context.Features.Get<HttpSessionState>();
 
-    [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = Constants.ApiFromAspNet)]
-    public void ClearError()
-    {
-        // Intentionally implemented without any behavior as there's nothing equivalent in ASP.NET Core
-    }
-
     public DateTime Timestamp { get; } = DateTime.UtcNow.ToLocalTime();
 
-    public void RewritePath(string path)
+    public void RewritePath(string path) => RewritePath(path, true);
+
+    public void RewritePath(string path, bool rebaseClientPath)
     {
         ArgumentNullException.ThrowIfNull(path);
 
@@ -83,9 +110,14 @@ public class HttpContext : IServiceProvider
             path = "/" + path;
         }
 
-        _context.Request.QueryString = new QueryString(qs);
-        _context.Request.Path = new PathString(path.Trim());
+        RewritePath(path.Trim(), string.Empty, qs, rebaseClientPath);
     }
+
+    public void RewritePath(string filePath, string pathInfo, string? queryString)
+        => RewritePath(filePath, pathInfo, queryString, false);
+
+    public void RewritePath(string filePath, string pathInfo, string? queryString, bool setClientFilePath)
+        => _context.Features.GetRequired<IHttpRequestPathFeature>().Rewrite(filePath, pathInfo, queryString, setClientFilePath);
 
     [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = Constants.ApiFromAspNet)]
     object? IServiceProvider.GetService(Type service)
@@ -117,10 +149,10 @@ public class HttpContext : IServiceProvider
         return token;
     }
 
-    [return: NotNullIfNotNull("context")]
+    [return: NotNullIfNotNull(nameof(context))]
     public static implicit operator HttpContext?(HttpContextCore? context) => context?.GetAdapter();
 
-    [return: NotNullIfNotNull("context")]
+    [return: NotNullIfNotNull(nameof(context))]
     public static implicit operator HttpContextCore?(HttpContext? context) => context?._context;
 
     private sealed class DisposeOnPipelineSubscriptionToken : ISubscriptionToken, IDisposable

@@ -19,6 +19,24 @@ namespace System.Web
 
         public virtual HttpResponseBase Response => throw new NotImplementedException();
 
+        [SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = Constants.ApiFromAspNet)]
+        public virtual Exception? Error => throw new NotImplementedException();
+
+        [SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = Constants.ApiFromAspNet)]
+        public virtual Exception[] AllErrors => throw new NotImplementedException();
+
+        public virtual void ClearError() => throw new NotImplementedException();
+
+        public virtual void AddError(Exception ex) => throw new NotImplementedException();
+
+        public virtual HttpApplication ApplicationInstance => throw new NotImplementedException();
+
+        public virtual HttpApplicationState Application => throw new NotImplementedException();
+
+        public virtual bool IsPostNotification => throw new NotImplementedException();
+
+        public virtual RequestNotification CurrentNotification => throw new NotImplementedException();
+
         public virtual IDictionary Items => throw new NotImplementedException();
 
         public virtual DateTime Timestamp => throw new NotImplementedException();
@@ -37,9 +55,17 @@ namespace System.Web
 
         public virtual object? GetService(Type serviceType) => throw new NotImplementedException();
 
-        [return: NotNullIfNotNull("context")]
+        [return: NotNullIfNotNull(nameof(context))]
         public static implicit operator HttpContextBase?(HttpContextCore? context) => context?.GetAdapterBase();
 
         public virtual System.Web.Caching.Cache Cache => throw new NotImplementedException();
+
+        public virtual void RewritePath(string path) => throw new NotImplementedException();
+
+        public virtual void RewritePath(string path, bool rebaseClientPath) => throw new NotImplementedException();
+
+        public virtual void RewritePath(string filePath, string pathInfo, string? queryString) => throw new NotImplementedException();
+
+        public virtual void RewritePath(string filePath, string pathInfo, string? queryString, bool setClientFilePath) => throw new NotImplementedException();
     }
 }

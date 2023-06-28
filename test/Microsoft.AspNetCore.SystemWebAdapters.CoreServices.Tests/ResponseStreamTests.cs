@@ -41,6 +41,42 @@ public class ResponseStreamTests
     }
 
     [Fact]
+    public async Task BufferedOutputIsFlushedOnceWithStart()
+    {
+        var result = await RunAsync(async context =>
+        {
+            context.Response.Write(ContentValue);
+            await ((HttpResponseCore)context.Response).StartAsync();
+        }, builder => builder.BufferResponseStream());
+
+        Assert.Equal(ContentValue, result);
+    }
+
+    [Fact]
+    public async Task BufferedOutputIsFlushedOnceWithComplete()
+    {
+        var result = await RunAsync(async context =>
+        {
+            context.Response.Write(ContentValue);
+            await ((HttpResponseCore)context.Response).CompleteAsync();
+        }, builder => builder.BufferResponseStream());
+
+        Assert.Equal(ContentValue, result);
+    }
+
+    [Fact]
+    public async Task EndRequest()
+    {
+        var result = await RunAsync(context =>
+        {
+            context.Response.Write("test");
+            context.Response.End();
+        }, builder => builder.BufferResponseStream());
+
+        Assert.Equal("test", result);
+    }
+
+    [Fact]
     public async Task SuppressContent()
     {
         var result = await RunAsync(context =>
@@ -127,9 +163,16 @@ public class ResponseStreamTests
         Assert.Equal("part4", result);
     }
 
-    private static async Task<string> RunAsync(Action<HttpContext> action, Action<RouteHandlerBuilder>? route = null)
+    private static Task<string> RunAsync(Action<HttpContext> action, Action<IEndpointConventionBuilder>? builder = null)
+        => RunAsync(ctx =>
+        {
+            action(ctx);
+            return Task.CompletedTask;
+        }, builder);
+
+    private static async Task<string> RunAsync(Func<HttpContext, Task> action, Action<IEndpointConventionBuilder>? builder = null)
     {
-        route ??= _ => { };
+        builder ??= _ => { };
 
         using var host = await new HostBuilder()
             .ConfigureWebHost(webBuilder =>
@@ -150,7 +193,7 @@ public class ResponseStreamTests
                         app.UseSystemWebAdapters();
                         app.UseEndpoints(endpoints =>
                         {
-                            route(endpoints.Map("/", (HttpContextCore context) => action(context)));
+                            builder(endpoints.Map("/", (HttpContextCore context) => action(context)));
                         });
                     });
             })

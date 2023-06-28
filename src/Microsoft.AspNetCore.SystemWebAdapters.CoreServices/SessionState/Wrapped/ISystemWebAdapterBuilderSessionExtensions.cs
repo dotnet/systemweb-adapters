@@ -4,7 +4,9 @@
 using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Wrapped;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -23,6 +25,7 @@ public static class ISystemWebAdapterBuilderSessionExtensions
             builder.Services.AddSession(options);
         }
 
+        builder.Services.TryAddSingleton<ICompositeSessionKeySerializer, CompositeSessionKeySerializer>();
         builder.Services.AddSingleton<ISessionManager, AspNetCoreSessionManager>();
 
         return builder;

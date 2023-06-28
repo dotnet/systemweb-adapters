@@ -1,14 +1,9 @@
-using Microsoft.AspNetCore.SystemWebAdapters;
-
 var builder = WebApplication.CreateBuilder();
 
 builder.Services.AddSystemWebAdapters()
     .WrapAspNetCoreSession()
     .AddSessionSerializer()
-    .AddJsonSessionSerializer(options =>
-    {
-        options.RegisterKey<int>("callCount");
-    });
+    .AddCustomSerialization();
 
 builder.Services.AddDistributedMemoryCache();
 
@@ -30,18 +25,7 @@ app.UseSession();
 
 app.UseSystemWebAdapters();
 
-app.MapGet("/session", (HttpContext context) =>
-{
-    var adapter = (System.Web.HttpContext)context;
-
-    if (adapter.Session!["callCount"] is not int count)
-    {
-        count = 0;
-    }
-
-    adapter.Session!["callCount"] = ++count;
-
-    return $"This endpoint has been hit {count} time(s) this session";
-}).RequireSystemWebAdapterSession();
+app.MapGroup("/session")
+    .MapSessionExample();
 
 app.Run();

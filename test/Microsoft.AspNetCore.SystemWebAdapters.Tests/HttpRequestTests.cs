@@ -45,32 +45,34 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void Path()
         {
             // Arrange
-            var path = new PathString(CreateRandomPath());
-            var coreRequest = new Mock<HttpRequestCore>();
-            coreRequest.Setup(c => c.Path).Returns(path);
+            var context = new DefaultHttpContext();
+            var path = CreateRandomPath();
 
-            var request = new HttpRequest(coreRequest.Object);
+            var pathFeature = new Mock<IHttpRequestPathFeature>();
+            pathFeature.Setup(p => p.Path).Returns(path);
+            context.Features.Set(pathFeature.Object);
+
+            var request = new HttpRequest(context.Request);
 
             // Act
             var result = request.Path;
 
             // Assert
-            Assert.Equal(path.Value, result);
+            Assert.Equal(path, result);
         }
 
         [Fact]
         public void FilePathNoFeature()
         {
             // Arrange
-            var context = new Mock<HttpContextCore>();
-            context.Setup(c => c.Features).Returns(new FeatureCollection());
+            var context = new DefaultHttpContext();
 
-            var coreRequest = new Mock<HttpRequestCore>();
-            var path = new PathString(CreateRandomPath());
-            coreRequest.Setup(c => c.Path).Returns(path);
-            coreRequest.Setup(c => c.HttpContext).Returns(context.Object);
+            var pathFeature = new Mock<IHttpRequestPathFeature>();
+            var path = CreateRandomPath();
+            pathFeature.Setup(c => c.FilePath).Returns(path);
+            context.Features.Set(pathFeature.Object);
 
-            var request = new HttpRequest(coreRequest.Object);
+            var request = new HttpRequest(context.Request);
 
             // Act
             var result = request.FilePath;
@@ -83,9 +85,9 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void FilePathFeature()
         {
             // Arrange
-            var feature = new Mock<IPathInfoFeature>();
+            var feature = new Mock<IHttpRequestPathFeature>();
             var path = CreateRandomPath();
-            feature.Setup(f => f.FileInfo).Returns(path);
+            feature.Setup(f => f.FilePath).Returns(path);
 
             var features = new FeatureCollection();
             features.Set(feature.Object);
@@ -107,30 +109,10 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         }
 
         [Fact]
-        public void PathInfoNoFeature()
-        {
-            // Arrange
-            var context = new Mock<HttpContextCore>();
-            context.Setup(c => c.Features).Returns(new FeatureCollection());
-
-            var coreRequest = new Mock<HttpRequestCore>();
-            coreRequest.Setup(c => c.Path).Returns(CreateRandomPath());
-            coreRequest.Setup(c => c.HttpContext).Returns(context.Object);
-
-            var request = new HttpRequest(coreRequest.Object);
-
-            // Act
-            var result = request.PathInfo;
-
-            // Assert
-            Assert.Same(string.Empty, result);
-        }
-
-        [Fact]
         public void PathInfoFeature()
         {
             // Arrange
-            var feature = new Mock<IPathInfoFeature>();
+            var feature = new Mock<IHttpRequestPathFeature>();
             var path = CreateRandomPath();
             feature.Setup(f => f.PathInfo).Returns(path);
 
@@ -490,18 +472,14 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void AppRelativeCurrentExecutionFilePath()
         {
             // Arrange
-            var context = new Mock<HttpContextCore>();
-            context.Setup(c => c.Features).Returns(new FeatureCollection());
+            var features = new FeatureCollection();
+            var context = new DefaultHttpContext();
 
-            var coreRequest = new Mock<HttpRequestCore>();
-            coreRequest.Setup(c => c.Scheme).Returns("http");
-            coreRequest.Setup(c => c.Host).Returns(new HostString("www.A.com"));
-            coreRequest.Setup(c => c.Path).Returns("/B/ C");
-            coreRequest.Setup(c => c.QueryString).Returns(new QueryString("?D=E"));
-            coreRequest.Setup(c => c.PathBase).Returns("/F");
-            coreRequest.Setup(c => c.HttpContext).Returns(context.Object);
+            var pathFeature = new Mock<IHttpRequestPathFeature>();
+            pathFeature.Setup(p => p.FilePath).Returns("/B/ C");
+            context.Features.Set(pathFeature.Object);
 
-            var request = new HttpRequest(coreRequest.Object);
+            var request = new HttpRequest(context.Request);
 
             // Act
             var result = request.AppRelativeCurrentExecutionFilePath;
@@ -813,6 +791,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             form.Setup(f => f.Count).Returns(0);
 
             var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.HasFormContentType).Returns(true);
             requestCore.Setup(r => r.Form).Returns(form.Object);
 
             var request = new HttpRequest(requestCore.Object);
@@ -824,6 +803,28 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Assert
             Assert.Same(formCollection1, formCollection2);
             Assert.IsType<StringValuesReadOnlyDictionaryNameValueCollection>(formCollection1);
+        }
+
+        [Fact]
+        public void FormEmptyWithoutFormContentType()
+        {
+            // Arrange
+            var form = new Mock<IFormCollection>();
+            form.Setup(f => f.Count).Returns(0);
+
+            var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.HasFormContentType).Returns(false);
+            requestCore.Setup(r => r.Form).Throws(new InvalidOperationException("Incorrect Content-Type"));
+
+            var request = new HttpRequest(requestCore.Object);
+
+            // Act
+            var formCollection1 = request.Form;
+            var formCollection2 = request.Form;
+
+            // Assert
+            Assert.Same(formCollection1, formCollection2);
+            Assert.Empty(formCollection1);
         }
 
         [Fact]
@@ -843,6 +844,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             });
 
             var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.HasFormContentType).Returns(true);
             requestCore.Setup(r => r.Form).Returns(formCollection);
 
             var request = new HttpRequest(requestCore.Object);
@@ -932,25 +934,33 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             ServerVariable,
         }
 
-        [InlineData(ParamSource.None)]
-        [InlineData(ParamSource.Query)]
-        [InlineData(ParamSource.Form)]
-        [InlineData(ParamSource.Cookie)]
-        [InlineData(ParamSource.ServerVariable)]
+        [InlineData(ParamSource.None, false)]
+        [InlineData(ParamSource.Query, false)]
+        [InlineData(ParamSource.Cookie, false)]
+        [InlineData(ParamSource.ServerVariable, false)]
+        [InlineData(ParamSource.None, true)]
+        [InlineData(ParamSource.Query, true)]
+        [InlineData(ParamSource.Form, true)]
+        [InlineData(ParamSource.Cookie, true)]
+        [InlineData(ParamSource.ServerVariable, true)]
         [Theory]
-        public void Indexer(ParamSource source)
-            => GetParam((key, request) => request[key], source);
+        public void Indexer(ParamSource source, bool hasFormContentType)
+            => GetParam((key, request) => request[key], source, hasFormContentType);
 
-        [InlineData(ParamSource.None)]
-        [InlineData(ParamSource.Query)]
-        [InlineData(ParamSource.Form)]
-        [InlineData(ParamSource.Cookie)]
-        [InlineData(ParamSource.ServerVariable)]
+        [InlineData(ParamSource.None, false)]
+        [InlineData(ParamSource.Query, false)]
+        [InlineData(ParamSource.Cookie, false)]
+        [InlineData(ParamSource.ServerVariable, false)]
+        [InlineData(ParamSource.None, true)]
+        [InlineData(ParamSource.Query, true)]
+        [InlineData(ParamSource.Form, true)]
+        [InlineData(ParamSource.Cookie, true)]
+        [InlineData(ParamSource.ServerVariable, true)]
         [Theory]
-        public void Params(ParamSource source)
-            => GetParam((key, request) => request.Params[key], source);
+        public void Params(ParamSource source, bool hasFormContentType)
+            => GetParam((key, request) => request.Params[key], source, hasFormContentType);
 
-        private void GetParam(Func<string, HttpRequest, string?> getParam, ParamSource source)
+        private void GetParam(Func<string, HttpRequest, string?> getParam, ParamSource source, bool hasFormContentType)
         {
             // Arrange
             var key = _fixture.Create<string>();
@@ -1000,8 +1010,17 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             var requestCore = new Mock<HttpRequestCore>();
             requestCore.Setup(r => r.HttpContext).Returns(contextCore.Object);
             requestCore.Setup(r => r.Query).Returns(queryCollection);
-            requestCore.Setup(r => r.Form).Returns(formCollection);
             requestCore.Setup(r => r.Cookies).Returns(cookies);
+            requestCore.Setup(r => r.HasFormContentType).Returns(hasFormContentType);
+
+            if (hasFormContentType)
+            {
+                requestCore.Setup(r => r.Form).Returns(formCollection);
+            }
+            else
+            {
+                requestCore.Setup(r => r.Form).Throws(new InvalidOperationException("Incorrect Content-Type"));
+            }
 
             var request = new HttpRequest(requestCore.Object);
 
@@ -1124,6 +1143,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             form.Setup(f => f.Files).Returns(formFiles.Object);
 
             var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.HasFormContentType).Returns(true);
             requestCore.Setup(r => r.Form).Returns(form.Object);
 
             var request = new HttpRequest(requestCore.Object);
@@ -1135,6 +1155,25 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Assert
             Assert.Same(files1, files2);
             Assert.Same(files1.FormFiles, formFiles.Object);
+        }
+
+        [Fact]
+        public void FilesEmptyWithoutFormContentType()
+        {
+            // Arrange
+            var requestCore = new Mock<HttpRequestCore>();
+            requestCore.Setup(r => r.HasFormContentType).Returns(false);
+            requestCore.Setup(r => r.Form).Throws(new InvalidOperationException("Incorrect Content-Type"));
+
+            var request = new HttpRequest(requestCore.Object);
+
+            // Act
+            var files1 = request.Files;
+            var files2 = request.Files;
+
+            // Assert
+            Assert.Same(files1, files2);
+            Assert.Empty(files1.FormFiles);
         }
 
         [Fact]

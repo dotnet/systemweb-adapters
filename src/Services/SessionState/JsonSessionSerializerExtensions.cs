@@ -27,7 +27,7 @@ public static class JsonSessionSerializerExtensions
         }
 
         builder.AddSessionSerializer();
-        builder.Services.TryAddSingleton<ISessionKeySerializer, JsonSessionKeySerializer>();
+        builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ISessionKeySerializer, JsonSessionKeySerializer>());
 
         var options = builder.Services.AddOptions<JsonSessionSerializerOptions>();
 

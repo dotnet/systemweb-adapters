@@ -21,7 +21,7 @@ internal sealed class VirtualPathUtilityImpl
         _urlPath = new UrlPath(runtime);
     }
 
-    [return: NotNullIfNotNull("virtualPath")]
+    [return: NotNullIfNotNull(nameof(virtualPath))]
     public static string? AppendTrailingSlash(string? virtualPath)
     {
         if (virtualPath == null)

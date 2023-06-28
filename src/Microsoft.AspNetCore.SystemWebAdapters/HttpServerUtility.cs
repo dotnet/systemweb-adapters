@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.IO;
+using System.Linq;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,12 +43,9 @@ public class HttpServerUtility
             .TrimEnd(Path.DirectorySeparatorChar);
     }
 
-    [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1024:Use properties where appropriate", Justification = Constants.ApiFromAspNet)]
-    public Exception? GetLastError() => null;
+    public Exception? GetLastError() => _context.GetAdapter().Error;
 
-    public void ClearError()
-    {
-    }
+    public void ClearError() => _context.GetAdapter().ClearError();
 
     /// <summary>
     /// This method is similar to <see cref="WebEncoders.Base64UrlDecode(string)"/> but handles the trailing character that <see cref="UrlTokenEncode(byte[])"/>

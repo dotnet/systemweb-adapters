@@ -22,6 +22,9 @@ internal partial class JsonSessionKeySerializer : ISessionKeySerializer
     [LoggerMessage(0, LogLevel.Error, "Unexpected JSON serialize/deserialization error for '{Key}' expected type '{Type}'")]
     private partial void LogException(Exception e, string key, string type);
 
+    [LoggerMessage(1, LogLevel.Warning, "Session key '{Key}' is registered as {RegisteredType} but was actually {FoundType}")]
+    private partial void UnexpectedType(string key, Type registeredType, Type foundType);
+
     public bool TryDeserialize(string key, byte[] bytes, out object? obj)
     {
         if (_options.Value.KnownKeys.TryGetValue(key, out var type))
@@ -41,23 +44,45 @@ internal partial class JsonSessionKeySerializer : ISessionKeySerializer
         return false;
     }
 
-    public bool TrySerialize(string key, object value, out byte[] bytes)
+    public bool TrySerialize(string key, object? value, out byte[] bytes)
     {
-        if (_options.Value.KnownKeys.TryGetValue(key, out var type) && type == value.GetType())
+        if (_options.Value.KnownKeys.TryGetValue(key, out var type))
         {
-            try
+            if (value is null)
             {
-                bytes = JsonSerializer.SerializeToUtf8Bytes(value, type);
-                return true;
+                if (!type.IsValueType || IsNullable(type))
+                {
+                    // Create a new one instead of caching since technically the array values could be overwritten
+                    bytes = "null"u8.ToArray();
+                    return true;
+                }
             }
-            catch (JsonException e)
+            else if (type == value.GetType() || IsNullableType(type, value.GetType()))
             {
-                LogException(e, key, type.Name);
+                try
+                {
+                    bytes = JsonSerializer.SerializeToUtf8Bytes(value, type);
+                    return true;
+                }
+                catch (JsonException e)
+                {
+                    LogException(e, key, type.Name);
+                }
+            }
+            else
+            {
+                UnexpectedType(key, type, value.GetType());
             }
         }
 
         bytes = Array.Empty<byte>();
         return false;
     }
+
+    private static bool IsNullable(Type type)
+        => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+
+    private static bool IsNullableType(Type type, Type nullableArg)
+        => IsNullable(type) && nullableArg == type.GenericTypeArguments[0];
 }
 

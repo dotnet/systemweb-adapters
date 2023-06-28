@@ -284,10 +284,10 @@ namespace System.Web
         public void TransmitFile(string filename, long offset, long length)
             => _response.SendFileAsync(filename, offset, length >= 0 ? length : null).GetAwaiter().GetResult();
 
-        [return: NotNullIfNotNull("response")]
+        [return: NotNullIfNotNull(nameof(response))]
         public static implicit operator HttpResponse?(HttpResponseCore? response) => response?.GetAdapter();
 
-        [return: NotNullIfNotNull("response")]
+        [return: NotNullIfNotNull(nameof(response))]
         public static implicit operator HttpResponseCore?(HttpResponse? response) => response?._response;
     }
 }

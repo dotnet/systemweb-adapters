@@ -20,10 +20,9 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 
     private readonly SessionSerializerOptions _options;
     private readonly ISessionKeySerializer _serializer;
-
     private readonly ILogger<BinarySessionSerializer> _logger;
 
-    public BinarySessionSerializer(ISessionKeySerializer serializer, IOptions<SessionSerializerOptions> options, ILogger<BinarySessionSerializer> logger)
+    public BinarySessionSerializer(ICompositeSessionKeySerializer serializer, IOptions<SessionSerializerOptions> options, ILogger<BinarySessionSerializer> logger)
     {
         _serializer = serializer;
         _options = options.Value;
@@ -54,9 +53,7 @@ internal partial class BinarySessionSerializer : ISessionSerializer
         {
             writer.Write(item);
 
-            if (state[item] is { } obj)
-            {
-                if (_serializer.TrySerialize(item, obj, out var result))
+            if (_serializer.TrySerialize(item, state[item], out var result))
                 {
                     writer.Write7BitEncodedInt(result.Length);
                     writer.Write(result);
@@ -67,11 +64,6 @@ internal partial class BinarySessionSerializer : ISessionSerializer
                     writer.Write7BitEncodedInt(0);
                 }
             }
-            else
-            {
-                writer.Write7BitEncodedInt(0);
-            }
-        }
 
         if (unknownKeys is null)
         {

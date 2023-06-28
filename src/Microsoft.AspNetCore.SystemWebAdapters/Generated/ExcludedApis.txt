@@ -17,3 +17,9 @@ T:System.Web.SameSiteMode
 
 T:Microsoft.AspNetCore.SystemWebAdapters.IBrowserCapabilitiesFactory
 T:Microsoft.AspNetCore.SystemWebAdapters.IHttpBrowserCapabilityFeature
+
+# We provide implementations of this on .NET Standard 2.0 and .NET 6.0
+T:System.Web.IHtmlString
+
+# We implement extra interfaces that end up getting added to the generated stuff
+T:System.Web.HtmlString

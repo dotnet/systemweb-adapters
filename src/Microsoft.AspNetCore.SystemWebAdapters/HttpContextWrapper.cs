@@ -29,10 +29,28 @@ namespace System.Web
 
         public override bool IsDebuggingEnabled => _context.IsDebuggingEnabled;
 
+        public override void AddError(Exception ex) => _context.AddError(ex);
+
+        public override Exception[] AllErrors => _context.AllErrors;
+
+        public override void ClearError() => _context.ClearError();
+
+        public override Exception? Error => _context.Error;
+
         public override HttpRequestBase Request => _request ??= new HttpRequestWrapper(_context.Request);
 
         public override HttpResponseBase Response => _response ??= new HttpResponseWrapper(_context.Response);
-        
+
+        public override HttpApplication ApplicationInstance => _context.ApplicationInstance;
+
+        public override HttpApplicationState Application => _context.Application;
+
+        public override RequestNotification CurrentNotification => _context.CurrentNotification;
+
+        public override bool IsPostNotification => _context.IsPostNotification;
+
+        public override HttpServerUtilityBase Server => new HttpServerUtilityWrapper(_context.Server);
+
         public override HttpSessionStateBase? Session
         {
             get
@@ -53,5 +71,13 @@ namespace System.Web
         }
 
         public override Cache Cache => _context.Cache;
+
+        public override void RewritePath(string path) => _context.RewritePath(path);
+
+        public override void RewritePath(string path, bool rebaseClientPath) => _context.RewritePath(path, rebaseClientPath);
+
+        public override void RewritePath(string filePath, string pathInfo, string? queryString) => _context.RewritePath(filePath, pathInfo, queryString);
+
+        public override void RewritePath(string filePath, string pathInfo, string? queryString, bool setClientFilePath) => _context.RewritePath(filePath, pathInfo, queryString, setClientFilePath);
     }
 }

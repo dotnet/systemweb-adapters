@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 internal class RemoteAppClientPostConfigureOptions : IPostConfigureOptions<RemoteAppClientOptions>
 {
-    public void PostConfigure(string name, RemoteAppClientOptions options)
+    public void PostConfigure(string? name, RemoteAppClientOptions options)
     {
         if (options.BackchannelClient is null)
         {
