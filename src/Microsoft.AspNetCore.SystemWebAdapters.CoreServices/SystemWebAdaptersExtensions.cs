@@ -55,8 +55,6 @@ public static class SystemWebAdaptersExtensions
     {
         ArgumentNullException.ThrowIfNull(app);
 
-        HttpRuntime.Current = app.ApplicationServices.GetRequiredService<IHttpRuntime>();
-
         app.UseSystemWebAdapterFeatures();
         app.UseAuthenticationEvents();
         app.UseAuthorizationEvents();
