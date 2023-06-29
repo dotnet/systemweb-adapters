@@ -3,9 +3,11 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
 using AutoFixture;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Moq;
 using Xunit;
@@ -340,6 +342,8 @@ public class CacheTests
         var slidingExpiration = TimeSpan.FromMilliseconds(1);
         CacheItemUpdateReason? updateReason = default;
 
+        var tcs = new TaskCompletionSource();
+
         void Callback(string key, CacheItemUpdateReason reason, out object? expensiveObject, out CacheDependency? dependency, out DateTime absoluteExpiration, out TimeSpan slidingExpiration)
         {
             expensiveObject = null;
@@ -349,23 +353,25 @@ public class CacheTests
 
             updated = true;
             updateReason = reason;
+
+            tcs.SetResult();
         }
 
-        var file = System.IO.Path.GetTempFileName();
-        await System.IO.File.WriteAllTextAsync(file, key);
+        var file = Path.GetTempFileName();
+        await File.WriteAllTextAsync(file, key);
 
         using var cd = new CacheDependency(file);
         // Act
         cache.Insert(key, item, cd, Cache.NoAbsoluteExpiration, Cache.NoSlidingExpiration, Callback);
 
         // Ensure file is updated
-        await System.IO.File.WriteAllTextAsync(file, DateTime.UtcNow.ToString("O"));
+        await File.WriteAllTextAsync(file, DateTime.UtcNow.ToString("O"));
 
-        // Small delay here to ensure that the file change notification happens (may fail tests if too fast)
-        await Task.Delay(10);
+        // Wait for callback to be called
+        await tcs.Task;
 
-        // Force cleanup to initiate callbacks on current thread
-        memCache.Trim(100);
+        // Wait for callback to be finalized
+        await Task.Delay(100);
 
         // Assert
         Assert.True(updated);
@@ -382,7 +388,8 @@ public class CacheTests
         var cache = new Cache(memCache);
         var httpRuntime = new Mock<IHttpRuntime>();
         httpRuntime.Setup(s => s.Cache).Returns(cache);
-        HttpRuntime.Current = httpRuntime.Object;
+
+        SetHttpRuntime(httpRuntime.Object);
 
         var item1 = new object();
         var item2 = new object();
@@ -424,5 +431,29 @@ public class CacheTests
 
         Assert.Equal(CacheItemUpdateReason.Expired, updateReason[key1]);
         Assert.Equal(CacheItemUpdateReason.DependencyChanged, updateReason[key2]);
+    }
+
+    private static void SetHttpRuntime(IHttpRuntime runtime)
+    {
+        _ = new HttpContextAccessor
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                RequestServices = new RuntimeServiceProvider(runtime)
+            }
+        };
+    }
+
+    private sealed class RuntimeServiceProvider : IServiceProvider
+    {
+        private readonly IHttpRuntime _runtime;
+
+        public RuntimeServiceProvider(IHttpRuntime runtime)
+        {
+            _runtime = runtime;
+        }
+
+        public object? GetService(Type serviceType)
+            => serviceType == typeof(IHttpRuntime) ? _runtime : null;
     }
 }
