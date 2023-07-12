@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Globalization;
+using System.Net;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,6 +45,8 @@ public class HttpCapabilitiesBase
     public string? Platform => Capability["platform"];
 
     public bool Crawler => GetBoolean("crawler");
+
+    public bool Cookies => GetBoolean("cookies");
 
     public string? Type => Capability["type"];
 
