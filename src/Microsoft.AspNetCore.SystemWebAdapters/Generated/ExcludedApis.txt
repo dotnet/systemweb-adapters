@@ -23,3 +23,5 @@ T:System.Web.IHtmlString
 
 # We implement extra interfaces that end up getting added to the generated stuff
 T:System.Web.HtmlString
+
+T:Microsoft.AspNetCore.SystemWebAdapters.ITraceContext

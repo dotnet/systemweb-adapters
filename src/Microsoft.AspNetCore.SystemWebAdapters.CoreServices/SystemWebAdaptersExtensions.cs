@@ -9,6 +9,7 @@ using System.Web.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -24,6 +25,22 @@ public static class SystemWebAdaptersExtensions
 
         return new SystemWebAdapterBuilder(services)
             .AddMvc();
+    }
+
+    /// <summary>
+    /// Adds support for <see cref="HttpContext.Trace"/> by passing messages through to the registered <see cref="ILoggerFactory"/>
+    /// </summary>
+    /// <param name="builder">System.Web adapter builder</param>
+    /// <param name="defaultCategory">The category used for the logger if calls to <see cref="TraceContext"/> doesn't provide a category.</param>
+    public static ISystemWebAdapterBuilder AddLoggingTraceContext(this ISystemWebAdapterBuilder builder, string? defaultCategory = null)
+    {
+        const string DefaultLoggingCategory = "System.Web";
+
+        ArgumentNullException.ThrowIfNull(builder);
+
+        builder.Services.AddSingleton<ITraceContext>(ctx => new LoggingTraceContext(defaultCategory ?? DefaultLoggingCategory, ctx.GetRequiredService<ILoggerFactory>()));
+
+        return builder;
     }
 
     internal static bool HasBeenAdded(this IApplicationBuilder app, [CallerMemberName] string key = null!)
