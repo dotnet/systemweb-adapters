@@ -93,6 +93,8 @@ namespace System.Web
             set => _response.TrySkipIisCustomErrors = value;
         }
 
+        public override HttpCachePolicy Cache => _response.Cache;
+
         public override void Write(char ch) => _response.Write(ch);
 
         public override void Write(object obj) => _response.Write(obj);
