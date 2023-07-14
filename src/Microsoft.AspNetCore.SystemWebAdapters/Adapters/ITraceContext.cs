@@ -1,5 +1,7 @@
 using System;
 
+#if NETCOREAPP
+
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public interface ITraceContext
@@ -8,3 +10,5 @@ public interface ITraceContext
 
     void Warn(string message, string? category, Exception? errorInfo);
 }
+
+#endif

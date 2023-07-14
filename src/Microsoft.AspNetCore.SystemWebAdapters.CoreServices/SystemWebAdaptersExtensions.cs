@@ -31,7 +31,7 @@ public static class SystemWebAdaptersExtensions
     /// Adds support for <see cref="HttpContext.Trace"/> by passing messages through to the registered <see cref="ILoggerFactory"/>
     /// </summary>
     /// <param name="builder">System.Web adapter builder</param>
-    /// <param name="defaultCategory">The category used for the logger if calls to <see cref="TraceContext"/> doesn't provide a category.</param>
+    /// <param name="defaultCategory">The category used for the logger if calls to <see cref="TraceContext"/> don't provide a category.</param>
     public static ISystemWebAdapterBuilder AddLoggingTraceContext(this ISystemWebAdapterBuilder builder, string? defaultCategory = null)
     {
         const string DefaultLoggingCategory = "System.Web";

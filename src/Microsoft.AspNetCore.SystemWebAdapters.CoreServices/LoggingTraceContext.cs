@@ -21,22 +21,11 @@ internal sealed class LoggingTraceContext : ITraceContext
     }
 
     public void Warn(string message, string? category, Exception? errorInfo)
-    {
-        GetLogger(category).LogWarning(errorInfo, message);
-    }
+        => GetLogger(category).LogWarning(errorInfo, message);
 
     public void Write(string message, string? category, Exception? errorInfo)
-    {
-        GetLogger(category).LogInformation(errorInfo, message);
-    }
+        => GetLogger(category).LogInformation(errorInfo, message);
 
     private ILogger GetLogger(string? category)
-    {
-        if (category is null)
-        {
-            return _defaultCategory;
-        }
-
-        return _loggerFactory.CreateLogger(category);
-    }
+        => category is null ? _defaultCategory : _loggerFactory.CreateLogger(category);
 }
