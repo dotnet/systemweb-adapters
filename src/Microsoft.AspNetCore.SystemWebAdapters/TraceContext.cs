@@ -10,7 +10,7 @@ public sealed class TraceContext
 {
     private readonly ITraceContext? _context;
 
-    public TraceContext(HttpContext context)
+    internal TraceContext(HttpContext context)
     {
         _context = context.UnwrapAdapter().RequestServices.GetService<ITraceContext>();
     }

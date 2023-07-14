@@ -635,7 +635,7 @@ namespace System.Web
     }
     public sealed partial class TraceContext
     {
-        public TraceContext(System.Web.HttpContext context) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        internal TraceContext() { }
         public bool IsEnabled { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} [System.Runtime.CompilerServices.CompilerGeneratedAttribute]set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public void Warn(string message) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void Warn(string category, string message) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
