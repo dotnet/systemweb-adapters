@@ -76,6 +76,9 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
 
         public override IEnumerator GetEnumerator() => throw new PlatformNotSupportedException(EnumerationErrorMessage);
 
+#if NET8_0_OR_GREATER
+        [Obsolete]
+#endif
         public override void GetObjectData(SerializationInfo info, StreamingContext context) => throw new PlatformNotSupportedException(SerializationErrorMessage);
 
         public override void OnDeserialization(object? sender) => throw new PlatformNotSupportedException(SerializationErrorMessage);

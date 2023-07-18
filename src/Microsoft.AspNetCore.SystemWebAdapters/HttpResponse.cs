@@ -166,19 +166,9 @@ namespace System.Web
 
         public void AddHeader(string name, string value) => AppendHeader(name, value);
 
-        public void AppendHeader(string name, string value)
-        {
-            if (_response.Headers.TryGetValue(name, out var existing))
-            {
-                _response.Headers[name] = StringValues.Concat(existing, value);
-            }
-            else
-            {
-                _response.Headers.Add(name, value);
-            }
-        }
+        public void AppendHeader(string name, string value) => _response.Headers.Append(name, value);
 
-        public string RedirectLocation
+        public string? RedirectLocation
         {
             get => _response.Headers.Location;
             set => _response.Headers.Location = value;

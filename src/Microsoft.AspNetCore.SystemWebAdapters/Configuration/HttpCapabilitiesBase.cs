@@ -45,6 +45,8 @@ public class HttpCapabilitiesBase
 
     public bool Crawler => GetBoolean("crawler");
 
+    public bool Cookies => GetBoolean("cookies");
+
     public string? Type => Capability["type"];
 
     public string? PreferredRequestEncoding => Capability["preferredRequestEncoding"];
