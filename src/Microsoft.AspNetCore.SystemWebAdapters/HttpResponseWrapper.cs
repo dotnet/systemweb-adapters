@@ -4,6 +4,7 @@
 using System.Collections.Specialized;
 using System.IO;
 using System.Text;
+using Microsoft.AspNetCore.Http;
 
 namespace System.Web
 {
@@ -46,6 +47,8 @@ namespace System.Web
         }
 
         public override NameValueCollection Headers => _response.Headers;
+
+        public override bool HeadersWritten => _response.HeadersWritten;
 
         public override bool IsClientConnected => _response.IsClientConnected;
 

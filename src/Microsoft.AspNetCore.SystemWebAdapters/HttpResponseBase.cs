@@ -35,6 +35,14 @@ namespace System.Web
             get => throw new NotImplementedException();
         }
 
+        public virtual bool HeadersWritten
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public virtual bool TrySkipIisCustomErrors
         {
             get => throw new NotImplementedException();
