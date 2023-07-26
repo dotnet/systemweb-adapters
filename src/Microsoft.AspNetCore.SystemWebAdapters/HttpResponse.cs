@@ -175,6 +175,11 @@ namespace System.Web
             get => _response.HasStarted;
         }
 
+        public bool HeadersWritten
+        {
+            get => _response.HasStarted;
+        }
+
         public string? RedirectLocation
         {
             get => _response.Headers.Location;
