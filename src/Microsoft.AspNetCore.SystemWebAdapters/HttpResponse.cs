@@ -168,6 +168,11 @@ namespace System.Web
 
         public void AppendHeader(string name, string value) => _response.Headers.Append(name, value);
 
+        public bool HeadersWritten
+        {
+            get => _response.HasStarted;
+        }
+
         public string? RedirectLocation
         {
             get => _response.Headers.Location;
