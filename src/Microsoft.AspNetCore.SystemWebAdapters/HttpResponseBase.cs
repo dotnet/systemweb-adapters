@@ -87,6 +87,8 @@ namespace System.Web
             set => throw new NotImplementedException();
         }
 
+        public virtual HttpCachePolicy Cache => throw new NotImplementedException();
+
         public virtual bool IsClientConnected => throw new NotImplementedException();
 
         public virtual void AddHeader(string name, string value) => throw new NotImplementedException();

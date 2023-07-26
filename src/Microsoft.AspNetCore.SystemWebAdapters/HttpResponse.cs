@@ -29,6 +29,7 @@ namespace System.Web
         private ResponseHeaders? _typedHeaders;
         private TextWriter? _writer;
         private HttpCookieCollection? _cookies;
+        private HttpCachePolicy? _cache;
 
         internal HttpResponse(HttpResponseCore response)
         {
@@ -213,6 +214,8 @@ namespace System.Web
                 End();
             }
         }
+
+        public HttpCachePolicy Cache => _cache ??= new(_response.HttpContext);
 
         private string ResolvePath(string url)
         {
