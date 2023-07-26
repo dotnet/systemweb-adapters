@@ -89,7 +89,10 @@ namespace System.Web
 
                         for (var i = 0; i < length; i++)
                         {
-                            userLanguages[i] = qualityArray[i].Value.Value;
+                            if (qualityArray[i].Value.Value is { } language)
+                            {
+                                userLanguages[i] = language;
+                            }
                         }
 
                         ArrayPool<StringWithQualityHeaderValue>.Shared.Return(qualityArray);
@@ -102,7 +105,7 @@ namespace System.Web
             }
         }
 
-        public string UserAgent => _request.Headers[HeaderNames.UserAgent];
+        public string? UserAgent => _request.Headers[HeaderNames.UserAgent];
 
         public string RequestType => HttpMethod;
 
@@ -133,7 +136,10 @@ namespace System.Web
 
                         for (var i = 0; i < accept.Count; i++)
                         {
-                            _acceptTypes[i] = accept[i].MediaType.Value;
+                            if (accept[i].MediaType.Value is { } value)
+                            {
+                                _acceptTypes[i] = value;
+                            }
                         }
                     }
                 }
@@ -202,10 +208,14 @@ namespace System.Web
 
         public byte[] BinaryRead(int count)
         {
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfNegative(count);
+#else
             if (count < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
+#endif
 
             if (count == 0)
             {

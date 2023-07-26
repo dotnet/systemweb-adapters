@@ -47,7 +47,7 @@ internal sealed class BrowserCapabilitiesFactory : IBrowserCapabilitiesFactory
 
     IHttpBrowserCapabilityFeature IBrowserCapabilitiesFactory.Create(HttpRequestCore request)
     {
-        var userAgent = request.Headers.UserAgent;
+        var userAgent = request.Headers.UserAgent.ToString();
 
         if (string.IsNullOrWhiteSpace(userAgent))
         {
@@ -60,7 +60,7 @@ internal sealed class BrowserCapabilitiesFactory : IBrowserCapabilitiesFactory
                 entry.SlidingExpiration = TimeSpan.FromMinutes(2);
 
                 return Parse(userAgent);
-            });
+            }) ?? EmptyBrowserFeatures.Instance;
         }
         else
         {
