@@ -35,7 +35,7 @@ The following steps are needed to use the `System.Web` adapters with an ASP.NET 
    - There should be no manual changes to enable using supported surface area of the adapters. If a member is not found, it is not currently supported on ASP.NET Core
 3. Install `Microsoft.AspNetCore.SystemWebAdapters.CoreServices` to your ASP.NET Core application
 4. Install `Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices` to your ASP.NET Framework application
-   - The package installation will add a new module to your `web.config`. This module handles any customizations that are required to help migrate to .NET Core. See [this](docs/framework.md) for details on what is available here.
+   - The package installation will add a new module to your `web.config`. This module handles any customizations that are required to help migrate to .NET Core.
 5. For your ASP.NET Core application:
    - Register the adapter services:
      ```csharp
@@ -45,7 +45,6 @@ The following steps are needed to use the `System.Web` adapters with an ASP.NET 
      ```csharp
      app.UseSystemWebAdapters();
      ```
-   - For additional configuration, please see the [configuration](./docs/core.md) section
 
 ## Supported Targets
 
