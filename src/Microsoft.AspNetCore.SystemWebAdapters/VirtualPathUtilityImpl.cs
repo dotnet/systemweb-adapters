@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Web.Util;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.Extensions.Options;
 
 namespace System.Web;
 
@@ -12,13 +13,13 @@ internal sealed class VirtualPathUtilityImpl
 {
     private const string Empty_path_has_no_directory = "Empty path has no directory.";
 
-    private readonly IHttpRuntime _runtime;
+    private readonly IOptions<HostingEnvironmentOptions> _options;
     private readonly UrlPath _urlPath;
 
-    public VirtualPathUtilityImpl(IHttpRuntime runtime)
+    public VirtualPathUtilityImpl(IOptions<HostingEnvironmentOptions> options)
     {
-        _runtime = runtime;
-        _urlPath = new UrlPath(runtime);
+        _options = options;
+        _urlPath = new UrlPath(options);
     }
 
     [return: NotNullIfNotNull(nameof(virtualPath))]
@@ -44,7 +45,7 @@ internal sealed class VirtualPathUtilityImpl
     }
 
     public string Combine(string basePath, string relativePath)
-        => _urlPath.Combine(_runtime.AppDomainAppVirtualPath, basePath, relativePath);
+        => _urlPath.Combine(_options.Value.AppDomainAppVirtualPath, basePath, relativePath);
 
     public static string? GetDirectory(string virtualPath)
     {
@@ -184,7 +185,7 @@ internal sealed class VirtualPathUtilityImpl
         throw new ArgumentException($"The relative virtual path '{virtualPath}' is not allowed here.", nameof(virtualPath));
     }
 
-    public string ToAppRelative(string virtualPath) => ToAppRelative(virtualPath, _runtime.AppDomainAppVirtualPath);
+    public string ToAppRelative(string virtualPath) => ToAppRelative(virtualPath, _options.Value.AppDomainAppVirtualPath);
 
     public static string ToAppRelative(string virtualPath, string applicationPath)
     {

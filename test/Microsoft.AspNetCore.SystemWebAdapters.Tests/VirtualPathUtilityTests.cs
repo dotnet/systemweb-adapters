@@ -3,6 +3,7 @@
 
 using System;
 using System.Web;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -233,12 +234,13 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
 
         private static VirtualPathUtilityImpl CreateUtility()
         {
-            var runtime = new Mock<IHttpRuntime>();
+            var options = new HostingEnvironmentOptions
+            {
+                AppDomainAppPath = @"C:\",
+                AppDomainAppVirtualPath = "/",
+            };
 
-            runtime.Setup(r => r.AppDomainAppPath).Returns(@"C:\");
-            runtime.Setup(r => r.AppDomainAppVirtualPath).Returns("/");
-
-            return new VirtualPathUtilityImpl(runtime.Object);
+            return new VirtualPathUtilityImpl(Options.Create(options));
         }
     }
 }
