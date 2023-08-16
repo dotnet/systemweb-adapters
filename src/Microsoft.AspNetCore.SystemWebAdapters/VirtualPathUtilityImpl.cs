@@ -13,10 +13,10 @@ internal sealed class VirtualPathUtilityImpl
 {
     private const string Empty_path_has_no_directory = "Empty path has no directory.";
 
-    private readonly IOptions<HostingEnvironmentOptions> _options;
+    private readonly IOptions<SystemWebAdaptersOptions> _options;
     private readonly UrlPath _urlPath;
 
-    public VirtualPathUtilityImpl(IOptions<HostingEnvironmentOptions> options)
+    public VirtualPathUtilityImpl(IOptions<SystemWebAdaptersOptions> options)
     {
         _options = options;
         _urlPath = new UrlPath(options);

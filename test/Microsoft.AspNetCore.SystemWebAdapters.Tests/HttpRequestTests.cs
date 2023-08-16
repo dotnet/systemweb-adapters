@@ -493,13 +493,13 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void ApplicationPath()
         {
             // Arrange
-            var options = new HostingEnvironmentOptions
+            var options = new SystemWebAdaptersOptions
             {
                 AppDomainAppVirtualPath = _fixture.Create<string>(),
             };
 
             var services = new Mock<IServiceProvider>();
-            services.Setup(s => s.GetService(typeof(IOptions<HostingEnvironmentOptions>))).Returns(Options.Create(options));
+            services.Setup(s => s.GetService(typeof(IOptions<SystemWebAdaptersOptions>))).Returns(Options.Create(options));
 
             var coreContext = new Mock<HttpContextCore>();
             coreContext.Setup(c => c.RequestServices).Returns(services.Object);

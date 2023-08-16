@@ -11,9 +11,9 @@ internal sealed class HostingEnvironmentAccessor
 {
     private static HostingEnvironmentAccessor? _current;
 
-    private readonly IOptions<HostingEnvironmentOptions> _options;
+    private readonly IOptions<SystemWebAdaptersOptions> _options;
 
-    public HostingEnvironmentAccessor(IServiceProvider services, IOptions<HostingEnvironmentOptions> options)
+    public HostingEnvironmentAccessor(IServiceProvider services, IOptions<SystemWebAdaptersOptions> options)
     {
         Services = services;
         _options = options;
@@ -42,5 +42,5 @@ internal sealed class HostingEnvironmentAccessor
         return current is not null;
     }
 
-    internal HostingEnvironmentOptions Options => _options.Value;
+    internal SystemWebAdaptersOptions Options => _options.Value;
 }

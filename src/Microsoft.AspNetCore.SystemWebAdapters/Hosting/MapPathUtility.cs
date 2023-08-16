@@ -6,10 +6,10 @@ namespace System.Web.Hosting;
 
 internal sealed class MapPathUtility : IMapPathUtility
 {
-    private readonly IOptions<HostingEnvironmentOptions> _options;
+    private readonly IOptions<SystemWebAdaptersOptions> _options;
     private readonly VirtualPathUtilityImpl _pathUtility;
 
-    public MapPathUtility(IOptions<HostingEnvironmentOptions> options, VirtualPathUtilityImpl pathUtility)
+    public MapPathUtility(IOptions<SystemWebAdaptersOptions> options, VirtualPathUtilityImpl pathUtility)
     {
         _options = options;
         _pathUtility = pathUtility;

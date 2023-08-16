@@ -21,9 +21,9 @@ namespace System.Web.Util;
 /// </remarks>
 internal sealed class UrlPath
 {
-    private readonly IOptions<HostingEnvironmentOptions> _options;
+    private readonly IOptions<SystemWebAdaptersOptions> _options;
 
-    public UrlPath(IOptions<HostingEnvironmentOptions> options)
+    public UrlPath(IOptions<SystemWebAdaptersOptions> options)
     {
         _options = options;
     }

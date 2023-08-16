@@ -230,7 +230,7 @@ namespace System.Web
                 return url;
             }
 
-            var vdir = _response.HttpContext.RequestServices.GetRequiredService<IOptions<HostingEnvironmentOptions>>().Value.AppDomainAppVirtualPath;
+            var vdir = _response.HttpContext.RequestServices.GetRequiredService<IOptions<SystemWebAdaptersOptions>>().Value.AppDomainAppVirtualPath;
 
             var sb = new StringBuilder(url, 1, url.Length - 1, url.Length + vdir.Length);
 

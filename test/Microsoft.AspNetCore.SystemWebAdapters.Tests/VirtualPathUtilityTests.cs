@@ -234,7 +234,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
 
         private static VirtualPathUtilityImpl CreateUtility()
         {
-            var options = new HostingEnvironmentOptions
+            var options = new SystemWebAdaptersOptions
             {
                 AppDomainAppPath = @"C:\",
                 AppDomainAppVirtualPath = "/",

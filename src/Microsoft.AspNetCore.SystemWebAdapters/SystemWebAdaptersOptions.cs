@@ -7,7 +7,7 @@ using System;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-public class HostingEnvironmentOptions
+public class SystemWebAdaptersOptions
 {
     public string ApplicationID { get; set; } = string.Empty;
 

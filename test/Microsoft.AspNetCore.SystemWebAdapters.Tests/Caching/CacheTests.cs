@@ -443,7 +443,7 @@ public class CacheTests
         private HostingEnvironmentContext(Cache cache)
         {
             _cache = cache;
-            HostingEnvironmentAccessor.Current = new(this, Options.Create(new HostingEnvironmentOptions()));
+            HostingEnvironmentAccessor.Current = new(this, Options.Create(new SystemWebAdaptersOptions()));
         }
 
         public void Dispose()

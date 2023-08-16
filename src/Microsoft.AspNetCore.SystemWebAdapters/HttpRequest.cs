@@ -187,7 +187,7 @@ namespace System.Web
 
         public string AppRelativeCurrentExecutionFilePath => $"~{FilePath}";
 
-        public string ApplicationPath => _request.HttpContext.RequestServices.GetRequiredService<IOptions<HostingEnvironmentOptions>>().Value.AppDomainAppVirtualPath;
+        public string ApplicationPath => _request.HttpContext.RequestServices.GetRequiredService<IOptions<SystemWebAdaptersOptions>>().Value.AppDomainAppVirtualPath;
 
         public Uri? UrlReferrer => TypedHeaders.Referer;
 

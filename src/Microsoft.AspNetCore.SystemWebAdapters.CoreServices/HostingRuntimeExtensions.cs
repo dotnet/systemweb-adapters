@@ -16,7 +16,7 @@ internal static class HostingRuntimeExtensions
         services.TryAddSingleton<VirtualPathUtilityImpl>();
         services.TryAddSingleton<IMapPathUtility, MapPathUtility>();
         services.AddHostedService<HostingEnvironmentService>();
-        services.AddOptions<HostingEnvironmentOptions>()
+        services.AddOptions<SystemWebAdaptersOptions>()
             .Configure(options =>
             {
                 options.IsHosted = true;

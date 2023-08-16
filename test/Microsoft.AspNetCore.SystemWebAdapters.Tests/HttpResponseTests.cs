@@ -551,13 +551,13 @@ public class HttpResponseTests
         // Arrange
         var isEndCalled = endResponse ?? true;
 
-        var options = new HostingEnvironmentOptions
+        var options = new SystemWebAdaptersOptions
         {
             AppDomainAppVirtualPath = vdir,
         };
 
         var services = new Mock<IServiceProvider>();
-        services.Setup(s => s.GetService(typeof(IOptions<HostingEnvironmentOptions>))).Returns(Options.Create(options));
+        services.Setup(s => s.GetService(typeof(IOptions<SystemWebAdaptersOptions>))).Returns(Options.Create(options));
 
         var endFeature = new Mock<IHttpResponseEndFeature>();
         endFeature.SetupAllProperties();

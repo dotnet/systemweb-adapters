@@ -89,7 +89,7 @@ public class HttpServerUtilityTests
     public void MapPath(string page, string? path, params string[] segments)
     {
         // Arrange
-        var options = new HostingEnvironmentOptions
+        var options = new SystemWebAdaptersOptions
         {
             AppDomainAppVirtualPath = "/",
             AppDomainAppPath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"C:\ExampleSites\TestMapPath" : "/apps/test-map-path"
@@ -117,7 +117,7 @@ public class HttpServerUtilityTests
     {
         // Arrange
 
-        var options = new HostingEnvironmentOptions
+        var options = new SystemWebAdaptersOptions
         {
             AppDomainAppVirtualPath = "/",
             AppDomainAppPath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"C:\ExampleSites\TestMapPath" : "/apps/test-map-path"
