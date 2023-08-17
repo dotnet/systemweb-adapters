@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
 namespace System.Web
@@ -229,7 +230,7 @@ namespace System.Web
                 return url;
             }
 
-            var vdir = _response.HttpContext.RequestServices.GetRequiredService<IHttpRuntime>().AppDomainAppVirtualPath;
+            var vdir = _response.HttpContext.RequestServices.GetRequiredService<IOptions<SystemWebAdaptersOptions>>().Value.AppDomainAppVirtualPath;
 
             var sb = new StringBuilder(url, 1, url.Length - 1, url.Length + vdir.Length);
 

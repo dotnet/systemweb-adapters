@@ -779,6 +779,15 @@ namespace System.Web.Configuration
         public string Version { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
     }
 }
+namespace System.Web.Hosting
+{
+    public static partial class HostingEnvironment
+    {
+        public static string ApplicationID { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public static bool IsHosted { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public static string SiteName { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+    }
+}
 namespace System.Web.SessionState
 {
     public partial class HttpSessionState : System.Collections.ICollection, System.Collections.IEnumerable

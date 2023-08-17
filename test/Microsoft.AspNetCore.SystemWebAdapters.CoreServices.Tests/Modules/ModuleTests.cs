@@ -16,6 +16,7 @@ using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests;
 
+[Collection(nameof(SelfHostedTests))]
 public class ModuleTests
 {
     private static readonly string[] Initial = new[]
@@ -149,7 +150,14 @@ public class ModuleTests
 
         var url = $"/?action={action}&notification={eventName}";
 
-        using var _ = await host.GetTestClient().GetAsync(new Uri(url, UriKind.Relative));
+        try
+        {
+            using var _ = await host.GetTestClient().GetAsync(new Uri(url, UriKind.Relative));
+        }
+        finally
+        {
+            await host.StopAsync();
+        }
 
         return notifier;
     }

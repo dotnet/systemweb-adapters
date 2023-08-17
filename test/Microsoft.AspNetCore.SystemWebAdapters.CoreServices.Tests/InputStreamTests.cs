@@ -14,6 +14,7 @@ using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests;
 
+[Collection(nameof(SelfHostedTests))]
 public partial class InputStreamTests
 {
     private readonly string ContentValue = Guid.NewGuid().ToString();
@@ -162,9 +163,16 @@ public partial class InputStreamTests
             })
             .StartAsync();
 
-        using var content = new StringContent(input);
-        using var response = await host.GetTestClient().PutAsync(new Uri("/", UriKind.Relative), content);
+        try
+        {
+            using var content = new StringContent(input);
+            using var response = await host.GetTestClient().PutAsync(new Uri("/", UriKind.Relative), content);
 
-        return await response.Content.ReadAsStringAsync();
+            return await response.Content.ReadAsStringAsync();
+        }
+        finally
+        {
+            await host.StopAsync();
+        }
     }
 }
