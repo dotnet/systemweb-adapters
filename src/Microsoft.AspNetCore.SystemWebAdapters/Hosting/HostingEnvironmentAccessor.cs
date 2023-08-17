@@ -27,7 +27,7 @@ internal sealed class HostingEnvironmentAccessor
         get => _current ?? throw new InvalidOperationException("Hosting environment is only available when a host is running.");
         set
         {
-            if (_current is not null && value is not null)
+            if (_current is not null && value is not null && !ReferenceEquals(_current, value))
             {
                 throw new InvalidOperationException("Hosting environment is already set");
             }
