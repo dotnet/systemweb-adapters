@@ -23,6 +23,10 @@ app.UseRouting();
 
 app.UseSession();
 
+app.MapGet("/bl", (HttpContext context) =>
+{
+    return "";
+});
 app.UseSystemWebAdapters();
 
 app.MapGroup("/session")

@@ -2,8 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Net.Http;
-using System.Threading;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -147,6 +148,53 @@ public class ResponseStreamTests
     }
 
     [Fact]
+    public async Task FilterInstalled()
+    {
+        // Arrange
+        const string Message = "Hello world!";
+        var bytes = Encoding.UTF8.GetBytes(Message);
+
+        TrackingStream filter = default!;
+
+        // Act
+        var result = await RunAsync(context =>
+        {
+            context.Response.Filter = filter = new TrackingStream(context.Response.Filter);
+            context.Response.OutputStream.Write(bytes);
+        }, builder => builder.BufferResponseStream());
+
+        // Assert
+        Assert.NotNull(filter);
+        Assert.Equal(bytes, filter.Bytes);
+        Assert.Equal(Message, result);
+        Assert.True(filter.IsDisposed);
+    }
+
+    [Fact]
+    public async Task FilterUninstalled()
+    {
+        // Arrange
+        const string Message = "Hello world!";
+        var bytes = Encoding.UTF8.GetBytes(Message);
+
+        TrackingStream filter = default!;
+
+        // Act
+        var result = await RunAsync(context =>
+        {
+            context.Response.Filter = filter = new TrackingStream(context.Response.Filter);
+            context.Response.OutputStream.Write(bytes);
+            context.Response.Filter = null;
+        }, builder => builder.BufferResponseStream());
+
+        // Assert
+        Assert.NotNull(filter);
+        Assert.Empty(filter.Bytes);
+        Assert.Equal(Message, result);
+        Assert.False(filter.IsDisposed);
+    }
+
+    [Fact]
     public async Task MultipleClearContent()
     {
         var result = await RunAsync(context =>
@@ -201,5 +249,63 @@ public class ResponseStreamTests
 
         var uri = new Uri("/", UriKind.Relative);
         return await host.GetTestClient().GetStringAsync(uri).ConfigureAwait(false);
+    }
+
+    private sealed class TrackingStream : Stream
+    {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is not owned by this instance")]
+        private readonly Stream _stream;
+        private readonly List<byte> _list = new();
+
+        public TrackingStream(Stream other)
+        {
+            _stream = other;
+        }
+
+        public byte[] Bytes => _list.ToArray();
+
+        public override bool CanRead => _stream.CanRead;
+
+        public override bool CanSeek => _stream.CanSeek;
+
+        public override bool CanWrite => _stream.CanWrite;
+
+        public override long Length => _stream.Length;
+
+        public override long Position { get => _stream.Position; set => _stream.Position = value; }
+
+        public override void Flush()
+        {
+            _stream.Flush();
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            return _stream.Read(buffer, offset, count);
+        }
+
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            return _stream.Seek(offset, origin);
+        }
+
+        public override void SetLength(long value)
+        {
+            _stream.SetLength(value);
+        }
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            _list.AddRange(buffer.AsMemory(offset, count).ToArray());
+            _stream.Write(buffer, offset, count);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            IsDisposed = true;
+        }
+
+        public bool IsDisposed { get; private set; }
     }
 }
