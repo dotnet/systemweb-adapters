@@ -1,7 +1,8 @@
-using System.Threading;
-using System.Threading.Tasks;
+using System;
 using System.Web;
 using System.Web.Hosting;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -15,7 +16,8 @@ internal static class HostingRuntimeExtensions
         services.TryAddSingleton<HostingEnvironmentAccessor>();
         services.TryAddSingleton<VirtualPathUtilityImpl>();
         services.TryAddSingleton<IMapPathUtility, MapPathUtility>();
-        services.AddHostedService<HostingEnvironmentService>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IStartupFilter, HostingEnvironmentStartupFilter>());
+
         services.AddOptions<SystemWebAdaptersOptions>()
             .Configure(options =>
             {
@@ -31,25 +33,19 @@ internal static class HostingRuntimeExtensions
             });
     }
 
-    private sealed class HostingEnvironmentService : IHostedService
+    private sealed class HostingEnvironmentStartupFilter : IStartupFilter, IDisposable
     {
-        private readonly HostingEnvironmentAccessor _accessor;
-
-        public HostingEnvironmentService(HostingEnvironmentAccessor accessor)
+        public HostingEnvironmentStartupFilter(HostingEnvironmentAccessor accessor)
         {
-            _accessor = accessor;
+            HostingEnvironmentAccessor.Current = accessor;
         }
 
-        Task IHostedService.StartAsync(CancellationToken cancellationToken)
-        {
-            HostingEnvironmentAccessor.Current = _accessor;
-            return Task.CompletedTask;
-        }
+        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
+            => builder => next(builder);
 
-        Task IHostedService.StopAsync(CancellationToken cancellationToken)
+        public void Dispose()
         {
             HostingEnvironmentAccessor.Current = null;
-            return Task.CompletedTask;
         }
     }
 }
