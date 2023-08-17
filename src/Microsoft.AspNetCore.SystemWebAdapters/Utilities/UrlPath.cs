@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.Extensions.Options;
 
 namespace System.Web.Util;
 
@@ -16,15 +17,15 @@ namespace System.Web.Util;
 /// <remarks>
 /// Portions of this code are based on code originally Copyright (c) 1999 Microsoft Corporation
 /// System.Web.Util.UrlPath code at https://github.com/microsoft/referencesource/blob/master/System.Web/Util/UrlPath.cs
-/// These files are released under an MIT licence according to https://github.com/microsoft/referencesource#license
+/// These files are released under an MIT license according to https://github.com/microsoft/referencesource#license
 /// </remarks>
 internal sealed class UrlPath
 {
-    private readonly IHttpRuntime _runtime;
+    private readonly IOptions<SystemWebAdaptersOptions> _options;
 
-    public UrlPath(IHttpRuntime runtime)
+    public UrlPath(IOptions<SystemWebAdaptersOptions> options)
     {
-        _runtime = runtime;
+        _options = options;
     }
 
     internal const char AppRelativeCharacter = '~';
@@ -229,7 +230,7 @@ internal sealed class UrlPath
         return virtualPath;
     }
 
-    internal string MakeVirtualPathAppAbsolute(string virtualPath) => MakeVirtualPathAppAbsolute(virtualPath, _runtime.AppDomainAppVirtualPath);
+    internal string MakeVirtualPathAppAbsolute(string virtualPath) => MakeVirtualPathAppAbsolute(virtualPath, _options.Value.AppDomainAppVirtualPath);
 
     // If a virtual path is app relative (i.e. starts with ~/), change it to
     // start with the actuall app path.

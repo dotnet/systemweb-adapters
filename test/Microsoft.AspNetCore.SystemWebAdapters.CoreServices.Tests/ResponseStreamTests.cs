@@ -2,9 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -15,6 +12,7 @@ using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests;
 
+[Collection(nameof(SelfHostedTests))]
 public class ResponseStreamTests
 {
     private readonly string ContentValue = Guid.NewGuid().ToString();
@@ -248,7 +246,15 @@ public class ResponseStreamTests
             .StartAsync();
 
         var uri = new Uri("/", UriKind.Relative);
-        return await host.GetTestClient().GetStringAsync(uri).ConfigureAwait(false);
+
+        try
+        {
+            return await host.GetTestClient().GetStringAsync(uri).ConfigureAwait(false);
+        }
+        finally
+        {
+            await host.StopAsync();
+        }
     }
 
     private sealed class TrackingStream : Stream

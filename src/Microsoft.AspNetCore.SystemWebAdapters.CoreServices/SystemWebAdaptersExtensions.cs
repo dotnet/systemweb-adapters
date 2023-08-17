@@ -3,7 +3,6 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using System.Web;
 using System.Web.Caching;
 using System.Web.Configuration;
 using Microsoft.AspNetCore.Builder;
@@ -18,10 +17,10 @@ public static class SystemWebAdaptersExtensions
     public static ISystemWebAdapterBuilder AddSystemWebAdapters(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
-        services.AddSingleton<IHttpRuntime>(sp => HttpRuntimeFactory.Create(sp));
         services.AddSingleton<Cache>();
         services.AddSingleton<IBrowserCapabilitiesFactory, BrowserCapabilitiesFactory>();
         services.AddTransient<IStartupFilter, HttpContextStartupFilter>();
+        services.AddHostingRuntime();
 
         return new SystemWebAdapterBuilder(services)
             .AddMvc();

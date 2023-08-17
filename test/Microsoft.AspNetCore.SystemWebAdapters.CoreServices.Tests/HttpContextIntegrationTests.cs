@@ -12,6 +12,7 @@ using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
+[Collection(nameof(SelfHostedTests))]
 public class HttpContextIntegrationTests
 {
     [Fact]
@@ -128,6 +129,13 @@ public class HttpContextIntegrationTests
             })
             .StartAsync();
 
-        _ = await host.GetTestClient().GetAsync(new Uri(path, UriKind.Relative));
+        try
+        {
+            _ = await host.GetTestClient().GetAsync(new Uri(path, UriKind.Relative));
+        }
+        finally
+        {
+            await host.StopAsync();
+        }
     }
 }

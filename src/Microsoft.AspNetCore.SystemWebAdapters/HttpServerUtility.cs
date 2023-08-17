@@ -1,8 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.IO;
-using System.Linq;
+using System.Web.Hosting;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,26 +21,7 @@ public class HttpServerUtility
     public string MachineName => Environment.MachineName;
 
     public string MapPath(string? path)
-    {
-        var runtime = _context.RequestServices.GetRequiredService<IHttpRuntime>();
-
-        var appPath = string.IsNullOrEmpty(path)
-            ? VirtualPathUtilityImpl.GetDirectory(_context.Request.Path)
-            : new VirtualPathUtilityImpl(runtime).Combine(VirtualPathUtilityImpl.GetDirectory(_context.Request.Path) ?? "/", path);
-
-        var rootPath = runtime.AppDomainAppPath;
-
-        if (string.IsNullOrEmpty(appPath))
-        {
-            return rootPath;
-        }
-
-        return Path.Combine(
-            rootPath,
-            appPath[1..]
-            .Replace('/', Path.DirectorySeparatorChar))
-            .TrimEnd(Path.DirectorySeparatorChar);
-    }
+        => _context.RequestServices.GetRequiredService<IMapPathUtility>().MapPath(_context.Request.Path, path);
 
     public Exception? GetLastError() => _context.GetAdapter().Error;
 
