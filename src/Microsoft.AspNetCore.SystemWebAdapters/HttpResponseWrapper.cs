@@ -58,6 +58,8 @@ namespace System.Web
             set => _response.Output = value;
         }
 
+        public override bool BufferOutput => _response.BufferOutput;
+
         public override Stream OutputStream => _response.OutputStream;
 
         public override void SetCookie(HttpCookie cookie) => _response.SetCookie(cookie);
