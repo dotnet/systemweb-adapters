@@ -84,7 +84,7 @@ public sealed class HttpCookie
                 // convert existing string value into multivalue
                 if (_stringValue != null)
                 {
-                    if (_stringValue.IndexOf('&') >= 0 || _stringValue.IndexOf('=') >= 0)
+                    if (_stringValue.Contains('&', StringComparison.InvariantCulture) || _stringValue.Contains('=', StringComparison.InvariantCulture))
                         _multiValue.FillFromString(_stringValue);
                     else
                         _multiValue.Add(null, _stringValue);
