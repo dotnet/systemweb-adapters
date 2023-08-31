@@ -12,6 +12,8 @@ internal interface IHttpResponseBufferingFeature
     void EnableBuffering(int memoryThreshold, long? bufferLimit);
 
     ValueTask FlushAsync();
+
+    bool IsEnabled { get; }
 }
 
 #endif

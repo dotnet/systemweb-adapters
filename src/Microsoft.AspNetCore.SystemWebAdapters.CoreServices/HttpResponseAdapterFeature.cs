@@ -75,6 +75,14 @@ internal class HttpResponseAdapterFeature : Stream, IHttpResponseBodyFeature, IH
         return _responseBodyFeature.StartAsync(cancellationToken);
     }
 
+    bool IHttpResponseBufferingFeature.IsEnabled
+    {
+        get
+        {
+            return _state != StreamState.NotBuffering && _state != StreamState.NotStarted;
+        }
+    }
+
     private async ValueTask FlushInternalAsync()
     {
         if (_state is StreamState.Buffering && _bufferedStream is not null && !SuppressContent)
