@@ -225,4 +225,20 @@ public class HttpCookieTests
         // Assert
         Assert.Equal($"{value1}&{value2}", cookie.Value);
     }
+
+    [Fact]
+    public void ValuesToStringUrlencodedValues()
+    {
+        // Arrange
+        var value1 = $"{_fixture.Create<string>()}|${_fixture.Create<string>()}";
+        var value2 = $"{_fixture.Create<string>()}|${_fixture.Create<string>()}";
+
+        // Act
+        var cookie = new HttpCookie(_fixture.Create<string>());
+        cookie.Values.Add(null, value1);
+        cookie.Values.Add(null, value2);
+
+        // Assert
+        Assert.Equal(HttpUtility.UrlEncode(value1) + "&" + HttpUtility.UrlEncode(value2), cookie.Values.ToString());
+    }
 }
