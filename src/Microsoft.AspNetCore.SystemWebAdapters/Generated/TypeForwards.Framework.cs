@@ -17,6 +17,9 @@
 #pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
 #pragma warning disable CA1063 // Implement IDisposable Correctly
 #pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
+#pragma warning disable CA1721 // Property names should not match get methods
+#pragma warning disable CA1711 // Identifiers should not have incorrect suffix
+#pragma warning disable CA1720 // Identifier contains type name
 
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpApplication))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpApplicationState))]
@@ -69,3 +72,7 @@
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Hosting.HostingEnvironment))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.SessionState.HttpSessionState))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.SessionState.SessionStateMode))]
+[assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.UI.HtmlTextWriter))]
+[assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.UI.HtmlTextWriterAttribute))]
+[assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.UI.HtmlTextWriterStyle))]
+[assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.UI.HtmlTextWriterTag))]

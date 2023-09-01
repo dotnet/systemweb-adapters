@@ -17,6 +17,9 @@
 #pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
 #pragma warning disable CA1063 // Implement IDisposable Correctly
 #pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
+#pragma warning disable CA1721 // Property names should not match get methods
+#pragma warning disable CA1711 // Identifiers should not have incorrect suffix
+#pragma warning disable CA1720 // Identifier contains type name
 
 namespace System.Web
 {
@@ -821,5 +824,320 @@ namespace System.Web.SessionState
         Off = 0,
         SQLServer = 3,
         StateServer = 2,
+    }
+}
+namespace System.Web.UI
+{
+    public partial class HtmlTextWriter : System.IO.TextWriter
+    {
+        public const string DefaultTabString = "\t";
+        public const char DoubleQuoteChar = '"';
+        public const string EndTagLeftChars = "</";
+        public const char EqualsChar = '=';
+        public const string EqualsDoubleQuoteString = "=\"";
+        public const string SelfClosingChars = " /";
+        public const string SelfClosingTagEnd = " />";
+        public const char SemicolonChar = ';';
+        public const char SingleQuoteChar = '\'';
+        public const char SlashChar = '/';
+        public const char SpaceChar = ' ';
+        public const char StyleEqualsChar = ':';
+        public const char TagLeftChar = '<';
+        public const char TagRightChar = '>';
+        public HtmlTextWriter(System.IO.TextWriter writer) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public HtmlTextWriter(System.IO.TextWriter writer, string tabString) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override System.Text.Encoding Encoding { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public int Indent { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public System.IO.TextWriter InnerWriter { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} [System.Runtime.CompilerServices.CompilerGeneratedAttribute]set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public override string NewLine { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        protected System.Web.UI.HtmlTextWriterTag TagKey { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        protected string TagName { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public virtual void AddAttribute(string name, string value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void AddAttribute(string name, string value, bool fEndode) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected virtual void AddAttribute(string name, string value, System.Web.UI.HtmlTextWriterAttribute key) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void AddAttribute(System.Web.UI.HtmlTextWriterAttribute key, string value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void AddAttribute(System.Web.UI.HtmlTextWriterAttribute key, string value, bool fEncode) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void AddStyleAttribute(string name, string value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected virtual void AddStyleAttribute(string name, string value, System.Web.UI.HtmlTextWriterStyle key) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void AddStyleAttribute(System.Web.UI.HtmlTextWriterStyle key, string value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void BeginRender() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void Close() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected string EncodeAttributeValue(string value, bool fEncode) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected virtual string EncodeAttributeValue(System.Web.UI.HtmlTextWriterAttribute attrKey, string value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected string EncodeUrl(string url) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void EndRender() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected virtual void FilterAttributes() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void Flush() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected System.Web.UI.HtmlTextWriterAttribute GetAttributeKey(string attrName) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected string GetAttributeName(System.Web.UI.HtmlTextWriterAttribute attrKey) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected System.Web.UI.HtmlTextWriterStyle GetStyleKey(string styleName) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected string GetStyleName(System.Web.UI.HtmlTextWriterStyle styleKey) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected virtual System.Web.UI.HtmlTextWriterTag GetTagKey(string tagName) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected virtual string GetTagName(System.Web.UI.HtmlTextWriterTag tagKey) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected bool IsAttributeDefined(System.Web.UI.HtmlTextWriterAttribute key) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected bool IsAttributeDefined(System.Web.UI.HtmlTextWriterAttribute key, out string value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected bool IsStyleAttributeDefined(System.Web.UI.HtmlTextWriterStyle key) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected bool IsStyleAttributeDefined(System.Web.UI.HtmlTextWriterStyle key, out string value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual bool IsValidFormAttribute(string attribute) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected virtual bool OnAttributeRender(string name, string value, System.Web.UI.HtmlTextWriterAttribute key) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected virtual bool OnStyleAttributeRender(string name, string value, System.Web.UI.HtmlTextWriterStyle key) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected virtual bool OnTagRender(string name, System.Web.UI.HtmlTextWriterTag key) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected virtual void OutputTabs() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected string PopEndTag() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected void PushEndTag(string endTag) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected static void RegisterAttribute(string name, System.Web.UI.HtmlTextWriterAttribute key) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected static void RegisterStyle(string name, System.Web.UI.HtmlTextWriterStyle key) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected static void RegisterTag(string name, System.Web.UI.HtmlTextWriterTag key) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected virtual string RenderAfterContent() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected virtual string RenderAfterTag() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected virtual string RenderBeforeContent() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected virtual string RenderBeforeTag() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void RenderBeginTag(string tagName) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void RenderBeginTag(System.Web.UI.HtmlTextWriterTag tagKey) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void RenderEndTag() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void Write(bool value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void Write(char value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void Write(char[] buffer) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void Write(char[] buffer, int index, int count) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void Write(double value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void Write(int value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void Write(long value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void Write(object value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void Write(float value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void Write(string value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void Write(string format, object arg0) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void Write(string format, object arg0, object arg1) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void Write(string format, params object[] arg) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void WriteAttribute(string name, string value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void WriteAttribute(string name, string value, bool fEncode) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void WriteBeginTag(string tagName) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void WriteBreak() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void WriteEncodedText(string text) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void WriteEncodedUrl(string url) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void WriteEncodedUrlParameter(string urlText) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void WriteEndTag(string tagName) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void WriteFullBeginTag(string tagName) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void WriteLine() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void WriteLine(bool value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void WriteLine(char value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void WriteLine(char[] buffer) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void WriteLine(char[] buffer, int index, int count) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void WriteLine(double value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void WriteLine(int value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void WriteLine(long value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void WriteLine(object value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void WriteLine(float value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void WriteLine(string value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void WriteLine(string format, object arg0) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void WriteLine(string format, object arg0, object arg1) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void WriteLine(string format, params object[] arg) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void WriteLine(uint value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public void WriteLineNoTabs(string s) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void WriteStyleAttribute(string name, string value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void WriteStyleAttribute(string name, string value, bool fEncode) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        protected void WriteUrlEncodedString(string text, bool argument) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+    }
+    public enum HtmlTextWriterAttribute
+    {
+        Abbr = 40,
+        Accesskey = 0,
+        Align = 1,
+        Alt = 2,
+        AutoComplete = 41,
+        Axis = 42,
+        Background = 3,
+        Bgcolor = 4,
+        Border = 5,
+        Bordercolor = 6,
+        Cellpadding = 7,
+        Cellspacing = 8,
+        Checked = 9,
+        Class = 10,
+        Cols = 11,
+        Colspan = 12,
+        Content = 43,
+        Coords = 44,
+        DesignerRegion = 45,
+        Dir = 46,
+        Disabled = 13,
+        For = 14,
+        Headers = 47,
+        Height = 15,
+        Href = 16,
+        Id = 17,
+        Longdesc = 48,
+        Maxlength = 18,
+        Multiple = 19,
+        Name = 20,
+        Nowrap = 21,
+        Onchange = 22,
+        Onclick = 23,
+        ReadOnly = 24,
+        Rel = 49,
+        Rows = 25,
+        Rowspan = 26,
+        Rules = 27,
+        Scope = 50,
+        Selected = 28,
+        Shape = 51,
+        Size = 29,
+        Src = 30,
+        Style = 31,
+        Tabindex = 32,
+        Target = 33,
+        Title = 34,
+        Type = 35,
+        Usemap = 52,
+        Valign = 36,
+        Value = 37,
+        VCardName = 53,
+        Width = 38,
+        Wrap = 39,
+    }
+    public enum HtmlTextWriterStyle
+    {
+        BackgroundColor = 0,
+        BackgroundImage = 1,
+        BorderCollapse = 2,
+        BorderColor = 3,
+        BorderStyle = 4,
+        BorderWidth = 5,
+        Color = 6,
+        Cursor = 16,
+        Direction = 17,
+        Display = 18,
+        Filter = 19,
+        FontFamily = 7,
+        FontSize = 8,
+        FontStyle = 9,
+        FontVariant = 20,
+        FontWeight = 10,
+        Height = 11,
+        Left = 21,
+        ListStyleImage = 14,
+        ListStyleType = 15,
+        Margin = 22,
+        MarginBottom = 23,
+        MarginLeft = 24,
+        MarginRight = 25,
+        MarginTop = 26,
+        Overflow = 27,
+        OverflowX = 28,
+        OverflowY = 29,
+        Padding = 30,
+        PaddingBottom = 31,
+        PaddingLeft = 32,
+        PaddingRight = 33,
+        PaddingTop = 34,
+        Position = 35,
+        TextAlign = 36,
+        TextDecoration = 12,
+        TextOverflow = 38,
+        Top = 39,
+        VerticalAlign = 37,
+        Visibility = 40,
+        WhiteSpace = 41,
+        Width = 13,
+        ZIndex = 42,
+    }
+    public enum HtmlTextWriterTag
+    {
+        A = 1,
+        Acronym = 2,
+        Address = 3,
+        Area = 4,
+        B = 5,
+        Base = 6,
+        Basefont = 7,
+        Bdo = 8,
+        Bgsound = 9,
+        Big = 10,
+        Blockquote = 11,
+        Body = 12,
+        Br = 13,
+        Button = 14,
+        Caption = 15,
+        Center = 16,
+        Cite = 17,
+        Code = 18,
+        Col = 19,
+        Colgroup = 20,
+        Dd = 21,
+        Del = 22,
+        Dfn = 23,
+        Dir = 24,
+        Div = 25,
+        Dl = 26,
+        Dt = 27,
+        Em = 28,
+        Embed = 29,
+        Fieldset = 30,
+        Font = 31,
+        Form = 32,
+        Frame = 33,
+        Frameset = 34,
+        H1 = 35,
+        H2 = 36,
+        H3 = 37,
+        H4 = 38,
+        H5 = 39,
+        H6 = 40,
+        Head = 41,
+        Hr = 42,
+        Html = 43,
+        I = 44,
+        Iframe = 45,
+        Img = 46,
+        Input = 47,
+        Ins = 48,
+        Isindex = 49,
+        Kbd = 50,
+        Label = 51,
+        Legend = 52,
+        Li = 53,
+        Link = 54,
+        Map = 55,
+        Marquee = 56,
+        Menu = 57,
+        Meta = 58,
+        Nobr = 59,
+        Noframes = 60,
+        Noscript = 61,
+        Object = 62,
+        Ol = 63,
+        Option = 64,
+        P = 65,
+        Param = 66,
+        Pre = 67,
+        Q = 68,
+        Rt = 69,
+        Ruby = 70,
+        S = 71,
+        Samp = 72,
+        Script = 73,
+        Select = 74,
+        Small = 75,
+        Span = 76,
+        Strike = 77,
+        Strong = 78,
+        Style = 79,
+        Sub = 80,
+        Sup = 81,
+        Table = 82,
+        Tbody = 83,
+        Td = 84,
+        Textarea = 85,
+        Tfoot = 86,
+        Th = 87,
+        Thead = 88,
+        Title = 89,
+        Tr = 90,
+        Tt = 91,
+        U = 92,
+        Ul = 93,
+        Unknown = 0,
+        Var = 94,
+        Wbr = 95,
+        Xml = 96,
     }
 }
