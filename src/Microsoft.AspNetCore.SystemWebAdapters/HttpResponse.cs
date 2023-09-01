@@ -81,8 +81,8 @@ namespace System.Web
         [AllowNull]
         public Stream Filter
         {
-            get => _response.HttpContext.Features.GetRequired<IHttpResponseFilterFeature>().Filter;
-            set => _response.HttpContext.Features.GetRequired<IHttpResponseFilterFeature>().Filter = value;
+            get => _response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().Filter;
+            set => _response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().Filter = value;
         }
 
         public HttpCookieCollection Cookies => _cookies ??= new(this);

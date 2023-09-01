@@ -66,7 +66,6 @@ internal sealed class RegisterAdapterFeaturesMiddleware
         context.Features.Set<IHttpResponseBufferingFeature>(adapterFeature);
         context.Features.Set<IHttpResponseEndFeature>(adapterFeature);
         context.Features.Set<IHttpResponseContentFeature>(adapterFeature);
-        context.Features.Set<IHttpResponseFilterFeature>(adapterFeature);        
 
         context.Response.RegisterForDisposeAsync(adapterFeature);
 
@@ -76,7 +75,6 @@ internal sealed class RegisterAdapterFeaturesMiddleware
             context.Features.Set<IHttpResponseBufferingFeature>(null);
             context.Features.Set<IHttpResponseEndFeature>(null);
             context.Features.Set<IHttpResponseContentFeature>(null);
-            context.Features.Set<IHttpResponseFilterFeature>(null);
         });
     }
 

@@ -19,8 +19,7 @@ internal class HttpResponseAdapterFeature :
     IHttpResponseBodyFeature,
     IHttpResponseBufferingFeature,
     IHttpResponseEndFeature,
-    IHttpResponseContentFeature,
-    IHttpResponseFilterFeature
+    IHttpResponseContentFeature
 {
     private enum StreamState
     {
@@ -205,7 +204,7 @@ internal class HttpResponseAdapterFeature :
     }
 
     [AllowNull]
-    Stream IHttpResponseFilterFeature.Filter
+    Stream IHttpResponseBufferingFeature.Filter
     {
         get
         {
