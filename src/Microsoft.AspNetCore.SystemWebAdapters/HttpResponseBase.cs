@@ -63,6 +63,8 @@ namespace System.Web
             set => throw new NotImplementedException();
         }
 
+        public virtual bool BufferOutput  => throw new NotImplementedException();
+
         public virtual Stream OutputStream => throw new NotImplementedException();
 
         public virtual HttpCookieCollection Cookies => throw new NotImplementedException();

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -210,6 +211,28 @@ public class ResponseStreamTests
         }, builder => builder.BufferResponseStream());
 
         Assert.Equal("part4", result);
+    }
+
+    [Fact]
+    public async Task BufferOutputIsNotEnabled()
+    {
+        var result = await RunAsync(context =>
+        {
+            context.Response.Write(context.Response.BufferOutput.ToString());
+        });
+
+        Assert.Equal("False", result);
+    }
+
+    [Fact]
+    public async Task BufferedOutputIsEnabled()
+    {
+        var result = await RunAsync(context =>
+        {
+            context.Response.Write(context.Response.BufferOutput.ToString());
+        }, builder => builder.BufferResponseStream());
+
+        Assert.Equal("True", result);
     }
 
     private static Task<string> RunAsync(Action<HttpContext> action, Action<IEndpointConventionBuilder>? builder = null)
