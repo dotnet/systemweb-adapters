@@ -63,4 +63,14 @@ public class MvcSampleTest : PageTest
         await Page.GotoAsync(MvcCoreAppUrl);
         await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
     }
+
+    [Test]
+    public async Task MVCCoreRespondsWithURLDecodedCookies()
+    {
+        await Page.GotoAsync($"{MvcCoreAppUrl}api/test/response/cookie");
+
+        var cookies = await Page.Context.CookiesAsync();
+
+        Assert.That(cookies.First(x => x.Name == "cookie1").Value, Is.EqualTo("cookie1|value"));
+    }
 }

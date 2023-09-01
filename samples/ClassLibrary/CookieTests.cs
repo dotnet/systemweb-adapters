@@ -36,6 +36,7 @@ public class CookieTests
             context.Response.Cookies.Add(new HttpCookie("cookie1", "cookie1|value") { Shareable = shareable });
             writer.Write("AfterAddCount", context.Response.Cookies.Count);
             writer.Write("AfterAddHeader", context.Response.Headers["set-cookie"]);
+            writer.Write("AfterAddHeaderCookie", context.Response.Headers["cookie"]);
         }
 
         context.Response.End();
