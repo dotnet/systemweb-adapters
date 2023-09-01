@@ -12,7 +12,7 @@ public class CookieTests
             writer.Write("InitialHeader", context.Request.Headers["cookie"]);
 
             // Add cookie
-            context.Request.Cookies.Add(new HttpCookie("cookie1", "cookie1value"));
+            context.Request.Cookies.Add(new HttpCookie("cookie1", "cookie1|value"));
             writer.Write("AfterAddCount", context.Request.Cookies.Count);
             writer.Write("AfterAddHeader", context.Request.Headers["cookie"]);
 
@@ -33,7 +33,7 @@ public class CookieTests
             writer.Write("InitialHeader", context.Response.Headers["cookie"]);
 
             // Add cookie
-            context.Response.Cookies.Add(new HttpCookie("cookie1", "cookie1value") { Shareable = shareable });
+            context.Response.Cookies.Add(new HttpCookie("cookie1", "cookie1|value") { Shareable = shareable });
             writer.Write("AfterAddCount", context.Response.Cookies.Count);
             writer.Write("AfterAddHeader", context.Response.Headers["set-cookie"]);
         }
