@@ -7,7 +7,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using Microsoft.AspNetCore.SystemWebAdapters.Utilities;
 
 namespace System.Web.UI;
 
@@ -1261,7 +1260,7 @@ public class HtmlTextWriter : TextWriter
         for (var i = 0; i < length; i++)
         {
             var ch = text[i];
-            if (HttpEncoderUtility.IsUrlSafeChar(ch))
+            if (IsUrlSafeChar(ch))
             {
                 Write(ch);
             }
@@ -1284,8 +1283,8 @@ public class HtmlTextWriter : TextWriter
             else if ((ch & 0xff80) == 0)
             {
                 Write('%');
-                Write(HttpEncoderUtility.IntToHex((ch >> 4) & 0xf));
-                Write(HttpEncoderUtility.IntToHex((ch) & 0xf));
+                Write(IntToHex((ch >> 4) & 0xf));
+                Write(IntToHex((ch) & 0xf));
             }
             else
             {
@@ -1294,11 +1293,28 @@ public class HtmlTextWriter : TextWriter
                 Write(HttpUtility.UrlEncode(char.ToString(ch), Encoding.UTF8));
             }
         }
+
+        // Set of safe chars, from RFC 1738.4 minus '+'
+        static bool IsUrlSafeChar(char ch) => ch switch
+        {
+            >= 'a' and <= 'z' => true,
+            >= 'A' and <= 'Z' => true,
+            >= '0' and <= '9' => true,
+            '-' or '_' or '.' or '!' or '*' or '(' or ')' => true,
+            _ => false,
+        };
     }
 
     internal void WriteHtmlAttributeEncode(string s)
     {
         HttpUtility.HtmlAttributeEncode(s, InnerWriter);
+    }
+
+    private static char IntToHex(int n)
+    {
+        Debug.Assert(n < 0x10);
+
+        return n <= 9 ? (char)(n + '0') : (char)(n - 10 + 'a');
     }
 
     private readonly record struct TagStackEntry(HtmlTextWriterTag Tag, string? Text);
