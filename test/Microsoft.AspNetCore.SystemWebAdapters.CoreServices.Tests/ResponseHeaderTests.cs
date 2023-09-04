@@ -37,6 +37,27 @@ public class ResponseHeaderTests
     }
 
     [Fact]
+    public async Task SetMultipleCookie()
+    {
+        // Arrange
+        var cookie1 = new HttpCookie("test1", Guid.NewGuid().ToString());
+        var cookie2 = new HttpCookie("test2", Guid.NewGuid().ToString());
+
+        // Act
+        var result = await RunAsync(context =>
+        {
+            context.Response.Cookies.Add(cookie1);
+            context.Response.Cookies.Add(cookie2);
+        });
+
+        // Assert
+        var cookies = result.Headers.GetValues(HeaderNames.SetCookie).ToList();
+        Assert.Equal(2, cookies.Count);
+        Assert.Equal($"test1={cookie1.Value}; path=/; samesite=lax", cookies.First());
+        Assert.Equal($"test2={cookie2.Value}; path=/; samesite=lax", cookies.Last());
+    }
+
+    [Fact]
     public async Task SetCookieWithPath()
     {
         var result = await RunAsync(context =>
@@ -107,7 +128,7 @@ public class ResponseHeaderTests
                         app.UseSystemWebAdapters();
                         app.UseEndpoints(endpoints =>
                         {
-                            builder(endpoints.Map("/", (HttpContextCore context) => action(context)));
+                            builder(endpoints.Map("/", (context) => action(context)));
                         });
                     });
             })

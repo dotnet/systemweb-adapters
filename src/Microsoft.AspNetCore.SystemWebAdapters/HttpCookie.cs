@@ -2,8 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Specialized;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
+using Microsoft.Net.Http.Headers;
 
 namespace System.Web;
 
@@ -152,13 +152,13 @@ public sealed class HttpCookie
     /// </summary>
     public string? Domain { get; set; }
 
-    internal CookieOptions ToCookieOptions() => new()
+    internal SetCookieHeaderValue ToSetCookieHeaderValue() => new(Name, Value)
     {
         Domain = Domain,
         Expires = (Expires == DateTime.MinValue) ? null : new DateTimeOffset(Expires),
         HttpOnly = HttpOnly,
         Path = Path,
-        SameSite = (Microsoft.AspNetCore.Http.SameSiteMode)SameSite,
+        SameSite = (Microsoft.Net.Http.Headers.SameSiteMode)SameSite,
         Secure = Secure,
     };
 }
