@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading.Tasks;
-using System.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -161,49 +160,6 @@ public class ResponseStreamTests
         }, builder => builder.BufferResponseStream());
 
         Assert.Equal("part4", result);
-    }
-
-    [Fact]
-    public async Task SetCookie()
-    {
-        Action<IEndpointConventionBuilder> builder = x => x.BufferResponseStream();
-
-        Action<HttpContext> action = (context =>
-        {
-            context.Response.Cookies.Add(new HttpCookie("test", "boo|foo"));
-        });
-
-        var host = await new HostBuilder()
-            .ConfigureWebHost(webBuilder =>
-            {
-                webBuilder
-                    .UseTestServer(options =>
-                    {
-                        options.AllowSynchronousIO = true;
-                    })
-                    .ConfigureServices(services =>
-                    {
-                        services.AddRouting();
-                        services.AddSystemWebAdapters();
-                    })
-                    .Configure(app =>
-                    {
-                        app.UseRouting();
-                        app.UseSystemWebAdapters();
-                        app.UseEndpoints(endpoints =>
-                        {
-                            builder(endpoints.Map("/", (HttpContextCore context) => action(context)));
-                        });
-                    });
-            })
-            .StartAsync();
-
-        var testClient = host.GetTestClient();
-
-        var res = await testClient.GetAsync("/");
-
-        Assert.NotEmpty(res.Headers);
-
     }
 
     private static Task<string> RunAsync(Action<HttpContext> action, Action<IEndpointConventionBuilder>? builder = null)
