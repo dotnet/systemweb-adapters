@@ -152,8 +152,9 @@ public sealed class HttpCookie
     /// </summary>
     public string? Domain { get; set; }
 
-    internal SetCookieHeaderValue ToSetCookieHeaderValue() => new(Name, Value)
+    internal SetCookieHeaderValue ToSetCookieHeaderValue() => new(Name)
     {
+        Value = Value ?? string.Empty,
         Domain = Domain,
         Expires = (Expires == DateTime.MinValue) ? null : new DateTimeOffset(Expires),
         HttpOnly = HttpOnly,
