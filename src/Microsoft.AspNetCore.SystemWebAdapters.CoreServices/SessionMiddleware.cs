@@ -31,9 +31,33 @@ internal partial class SessionMiddleware
     }
 
     public Task InvokeAsync(HttpContextCore context)
-        => context.GetEndpoint()?.Metadata.GetMetadata<SessionAttribute>() is { Behavior: not SessionBehavior.None } metadata
+    {
+        var feature = context.Features.Get<ISessionStateFeature>();
+        var metadata = context.GetEndpoint()?.Metadata.GetMetadata<SessionAttribute>();
+
+        if (feature != null && feature.State != SessionStateBehavior.Default)
+        {
+            // override metadata
+            metadata = metadata ?? new SessionAttribute();
+            switch (feature.State)
+            {
+                case SessionStateBehavior.Disabled:
+                    metadata.Behavior = SessionBehavior.None;
+                    break;
+                case SessionStateBehavior.ReadOnly:
+                    metadata.IsReadOnly = true;
+                    break;
+                case SessionStateBehavior.Required:
+                    metadata.Behavior = SessionBehavior.Preload;
+                    break;
+            }
+        }
+
+        return metadata is { Behavior: not SessionBehavior.None }
             ? ManageStateAsync(context, metadata)
             : _next(context);
+    }
+        
 
     private async Task ManageStateAsync(HttpContextCore context, SessionAttribute metadata)
     {
