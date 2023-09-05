@@ -92,19 +92,6 @@ public class HttpContext : IServiceProvider
 
     public HttpSessionState? Session => _context.Features.Get<HttpSessionState>();
 
-    public void SetSessionStateBehavior(SessionStateBehavior sessionStateBehavior)
-    {
-        if (_context.Features.Get<ISessionStateFeature>() is { } feature)
-        {
-            feature.State = sessionStateBehavior;
-        }
-        else
-        {
-            var newFeature = new SessionStateFeature() { State = sessionStateBehavior };
-            _context.Features.Set<ISessionStateFeature>(newFeature);
-        }
-    }
-
     public DateTime Timestamp { get; } = DateTime.UtcNow.ToLocalTime();
 
     public void RewritePath(string path) => RewritePath(path, true);
@@ -165,6 +152,18 @@ public class HttpContext : IServiceProvider
         var token = new DisposeOnPipelineSubscriptionToken(target);
         _context.Response.RegisterForDispose(token);
         return token;
+    }
+    public void SetSessionStateBehavior(SessionStateBehavior sessionStateBehavior)
+    {
+        if (_context.Features.Get<ISessionStateFeature>() is { } feature)
+        {
+            feature.State = sessionStateBehavior;
+        }
+        else
+        {
+            var newFeature = new SessionStateFeature() { State = sessionStateBehavior };
+            _context.Features.Set<ISessionStateFeature>(newFeature);
+        }
     }
 
     [return: NotNullIfNotNull(nameof(context))]
