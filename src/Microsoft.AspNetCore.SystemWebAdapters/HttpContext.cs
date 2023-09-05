@@ -166,6 +166,18 @@ public class HttpContext : IServiceProvider
         _context.Response.RegisterForDispose(token);
         return token;
     }
+    public void SetSessionStateBehavior(SessionStateBehavior sessionStateBehavior)
+    {
+        if (_context.Features.Get<ISessionStateFeature>() is { } feature)
+        {
+            feature.State = sessionStateBehavior;
+        }
+        else
+        {
+            var newFeature = new SessionStateFeature() { State = sessionStateBehavior };
+            _context.Features.Set<ISessionStateFeature>(newFeature);
+        }
+    }
 
     [return: NotNullIfNotNull(nameof(context))]
     public static implicit operator HttpContext?(HttpContextCore? context) => context?.GetAdapter();

@@ -186,6 +186,7 @@ namespace System.Web
         public virtual void RewritePath(string path, bool rebaseClientPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual void RewritePath(string filePath, string pathInfo, string queryString) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual void RewritePath(string filePath, string pathInfo, string queryString, bool setClientFilePath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void SetSessionStateBehavior(System.Web.SessionState.SessionStateBehavior sessionStateBehavior) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
     public partial class HttpContextWrapper : System.Web.HttpContextBase
     {
@@ -211,6 +212,7 @@ namespace System.Web
         public override void RewritePath(string path, bool rebaseClientPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override void RewritePath(string filePath, string pathInfo, string queryString) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override void RewritePath(string filePath, string pathInfo, string queryString, bool setClientFilePath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void SetSessionStateBehavior(System.Web.SessionState.SessionStateBehavior sessionStateBehavior) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
     public sealed partial class HttpCookie
     {
