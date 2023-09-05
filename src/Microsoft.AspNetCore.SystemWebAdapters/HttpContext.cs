@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Internal;
+using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -91,6 +93,19 @@ public class HttpContext : IServiceProvider
     public HttpSessionState? Session => _context.Features.Get<HttpSessionState>();
 
     public DateTime Timestamp => _context.Features.GetRequired<ITimestampFeature>().Timestamp.DateTime;
+
+    public void SetSessionStateBehavior(SessionStateBehavior sessionStateBehavior)
+    {
+        if (_context.Features.Get<ISessionStateFeature>() is { } feature)
+        {
+            feature.State = sessionStateBehavior;
+        }
+        else
+        {
+            var newFeature = new SessionStateFeature() { State = sessionStateBehavior };
+            _context.Features.Set<ISessionStateFeature>(newFeature);
+        }
+    }
 
     public void RewritePath(string path) => RewritePath(path, true);
 
