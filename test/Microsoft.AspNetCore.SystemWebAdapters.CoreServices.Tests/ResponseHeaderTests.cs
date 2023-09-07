@@ -25,7 +25,7 @@ public class ResponseHeaderTests
     [Fact]
     public async Task SetCookie()
     {
-        var result = await RunAsync(context =>
+        using var result = await RunAsync(context =>
         {
             var cookie = new HttpCookie("test", ContentValue);
             context.Response.Cookies.Add(cookie);
@@ -44,7 +44,7 @@ public class ResponseHeaderTests
         var cookie2 = new HttpCookie("test2", Guid.NewGuid().ToString());
 
         // Act
-        var result = await RunAsync(context =>
+        using var result = await RunAsync(context =>
         {
             context.Response.Cookies.Add(cookie1);
             context.Response.Cookies.Add(cookie2);
@@ -60,7 +60,7 @@ public class ResponseHeaderTests
     [Fact]
     public async Task SetCookieWithPath()
     {
-        var result = await RunAsync(context =>
+        using var result = await RunAsync(context =>
         {
             var cookie = new HttpCookie("test", ContentValue) { Path = "/abc" };
             context.Response.Cookies.Add(cookie);
@@ -72,7 +72,7 @@ public class ResponseHeaderTests
     [Fact]
     public async Task SetCookieSameSite()
     {
-        var result = await RunAsync(context =>
+        using var result = await RunAsync(context =>
         {
             var cookie = new HttpCookie("test", ContentValue) { SameSite = SameSiteMode.None };
             context.Response.Cookies.Add(cookie);
@@ -89,7 +89,7 @@ public class ResponseHeaderTests
         var cookie = new HttpCookie("test", cookieValue) { SameSite = SameSiteMode.None };
 
         // Act
-        var result = await RunAsync(context =>
+        using var result = await RunAsync(context =>
         {
             context.Response.Cookies.Add(cookie);
         });
