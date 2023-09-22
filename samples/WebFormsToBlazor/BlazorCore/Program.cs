@@ -1,6 +1,11 @@
+using System.Collections.Concurrent;
 using BlazorCore;
 using BlazorCore.Data;
+using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,8 +25,17 @@ var app = builder.Build();
 app.UseStaticFiles();
 app.UseRouting();
 
-app.MapBlazorHub();
+app.MapBlazorHub(options =>
+{
+
+});
 app.MapBlazorPages("/_Host");
 app.MapReverseProxy();
 
 app.Run();
+
+class Hanlder : CircuitHandler
+{
+  
+}
+

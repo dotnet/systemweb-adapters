@@ -8,6 +8,7 @@ using System.Web.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Blazor;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,7 @@ public static class SystemWebAdaptersExtensions
         services.AddSingleton<IBrowserCapabilitiesFactory, BrowserCapabilitiesFactory>();
         services.AddTransient<IStartupFilter, HttpContextStartupFilter>();
         services.AddHostingRuntime();
+        services.AddBlazorSupport();
 
         return new SystemWebAdapterBuilder(services)
             .AddMvc();
