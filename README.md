@@ -45,6 +45,46 @@ The following steps are needed to use the `System.Web` adapters with an ASP.NET 
      ```csharp
      app.UseSystemWebAdapters();
      ```
+### Tests
+
+In most cases, there's no need to set up additional components for running tests, but if the subject under test makes use of `HttpRuntime`, you may need to start up the `SystemWebAdapters` service as outlined below:
+
+```csharp
+public class RuntimeTests
+{
+    /// <summary>
+    /// This starts up a host in the background that allows us to initialize <see cref="HttpRuntime"/> and <see cref="HostingEnvironment"/>
+    /// </summary>
+    public static async Task<IDisposable> EnableRuntimeAsync(CancellationToken token = default)
+        => await new HostBuilder()
+            .ConfigureWebHost(webBuilder =>
+            {
+                webBuilder
+                    .UseTestServer()
+                    .ConfigureServices(services =>
+                    {
+                        services.AddSystemWebAdapters();
+                    })
+                    .Configure(app =>
+                    {
+                        // No need to configure pipeline for tests
+                    });
+            })
+            .StartAsync(token);
+
+    [Fact]
+    public async Task RuntimeEnabled()
+    {
+        using (await EnableRuntimeAsync(options => options.AppDomainAppPath = "path"))
+        {
+            Assert.True(HostingEnvironment.IsHosted);
+            Assert.Equal("path", HttpRuntime.AppDomainAppPath);
+        }
+
+        Assert.False(HostingEnvironment.IsHosted);
+    }
+}
+```
 
 ## Supported Targets
 
