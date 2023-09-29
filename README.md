@@ -47,15 +47,16 @@ The following steps are needed to use the `System.Web` adapters with an ASP.NET 
      ```
 ### Tests
 
-In most cases, there's no need to set up additional components for running tests, but if the subject under test makes use of `HttpRuntime`, you may need to start up the `SystemWebAdapters` service as outlined below:
+In most cases, there is no need to set up additional components for running tests, but if the subject under test makes use of `HttpRuntime`, you may need to start up the `SystemWebAdapters` service as outlined below:
 
 ```csharp
 public class RuntimeTests
 {
     /// <summary>
     /// This starts up a host in the background that allows us to initialize <see cref="HttpRuntime"/> and <see cref="HostingEnvironment"/>
+    /// <param name="configure">Configuration for the hosting and runtime options.</param>
     /// </summary>
-    public static async Task<IDisposable> EnableRuntimeAsync(CancellationToken token = default)
+    public static async Task<IDisposable> EnableRuntimeAsync(Action<SystemWebAdaptersOptions>? configure = null, CancellationToken token = default)
         => await new HostBuilder()
             .ConfigureWebHost(webBuilder =>
             {
@@ -64,6 +65,12 @@ public class RuntimeTests
                     .ConfigureServices(services =>
                     {
                         services.AddSystemWebAdapters();
+
+                        if (configure is not null)
+                        {
+                            services.AddOptions<SystemWebAdaptersOptions>()
+                            .Configure(configure);
+                        }
                     })
                     .Configure(app =>
                     {
@@ -75,7 +82,7 @@ public class RuntimeTests
     [Fact]
     public async Task RuntimeEnabled()
     {
-        using (await EnableRuntimeAsync(options => options.AppDomainAppPath = "path"))
+        using (await EnableRuntimeAsync())
         {
             Assert.True(HostingEnvironment.IsHosted);
             Assert.Equal("path", HttpRuntime.AppDomainAppPath);
