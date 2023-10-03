@@ -23,9 +23,9 @@ public class HttpServerUtility
     public string MapPath(string? path)
         => _context.RequestServices.GetRequiredService<IMapPathUtility>().MapPath(_context.Request.Path, path);
 
-    public Exception? GetLastError() => _context.GetAdapter().Error;
+    public Exception? GetLastError() => _context.GetSystemWebHttpContext().Error;
 
-    public void ClearError() => _context.GetAdapter().ClearError();
+    public void ClearError() => _context.GetSystemWebHttpContext().ClearError();
 
     /// <summary>
     /// This method is similar to <see cref="WebEncoders.Base64UrlDecode(string)"/> but handles the trailing character that <see cref="UrlTokenEncode(byte[])"/>

@@ -65,7 +65,7 @@ public class SetDefaultResponseHeadersMiddlewareTests
 
         var next = Task (HttpContextCore context) =>
         {
-            var adapter = context.GetAdapter();
+            var adapter = context.GetSystemWebHttpContext();
             adapter.Response.AppendHeader(name, value);
 
             return Task.CompletedTask;

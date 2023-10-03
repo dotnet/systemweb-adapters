@@ -18,7 +18,7 @@ internal sealed class SessionEventsMiddleware
     public async Task InvokeAsync(HttpContextCore context)
     {
         var app = context.Features.GetRequired<IHttpApplicationFeature>();
-        var session = context.GetAdapter().Session;
+        var session = context.GetSystemWebHttpContext().Session;
 
         if (session is { IsNewSession: true })
         {

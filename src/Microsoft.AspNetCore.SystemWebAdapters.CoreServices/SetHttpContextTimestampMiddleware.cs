@@ -15,7 +15,7 @@ internal class SetHttpContextTimestampMiddleware
     public Task InvokeAsync(HttpContext context)
     {
         // Ensure adapter is created to force timestamp to be set
-        _ = context.GetAdapter();
+        _ = context.GetSystemWebHttpContext();
 
         return _next(context);
     }

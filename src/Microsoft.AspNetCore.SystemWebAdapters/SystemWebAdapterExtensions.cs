@@ -11,29 +11,29 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 public static class SystemWebAdapterExtensions
 {
     [return: NotNullIfNotNull(nameof(request))]
-    public static HttpRequest? GetAdapter(this HttpRequestCore? request)
-        => request?.HttpContext.GetAdapter().Request;
+    public static HttpRequest? GetSystemWebRequest(this HttpRequestCore? request)
+        => request?.HttpContext.GetSystemWebHttpContext().Request;
 
     [return: NotNullIfNotNull(nameof(request))]
-    public static HttpRequestBase? GetAdapterBase(this HttpRequestCore? request)
-        => request?.HttpContext.GetAdapterBase().Request;
+    public static HttpRequestBase? GetSystemWebRequestBase(this HttpRequestCore? request)
+        => request?.HttpContext.GetSystemWebHttpContextBase().Request;
 
     [return: NotNullIfNotNull(nameof(request))]
-    public static HttpRequestCore? UnwrapAdapter(this HttpRequest? request) => request;
+    public static HttpRequestCore? GetCoreRequest(this HttpRequest? request) => request;
 
     [return: NotNullIfNotNull(nameof(response))]
-    public static HttpResponse? GetAdapter(this HttpResponseCore? response)
-        => response?.HttpContext.GetAdapter().Response;
+    public static HttpResponse? GetSystemWebResponse(this HttpResponseCore? response)
+        => response?.HttpContext.GetSystemWebHttpContext().Response;
 
     [return: NotNullIfNotNull(nameof(response))]
-    public static HttpResponseBase? GetAdapterBase(this HttpResponseCore? response)
-        => response?.HttpContext.GetAdapterBase().Response;
+    public static HttpResponseBase? GetSystemWebResponseBase(this HttpResponseCore? response)
+        => response?.HttpContext.GetSystemWebHttpContextBase().Response;
 
     [return: NotNullIfNotNull(nameof(response))]
-    public static HttpResponseCore? UnwrapAdapter(this HttpResponse? response) => response;
+    public static HttpResponseCore? GetCoreResponse(this HttpResponse? response) => response;
 
     [return: NotNullIfNotNull(nameof(context))]
-    public static HttpContext? GetAdapter(this HttpContextCore? context)
+    public static HttpContext? GetSystemWebHttpContext(this HttpContextCore? context)
     {
         if (context is null)
         {
@@ -52,10 +52,10 @@ public static class SystemWebAdapterExtensions
     }
 
     [return: NotNullIfNotNull(nameof(context))]
-    public static HttpContextCore? UnwrapAdapter(this HttpContext? context) => context;
+    public static HttpContextCore? GetCoreHttpContext(this HttpContext? context) => context;
 
     [return: NotNullIfNotNull(nameof(context))]
-    public static HttpContextBase? GetAdapterBase(this HttpContextCore? context)
+    public static HttpContextBase? GetSystemWebHttpContextBase(this HttpContextCore? context)
     {
         if (context is null)
         {

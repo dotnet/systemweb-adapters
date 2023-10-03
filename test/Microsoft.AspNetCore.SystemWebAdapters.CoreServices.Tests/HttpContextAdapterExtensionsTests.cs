@@ -12,17 +12,17 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         [Fact]
         public void NullTypesReturnNull()
         {
-            Assert.Null(((HttpContextCore)null!).GetAdapter());
-            Assert.Null(((HttpRequestCore)null!).GetAdapter());
-            Assert.Null(((HttpResponseCore)null!).GetAdapter());
+            Assert.Null(((HttpContextCore)null!).GetSystemWebHttpContext());
+            Assert.Null(((HttpRequestCore)null!).GetSystemWebRequest());
+            Assert.Null(((HttpResponseCore)null!).GetSystemWebResponse());
 
-            Assert.Null(((HttpContextCore)null!).GetAdapterBase());
-            Assert.Null(((HttpRequestCore)null!).GetAdapterBase());
-            Assert.Null(((HttpResponseCore)null!).GetAdapterBase());
+            Assert.Null(((HttpContextCore)null!).GetSystemWebHttpContextBase());
+            Assert.Null(((HttpRequestCore)null!).GetSystemWebRequestBase());
+            Assert.Null(((HttpResponseCore)null!).GetSystemWebResponseBase());
 
-            Assert.Null(((HttpContext)null!).UnwrapAdapter());
-            Assert.Null(((HttpRequest)null!).UnwrapAdapter());
-            Assert.Null(((HttpResponse)null!).UnwrapAdapter());
+            Assert.Null(((HttpContext)null!).GetCoreHttpContext());
+            Assert.Null(((HttpRequest)null!).GetCoreRequest());
+            Assert.Null(((HttpResponse)null!).GetCoreResponse());
         }
 
         [Fact]
@@ -31,7 +31,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             var context = new DefaultHttpContext();
             var adapter = new HttpContext(context);
 
-            Assert.Same(context, adapter.UnwrapAdapter());
+            Assert.Same(context, adapter.GetCoreHttpContext());
         }
 
         [Fact]
@@ -39,16 +39,16 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         {
             var context = new DefaultHttpContext();
 
-            var contextAdapter1 = context.GetAdapter();
-            var contextAdapter2 = context.GetAdapter();
+            var contextAdapter1 = context.GetSystemWebHttpContext();
+            var contextAdapter2 = context.GetSystemWebHttpContext();
             Assert.Same(contextAdapter1, contextAdapter2);
 
-            var requestAdapter1 = context.Request.GetAdapter();
-            var requestAdapter2 = context.Request.GetAdapter();
+            var requestAdapter1 = context.Request.GetSystemWebRequest();
+            var requestAdapter2 = context.Request.GetSystemWebRequest();
             Assert.Same(requestAdapter1, requestAdapter2);
 
-            var responseAdapter1 = context.Response.GetAdapter();
-            var responseAdapter2 = context.Response.GetAdapter();
+            var responseAdapter1 = context.Response.GetSystemWebResponse();
+            var responseAdapter2 = context.Response.GetSystemWebResponse();
             Assert.Same(responseAdapter1, responseAdapter2);
         }
 
@@ -56,8 +56,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void AdapterHttpContextBaseIsCached()
         {
             var context = new DefaultHttpContext();
-            var adapterBase1 = context.GetAdapterBase();
-            var adapterBase2 = context.GetAdapterBase();
+            var adapterBase1 = context.GetSystemWebHttpContextBase();
+            var adapterBase2 = context.GetSystemWebHttpContextBase();
 
             Assert.IsType<HttpContextWrapper>(adapterBase1);
             Assert.Same(adapterBase1, adapterBase2);
@@ -67,8 +67,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void AdapterHttpResponseBaseIsCached()
         {
             var context = new DefaultHttpContext();
-            var adapterBase1 = context.Response.GetAdapterBase();
-            var adapterBase2 = context.Response.GetAdapterBase();
+            var adapterBase1 = context.Response.GetSystemWebResponseBase();
+            var adapterBase2 = context.Response.GetSystemWebResponseBase();
 
             Assert.IsType<HttpResponseWrapper>(adapterBase1);
             Assert.Same(adapterBase1, adapterBase2);
@@ -78,8 +78,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void AdapterHttpRequestBaseIsCached()
         {
             var context = new DefaultHttpContext();
-            var adapterBase1 = context.Request.GetAdapterBase();
-            var adapterBase2 = context.Request.GetAdapterBase();
+            var adapterBase1 = context.Request.GetSystemWebRequestBase();
+            var adapterBase2 = context.Request.GetSystemWebRequestBase();
 
             Assert.IsType<HttpRequestWrapper>(adapterBase1);
             Assert.Same(adapterBase1, adapterBase2);

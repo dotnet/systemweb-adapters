@@ -49,7 +49,7 @@ public class HttpCachePolicy
         cacheControl.NoCache = GetCacheability() == HttpCacheability.NoCache;
     }
 
-    private ResponseHeaders Headers => _context.GetAdapter().Response.TypedHeaders;
+    private ResponseHeaders Headers => _context.GetSystemWebHttpContext().Response.TypedHeaders;
 
     public HttpCacheVaryByHeaders VaryByHeaders => _varyByHeaders ??= new();
 

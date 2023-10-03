@@ -12,7 +12,7 @@ public sealed class TraceContext
 
     internal TraceContext(HttpContext context)
     {
-        _context = context.UnwrapAdapter().RequestServices.GetService<ITraceContext>();
+        _context = context.GetCoreHttpContext().RequestServices.GetService<ITraceContext>();
     }
 
     public bool IsEnabled { get; set; }
