@@ -60,6 +60,8 @@ public static class SystemWebAdaptersExtensions
             return;
         }
 
+        app.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
+
         if (app.AreHttpApplicationEventsRequired())
         {
             app.UseMiddleware<HttpApplicationMiddleware>();
@@ -142,7 +144,6 @@ public static class SystemWebAdaptersExtensions
             => builder =>
             {
                 builder.UseMiddleware<SetHttpContextTimestampMiddleware>();
-                builder.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
 
                 next(builder);
             };
