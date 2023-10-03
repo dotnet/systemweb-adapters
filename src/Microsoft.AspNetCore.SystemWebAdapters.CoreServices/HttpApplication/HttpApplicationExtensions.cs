@@ -52,7 +52,6 @@ public static class HttpApplicationExtensions
         });
 
         return builder;
-
     }
 
     public static ISystemWebAdapterBuilder AddHttpApplication<TApp>(this ISystemWebAdapterBuilder builder, Action<HttpApplicationOptions> configure)
