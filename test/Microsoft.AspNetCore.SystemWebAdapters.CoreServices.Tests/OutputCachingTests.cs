@@ -40,10 +40,7 @@ public class OutputCachingTests
                       services.AddRouting();
                       services.AddSystemWebAdapters()
                         .AddHttpApplication<MyApp>();
-                      services.AddOutputCache(options =>
-                      {
-                          //options.AddHttpApplicationBasePolicy(_ => new[] { MyApp.VaryBy });
-                      });
+                      services.AddOutputCache()
                   })
                   .Configure(app =>
                   {
