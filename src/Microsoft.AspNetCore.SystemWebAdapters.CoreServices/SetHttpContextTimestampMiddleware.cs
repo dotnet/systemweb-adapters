@@ -10,39 +10,25 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 internal class SetHttpContextTimestampMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly TimeProvider _timeProvider;
 
-#if NET8_0_OR_GREATER
-    private readonly TimeProvider _time;
-#endif
-
-    public SetHttpContextTimestampMiddleware(
-#if NET8_0_OR_GREATER
-        TimeProvider time,
-#endif
-        RequestDelegate next)
+    public SetHttpContextTimestampMiddleware(TimeProvider timeProvider, RequestDelegate next)
     {
-#if NET8_0_OR_GREATER
-        _time = time;
-#endif
+        _timeProvider = timeProvider;
         _next = next;
     }
 
     public Task InvokeAsync(HttpContext context)
     {
-#if NET8_0_OR_GREATER
-        var dt = _time.GetLocalNow();
-#else
-        var dt = DateTime.UtcNow.ToLocalTime();
-#endif
-        context.Features.Set<TimestampFeature>(new(dt));
+        context.Features.Set<TimestampFeature>(new(_timeProvider));
 
         return _next(context);
     }
 
     private sealed class TimestampFeature : ITimestampFeature
     {
-        public TimestampFeature(DateTimeOffset dt)
-            => Timestamp = dt;
+        public TimestampFeature(TimeProvider timeProvider)
+            => Timestamp = timeProvider.GetLocalNow();
 
         public DateTimeOffset Timestamp { get; }
     }
