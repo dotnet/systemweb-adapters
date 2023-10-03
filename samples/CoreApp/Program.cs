@@ -25,6 +25,8 @@ app.UseSession();
 
 app.UseSystemWebAdapters();
 
+app.MapHostingEnvironmentDetails();
+
 app.MapGroup("/session")
     .MapSessionExample();
 

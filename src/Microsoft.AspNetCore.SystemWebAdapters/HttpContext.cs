@@ -28,6 +28,7 @@ public class HttpContext : IServiceProvider
     private HttpResponse? _response;
     private HttpServerUtility? _server;
     private IDictionary? _items;
+    private TraceContext? _trace;
 
     public static HttpContext? Current => _accessor.HttpContext;
 
@@ -55,6 +56,8 @@ public class HttpContext : IServiceProvider
     }
 
     public HttpServerUtility Server => _server ??= new(_context);
+
+    public TraceContext Trace => _trace ??= new(_context);
 
     public Exception? Error => _context.Features.Get<IRequestExceptionFeature>()?.Exceptions is [{ } error, ..] ? error : null;
 

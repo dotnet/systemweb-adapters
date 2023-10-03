@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 
 namespace System.Web
@@ -50,6 +51,8 @@ namespace System.Web
 
         [SuppressMessage("Design", "CA1056:URI-like properties should not be strings", Justification = Constants.ApiFromAspNet)]
         public string RawUrl => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().RawUrl;
+
+        public string CurrentExecutionFilePath => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().CurrentExecutionFilePath;
 
         public NameValueCollection Headers => _headers ??= _request.Headers.ToNameValueCollection();
 
@@ -186,7 +189,7 @@ namespace System.Web
 
         public string AppRelativeCurrentExecutionFilePath => $"~{FilePath}";
 
-        public string ApplicationPath => _request.HttpContext.RequestServices.GetRequiredService<IHttpRuntime>().AppDomainAppVirtualPath;
+        public string ApplicationPath => _request.HttpContext.RequestServices.GetRequiredService<IOptions<SystemWebAdaptersOptions>>().Value.AppDomainAppVirtualPath;
 
         public Uri? UrlReferrer => TypedHeaders.Referer;
 

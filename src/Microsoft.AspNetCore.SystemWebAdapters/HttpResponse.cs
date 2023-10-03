@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
 namespace System.Web
@@ -29,6 +30,7 @@ namespace System.Web
         private ResponseHeaders? _typedHeaders;
         private TextWriter? _writer;
         private HttpCookieCollection? _cookies;
+        private HttpCachePolicy? _cache;
 
         internal HttpResponse(HttpResponseCore response)
         {
@@ -72,7 +74,16 @@ namespace System.Web
             set => _response.HttpContext.Features.GetRequired<IStatusCodePagesFeature>().Enabled = value;
         }
 
+        public bool BufferOutput => _response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().IsEnabled;
+
         public Stream OutputStream => _response.Body;
+
+        [AllowNull]
+        public Stream Filter
+        {
+            get => _response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().Filter;
+            set => _response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().Filter = value;
+        }
 
         public HttpCookieCollection Cookies => _cookies ??= new(this);
 
@@ -168,6 +179,11 @@ namespace System.Web
 
         public void AppendHeader(string name, string value) => _response.Headers.Append(name, value);
 
+        public bool HeadersWritten
+        {
+            get => _response.HasStarted;
+        }
+
         public string? RedirectLocation
         {
             get => _response.Headers.Location;
@@ -209,6 +225,8 @@ namespace System.Web
             }
         }
 
+        public HttpCachePolicy Cache => _cache ??= new(_response.HttpContext);
+
         private string ResolvePath(string url)
         {
             if (string.IsNullOrEmpty(url))
@@ -221,7 +239,7 @@ namespace System.Web
                 return url;
             }
 
-            var vdir = _response.HttpContext.RequestServices.GetRequiredService<IHttpRuntime>().AppDomainAppVirtualPath;
+            var vdir = _response.HttpContext.RequestServices.GetRequiredService<IOptions<SystemWebAdaptersOptions>>().Value.AppDomainAppVirtualPath;
 
             var sb = new StringBuilder(url, 1, url.Length - 1, url.Length + vdir.Length);
 

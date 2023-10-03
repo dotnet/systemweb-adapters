@@ -56,7 +56,6 @@ public class SetDefaultResponseHeadersMiddlewareTests
 
     [Theory]
     [InlineData("Content-Type", "some-content-type")]
-    [InlineData("Cache-Control", "cache-value")]
     public async Task AddedInLaterMiddleware(string name, string value)
     {
         // Arrange

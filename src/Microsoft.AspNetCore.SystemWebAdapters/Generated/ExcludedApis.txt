@@ -12,6 +12,7 @@ M:System.Web.HttpRequestBase.op_Implicit(Microsoft.AspNetCore.Http.HttpRequest)~
 T:Microsoft.AspNetCore.SystemWebAdapters.SystemWebAdapterExtensions
 
 T:Microsoft.AspNetCore.SystemWebAdapters.SessionState.ISessionState
+T:Microsoft.AspNetCore.SystemWebAdapters.SystemWebAdaptersOptions
 
 # We manually type forward this only for .NET 4.7.2+
 T:System.Web.SameSiteMode
@@ -21,3 +22,5 @@ T:System.Web.IHtmlString
 
 # We implement extra interfaces that end up getting added to the generated stuff
 T:System.Web.HtmlString
+
+T:Microsoft.AspNetCore.SystemWebAdapters.ITraceContext

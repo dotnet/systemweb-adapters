@@ -2,16 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Specialized;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
+using Microsoft.Net.Http.Headers;
 
 namespace System.Web;
 
 public sealed class HttpCookie
 {
-    // If the .Values collection hasn't been accessed, this will remain a string. However, once .Values is accessed,
-    // this will become a HttpValueCollection. If .ToString is called on it, it will reconsistute the full string
-    private object? _holder;
+    private string? _stringValue;
+    private HttpValueCollection? _multiValue;
 
     public HttpCookie(string name)
     {
@@ -21,7 +20,7 @@ public sealed class HttpCookie
     public HttpCookie(string name, string? value)
     {
         Name = name;
-        _holder = value;
+        _stringValue = value;
     }
 
     /// <summary>
@@ -42,21 +41,30 @@ public sealed class HttpCookie
 
     /// <summary>
     /// Gets or sets an individual cookie value.
+    /// </summary>
     public string? Value
     {
-        get => _holder?.ToString();
+        get
+        {
+            if (_multiValue != null)
+                return _multiValue.ToString(false);
+            else
+                return _stringValue;
+        }
 
         set
         {
-            if (_holder is HttpValueCollection values)
+            if (_multiValue != null)
             {
-                // reset multivalue collection to contain single keyless value
-                values.Clear();
-                values.Add(null, value);
+                // reset multivalue collection to contain
+                // single keyless value
+                _multiValue.Clear();
+                _multiValue.Add(null, value);
             }
             else
             {
-                _holder = value;
+                // remember as string
+                _stringValue = value;
             }
         }
     }
@@ -68,37 +76,38 @@ public sealed class HttpCookie
     {
         get
         {
-            if (_holder is HttpValueCollection values)
+            if (_multiValue == null)
             {
-                return values;
+                // create collection on demand
+                _multiValue = new HttpValueCollection();
+
+                // convert existing string value into multivalue
+                if (_stringValue != null)
+                {
+                    if (_stringValue.Contains('&', StringComparison.InvariantCulture) || _stringValue.Contains('=', StringComparison.InvariantCulture))
+                        _multiValue.FillFromString(_stringValue);
+                    else
+                        _multiValue.Add(null, _stringValue);
+
+                    _stringValue = null;
+                }
             }
 
-            // create collection on demand
-            var collection = new HttpValueCollection();
-
-            // convert existing string value into multivalue
-            if (_holder is string str)
-            {
-                collection.FillFromString(str);
-            }
-
-            _holder = collection;
-
-            return collection;
+            return _multiValue;
         }
     }
 
     internal void CopyTo(HttpValueCollection other)
     {
-        if (_holder is string s)
+        if (_stringValue != null)
         {
-            other.Add(null, s);
+            other.Add(null, _stringValue);
         }
-        else if (_holder is HttpValueCollection collection)
+        else if (_multiValue != null)
         {
-            for (var i = 0; i < collection.Count; i++)
+            for (var i = 0; i < _multiValue.Count; i++)
             {
-                other.Add(collection.GetKey(i), collection[i]);
+                other.Add(_multiValue.GetKey(i), _multiValue[i]);
             }
         }
     }
@@ -115,6 +124,7 @@ public sealed class HttpCookie
 
     /// <summary>
     /// Gets or sets the virtual path to transmit with the current cookie.
+    /// </summary>
     public string Path { get; set; } = "/";
 
     /// <summary>
@@ -135,7 +145,6 @@ public sealed class HttpCookie
     /// <summary>
     /// Gets a value indicating whether this cookie is allowed to participate in output caching.
     /// </summary>
-    /// <remarks>
     public bool Shareable { get; set; }
 
     /// <summary>
@@ -143,13 +152,14 @@ public sealed class HttpCookie
     /// </summary>
     public string? Domain { get; set; }
 
-    internal CookieOptions ToCookieOptions() => new()
+    internal SetCookieHeaderValue ToSetCookieHeaderValue() => new(Name)
     {
+        Value = Value ?? string.Empty,
         Domain = Domain,
         Expires = (Expires == DateTime.MinValue) ? null : new DateTimeOffset(Expires),
         HttpOnly = HttpOnly,
         Path = Path,
-        SameSite = (Microsoft.AspNetCore.Http.SameSiteMode)SameSite,
+        SameSite = (Microsoft.Net.Http.Headers.SameSiteMode)SameSite,
         Secure = Secure,
     };
 }

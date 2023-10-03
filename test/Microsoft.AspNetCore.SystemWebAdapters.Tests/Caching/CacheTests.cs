@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
+using System.Web.Hosting;
 using AutoFixture;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -386,10 +388,8 @@ public class CacheTests
         using var memCache = new MemoryCache(_fixture.Create<string>());
 
         var cache = new Cache(memCache);
-        var httpRuntime = new Mock<IHttpRuntime>();
-        httpRuntime.Setup(s => s.Cache).Returns(cache);
 
-        SetHttpRuntime(httpRuntime.Object);
+        using var _ = HostingEnvironmentContext.Initialize(cache);
 
         var item1 = new object();
         var item2 = new object();
@@ -433,27 +433,37 @@ public class CacheTests
         Assert.Equal(CacheItemUpdateReason.DependencyChanged, updateReason[key2]);
     }
 
-    private static void SetHttpRuntime(IHttpRuntime runtime)
+    /// <summary>
+    /// This will ensure we can remove the hosting environment after the test is complete since it is a static instance
+    /// </summary>
+    private sealed class HostingEnvironmentContext : IDisposable, IServiceProvider
     {
-        _ = new HttpContextAccessor
-        {
-            HttpContext = new DefaultHttpContext
-            {
-                RequestServices = new RuntimeServiceProvider(runtime)
-            }
-        };
-    }
+        private readonly Cache _cache;
 
-    private sealed class RuntimeServiceProvider : IServiceProvider
-    {
-        private readonly IHttpRuntime _runtime;
-
-        public RuntimeServiceProvider(IHttpRuntime runtime)
+        private HostingEnvironmentContext(Cache cache)
         {
-            _runtime = runtime;
+            _cache = cache;
+            HostingEnvironmentAccessor.Current = new(this, Options.Create(new SystemWebAdaptersOptions()));
         }
 
-        public object? GetService(Type serviceType)
-            => serviceType == typeof(IHttpRuntime) ? _runtime : null;
+        public void Dispose()
+        {
+            HostingEnvironmentAccessor.Current = null;
+        }
+
+        public static HostingEnvironmentContext Initialize(Cache cache)
+        {
+            return new HostingEnvironmentContext(cache);
+        }
+
+        object? IServiceProvider.GetService(Type serviceType)
+        {
+            if (serviceType == typeof(Cache))
+            {
+                return _cache;
+            }
+
+            return null;
+        }
     }
 }

@@ -2,8 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
+using Microsoft.AspNetCore.Http;
 
 namespace System.Web
 {
@@ -47,6 +49,8 @@ namespace System.Web
 
         public override NameValueCollection Headers => _response.Headers;
 
+        public override bool HeadersWritten => _response.HeadersWritten;
+
         public override bool IsClientConnected => _response.IsClientConnected;
 
         public override TextWriter Output
@@ -54,6 +58,8 @@ namespace System.Web
             get => _response.Output;
             set => _response.Output = value;
         }
+
+        public override bool BufferOutput => _response.BufferOutput;
 
         public override Stream OutputStream => _response.OutputStream;
 
@@ -91,6 +97,15 @@ namespace System.Web
         {
             get => _response.TrySkipIisCustomErrors;
             set => _response.TrySkipIisCustomErrors = value;
+        }
+
+        public override HttpCachePolicy Cache => _response.Cache;
+
+        [AllowNull]
+        public override Stream Filter
+        {
+            get => _response.Filter;
+            set => _response.Filter = value;
         }
 
         public override void Write(char ch) => _response.Write(ch);
