@@ -40,7 +40,7 @@ public class OutputCachingTests
                       services.AddRouting();
                       services.AddSystemWebAdapters()
                         .AddHttpApplication<MyApp>();
-                      services.AddOutputCache()
+                      services.AddOutputCache();
                   })
                   .Configure(app =>
                   {
