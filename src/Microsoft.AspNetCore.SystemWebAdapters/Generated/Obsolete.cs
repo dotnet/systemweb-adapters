@@ -21,12 +21,6 @@ internal sealed class ObsoleteAttribute : Attribute
         Message = message;
     }
 
-    public ObsoleteAttribute(string? message, bool error)
-    {
-        Message = message;
-        IsError = error;
-    }
-
     public string? Message { get; }
 
     public bool IsError { get; }
