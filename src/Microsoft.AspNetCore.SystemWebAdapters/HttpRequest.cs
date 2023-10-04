@@ -52,6 +52,8 @@ namespace System.Web
         [SuppressMessage("Design", "CA1056:URI-like properties should not be strings", Justification = Constants.ApiFromAspNet)]
         public string RawUrl => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().RawUrl;
 
+        public string? PhysicalPath => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().PhysicalPath;
+
         public string CurrentExecutionFilePath => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().CurrentExecutionFilePath;
 
         public NameValueCollection Headers => _headers ??= _request.Headers.ToNameValueCollection();
