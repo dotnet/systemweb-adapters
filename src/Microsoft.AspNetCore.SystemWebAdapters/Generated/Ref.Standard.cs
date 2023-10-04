@@ -17,6 +17,7 @@
 #pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
 #pragma warning disable CA1063 // Implement IDisposable Correctly
 #pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
+#pragma warning disable CS0436 // Type conflicts with imported type
 
 namespace System.Web
 {
@@ -147,7 +148,7 @@ namespace System.Web
         public System.Web.HttpResponse Response { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Web.HttpServerUtility Server { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Web.SessionState.HttpSessionState Session { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public System.DateTime Timestamp { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public System.DateTime Timestamp { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Web.TraceContext Trace { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Security.Principal.IPrincipal User { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public void AddError(System.Exception ex) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
@@ -578,8 +579,38 @@ namespace System.Web
         internal HttpServerUtility() { }
         public string MachineName { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public void ClearError() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
+        [System.ObsoleteAttribute("Execute is not supported on ASP.NET Core", DiagnosticId="SYSWEB0002")]
+        public void Execute(string path) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
+        [System.ObsoleteAttribute("Execute is not supported on ASP.NET Core", DiagnosticId="SYSWEB0002")]
+        public void Execute(string path, bool preserveForm) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
+        [System.ObsoleteAttribute("Execute is not supported on ASP.NET Core", DiagnosticId="SYSWEB0002")]
+        public void Execute(string path, System.IO.TextWriter writer) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
+        [System.ObsoleteAttribute("Execute is not supported on ASP.NET Core", DiagnosticId="SYSWEB0002")]
+        public void Execute(string path, System.IO.TextWriter writer, bool preserveForm) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public System.Exception GetLastError() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public string MapPath(string path) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
+        [System.ObsoleteAttribute("Transfer is not supported on ASP.NET Core", DiagnosticId="SYSWEB0003")]
+        public void Transfer(string path) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
+        [System.ObsoleteAttribute("Transfer is not supported on ASP.NET Core", DiagnosticId="SYSWEB0003")]
+        public void Transfer(string path, bool preserveForm) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
+        [System.ObsoleteAttribute("TransferRequest is not supported on ASP.NET Core", DiagnosticId="SYSWEB0001")]
+        public void TransferRequest(string path) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
+        [System.ObsoleteAttribute("TransferRequest is not supported on ASP.NET Core", DiagnosticId="SYSWEB0001")]
+        public void TransferRequest(string path, bool preserveForm) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
+        [System.ObsoleteAttribute("TransferRequest is not supported on ASP.NET Core", DiagnosticId="SYSWEB0001")]
+        public void TransferRequest(string path, bool preserveForm, string method, System.Collections.Specialized.NameValueCollection headers) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
+        [System.ObsoleteAttribute("TransferRequest is not supported on ASP.NET Core", DiagnosticId="SYSWEB0001")]
+        public void TransferRequest(string path, bool preserveForm, string method, System.Collections.Specialized.NameValueCollection headers, bool preserveUser) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public static byte[] UrlTokenDecode(string input) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public static string UrlTokenEncode(byte[] input) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
@@ -776,14 +807,18 @@ namespace System.Web.Configuration
         public string Browser { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public bool Cookies { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public bool Crawler { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public System.Version EcmaScriptVersion { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public bool IsMobileDevice { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public string this[string key] { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public int MajorVersion { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public double MinorVersion { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public System.Version MSDomVersion { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public string Platform { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public string PreferredRequestEncoding { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public bool SupportsCallback { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public string Type { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public string Version { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public System.Version W3CDomVersion { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
     }
 }
 namespace System.Web.Hosting

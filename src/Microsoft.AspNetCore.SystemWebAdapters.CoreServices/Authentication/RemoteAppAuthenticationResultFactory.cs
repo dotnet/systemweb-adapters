@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 
@@ -44,7 +45,7 @@ internal class RemoteAppAuthenticationResultFactory : IAuthenticationResultFacto
         {
             if (forwardAllResponseHeaders || options.ResponseHeadersToForward.Contains(responseHeader.Key))
             {
-                ret.ResponseHeaders.Add(responseHeader.Key, responseHeader.Value.ToArray());
+                ret.ResponseHeaders.AppendList(responseHeader.Key, responseHeader.Value.ToList());
             }
         }
 
