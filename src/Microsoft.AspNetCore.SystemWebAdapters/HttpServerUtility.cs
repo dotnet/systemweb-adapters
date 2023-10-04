@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Specialized;
+using System.IO;
 using System.Web.Hosting;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.WebUtilities;
@@ -83,4 +85,34 @@ public class HttpServerUtility
 
         return $"{encoded}{padding}";
     }
+
+    [Obsolete(Constants.Execute.Message, DiagnosticId = Constants.Execute.DiagnosticId)]
+    public void Execute(string path) => throw new PlatformNotSupportedException();
+
+    [Obsolete(Constants.Execute.Message, DiagnosticId = Constants.Execute.DiagnosticId)]
+    public void Execute(string path, TextWriter writer) => throw new PlatformNotSupportedException();
+
+    [Obsolete(Constants.Execute.Message, DiagnosticId = Constants.Execute.DiagnosticId)]
+    public void Execute(string path, bool preserveForm) => throw new PlatformNotSupportedException();
+
+    [Obsolete(Constants.Execute.Message, DiagnosticId = Constants.Execute.DiagnosticId)]
+    public void Execute(string path, TextWriter writer, bool preserveForm) => throw new PlatformNotSupportedException();
+
+    [Obsolete(Constants.Transfer.Message, DiagnosticId = Constants.Transfer.DiagnosticId)]
+    public void Transfer(string path) => throw new PlatformNotSupportedException();
+
+    [Obsolete(Constants.Transfer.Message, DiagnosticId = Constants.Transfer.DiagnosticId)]
+    public void Transfer(string path, bool preserveForm) => throw new PlatformNotSupportedException();
+
+    [Obsolete(Constants.TransferRequest.Message, DiagnosticId = Constants.TransferRequest.DiagnosticId)]
+    public void TransferRequest(string path) => throw new PlatformNotSupportedException();
+
+    [Obsolete(Constants.TransferRequest.Message, DiagnosticId = Constants.TransferRequest.DiagnosticId)]
+    public void TransferRequest(string path, bool preserveForm) => throw new PlatformNotSupportedException();
+
+    [Obsolete(Constants.TransferRequest.Message, DiagnosticId = Constants.TransferRequest.DiagnosticId)]
+    public void TransferRequest(string path, bool preserveForm, string method, NameValueCollection headers) => throw new PlatformNotSupportedException();
+
+    [Obsolete(Constants.TransferRequest.Message, DiagnosticId = Constants.TransferRequest.DiagnosticId)]
+    public void TransferRequest(string path, bool preserveForm, string method, NameValueCollection headers, bool preserveUser) => throw new PlatformNotSupportedException();
 }
