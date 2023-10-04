@@ -29,9 +29,13 @@ internal partial class RemoteAppAuthenticationAuthHandler : AuthenticationHandle
                                            IEnumerable<IRemoteAppAuthenticationResultProcessor> resultProcessors,
                                            IOptionsMonitor<RemoteAppAuthenticationClientOptions> options,
                                            ILoggerFactory loggerFactory,
-                                           UrlEncoder encoder,
-                                           ISystemClock clock)
+                                           UrlEncoder encoder
+#if NET8_0_OR_GREATER
+        ) : base(options, loggerFactory, encoder)
+#else
+        , ISystemClock clock)
         : base(options, loggerFactory, encoder, clock)
+#endif
     {
         _logger = loggerFactory.CreateLogger<RemoteAppAuthenticationAuthHandler>();
         _authService = authService;

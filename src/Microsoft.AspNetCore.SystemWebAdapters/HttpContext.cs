@@ -90,7 +90,7 @@ public class HttpContext : IServiceProvider
 
     public HttpSessionState? Session => _context.Features.Get<HttpSessionState>();
 
-    public DateTime Timestamp { get; } = DateTime.UtcNow.ToLocalTime();
+    public DateTime Timestamp => _context.Features.GetRequired<ITimestampFeature>().Timestamp.DateTime;
 
     public void RewritePath(string path) => RewritePath(path, true);
 
