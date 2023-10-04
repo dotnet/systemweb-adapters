@@ -88,7 +88,7 @@ internal class HttpValueCollection : NameValueCollection
 
     public override string ToString() => ToString(true);
 
-    private string ToString(bool urlencoded)
+    internal string ToString(bool urlencoded)
     {
         int count = Count;
 

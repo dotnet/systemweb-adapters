@@ -13,6 +13,8 @@ internal interface IHttpRequestPathFeature
 
     string RawUrl { get; }
 
+    string? PhysicalPath { get; }
+
     string CurrentExecutionFilePath { get; }
 
     void Rewrite(string filePath, string pathInfo, string? queryString, bool setClientFilePath);

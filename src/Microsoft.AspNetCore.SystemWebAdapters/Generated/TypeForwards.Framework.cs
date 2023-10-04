@@ -20,6 +20,7 @@
 #pragma warning disable CA1721 // Property names should not match get methods
 #pragma warning disable CA1711 // Identifiers should not have incorrect suffix
 #pragma warning disable CA1720 // Identifier contains type name
+#pragma warning disable CS0436 // Type conflicts with imported type
 
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpApplication))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpApplicationState))]

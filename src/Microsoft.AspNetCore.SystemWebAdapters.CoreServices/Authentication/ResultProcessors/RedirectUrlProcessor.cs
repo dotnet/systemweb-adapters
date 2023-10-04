@@ -43,7 +43,7 @@ internal class RedirectUrlProcessor : IRemoteAppAuthenticationResultProcessor
                 }
             }
             result.ResponseHeaders.Remove(LocationHeaderName);
-            result.ResponseHeaders.Add(LocationHeaderName, processedRedirectLocations.ToArray());
+            result.ResponseHeaders.AppendList(LocationHeaderName, processedRedirectLocations);
         }
 
         return Task.CompletedTask;

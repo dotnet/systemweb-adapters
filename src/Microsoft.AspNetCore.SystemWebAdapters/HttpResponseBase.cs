@@ -89,6 +89,13 @@ namespace System.Web
             set => throw new NotImplementedException();
         }
 
+        [AllowNull]
+        public virtual Stream Filter
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
+
         public virtual HttpCachePolicy Cache => throw new NotImplementedException();
 
         public virtual bool IsClientConnected => throw new NotImplementedException();

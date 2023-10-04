@@ -53,6 +53,14 @@ public class HttpCapabilitiesBase
 
     public string? this[string key] => Capability[key];
 
+    public Version EcmaScriptVersion => GetVersion("ecmascriptversion");
+
+    public Version MSDomVersion => GetVersion("msdomversion");
+
+    public Version W3CDomVersion => GetVersion("w3cdomversion");
+
+    public bool SupportsCallback => GetBoolean("supportsCallback");
+
     public bool IsMobileDevice => GetBoolean("isMobileDevice");
 
     private int GetInt(string key) => int.TryParse(Capability[key], NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : throw new HttpUnhandledException($"Invalid string from browser capabilities '{key}'");
@@ -90,5 +98,18 @@ public class HttpCapabilitiesBase
         }
 
         throw new HttpUnhandledException($"Invalid string from browser capabilities '{key}'");
+    }
+
+    private Version GetVersion(string key)
+    {
+        var result = Capability[key];
+        if (result is not null)
+        {
+            return new Version(result);
+        }
+        else
+        {
+            throw new ArgumentNullException(nameof(key));
+        }
     }
 }

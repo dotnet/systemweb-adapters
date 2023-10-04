@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.IO;
 using System.Web.Hosting;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.WebUtilities;
@@ -83,4 +86,52 @@ public class HttpServerUtility
 
         return $"{encoded}{padding}";
     }
+
+    [Obsolete(Constants.Execute.Message, DiagnosticId = Constants.Execute.DiagnosticId)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void Execute(string path) => Execute(path, null, preserveForm: true);
+
+    [Obsolete(Constants.Execute.Message, DiagnosticId = Constants.Execute.DiagnosticId)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void Execute(string path, TextWriter writer) => Execute(path, writer, preserveForm: true);
+
+    [Obsolete(Constants.Execute.Message, DiagnosticId = Constants.Execute.DiagnosticId)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void Execute(string path, bool preserveForm) => Execute(path, null, preserveForm);
+
+    [Obsolete(Constants.Execute.Message, DiagnosticId = Constants.Execute.DiagnosticId)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void Execute(string path, TextWriter? writer, bool preserveForm) => _context.Features.GetRequired<ITransferRequestFeature>().Execute(path, writer, preserveForm);
+
+    [Obsolete(Constants.Transfer.Message, DiagnosticId = Constants.Transfer.DiagnosticId)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void Transfer(string path) => Transfer(path, preserveForm: true);
+
+    [Obsolete(Constants.Transfer.Message, DiagnosticId = Constants.Transfer.DiagnosticId)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void Transfer(string path, bool preserveForm)
+    {
+        _context.Features.GetRequired<ITransferRequestFeature>().Transfer(path, preserveForm);
+        _context.Response.GetAdapter().End();
+    }
+
+    [Obsolete(Constants.TransferRequest.Message, DiagnosticId = Constants.TransferRequest.DiagnosticId)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void TransferRequest(string path)
+        => TransferRequest(path, false, null, null, preserveUser: true);
+
+    [Obsolete(Constants.TransferRequest.Message, DiagnosticId = Constants.TransferRequest.DiagnosticId)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void TransferRequest(string path, bool preserveForm)
+        => TransferRequest(path, preserveForm, null, null, preserveUser: true);
+
+    [Obsolete(Constants.TransferRequest.Message, DiagnosticId = Constants.TransferRequest.DiagnosticId)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void TransferRequest(string path, bool preserveForm, string? method, NameValueCollection? headers)
+        => TransferRequest(path, preserveForm, method, headers, preserveUser: true);
+
+    [Obsolete(Constants.TransferRequest.Message, DiagnosticId = Constants.TransferRequest.DiagnosticId)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void TransferRequest(string path, bool preserveForm, string? method, NameValueCollection? headers, bool preserveUser)
+        => _context.Features.GetRequired<ITransferRequestFeature>().TransferRequest(path, preserveForm, method, headers, preserveUser);
 }

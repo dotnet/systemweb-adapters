@@ -14,7 +14,12 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal class HttpResponseAdapterFeature : Stream, IHttpResponseBodyFeature, IHttpResponseBufferingFeature, IHttpResponseEndFeature, IHttpResponseContentFeature
+internal class HttpResponseAdapterFeature :
+    Stream,
+    IHttpResponseBodyFeature,
+    IHttpResponseBufferingFeature,
+    IHttpResponseEndFeature,
+    IHttpResponseContentFeature
 {
     private enum StreamState
     {
@@ -31,6 +36,7 @@ internal class HttpResponseAdapterFeature : Stream, IHttpResponseBodyFeature, IH
     private StreamState _state;
     private Func<FileBufferingWriteStream>? _factory;
     private bool _suppressContent;
+    private Stream? _filter;
 
     public HttpResponseAdapterFeature(IHttpResponseBodyFeature httpResponseBody)
     {
@@ -87,7 +93,17 @@ internal class HttpResponseAdapterFeature : Stream, IHttpResponseBodyFeature, IH
     {
         if (_state is StreamState.Buffering && _bufferedStream is not null && !SuppressContent)
         {
-            await _bufferedStream.DrainBufferAsync(_responseBodyFeature.Stream);
+            if (_filter is { } filter)
+            {
+                await _bufferedStream.DrainBufferAsync(filter);
+                await filter.DisposeAsync();
+                _filter = null;
+            }
+            else
+            {
+                await _bufferedStream.DrainBufferAsync(_responseBodyFeature.Stream);
+            }
+
             await _bufferedStream.DisposeAsync();
             _bufferedStream = null;
         }
@@ -134,7 +150,7 @@ internal class HttpResponseAdapterFeature : Stream, IHttpResponseBodyFeature, IH
     {
         if (_state != StreamState.Buffering)
         {
-            throw new InvalidOperationException("Can only clear content if response is buffered.");
+            throw new InvalidOperationException("Response buffering is required");
         }
 
         Debug.Assert(_factory is not null);
@@ -185,6 +201,21 @@ internal class HttpResponseAdapterFeature : Stream, IHttpResponseBodyFeature, IH
     {
         get => throw new NotSupportedException();
         set => throw new NotSupportedException();
+    }
+
+    [AllowNull]
+    Stream IHttpResponseBufferingFeature.Filter
+    {
+        get
+        {
+            VerifyBuffering();
+            return _filter ?? _responseBodyFeature.Stream;
+        }
+        set
+        {
+            VerifyBuffering();
+            _filter = value;
+        }
     }
 
     private async Task CompleteAsync()

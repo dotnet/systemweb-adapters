@@ -59,6 +59,8 @@ namespace System.Web
 
         public override string Path => _request.Path;
 
+        public override string? PhysicalPath => _request.PhysicalPath;
+
         public override NameValueCollection QueryString => _request.QueryString;
 
         public override HttpBrowserCapabilitiesBase Browser => new HttpBrowserCapabilitiesWrapper(_request.Browser);

@@ -8,6 +8,7 @@ using System.Web.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,7 @@ public static class SystemWebAdaptersExtensions
     public static ISystemWebAdapterBuilder AddSystemWebAdapters(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
+        services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<Cache>();
         services.AddSingleton<IBrowserCapabilitiesFactory, BrowserCapabilitiesFactory>();
         services.AddTransient<IStartupFilter, HttpContextStartupFilter>();
@@ -60,11 +62,21 @@ public static class SystemWebAdaptersExtensions
             return;
         }
 
+        if (app.AreHttpApplicationEventsRequired())
+        {
+            app.UseMiddleware<HttpApplicationMiddleware>();
+        }
+
         app.UseMiddleware<PreBufferRequestStreamMiddleware>();
         app.UseMiddleware<BufferResponseStreamMiddleware>();
         app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
         app.UseMiddleware<SingleThreadedRequestMiddleware>();
         app.UseMiddleware<CurrentPrincipalMiddleware>();
+
+        if (app.AreHttpApplicationEventsRequired())
+        {
+            app.UseHttpApplicationEvent(ApplicationEvent.BeginRequest);
+        }
     }
 
     public static void UseSystemWebAdapters(this IApplicationBuilder app)
@@ -133,12 +145,6 @@ public static class SystemWebAdaptersExtensions
             {
                 builder.UseMiddleware<SetHttpContextTimestampMiddleware>();
                 builder.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
-
-                if (builder.AreHttpApplicationEventsRequired())
-                {
-                    builder.UseMiddleware<HttpApplicationMiddleware>();
-                    builder.UseHttpApplicationEvent(ApplicationEvent.BeginRequest);
-                }
 
                 next(builder);
             };

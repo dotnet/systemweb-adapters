@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
@@ -98,6 +99,13 @@ namespace System.Web
         }
 
         public override HttpCachePolicy Cache => _response.Cache;
+
+        [AllowNull]
+        public override Stream Filter
+        {
+            get => _response.Filter;
+            set => _response.Filter = value;
+        }
 
         public override void Write(char ch) => _response.Write(ch);
 
