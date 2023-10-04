@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -130,7 +131,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
     {
         if (context?.Response is not null && responseMessage.Headers.TryGetValues(cookieName, out var cookieValues))
         {
-            context.Response.Headers.Add(cookieName, cookieValues.ToArray());
+            context.Response.Headers.AppendList(cookieName, cookieValues.ToArray());
         }
     }
 
