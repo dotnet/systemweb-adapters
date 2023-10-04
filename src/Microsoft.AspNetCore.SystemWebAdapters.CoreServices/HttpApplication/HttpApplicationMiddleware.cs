@@ -4,6 +4,7 @@
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.ObjectPool;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;

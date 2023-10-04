@@ -3,14 +3,24 @@
 
 #if NETCOREAPP
 
+namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
+
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
-
-internal interface IHttpRequestInputStreamFeature
+/// <summary>
+/// Feature to adapt the <see cref="HttpRequestCore.Body"/> to <see cref="HttpRequest.InputStream"/> and related members.
+/// </summary>
+#if NET8_0_OR_GREATER
+[Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
+public
+#else
+internal
+#endif
+interface IHttpRequestInputStreamFeature
 {
     /// <summary>
     /// Gets the <see cref="ReadEntityBodyMode"/> of the request.

@@ -3,13 +3,23 @@
 
 #if NETCOREAPP
 
+namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
+
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
+using System.Web;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
-
-internal interface IHttpResponseBufferingFeature
+/// <summary>
+/// Feature to allow buffering the response.
+/// </summary>
+#if NET8_0_OR_GREATER
+[Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
+public
+#else
+internal
+#endif
+interface IHttpResponseBufferingFeature
 {
     void EnableBuffering(int memoryThreshold, long? bufferLimit);
 

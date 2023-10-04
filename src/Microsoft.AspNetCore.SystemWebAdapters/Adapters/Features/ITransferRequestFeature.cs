@@ -5,10 +5,22 @@
 
 using System.Collections.Specialized;
 using System.IO;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Web;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
-internal interface ITransferRequestFeature
+/// <summary>
+/// Represents the ability to execute a new request.
+/// </summary>
+#if NET8_0_OR_GREATER
+[Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
+public
+#else
+internal
+#endif
+interface ITransferRequestFeature
 {
     void Transfer(string path, bool preserveForm) => Execute(path, null, preserveForm);
 

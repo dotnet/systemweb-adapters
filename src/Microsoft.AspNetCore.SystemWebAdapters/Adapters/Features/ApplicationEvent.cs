@@ -3,9 +3,18 @@
 
 #if NETCOREAPP
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+using System.Diagnostics.CodeAnalysis;
+using System.Web;
 
-internal enum ApplicationEvent
+namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
+
+#if NET8_0_OR_GREATER
+[Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
+public
+#else
+internal
+#endif
+enum ApplicationEvent
 {
     ApplicationStart,
 

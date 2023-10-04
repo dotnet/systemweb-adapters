@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
