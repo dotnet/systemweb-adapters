@@ -18,6 +18,8 @@ namespace System.Web
 
         public virtual string Path => throw new NotImplementedException();
 
+        public virtual string? PhysicalPath => throw new NotImplementedException();
+
         public virtual NameValueCollection Headers => throw new NotImplementedException();
 
         public virtual Uri Url => throw new NotImplementedException();
