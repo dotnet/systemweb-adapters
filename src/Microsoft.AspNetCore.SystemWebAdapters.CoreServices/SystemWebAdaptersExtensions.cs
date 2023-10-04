@@ -62,11 +62,21 @@ public static class SystemWebAdaptersExtensions
             return;
         }
 
+        if (app.AreHttpApplicationEventsRequired())
+        {
+            app.UseMiddleware<HttpApplicationMiddleware>();
+        }
+
         app.UseMiddleware<PreBufferRequestStreamMiddleware>();
         app.UseMiddleware<BufferResponseStreamMiddleware>();
         app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
         app.UseMiddleware<SingleThreadedRequestMiddleware>();
         app.UseMiddleware<CurrentPrincipalMiddleware>();
+
+        if (app.AreHttpApplicationEventsRequired())
+        {
+            app.UseHttpApplicationEvent(ApplicationEvent.BeginRequest);
+        }
     }
 
     public static void UseSystemWebAdapters(this IApplicationBuilder app)
@@ -135,12 +145,6 @@ public static class SystemWebAdaptersExtensions
             {
                 builder.UseMiddleware<SetHttpContextTimestampMiddleware>();
                 builder.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
-
-                if (builder.AreHttpApplicationEventsRequired())
-                {
-                    builder.UseMiddleware<HttpApplicationMiddleware>();
-                    builder.UseHttpApplicationEvent(ApplicationEvent.BeginRequest);
-                }
 
                 next(builder);
             };

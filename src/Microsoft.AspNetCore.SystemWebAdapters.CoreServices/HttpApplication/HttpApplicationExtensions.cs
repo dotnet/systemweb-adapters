@@ -42,6 +42,18 @@ public static class HttpApplicationExtensions
         return builder;
     }
 
+    public static ISystemWebAdapterBuilder AddHttpApplication<TApp>(this ISystemWebAdapterBuilder builder)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+
+        builder.AddHttpApplication(options =>
+        {
+            options.ApplicationType = typeof(TApp);
+        });
+
+        return builder;
+    }
+
     public static ISystemWebAdapterBuilder AddHttpApplication<TApp>(this ISystemWebAdapterBuilder builder, Action<HttpApplicationOptions> configure)
         where TApp : HttpApplication
     {
