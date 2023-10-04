@@ -217,6 +217,8 @@ internal class HttpRequestInputStreamFeature : IHttpRequestInputStreamFeature, I
 
     string IHttpRequestPathFeature.CurrentExecutionFilePath => _filePath ?? Path;
 
+    string? IHttpRequestPathFeature.PhysicalPath => null;
+
     internal static class AspNetCoreTempDirectory
     {
         private static string? _tempDirectory;
