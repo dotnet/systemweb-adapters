@@ -2,19 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Text;
 
 namespace System.Web.UI;
 
 /// <summary>
 /// Derived TextWriter that provides CSS rendering API.
 /// </summary>
-internal sealed class CssTextWriter : TextWriter
+internal sealed class CssTextWriter
 {
-    private readonly TextWriter _writer;
-
     private static readonly Dictionary<string, HtmlTextWriterStyle> attrKeyLookupTable = new(StringComparer.OrdinalIgnoreCase);
     private static readonly List<AttributeInformation> attrNameLookupArray = new();
 
@@ -65,43 +61,6 @@ internal sealed class CssTextWriter : TextWriter
         RegisterAttribute("width", HtmlTextWriterStyle.Width);
         RegisterAttribute("white-space", HtmlTextWriterStyle.WhiteSpace);
         RegisterAttribute("z-index", HtmlTextWriterStyle.ZIndex);
-    }
-
-    /// <summary>
-    /// Initializes an instance of a CssTextWriter with its underlying TextWriter.
-    /// </summary>
-    public CssTextWriter(TextWriter writer)
-    {
-        _writer = writer;
-    }
-
-    /// <internalonly/>
-    public override Encoding Encoding => _writer.Encoding;
-
-    /// <internalonly/>
-    [AllowNull]
-    public override string NewLine
-    {
-        get
-        {
-            return _writer.NewLine;
-        }
-        set
-        {
-            _writer.NewLine = value;
-        }
-    }
-
-    /// <internalonly/>
-    public override void Close()
-    {
-        _writer.Close();
-    }
-
-    /// <internalonly/>
-    public override void Flush()
-    {
-        _writer.Flush();
     }
 
     /// <summary>
@@ -174,100 +133,6 @@ internal sealed class CssTextWriter : TextWriter
         }
     }
 
-    /// <internalonly/>
-    public override void Write(string? s)
-    {
-        _writer.Write(s);
-    }
-
-    /// <internalonly/>
-    public override void Write(bool value)
-    {
-        _writer.Write(value);
-    }
-
-    /// <internalonly/>
-    public override void Write(char value)
-    {
-        _writer.Write(value);
-    }
-
-    /// <internalonly/>
-    public override void Write(char[]? buffer)
-    {
-        _writer.Write(buffer);
-    }
-
-    /// <internalonly/>
-    public override void Write(char[] buffer, int index, int count)
-    {
-        _writer.Write(buffer, index, count);
-    }
-
-    /// <internalonly/>
-    public override void Write(double value)
-    {
-        _writer.Write(value);
-    }
-
-    /// <internalonly/>
-    public override void Write(float value)
-    {
-        _writer.Write(value);
-    }
-
-    /// <internalonly/>
-    public override void Write(int value)
-    {
-        _writer.Write(value);
-    }
-
-    /// <internalonly/>
-    public override void Write(long value)
-    {
-        _writer.Write(value);
-    }
-
-    /// <internalonly/>
-    public override void Write(object? value)
-    {
-        _writer.Write(value);
-    }
-
-    /// <internalonly/>
-    public override void Write(string format, object? arg0)
-    {
-        _writer.Write(format, arg0);
-    }
-
-    /// <internalonly/>
-    public override void Write(string format, object? arg0, object? arg1)
-    {
-        _writer.Write(format, arg0, arg1);
-    }
-
-    /// <internalonly/>
-    public override void Write(string format, params object?[] arg)
-    {
-        _writer.Write(format, arg);
-    }
-
-    /// <summary>
-    /// Render out the specified style attribute and value.
-    /// </summary>
-    public void WriteAttribute(string name, string value)
-    {
-        WriteAttribute(_writer, GetStyleKey(name), name, value);
-    }
-
-    /// <summary>
-    /// Render out the specified style attribute and value.
-    /// </summary>
-    public void WriteAttribute(HtmlTextWriterStyle key, string value)
-    {
-        WriteAttribute(_writer, key, GetStyleName(key), value);
-    }
-
     /// <summary>
     /// Render the specified style attribute into the specified TextWriter.
     /// This method contains all the logic for rendering a CSS name/value pair.
@@ -305,113 +170,6 @@ internal sealed class CssTextWriter : TextWriter
         {
             WriteAttribute(writer, style.Key, style.Name, style.Value);
         }
-    }
-
-    /// <summary>
-    /// Start rendering a new CSS rule with the given selector.
-    /// </summary>
-    public void WriteBeginCssRule(string selector)
-    {
-        _writer.Write(selector);
-        _writer.Write(" { ");
-    }
-
-    /// <summary>
-    /// End the current CSS rule that is being rendered.
-    /// </summary>
-    public void WriteEndCssRule()
-    {
-        _writer.WriteLine(" }");
-    }
-
-    /// <internalonly/>
-    public override void WriteLine(string? s)
-    {
-        _writer.WriteLine(s);
-    }
-
-    /// <internalonly/>
-    public override void WriteLine()
-    {
-        _writer.WriteLine();
-    }
-
-    /// <internalonly/>
-    public override void WriteLine(bool value)
-    {
-        _writer.WriteLine(value);
-    }
-
-    /// <internalonly/>
-    public override void WriteLine(char value)
-    {
-        _writer.WriteLine(value);
-    }
-
-    /// <internalonly/>
-    public override void WriteLine(char[]? buffer)
-    {
-        _writer.WriteLine(buffer);
-    }
-
-    /// <internalonly/>
-    public override void WriteLine(char[] buffer, int index, int count)
-    {
-        _writer.WriteLine(buffer, index, count);
-    }
-
-    /// <internalonly/>
-    public override void WriteLine(double value)
-    {
-        _writer.WriteLine(value);
-    }
-
-    /// <internalonly/>
-    public override void WriteLine(float value)
-    {
-        _writer.WriteLine(value);
-    }
-
-    /// <internalonly/>
-    public override void WriteLine(int value)
-    {
-        _writer.WriteLine(value);
-    }
-
-    /// <internalonly/>
-    public override void WriteLine(long value)
-    {
-        _writer.WriteLine(value);
-    }
-
-    /// <internalonly/>
-    public override void WriteLine(object? value)
-    {
-        _writer.WriteLine(value);
-    }
-
-    /// <internalonly/>
-    public override void WriteLine(string format, object? arg0)
-    {
-        _writer.WriteLine(format, arg0);
-    }
-
-    /// <internalonly/>
-    public override void WriteLine(string format, object? arg0, object? arg1)
-    {
-        _writer.WriteLine(format, arg0, arg1);
-    }
-
-    /// <internalonly/>
-    public override void WriteLine(string format, params object?[] arg)
-    {
-        _writer.WriteLine(format, arg);
-    }
-
-    /// <internalonly/>
-    public override void WriteLine(uint value)
-    {
-        _writer.WriteLine(value);
     }
 
     /// <summary>
