@@ -3,10 +3,10 @@
 
 #if NETCOREAPP
 
-namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
-
 using System.Diagnostics.CodeAnalysis;
 using System.Web;
+
+namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 /// <summary>
 /// Represents the path-related members on <see cref="HttpRequest"/>.

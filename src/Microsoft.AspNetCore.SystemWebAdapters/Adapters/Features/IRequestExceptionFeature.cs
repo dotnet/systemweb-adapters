@@ -3,12 +3,12 @@
 
 #if NETCOREAPP
 
-namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Web;
+
+namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 /// <summary>
 /// Represents any errors raised during <see cref="HttpApplication"/> events.
@@ -22,4 +22,5 @@ public interface IRequestExceptionFeature
 
     void Clear();
 }
+
 #endif

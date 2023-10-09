@@ -3,13 +3,13 @@
 
 #if NETCOREAPP
 
-namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
-
 using Microsoft.AspNetCore.Http.Features.Authentication;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Web;
+
+namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 /// <summary>
 /// Represents the user as an <see cref="IPrincipal"/> as opposed to the in-built <see cref="IHttpAuthenticationFeature.User"/> which

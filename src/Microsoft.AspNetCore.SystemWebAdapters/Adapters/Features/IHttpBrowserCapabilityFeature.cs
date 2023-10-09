@@ -3,10 +3,10 @@
 
 #if NETCOREAPP
 
-namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
-
 using System.Diagnostics.CodeAnalysis;
 using System.Web;
+
+namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 /// <summary>
 /// Represents the key-value pair used by <see cref="HttpRequest.Browser"/>.
@@ -16,4 +16,5 @@ public interface IHttpBrowserCapabilityFeature
 {
     string? this[string key] { get; }
 }
+
 #endif

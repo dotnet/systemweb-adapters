@@ -3,11 +3,11 @@
 
 #if NETCOREAPP
 
-namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
-
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Web;
+
+namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 /// <summary>
 /// Represents the timestamp of a request.
@@ -17,4 +17,5 @@ public interface ITimestampFeature
 {
     DateTimeOffset Timestamp { get; }
 }
+
 #endif

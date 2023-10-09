@@ -3,11 +3,11 @@
 
 #if NETCOREAPP
 
-namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
-
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Web;
+
+namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 /// <summary>
 /// Represents whether a response has ended or allows transition into an ended state.
