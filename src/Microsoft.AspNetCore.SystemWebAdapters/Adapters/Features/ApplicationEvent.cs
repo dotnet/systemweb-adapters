@@ -3,9 +3,13 @@
 
 #if NETCOREAPP
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+using System.Diagnostics.CodeAnalysis;
+using System.Web;
 
-internal enum ApplicationEvent
+namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
+
+[Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
+public enum ApplicationEvent
 {
     ApplicationStart,
 

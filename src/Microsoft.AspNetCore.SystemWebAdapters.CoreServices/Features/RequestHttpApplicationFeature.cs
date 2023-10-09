@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, IHttpResponseEndFeature, IRequestExceptionFeature
 {

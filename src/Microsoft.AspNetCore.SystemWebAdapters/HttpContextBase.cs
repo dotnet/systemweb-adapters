@@ -58,7 +58,7 @@ namespace System.Web
         [return: NotNullIfNotNull(nameof(context))]
         public static implicit operator HttpContextBase?(HttpContextCore? context) => context?.GetAdapterBase();
 
-        public virtual System.Web.Caching.Cache Cache => throw new NotImplementedException();
+        public virtual Caching.Cache Cache => throw new NotImplementedException();
 
         public virtual void RewritePath(string path) => throw new NotImplementedException();
 

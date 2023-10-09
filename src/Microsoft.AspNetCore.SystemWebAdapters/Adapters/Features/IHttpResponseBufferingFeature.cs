@@ -6,10 +6,15 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
+using System.Web;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
-internal interface IHttpResponseBufferingFeature
+/// <summary>
+/// Feature to allow buffering the response.
+/// </summary>
+[Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
+public interface IHttpResponseBufferingFeature
 {
     void EnableBuffering(int memoryThreshold, long? bufferLimit);
 
