@@ -486,7 +486,6 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             Assert.IsType<HttpContext>(HttpContext.Current);
         }
 
-
         [Fact]
         public void SetHttpContextToNull()
         {
