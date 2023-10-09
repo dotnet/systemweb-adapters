@@ -105,7 +105,7 @@ public class HttpContextIntegrationTests
     public Task Timestamp()
         => RunTest("/", context =>
         {
-            var timestamp = MockTimeProvider.Instance.GetLocalNow().DateTime;
+            var timestamp = context.RequestServices.GetRequiredService<TimeProvider>().GetLocalNow().DateTime;
             Assert.Equal(timestamp, context.GetAdapter().Timestamp);
         });
 
