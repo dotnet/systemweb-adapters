@@ -28,7 +28,11 @@ public class HttpContext : IServiceProvider
     private IDictionary? _items;
     private TraceContext? _trace;
 
-    public static HttpContext? Current => _accessor.HttpContext;
+    public static HttpContext? Current
+    {
+        get => _accessor.HttpContext;
+        set => _accessor.HttpContext = value;
+    }
 
     internal HttpContext(HttpContextCore context)
     {
