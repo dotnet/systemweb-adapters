@@ -152,8 +152,6 @@ public class HttpContextIntegrationTests
     {
         private static readonly DateTimeOffset now = DateTimeOffset.Now;
 
-        public static TimeProvider Instance { get; } = new MockTimeProvider();
-
         public override DateTimeOffset GetUtcNow() => now;
     }
 }
