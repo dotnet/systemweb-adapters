@@ -2,6 +2,12 @@
   "solution": {
     "path": "Microsoft.AspNetCore.SystemWebAdapters.sln",
     "projects": [
+      "samples\\ClassLibrary\\ClassLibrary.csproj",
+      "samples\\CoreApp\\CoreApp.csproj",
+      "samples\\MachineKey\\MachineKeyCore\\MachineKeyCore.csproj",
+      "samples\\MachineKey\\MachineKeyShared\\MachineKeyShared.csproj",
+      "samples\\Modules\\ModulesCore\\ModulesCore.csproj",
+      "samples\\Modules\\ModulesLibrary\\ModulesLibrary.csproj",
       "src\\Microsoft.AspNetCore.SystemWebAdapters.Abstractions\\Microsoft.AspNetCore.SystemWebAdapters.Abstractions.csproj",
       "src\\Microsoft.AspNetCore.SystemWebAdapters.CoreServices\\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.csproj",
       "src\\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices\\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.csproj",
