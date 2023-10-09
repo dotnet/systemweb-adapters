@@ -13,13 +13,8 @@ using System.Web;
 /// <summary>
 /// Feature to allow buffering the response.
 /// </summary>
-#if NET8_0_OR_GREATER
 [Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
-public
-#else
-internal
-#endif
-interface IHttpResponseBufferingFeature
+public interface IHttpResponseBufferingFeature
 {
     void EnableBuffering(int memoryThreshold, long? bufferLimit);
 

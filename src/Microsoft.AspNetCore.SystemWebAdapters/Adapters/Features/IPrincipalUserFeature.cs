@@ -15,13 +15,8 @@ using System.Web;
 /// Represents the user as an <see cref="IPrincipal"/> as opposed to the in-built <see cref="IHttpAuthenticationFeature.User"/> which
 /// expects a <see cref="ClaimsPrincipal"/>.
 /// </summary>
-#if NET8_0_OR_GREATER
 [Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
-public
-#else
-internal
-#endif
-interface IPrincipalUserFeature
+public interface IPrincipalUserFeature
 {
     IPrincipal? User { get; set; }
 }

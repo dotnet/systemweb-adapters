@@ -11,13 +11,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 /// <summary>
 /// A feature that allows clearing the content or suppressing it.
 /// </summary>
-#if NET8_0_OR_GREATER
 [Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
-public
-#else
-internal
-#endif
-interface IHttpResponseContentFeature
+public interface IHttpResponseContentFeature
 {
     bool SuppressContent { get; set; }
 

@@ -11,15 +11,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Web;
 
 /// <summary>
-/// Represents any errors raised during <see cref="System.Web.HttpApplication"/> events.
+/// Represents any errors raised during <see cref="HttpApplication"/> events.
 /// </summary>
-#if NET8_0_OR_GREATER
 [Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
-public
-#else
-internal
-#endif
-interface IRequestExceptionFeature
+public interface IRequestExceptionFeature
 {
     IReadOnlyList<Exception> Exceptions { get; }
 

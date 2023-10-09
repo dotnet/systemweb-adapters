@@ -12,13 +12,8 @@ using System.Web;
 /// <summary>
 /// Represents whether a response has ended or allows transition into an ended state.
 /// </summary>
-#if NET8_0_OR_GREATER
 [Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
-public
-#else
-internal
-#endif
-interface IHttpResponseEndFeature
+public interface IHttpResponseEndFeature
 {
     bool IsEnded { get; }
 

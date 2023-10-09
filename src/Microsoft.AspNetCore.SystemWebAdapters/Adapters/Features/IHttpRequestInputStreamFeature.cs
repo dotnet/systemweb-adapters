@@ -14,13 +14,8 @@ using System.Web;
 /// <summary>
 /// Feature to adapt the <see cref="HttpRequestCore.Body"/> to <see cref="HttpRequest.InputStream"/> and related members.
 /// </summary>
-#if NET8_0_OR_GREATER
 [Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
-public
-#else
-internal
-#endif
-interface IHttpRequestInputStreamFeature
+public interface IHttpRequestInputStreamFeature
 {
     /// <summary>
     /// Gets the <see cref="ReadEntityBodyMode"/> of the request.

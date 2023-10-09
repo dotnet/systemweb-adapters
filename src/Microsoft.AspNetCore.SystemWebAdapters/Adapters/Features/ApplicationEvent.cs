@@ -8,13 +8,8 @@ using System.Web;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
-#if NET8_0_OR_GREATER
 [Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
-public
-#else
-internal
-#endif
-enum ApplicationEvent
+public enum ApplicationEvent
 {
     ApplicationStart,
 

@@ -56,7 +56,7 @@ internal sealed class BrowserCapabilitiesFactory : IBrowserCapabilitiesFactory
         }
         else if (request.HttpContext.RequestServices.GetService<IMemoryCache>() is { } cache)
         {
-            return cache.GetOrCreate<IHttpBrowserCapabilityFeature>(userAgent, entry =>
+            return cache.GetOrCreate(userAgent, entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(2);
 

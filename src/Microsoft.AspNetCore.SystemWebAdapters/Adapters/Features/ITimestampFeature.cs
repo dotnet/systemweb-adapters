@@ -12,13 +12,8 @@ using System.Web;
 /// <summary>
 /// Represents the timestamp of a request.
 /// </summary>
-#if NET8_0_OR_GREATER
 [Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
-public
-#else
-internal
-#endif
-interface ITimestampFeature
+public interface ITimestampFeature
 {
     DateTimeOffset Timestamp { get; }
 }

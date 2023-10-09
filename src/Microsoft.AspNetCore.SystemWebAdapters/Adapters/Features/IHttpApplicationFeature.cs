@@ -14,13 +14,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 /// <summary>
 /// Represents the emulated IIS pipeline and the <see cref="HttpApplication"/> associated with it.
 /// </summary>
-#if NET8_0_OR_GREATER
 [Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
-public
-#else
-internal
-#endif
-    interface IHttpApplicationFeature
+public interface IHttpApplicationFeature
 {
     /// <summary>
     /// Gets the <see cref="HttpApplication"/> that is assigned to the current request.
@@ -32,7 +27,7 @@ internal
     /// </summary>
     /// <param name="appEvent"></param>
     /// <returns></returns>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1030:Use events where appropriate", Justification = "May need to support async calls")]
+    [SuppressMessage("Design", "CA1030:Use events where appropriate", Justification = "May need to support async calls")]
     ValueTask RaiseEventAsync(ApplicationEvent appEvent);
 
     /// <summary>
