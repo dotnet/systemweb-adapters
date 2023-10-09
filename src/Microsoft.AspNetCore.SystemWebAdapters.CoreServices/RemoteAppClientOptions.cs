@@ -38,7 +38,7 @@ public class RemoteAppClientOptions
             ArgumentNullException.ThrowIfNull(value);
 
             // Path must end in '/' so that it will combine correctly with subpaths
-            if (!value.AbsolutePath.EndsWith("/", StringComparison.Ordinal))
+            if (!value.AbsolutePath.EndsWith('/'))
             {
                 var builder = new UriBuilder(value);
                 builder.Path += "/";
