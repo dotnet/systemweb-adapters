@@ -35,8 +35,8 @@ internal sealed class RegisterHttpApplicationFeatureMiddleware
         }
         finally
         {
+            context.Features.Set<IHttpResponseEndFeature>(endFeature);
             context.Features.Set<IHttpApplicationFeature>(null);
-            context.Features.Set<IHttpResponseEndFeature>(null);
             context.Features.Set<IRequestExceptionFeature>(null);
         }
     }
