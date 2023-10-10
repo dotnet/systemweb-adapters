@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.SessionState;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
@@ -286,7 +287,9 @@ public class AspNetCoreSessionStateTests
         var options = Options.Create(sessionSerializerOptions);
 
         var aspNetCoreSessionManager = new AspNetCoreSessionManager(new Composite(serializer.Object), loggerFactory.Object, options);
-        return await aspNetCoreSessionManager.CreateAsync(httpContextCore.Object, new SessionAttribute() { IsReadOnly = isReadOnly });
+        var behavior = isReadOnly ? SessionStateBehavior.ReadOnly : SessionStateBehavior.Required;
+
+        return await aspNetCoreSessionManager.CreateAsync(httpContextCore.Object, new SessionAttribute() { SessionBehavior = behavior });
     }
 
     private sealed class Composite : ICompositeSessionKeySerializer

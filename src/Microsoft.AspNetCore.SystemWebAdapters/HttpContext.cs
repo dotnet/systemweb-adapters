@@ -90,7 +90,10 @@ public class HttpContext : IServiceProvider
         }
     }
 
-    public HttpSessionState? Session => _context.Features.Get<HttpSessionState>();
+    public HttpSessionState? Session => _context.Features.Get<ISessionStateFeature>()?.Session;
+
+    public void SetSessionStateBehavior(SessionStateBehavior sessionStateBehavior)
+        => _context.Features.GetRequired<ISessionStateFeature>().Behavior = sessionStateBehavior;
 
     public DateTime Timestamp => _context.Features.GetRequired<ITimestampFeature>().Timestamp.DateTime;
 

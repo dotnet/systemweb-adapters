@@ -72,11 +72,7 @@ public static class SystemWebAdaptersExtensions
         app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
         app.UseMiddleware<SingleThreadedRequestMiddleware>();
         app.UseMiddleware<CurrentPrincipalMiddleware>();
-
-        if (app.AreHttpApplicationEventsRequired())
-        {
-            app.UseHttpApplicationEvent(ApplicationEvent.BeginRequest);
-        }
+        app.UseMiddleware<SessionStateMiddleware>();
     }
 
     public static void UseSystemWebAdapters(this IApplicationBuilder app)
@@ -105,7 +101,7 @@ public static class SystemWebAdaptersExtensions
                 ApplicationEvent.PostUpdateRequestCache,
             });
 
-        app.UseMiddleware<SessionMiddleware>();
+        app.UseMiddleware<SessionLoadMiddleware>();
 
         if (app.AreHttpApplicationEventsRequired())
         {

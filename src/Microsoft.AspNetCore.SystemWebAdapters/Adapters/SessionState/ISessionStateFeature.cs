@@ -8,6 +8,12 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 
 internal interface ISessionStateFeature
 {
-    SessionStateBehavior State { get; set; }
+    SessionStateBehavior Behavior { get; set; }
+
+    bool IsLazyLoad { get; }
+
+    HttpSessionState? Session { get; }
+
+    ISessionState? State { get; set; }
 }
 #endif
