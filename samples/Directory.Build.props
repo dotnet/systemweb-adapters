@@ -2,6 +2,7 @@
      By default, Arcade will bring in PackageReferences which will break any old-style projects (they will prefer those packages over packages.config) -->
 <Project>
   <PropertyGroup>
+    <IsPackable>true</IsPackable>
     <LangVersion>11</LangVersion>
   </PropertyGroup>
 </Project>

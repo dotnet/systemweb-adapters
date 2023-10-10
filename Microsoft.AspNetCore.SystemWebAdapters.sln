@@ -7,6 +7,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.Tests", "test\Microsoft.AspNetCore.SystemWebAdapters.Tests\Microsoft.AspNetCore.SystemWebAdapters.Tests.csproj", "{DA28CCAB-3C88-46F1-B779-43C573ED49E5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{95915611-30BF-4AFF-AE41-5CDC6F57DCF7}"
+	ProjectSection(SolutionItems) = preProject
+		samples\Directory.Build.props = samples\Directory.Build.props
+		samples\Directory.Build.targets = samples\Directory.Build.targets
+		samples\README.md = samples\README.md
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary", "samples\ClassLibrary\ClassLibrary.csproj", "{11DD4D64-7A95-4635-A273-775715E18852}"
 EndProject
