@@ -56,7 +56,11 @@ internal partial class SessionLoadMiddleware
             await _next(context);
 
             using var cts = new CancellationTokenSource(CommitTimeout);
-            await state.CommitAsync(cts.Token);
+
+            if (!details.IsReadOnly)
+            {
+                await state.CommitAsync(cts.Token);
+            }
         }
         finally
         {

@@ -37,10 +37,10 @@ public sealed class SessionAttribute : Attribute
 
     public bool IsLazyLoad { get; set; }
 
-    [Obsolete("Prefer SessionBehavior property")]
     public bool IsReadOnly
     {
         get => SessionBehavior is SessionStateBehavior.ReadOnly;
+        [Obsolete("Prefer SessionBehavior property")]
         set
         {
             if (value)

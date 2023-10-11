@@ -57,7 +57,7 @@ internal partial class RemoteAppSessionStateManager : ISessionManager
         try
         {
             // Get or create session data
-            var response = await GetSessionDataAsync(sessionId, metadata.SessionBehavior == System.Web.SessionState.SessionStateBehavior.ReadOnly, context, context.RequestAborted);
+            var response = await GetSessionDataAsync(sessionId, metadata.IsReadOnly, context, context.RequestAborted);
 
             LogSessionLoad(response.Count, response.SessionID);
 
