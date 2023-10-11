@@ -2,11 +2,18 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #if NETCOREAPP
+using System.Diagnostics.CodeAnalysis;
+using System.Web;
 using System.Web.SessionState;
+using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState;
+namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
-internal interface ISessionStateFeature
+/// <summary>
+/// Represents session state for System.Web
+/// </summary>
+[Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
+public interface ISessionStateFeature
 {
     SessionStateBehavior Behavior { get; set; }
 

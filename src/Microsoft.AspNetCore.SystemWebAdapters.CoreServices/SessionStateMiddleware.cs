@@ -4,6 +4,7 @@
 using System.Threading.Tasks;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;

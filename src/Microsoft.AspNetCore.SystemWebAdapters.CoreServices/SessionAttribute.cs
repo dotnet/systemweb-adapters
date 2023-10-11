@@ -26,7 +26,7 @@ public sealed class SessionAttribute : Attribute
             SessionBehavior = value switch
             {
                 SystemWebAdapters.SessionBehavior.None => SessionStateBehavior.Disabled,
-                SystemWebAdapters.SessionBehavior.Preload => SessionStateBehavior.Disabled,
+                SystemWebAdapters.SessionBehavior.Preload => SessionStateBehavior.Required,
                 SystemWebAdapters.SessionBehavior.OnDemand => SessionStateBehavior.Required,
                 _ => throw new ArgumentOutOfRangeException(nameof(value)),
             };

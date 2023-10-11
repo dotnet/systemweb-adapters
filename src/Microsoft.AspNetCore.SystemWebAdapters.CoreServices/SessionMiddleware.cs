@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

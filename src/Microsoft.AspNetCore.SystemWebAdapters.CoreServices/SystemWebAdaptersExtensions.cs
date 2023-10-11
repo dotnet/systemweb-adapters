@@ -73,7 +73,6 @@ public static class SystemWebAdaptersExtensions
         app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
         app.UseMiddleware<SingleThreadedRequestMiddleware>();
         app.UseMiddleware<CurrentPrincipalMiddleware>();
-        app.UseMiddleware<SessionStateMiddleware>();
 
         if (app.AreHttpApplicationEventsRequired())
         {
@@ -147,6 +146,7 @@ public static class SystemWebAdaptersExtensions
             {
                 builder.UseMiddleware<SetHttpContextTimestampMiddleware>();
                 builder.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
+                builder.UseMiddleware<SessionStateMiddleware>();
 
                 if (builder.AreHttpApplicationEventsRequired())
                 {
