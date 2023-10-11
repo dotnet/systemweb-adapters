@@ -1,4 +1,6 @@
+using System;
 using System.IO;
+using System.Linq;
 using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.NuGet.Tests;
@@ -24,6 +26,6 @@ public class ContentFileTests
         var files = Directory.GetFiles("Scripts");
 
         // Assert
-        Assert.Equal(expected, files);
+        Assert.Equal(expected.Order(StringComparer.Ordinal), files.Order(StringComparer.Ordinal));
     }
 }
