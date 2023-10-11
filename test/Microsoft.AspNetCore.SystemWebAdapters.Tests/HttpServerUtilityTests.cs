@@ -5,26 +5,14 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Web;
-using System.Web.Caching;
-using Moq;
+using System.Web.Hosting;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public class HttpServerUtilityTests
 {
-    internal sealed class TestHttpRuntime : IHttpRuntime
-    {
-        private Cache? _cache;
-
-        public string AppDomainAppVirtualPath => "/";
-
-        public string AppDomainAppPath => System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
-            "C:\\ExampleSites\\TestMapPath" : "/apps/test-map-path";
-
-        public Cache Cache => _cache ??= new Cache();
-    }
-
     [Fact]
     public void UrlTokenEncodeEmpty()
     {
@@ -101,29 +89,20 @@ public class HttpServerUtilityTests
     public void MapPath(string page, string? path, params string[] segments)
     {
         // Arrange
-        var runtime = new Mock<IHttpRuntime>();
+        var options = new SystemWebAdaptersOptions
+        {
+            AppDomainAppVirtualPath = "/",
+            AppDomainAppPath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"C:\ExampleSites\TestMapPath" : "/apps/test-map-path"
+        };
+        var ioptions = Options.Create(options);
 
-        runtime.Setup(r => r.AppDomainAppVirtualPath).Returns("/");
-        runtime.Setup(r => r.AppDomainAppPath).Returns(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
-            @"C:\ExampleSites\TestMapPath" : "/apps/test-map-path");
-
-        var services = new Mock<IServiceProvider>();
-        services.Setup(s => s.GetService(typeof(IHttpRuntime))).Returns(runtime.Object);
-
-        var coreRequest = new Mock<HttpRequestCore>();
-        coreRequest.Setup(c => c.Path).Returns(page);
-
-        var coreContext = new Mock<HttpContextCore>();
-        coreContext.Setup(c => c.Request).Returns(coreRequest.Object);
-        coreContext.Setup(c => c.RequestServices).Returns(services.Object);
-
-        var context = new HttpContext(coreContext.Object);
+        var utility = new MapPathUtility(ioptions, new(ioptions));
 
         // Act
-        var result = context.Server.MapPath(path);
+        var result = utility.MapPath(page, path);
 
         var relative = System.IO.Path.Combine(segments);
-        var expected = System.IO.Path.Combine(runtime.Object.AppDomainAppPath, relative);
+        var expected = System.IO.Path.Combine(options.AppDomainAppPath, relative);
 
         // Assert
         Assert.Equal(expected, result);
@@ -137,25 +116,16 @@ public class HttpServerUtilityTests
     public void MapPathException(string page, string? path, Type expected)
     {
         // Arrange
-        var runtime = new Mock<IHttpRuntime>();
 
-        runtime.Setup(r => r.AppDomainAppVirtualPath).Returns("/");
-        runtime.Setup(r => r.AppDomainAppPath).Returns(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
-            @"C:\ExampleSites\TestMapPath" : "/apps/test-map-path");
-
-        var services = new Mock<IServiceProvider>();
-        services.Setup(s => s.GetService(typeof(IHttpRuntime))).Returns(runtime.Object);
-
-        var coreRequest = new Mock<HttpRequestCore>();
-        coreRequest.Setup(c => c.Path).Returns(page);
-
-        var coreContext = new Mock<HttpContextCore>();
-        coreContext.Setup(c => c.Request).Returns(coreRequest.Object);
-        coreContext.Setup(c => c.RequestServices).Returns(services.Object);
-
-        var context = new HttpContext(coreContext.Object);
+        var options = new SystemWebAdaptersOptions
+        {
+            AppDomainAppVirtualPath = "/",
+            AppDomainAppPath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"C:\ExampleSites\TestMapPath" : "/apps/test-map-path"
+        };
+        var ioptions = Options.Create(options);
+        var utility = new MapPathUtility(ioptions, new(ioptions));
 
         // Assert
-        Assert.Throws(expected, () => context.Server.MapPath(path));
+        Assert.Throws(expected, () => utility.MapPath(page, path));
     }
 }

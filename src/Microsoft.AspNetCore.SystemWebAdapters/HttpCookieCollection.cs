@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 
 namespace System.Web;
@@ -31,14 +32,14 @@ public sealed class HttpCookieCollection : NameObjectCollectionBase
         response.UnwrapAdapter().OnStarting(static state =>
         {
             var response = (HttpResponse)state;
-            var cookies = response.UnwrapAdapter().Cookies;
+            var headers = response.UnwrapAdapter().Headers;
             var isShareable = false;
 
             for (var i = 0; i < response.Cookies.Count; i++)
             {
                 if (response.Cookies[i] is { } cookie)
                 {
-                    cookies.Append(cookie.Name, cookie.Value ?? string.Empty, cookie.ToCookieOptions());
+                    headers.SetCookie = StringValues.Concat(headers.SetCookie, cookie.ToSetCookieHeaderValue().ToString());
 
                     isShareable |= cookie.Shareable;
                 }

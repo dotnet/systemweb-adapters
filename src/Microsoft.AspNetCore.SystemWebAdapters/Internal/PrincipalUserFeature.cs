@@ -5,6 +5,7 @@ using System;
 using System.Security.Claims;
 using System.Security.Principal;
 using Microsoft.AspNetCore.Http.Features.Authentication;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;

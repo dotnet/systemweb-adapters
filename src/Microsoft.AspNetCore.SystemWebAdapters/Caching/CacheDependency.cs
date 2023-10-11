@@ -18,10 +18,7 @@ public class CacheDependency : IDisposable
     private string? uniqueId;
     private bool uniqueIdInitialized;
 
-    internal CacheDependency()
-    {
-        FinishInit();
-    }
+    protected CacheDependency() => FinishInit();
 
     public CacheDependency(string filename) : this(filename, DateTime.MaxValue) { }
 
@@ -31,8 +28,14 @@ public class CacheDependency : IDisposable
 
     public CacheDependency(string[] filenames, DateTime start) : this(filenames, null, null, start) { }
 
+    public CacheDependency(string[]? filenames, string[]? cachekeys) : this(filenames, cachekeys, null, DateTime.MaxValue) { }
+
     public CacheDependency(string[]? filenames, string[]? cachekeys, DateTime start) :
         this(filenames, cachekeys, null, start)
+    { }
+
+    public CacheDependency(string[]? filenames, string[]? cachekeys, CacheDependency? dependency) :
+        this(filenames, cachekeys, dependency, DateTime.MaxValue)
     { }
 
     public CacheDependency(
@@ -69,7 +72,7 @@ public class CacheDependency : IDisposable
     protected internal void FinishInit()
     {
         HasChanged = changeMonitors.Any(cm => cm.HasChanged && (cm.GetLastModifiedUtc() > utcStart));
-        utcLastModified = changeMonitors.Max(cm => cm.GetLastModifiedUtc());
+        utcLastModified = changeMonitors.Count == 0 ? DateTime.MinValue : changeMonitors.Max(cm => cm.GetLastModifiedUtc());
         if (HasChanged)
         {
             NotifyDependencyChanged(this, EventArgs.Empty);
@@ -89,7 +92,7 @@ public class CacheDependency : IDisposable
 
     protected void NotifyDependencyChanged(object sender, EventArgs e)
     {
-        if (initCompleted && DateTime.UtcNow > utcStart)
+        if (initCompleted && (utcStart == DateTime.MaxValue || DateTime.UtcNow > utcStart))
         {
             HasChanged = true;
             utcLastModified = DateTime.UtcNow;
@@ -130,19 +133,27 @@ public class CacheDependency : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (disposing)
         {
-            if (disposing)
+            if (!disposedValue)
             {
-                foreach (var changeMonitor in changeMonitors)
+                // Ensure that if the Dispose is called by different threads (i.e. the wrapping ChangeMonitor) that it won't enumerate the list at the same time
+                lock (changeMonitors)
                 {
-                    changeMonitor?.Dispose();
-                }
-                changeMonitors.Clear();
+                    if (!disposedValue)
+                    {
+                        foreach (var changeMonitor in changeMonitors)
+                        {
+                            changeMonitor?.Dispose();
+                        }
+                        changeMonitors.Clear();
 
-                DependencyDispose();
+                        DependencyDispose();
+
+                        disposedValue = true;
+                    }
+                }
             }
-            disposedValue = true;
         }
     }
 

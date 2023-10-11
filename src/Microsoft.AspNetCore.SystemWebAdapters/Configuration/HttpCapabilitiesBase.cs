@@ -4,6 +4,7 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace System.Web.Configuration;
@@ -45,11 +46,21 @@ public class HttpCapabilitiesBase
 
     public bool Crawler => GetBoolean("crawler");
 
+    public bool Cookies => GetBoolean("cookies");
+
     public string? Type => Capability["type"];
 
     public string? PreferredRequestEncoding => Capability["preferredRequestEncoding"];
 
     public string? this[string key] => Capability[key];
+
+    public Version EcmaScriptVersion => GetVersion("ecmascriptversion");
+
+    public Version MSDomVersion => GetVersion("msdomversion");
+
+    public Version W3CDomVersion => GetVersion("w3cdomversion");
+
+    public bool SupportsCallback => GetBoolean("supportsCallback");
 
     public bool IsMobileDevice => GetBoolean("isMobileDevice");
 
@@ -88,5 +99,18 @@ public class HttpCapabilitiesBase
         }
 
         throw new HttpUnhandledException($"Invalid string from browser capabilities '{key}'");
+    }
+
+    private Version GetVersion(string key)
+    {
+        var result = Capability[key];
+        if (result is not null)
+        {
+            return new Version(result);
+        }
+        else
+        {
+            throw new ArgumentNullException(nameof(key));
+        }
     }
 }

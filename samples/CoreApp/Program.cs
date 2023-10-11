@@ -3,11 +3,7 @@ var builder = WebApplication.CreateBuilder();
 builder.Services.AddSystemWebAdapters()
     .WrapAspNetCoreSession()
     .AddSessionSerializer()
-    .AddCustomSerialization()
-    .AddJsonSessionSerializer(options =>
-    {
-        options.RegisterKey<int>("callCount");
-    });
+    .AddCustomSerialization();
 
 builder.Services.AddDistributedMemoryCache();
 
@@ -28,6 +24,8 @@ app.UseRouting();
 app.UseSession();
 
 app.UseSystemWebAdapters();
+
+app.MapHostingEnvironmentDetails();
 
 app.MapGroup("/session")
     .MapSessionExample();

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -26,8 +27,13 @@ public class HttpContext : IServiceProvider
     private HttpResponse? _response;
     private HttpServerUtility? _server;
     private IDictionary? _items;
+    private TraceContext? _trace;
 
-    public static HttpContext? Current => _accessor.HttpContext;
+    public static HttpContext? Current
+    {
+        get => _accessor.HttpContext;
+        set => _accessor.HttpContext = value;
+    }
 
     internal HttpContext(HttpContextCore context)
     {
@@ -41,6 +47,8 @@ public class HttpContext : IServiceProvider
     public IDictionary Items => _items ??= _context.Items.AsNonGeneric();
 
     public HttpServerUtility Server => _server ??= new(_context);
+
+    public TraceContext Trace => _trace ??= new(_context);
 
     public Exception? Error => _context.Features.Get<IRequestExceptionFeature>()?.Exceptions is [{ } error, ..] ? error : null;
 
@@ -87,7 +95,7 @@ public class HttpContext : IServiceProvider
 
     public HttpSessionState? Session => _context.Features.Get<HttpSessionState>();
 
-    public DateTime Timestamp { get; } = DateTime.UtcNow.ToLocalTime();
+    public DateTime Timestamp => _context.Features.GetRequired<ITimestampFeature>().Timestamp.DateTime;
 
     public void RewritePath(string path) => RewritePath(path, true);
 
@@ -105,7 +113,7 @@ public class HttpContext : IServiceProvider
             path = path[..iqs];
         }
 
-        if (!path.StartsWith("/", StringComparison.Ordinal))
+        if (!path.StartsWith('/'))
         {
             path = "/" + path;
         }
@@ -149,10 +157,10 @@ public class HttpContext : IServiceProvider
         return token;
     }
 
-    [return: NotNullIfNotNull("context")]
+    [return: NotNullIfNotNull(nameof(context))]
     public static implicit operator HttpContext?(HttpContextCore? context) => context?.GetAdapter();
 
-    [return: NotNullIfNotNull("context")]
+    [return: NotNullIfNotNull(nameof(context))]
     public static implicit operator HttpContextCore?(HttpContext? context) => context?._context;
 
     private sealed class DisposeOnPipelineSubscriptionToken : ISubscriptionToken, IDisposable

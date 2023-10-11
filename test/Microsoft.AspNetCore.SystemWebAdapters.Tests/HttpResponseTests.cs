@@ -10,7 +10,9 @@ using AutoFixture;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Moq;
 using Xunit;
@@ -550,11 +552,13 @@ public class HttpResponseTests
         // Arrange
         var isEndCalled = endResponse ?? true;
 
-        var runtime = new Mock<IHttpRuntime>();
-        runtime.Setup(r => r.AppDomainAppVirtualPath).Returns(vdir);
+        var options = new SystemWebAdaptersOptions
+        {
+            AppDomainAppVirtualPath = vdir,
+        };
 
         var services = new Mock<IServiceProvider>();
-        services.Setup(s => s.GetService(typeof(IHttpRuntime))).Returns(runtime.Object);
+        services.Setup(s => s.GetService(typeof(IOptions<SystemWebAdaptersOptions>))).Returns(Options.Create(options));
 
         var endFeature = new Mock<IHttpResponseEndFeature>();
         endFeature.SetupAllProperties();

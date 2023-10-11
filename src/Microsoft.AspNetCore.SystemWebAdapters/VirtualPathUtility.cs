@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
+using System.Web.Hosting;
 
 namespace System.Web;
 
@@ -10,12 +12,12 @@ namespace System.Web;
 /// </summary>
 public static class VirtualPathUtility
 {
-    private static VirtualPathUtilityImpl Impl { get; } = new VirtualPathUtilityImpl(HttpRuntime.Current);
+    private static VirtualPathUtilityImpl Impl => HostingEnvironmentAccessor.Current.Services.GetRequiredService<VirtualPathUtilityImpl>();
 
     /// <summary>Appends the literal slash mark (/) to the end of the virtual path, if one does not already exist.</summary>
     /// <returns>The modified virtual path.</returns>
     /// <param name="virtualPath">The virtual path to append the slash mark to.</param>
-    [return: NotNullIfNotNull("virtualPath")]
+    [return: NotNullIfNotNull(nameof(virtualPath))]
     public static string? AppendTrailingSlash(string? virtualPath) => VirtualPathUtilityImpl.AppendTrailingSlash(virtualPath);
 
     /// <summary>Combines a base path and a relative path.</summary>

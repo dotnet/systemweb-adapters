@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Principal;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 namespace System.Web;
 
@@ -61,6 +62,16 @@ public class HttpApplication : IDisposable
     public IPrincipal User => Context.User;
 
     public void CompleteRequest() => Context.Response.End();
+
+    public virtual string? GetVaryByCustomString(HttpContext context, string custom)
+    {
+        if (string.Equals(custom, "browser", StringComparison.OrdinalIgnoreCase))
+        {
+            return context?.Request.Browser.Type;
+        }
+
+        return null;
+    }
 
     public event EventHandler? BeginRequest
     {

@@ -13,7 +13,9 @@ using System.Web;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Moq;
@@ -492,13 +494,13 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void ApplicationPath()
         {
             // Arrange
-            var appVirtualPath = _fixture.Create<string>();
-
-            var httpRuntime = new Mock<IHttpRuntime>();
-            httpRuntime.Setup(h => h.AppDomainAppVirtualPath).Returns(appVirtualPath);
+            var options = new SystemWebAdaptersOptions
+            {
+                AppDomainAppVirtualPath = _fixture.Create<string>(),
+            };
 
             var services = new Mock<IServiceProvider>();
-            services.Setup(s => s.GetService(typeof(IHttpRuntime))).Returns(httpRuntime.Object);
+            services.Setup(s => s.GetService(typeof(IOptions<SystemWebAdaptersOptions>))).Returns(Options.Create(options));
 
             var coreContext = new Mock<HttpContextCore>();
             coreContext.Setup(c => c.RequestServices).Returns(services.Object);
@@ -512,7 +514,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             var result = request.ApplicationPath;
 
             // Assert
-            Assert.Equal(appVirtualPath, result);
+            Assert.Equal(options.AppDomainAppVirtualPath, result);
         }
 
         [Fact]

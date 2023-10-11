@@ -1,3 +1,6 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +16,7 @@ internal sealed class CompositeSessionKeySerializer : ICompositeSessionKeySerial
         _serializers = serializers.ToArray();
     }
 
-    public bool TrySerialize(string key, object value, out byte[] bytes)
+    public bool TrySerialize(string key, object? value, out byte[] bytes)
     {
         foreach (var serializer in _serializers)
         {

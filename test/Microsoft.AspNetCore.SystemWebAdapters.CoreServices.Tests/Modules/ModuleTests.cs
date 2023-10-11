@@ -16,6 +16,7 @@ using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests;
 
+[Collection(nameof(SelfHostedTests))]
 public class ModuleTests
 {
     private static readonly string[] Initial = new[]
@@ -125,6 +126,7 @@ public class ModuleTests
                     })
                     .ConfigureServices(services =>
                     {
+                        services.AddSingleton<IStartupFilter>(new ModuleTestStartup(notifier, action));
                         services.AddRouting();
                         services.AddSystemWebAdapters()
                             .AddHttpApplication(options =>
@@ -137,17 +139,6 @@ public class ModuleTests
                     {
                         app.UseRouting();
 
-                        app.Use(async (ctx, next) =>
-                        {
-                            ctx.Features.Set(notifier);
-                            try
-                            {
-                                await next(ctx);
-                            }
-                            catch (InvalidOperationException) when (action == ModuleTestModule.Throw)
-                            {
-                            }
-                        });
                         app.UseAuthenticationEvents();
                         app.UseAuthorizationEvents();
                         app.UseSystemWebAdapters();
@@ -159,13 +150,51 @@ public class ModuleTests
 
         var url = $"/?action={action}&notification={eventName}";
 
-        using var _ = await host.GetTestClient().GetAsync(new Uri(url, UriKind.Relative));
+        try
+        {
+            using var _ = await host.GetTestClient().GetAsync(new Uri(url, UriKind.Relative));
+        }
+        finally
+        {
+            await host.StopAsync();
+        }
 
         return notifier;
     }
 
     private sealed class NotificationCollection : List<string>
     {
+    }
+
+    private sealed class ModuleTestStartup : IStartupFilter
+    {
+        private readonly NotificationCollection _collection;
+        private readonly string _action;
+
+        public ModuleTestStartup(NotificationCollection collection, string action)
+        {
+            _collection = collection;
+            _action = action;
+        }
+
+        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
+            => builder =>
+            {
+                builder.Use(async (ctx, next) =>
+                {
+                    ctx.Features.Set(_collection);
+
+                    try
+                    {
+                        await next(ctx);
+                    }
+                    catch (InvalidOperationException) when (_action == ModuleTestModule.Throw)
+                    {
+                    }
+                });
+
+                next(builder);
+            };
     }
 
     private sealed class ModuleTestModule : EventsModule

@@ -10,6 +10,12 @@ internal static class SessionExampleExtensions
 
     public static ISystemWebAdapterBuilder AddCustomSerialization(this ISystemWebAdapterBuilder builder)
     {
+        builder.AddJsonSessionSerializer(options =>
+        {
+            options.RegisterKey<int>("callCount");
+            options.RegisterKey<int?>("item");
+        });
+
         builder.Services.AddSingleton<ISessionKeySerializer>(new ByteArraySerializer(SessionKey));
         return builder;
     }
@@ -59,6 +65,17 @@ internal static class SessionExampleExtensions
 
             return $"This endpoint has been hit {count} time(s) this session";
         });
+
+
+        builder.MapGet("/item", (HttpContextCore ctx) =>
+        {
+            var context = (HttpContext)ctx;
+
+            var result = context.Session!["item"];
+            context.Session!["item"] = default(int);
+
+            return $"Current value: {result}";
+        });
     }
 
     /// <summary>
@@ -88,7 +105,7 @@ internal static class SessionExampleExtensions
             return false;
         }
 
-        public bool TrySerialize(string key, object value, out byte[] bytes)
+        public bool TrySerialize(string key, object? value, out byte[] bytes)
         {
             if (string.Equals(_key, key, StringComparison.Ordinal) && value is byte[] valueBytes)
             {

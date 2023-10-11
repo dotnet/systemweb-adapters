@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.Extensions.Options;
@@ -42,6 +43,18 @@ public static class HttpApplicationExtensions
         return builder;
     }
 
+    public static ISystemWebAdapterBuilder AddHttpApplication<TApp>(this ISystemWebAdapterBuilder builder)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+
+        builder.AddHttpApplication(options =>
+        {
+            options.ApplicationType = typeof(TApp);
+        });
+
+        return builder;
+    }
+
     public static ISystemWebAdapterBuilder AddHttpApplication<TApp>(this ISystemWebAdapterBuilder builder, Action<HttpApplicationOptions> configure)
         where TApp : HttpApplication
     {
@@ -56,15 +69,6 @@ public static class HttpApplicationExtensions
         });
 
         return builder;
-    }
-
-    internal static void UseHttpApplication(this IApplicationBuilder app)
-    {
-        if (app.AreHttpApplicationEventsRequired())
-        {
-            app.UseMiddleware<HttpApplicationMiddleware>();
-            app.UseHttpApplicationEvent(ApplicationEvent.BeginRequest);
-        }
     }
 
     internal static void UseHttpApplicationEvent(this IApplicationBuilder app, params ApplicationEvent[] preEvents)

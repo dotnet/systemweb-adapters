@@ -13,8 +13,10 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 
 namespace System.Web
@@ -50,6 +52,10 @@ namespace System.Web
 
         [SuppressMessage("Design", "CA1056:URI-like properties should not be strings", Justification = Constants.ApiFromAspNet)]
         public string RawUrl => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().RawUrl;
+
+        public string? PhysicalPath => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().PhysicalPath;
+
+        public string CurrentExecutionFilePath => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().CurrentExecutionFilePath;
 
         public NameValueCollection Headers => _headers ??= _request.Headers.ToNameValueCollection();
 
@@ -89,7 +95,10 @@ namespace System.Web
 
                         for (var i = 0; i < length; i++)
                         {
-                            userLanguages[i] = qualityArray[i].Value.Value;
+                            if (qualityArray[i].Value.Value is { } language)
+                            {
+                                userLanguages[i] = language;
+                            }
                         }
 
                         ArrayPool<StringWithQualityHeaderValue>.Shared.Return(qualityArray);
@@ -102,7 +111,7 @@ namespace System.Web
             }
         }
 
-        public string UserAgent => _request.Headers[HeaderNames.UserAgent];
+        public string? UserAgent => _request.Headers[HeaderNames.UserAgent];
 
         public string RequestType => HttpMethod;
 
@@ -133,7 +142,10 @@ namespace System.Web
 
                         for (var i = 0; i < accept.Count; i++)
                         {
-                            _acceptTypes[i] = accept[i].MediaType.Value;
+                            if (accept[i].MediaType.Value is { } value)
+                            {
+                                _acceptTypes[i] = value;
+                            }
                         }
                     }
                 }
@@ -180,7 +192,7 @@ namespace System.Web
 
         public string AppRelativeCurrentExecutionFilePath => $"~{FilePath}";
 
-        public string ApplicationPath => _request.HttpContext.RequestServices.GetRequiredService<IHttpRuntime>().AppDomainAppVirtualPath;
+        public string ApplicationPath => _request.HttpContext.RequestServices.GetRequiredService<IOptions<SystemWebAdaptersOptions>>().Value.AppDomainAppVirtualPath;
 
         public Uri? UrlReferrer => TypedHeaders.Referer;
 
@@ -202,10 +214,14 @@ namespace System.Web
 
         public byte[] BinaryRead(int count)
         {
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfNegative(count);
+#else
             if (count < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
+#endif
 
             if (count == 0)
             {
@@ -273,10 +289,10 @@ namespace System.Web
 
         public void Abort() => _request.HttpContext.Abort();
 
-        [return: NotNullIfNotNull("request")]
+        [return: NotNullIfNotNull(nameof(request))]
         public static implicit operator HttpRequest?(HttpRequestCore? request) => request.GetAdapter();
 
-        [return: NotNullIfNotNull("request")]
+        [return: NotNullIfNotNull(nameof(request))]
         public static implicit operator HttpRequestCore?(HttpRequest? request) => request?._request;
 
         private class StringWithQualityHeaderValueComparer : IComparer<StringWithQualityHeaderValue>

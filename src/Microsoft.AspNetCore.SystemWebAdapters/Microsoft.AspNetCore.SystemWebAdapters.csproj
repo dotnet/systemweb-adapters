@@ -1,11 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;netstandard2.0;net45;net472</TargetFrameworks>
+    <TargetFrameworks>net6.0;net8.0;netstandard2.0;net45;net472</TargetFrameworks>
     <IsPackable>true</IsPackable>
 
     <!-- This will validate that the package will unify correctly with System.Web.dll -->
     <EnablePackageValidation>true</EnablePackageValidation>
+
+    <!-- AD0001 : https://github.com/dotnet/systemweb-adapters/issues/396 -->
+    <NoWarn>$(NoWarn);AD0001</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Label="Package Information">
@@ -27,10 +30,13 @@
     <Compile Remove="**/*" />
     <Compile Include="Properties/PropertyInfo.cs" />
     <Compile Include="Generated/Ref.*.cs" />
+    <Compile Include="Generated\Obsolete.cs" />
     <Compile Include="Adapters/SessionState/ISessionState.cs" />
+    <Compile Include="IHtmlString.cs" />
+    <Compile Include="HtmlString.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'net8.0' ">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
 
     <PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
@@ -44,6 +50,9 @@
     <Compile Include="Properties/PropertyInfo.cs" />
     <Compile Include="Adapters/**/*.cs" />
     <Compile Include="Generated/TypeForwards.*.cs" />
+
+    <Compile Include="IHtmlString.cs" />
+    <Compile Include="HtmlString.cs" />
 
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2">
       <PrivateAssets>all</PrivateAssets>

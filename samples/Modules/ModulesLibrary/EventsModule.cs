@@ -17,7 +17,10 @@ namespace ModulesLibrary
                 throw new ArgumentNullException(nameof(context));
             }
 
-            context.Response.ContentType = "text/plain";
+            if (context.CurrentNotification == RequestNotification.BeginRequest)
+            {
+                context.Response.ContentType = "text/plain";
+            }
 
             context.Response.Output.WriteLine(name);
 

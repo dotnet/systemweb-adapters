@@ -35,6 +35,14 @@ namespace System.Web
             get => throw new NotImplementedException();
         }
 
+        public virtual bool HeadersWritten
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public virtual bool TrySkipIisCustomErrors
         {
             get => throw new NotImplementedException();
@@ -54,6 +62,8 @@ namespace System.Web
             get => throw new NotImplementedException();
             set => throw new NotImplementedException();
         }
+
+        public virtual bool BufferOutput  => throw new NotImplementedException();
 
         public virtual Stream OutputStream => throw new NotImplementedException();
 
@@ -78,6 +88,15 @@ namespace System.Web
             get => throw new NotImplementedException();
             set => throw new NotImplementedException();
         }
+
+        [AllowNull]
+        public virtual Stream Filter
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
+
+        public virtual HttpCachePolicy Cache => throw new NotImplementedException();
 
         public virtual bool IsClientConnected => throw new NotImplementedException();
 
@@ -110,7 +129,7 @@ namespace System.Web
 
         public virtual void TransmitFile(string filename, long offset, long length) => throw new NotImplementedException();
 
-        [return: NotNullIfNotNull("response")]
+        [return: NotNullIfNotNull(nameof(response))]
         public static implicit operator HttpResponseBase?(HttpResponseCore? response) => response?.GetAdapterBase();
     }
 }

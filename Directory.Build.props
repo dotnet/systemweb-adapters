@@ -39,5 +39,9 @@
       Suppress a warning about the deprecation of netcoreapp2.1 since some packages/samples here target it
     -->
     <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
+    <!--
+      Suppress warning for internal experimental APIs
+    -->
+    <NoWarn>$(NoWarn);SYSWEB1001</NoWarn>
   </PropertyGroup>
 </Project>

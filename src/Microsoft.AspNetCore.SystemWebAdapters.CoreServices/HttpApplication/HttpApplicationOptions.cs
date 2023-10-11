@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Web;
 
 using static System.FormattableString;
@@ -41,7 +40,7 @@ public class HttpApplicationOptions
     internal void MakeReadOnly() => _modules.MakeReadOnly();
 
     /// <summary>
-    /// Gets or sets the number of <see cref="HttpApplication"/> retained for reuse. In order to support modules and appplications that may contain state,
+    /// Gets or sets the number of <see cref="HttpApplication"/> retained for reuse. In order to support modules and applications that may contain state,
     /// a unique instance is required for each request. This type should be set to the average number of concurrent requests expected to be seen.
     /// </summary>
     public int PoolSize { get; set; } = 100;

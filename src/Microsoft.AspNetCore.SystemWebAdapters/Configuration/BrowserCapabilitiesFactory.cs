@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -47,7 +48,7 @@ internal sealed class BrowserCapabilitiesFactory : IBrowserCapabilitiesFactory
 
     IHttpBrowserCapabilityFeature IBrowserCapabilitiesFactory.Create(HttpRequestCore request)
     {
-        var userAgent = request.Headers.UserAgent;
+        var userAgent = request.Headers.UserAgent.ToString();
 
         if (string.IsNullOrWhiteSpace(userAgent))
         {
@@ -55,12 +56,12 @@ internal sealed class BrowserCapabilitiesFactory : IBrowserCapabilitiesFactory
         }
         else if (request.HttpContext.RequestServices.GetService<IMemoryCache>() is { } cache)
         {
-            return cache.GetOrCreate<IHttpBrowserCapabilityFeature>(userAgent, entry =>
+            return cache.GetOrCreate(userAgent, entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(2);
 
                 return Parse(userAgent);
-            });
+            }) ?? EmptyBrowserFeatures.Instance;
         }
         else
         {

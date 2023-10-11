@@ -11,9 +11,18 @@ M:System.Web.HttpResponseBase.op_Implicit(Microsoft.AspNetCore.Http.HttpResponse
 M:System.Web.HttpRequestBase.op_Implicit(Microsoft.AspNetCore.Http.HttpRequest)~System.Web.HttpRequestBase
 
 T:Microsoft.AspNetCore.SystemWebAdapters.SessionState.ISessionState
+T:Microsoft.AspNetCore.SystemWebAdapters.SystemWebAdaptersOptions
 
 # We manually type forward this only for .NET 4.7.2+
 T:System.Web.SameSiteMode
 
-T:Microsoft.AspNetCore.SystemWebAdapters.IBrowserCapabilitiesFactory
-T:Microsoft.AspNetCore.SystemWebAdapters.IHttpBrowserCapabilityFeature
+# Features should only be available on the .NET Core builds
+N:Microsoft.AspNetCore.SystemWebAdapters.Features
+
+# We provide implementations of this on .NET Standard 2.0 and .NET 6.0
+T:System.Web.IHtmlString
+
+# We implement extra interfaces that end up getting added to the generated stuff
+T:System.Web.HtmlString
+
+T:Microsoft.AspNetCore.SystemWebAdapters.ITraceContext
