@@ -5,19 +5,18 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.SessionState;
-using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests.SessionState;
 
 [Collection(nameof(SelfHostedTests))]
-public class SetSessionStateBehaviorTests
+public class SessionIntegrationTests
 {
     [InlineData("/disabled", "Session:null")]
     [InlineData("/readonly", "ReadOnly:True")]
