@@ -19,7 +19,7 @@ public sealed class SessionAttribute : Attribute
                 return SystemWebAdapters.SessionBehavior.None;
             }
 
-            return IsLazyLoad ? SystemWebAdapters.SessionBehavior.OnDemand : SystemWebAdapters.SessionBehavior.Preload;
+            return IsPreLoad ? SystemWebAdapters.SessionBehavior.Preload : SystemWebAdapters.SessionBehavior.OnDemand;
         }
         set
         {
@@ -35,7 +35,7 @@ public sealed class SessionAttribute : Attribute
 
     public SessionStateBehavior SessionBehavior { get; set; }
 
-    public bool IsLazyLoad { get; set; }
+    public bool IsPreLoad { get; set; } = true;
 
     public bool IsReadOnly
     {

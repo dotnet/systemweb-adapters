@@ -43,7 +43,7 @@ internal sealed class SessionStateMiddleware
 
         public ISessionState? State { get; set; }
 
-        public bool IsLazyLoad => GetExisting() is { IsLazyLoad: true };
+        public bool IsPreLoad => GetExisting()?.IsPreLoad ?? true;
 
         private SessionAttribute? GetExisting()
             => _context.GetEndpoint()?.Metadata.GetMetadata<SessionAttribute>();

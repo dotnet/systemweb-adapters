@@ -41,9 +41,9 @@ internal partial class SessionLoadMiddleware
         LogMessage(feature.Behavior);
 
         var manager = context.RequestServices.GetRequiredService<ISessionManager>();
-        var details = new SessionAttribute { SessionBehavior = feature.Behavior, IsLazyLoad = feature.IsLazyLoad };
+        var details = new SessionAttribute { SessionBehavior = feature.Behavior, IsPreLoad = feature.IsPreLoad };
 
-        using var state = feature.IsLazyLoad
+        using var state = !feature.IsPreLoad
 #pragma warning disable CA2000 // False positive for CA2000 here
             ? new LazySessionState(context, LogOnDemand, details, manager)
 #pragma warning restore CA2000 // Dispose objects before losing scope

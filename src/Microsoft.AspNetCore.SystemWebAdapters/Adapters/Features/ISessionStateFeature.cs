@@ -17,7 +17,7 @@ public interface ISessionStateFeature
 {
     SessionStateBehavior Behavior { get; set; }
 
-    bool IsLazyLoad { get; }
+    bool IsPreLoad { get; }
 
     HttpSessionState? Session { get; }
 
