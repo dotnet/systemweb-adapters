@@ -5,17 +5,22 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
+using Microsoft.Extensions.ObjectPool;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
-internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, IHttpResponseEndFeature, IRequestExceptionFeature
+internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpResponseEndFeature, IRequestExceptionFeature, IDisposable
 {
     private readonly IHttpResponseEndFeature _previous;
+    private readonly ObjectPool<HttpApplication> _pool;
+
+    private object? _contextOrApplication;
     private List<Exception>? _exceptions;
 
-    public RequestHttpApplicationFeature(HttpApplication app, IHttpResponseEndFeature previousEnd)
+    public HttpApplicationFeature(HttpContextCore context, IHttpResponseEndFeature previousEnd, ObjectPool<HttpApplication> pool)
     {
-        Application = app;
+        _contextOrApplication = context;
+        _pool = pool;
         _previous = previousEnd;
     }
 
@@ -25,7 +30,21 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
 
     public bool IsEnded { get; private set; }
 
-    public HttpApplication Application { get; }
+    public HttpApplication Application => _contextOrApplication switch
+    {
+        HttpContextCore context => InitializeApplication(context),
+        HttpApplication app => app,
+        null => throw new InvalidOperationException("HttpApplication is no longer available in the request"),
+        _ => throw new InvalidOperationException("Unknown application instance")
+    };
+
+    private HttpApplication InitializeApplication(HttpContextCore context)
+    {
+        var app = _pool.Get();
+        app.Context = context;
+        _contextOrApplication = app;
+        return app;
+    }
 
     ValueTask IHttpApplicationFeature.RaiseEventAsync(ApplicationEvent @event)
     {
@@ -118,4 +137,13 @@ internal sealed class RequestHttpApplicationFeature : IHttpApplicationFeature, I
         => ((IReadOnlyList<Exception>?)_exceptions) ?? Array.Empty<Exception>();
 
     void IRequestExceptionFeature.Clear() => _exceptions = null;
+
+    public void Dispose()
+    {
+        if (_contextOrApplication is HttpApplication app)
+        {
+            _pool.Return(app);
+            _contextOrApplication = null;
+        }
+    }
 }

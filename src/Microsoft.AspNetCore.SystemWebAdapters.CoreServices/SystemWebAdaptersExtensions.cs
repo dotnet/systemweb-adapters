@@ -147,6 +147,11 @@ public static class SystemWebAdaptersExtensions
                 builder.UseMiddleware<SetHttpContextTimestampMiddleware>();
                 builder.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
 
+                if (builder.AreHttpApplicationEventsRequired())
+                {
+                    builder.UseMiddleware<RegisterHttpApplicationFeatureMiddleware>();
+                }
+
                 next(builder);
             };
     }

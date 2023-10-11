@@ -113,7 +113,7 @@ public class HttpContext : IServiceProvider
             path = path[..iqs];
         }
 
-        if (!path.StartsWith("/", StringComparison.Ordinal))
+        if (!path.StartsWith('/'))
         {
             path = "/" + path;
         }
