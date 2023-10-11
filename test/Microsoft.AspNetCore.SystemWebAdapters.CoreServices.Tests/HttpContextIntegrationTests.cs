@@ -101,6 +101,14 @@ public class HttpContextIntegrationTests
             Assert.Equal("1", adapter.Request.QueryString["q"]);
         });
 
+    [Fact]
+    public Task Timestamp()
+        => RunTest("/", context =>
+        {
+            var timestamp = context.RequestServices.GetRequiredService<TimeProvider>().GetLocalNow().DateTime;
+            Assert.Equal(timestamp, context.GetAdapter().Timestamp);
+        });
+
     private static async Task RunTest(string path, Action<HttpContextCore> run)
     {
         // Arrange
@@ -111,6 +119,7 @@ public class HttpContextIntegrationTests
                     .UseTestServer()
                     .ConfigureServices(services =>
                     {
+                        services.AddSingleton<TimeProvider>(new MockTimeProvider());
                         services.AddRouting();
                         services.AddSystemWebAdapters();
                     })
@@ -137,5 +146,12 @@ public class HttpContextIntegrationTests
         {
             await host.StopAsync();
         }
+    }
+
+    private sealed class MockTimeProvider : TimeProvider
+    {
+        private static readonly DateTimeOffset now = DateTimeOffset.Now;
+
+        public override DateTimeOffset GetUtcNow() => now;
     }
 }

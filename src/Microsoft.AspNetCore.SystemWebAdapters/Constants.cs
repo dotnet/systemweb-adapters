@@ -30,4 +30,9 @@ internal static class Constants
         public const string Message = "Transfer is not supported on ASP.NET Core";
         public const string DiagnosticId = "SYSWEB0003";
     }
+
+    public static class ExperimentalFeatures
+    {
+        public const string DiagnosticId = "SYSWEB1001";
+    }
 }

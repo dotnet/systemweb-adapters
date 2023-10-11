@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
@@ -20,7 +21,7 @@ internal class SetHttpContextTimestampMiddleware
 
     public Task InvokeAsync(HttpContext context)
     {
-        context.Features.Set<TimestampFeature>(new(_timeProvider));
+        context.Features.Set<ITimestampFeature>(new TimestampFeature(_timeProvider));
 
         return _next(context);
     }

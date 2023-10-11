@@ -312,7 +312,7 @@ public class CacheTests
         cache.Insert(key, item);
 
         // Assert
-        memCache.Verify(m => m.Set(key, item, It.Is<CacheItemPolicy>(e => e.AbsoluteExpiration.Equals(Cache.NoAbsoluteExpiration) && e.SlidingExpiration.Equals(Cache.NoSlidingExpiration)), null), Times.Once);
+        memCache.Verify(m => m.Set(key, item, It.Is<CacheItemPolicy>(e => e.AbsoluteExpiration.DateTime.Equals(Cache.NoAbsoluteExpiration) && e.SlidingExpiration.Equals(Cache.NoSlidingExpiration)), null), Times.Once);
     }
 
     [Fact]
@@ -329,7 +329,7 @@ public class CacheTests
         cache.Insert(key, item, cacheDependency.Object);
 
         // Assert
-        memCache.Verify(m => m.Set(key, item, It.Is<CacheItemPolicy>(e => e.AbsoluteExpiration.Equals(Cache.NoAbsoluteExpiration) && e.SlidingExpiration.Equals(Cache.NoSlidingExpiration)), null), Times.Once);
+        memCache.Verify(m => m.Set(key, item, It.Is<CacheItemPolicy>(e => e.AbsoluteExpiration.DateTime.Equals(Cache.NoAbsoluteExpiration) && e.SlidingExpiration.Equals(Cache.NoSlidingExpiration)), null), Times.Once);
     }
 
     [Fact]

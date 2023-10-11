@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Principal;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 namespace System.Web;
 

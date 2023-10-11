@@ -22,6 +22,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F9DB9323-C919-49E8-8F96-B923D2F42E60}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{A1BDA50C-D70B-416C-97F1-74B0649797C5}"
+	ProjectSection(SolutionItems) = preProject
+		test\Directory.Build.props = test\Directory.Build.props
+		test\Directory.Build.targets = test\Directory.Build.targets
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteBearer", "samples\RemoteAuth\Bearer\RemoteBearer\RemoteBearer.csproj", "{898C9B2C-E43A-434F-9927-F6697C0ACE40}"
 EndProject
@@ -69,14 +73,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebFormsToBlazor", "WebForm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebFormsFramework", "samples\WebFormsToBlazor\WebFormsFramework\WebFormsFramework.csproj", "{0993BA4C-218B-43DD-A8A0-997B05808A08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorCore", "samples\WebFormsToBlazor\BlazorCore\BlazorCore.csproj", "{23094126-C05C-4172-A01F-998780976709}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorCore", "samples\WebFormsToBlazor\BlazorCore\BlazorCore.csproj", "{23094126-C05C-4172-A01F-998780976709}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{4ED7A31C-8DBE-4A32-A17A-D72794F9FE2C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModulesLibrary", "samples\Modules\ModulesLibrary\ModulesLibrary.csproj", "{5597A485-4D9B-4CE6-A489-DEBE9338450F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModulesFramework", "samples\Modules\ModulesFramework\ModulesFramework.csproj", "{B262AD69-11F0-4AE0-949A-AEAA2300C061}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModulesCore", "samples\Modules\ModulesCore\ModulesCore.csproj", "{F8B33C59-27CF-45DC-955C-2EBF9DA9DB7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModulesCore", "samples\Modules\ModulesCore\ModulesCore.csproj", "{F8B33C59-27CF-45DC-955C-2EBF9DA9DB7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -30,7 +31,11 @@ public class HttpContext : IServiceProvider
     private IDictionary? _items;
     private TraceContext? _trace;
 
-    public static HttpContext? Current => _accessor.HttpContext;
+    public static HttpContext? Current
+    {
+        get => _accessor.HttpContext;
+        set => _accessor.HttpContext = value;
+    }
 
     internal HttpContext(HttpContextCore context)
     {
@@ -113,7 +118,7 @@ public class HttpContext : IServiceProvider
             path = path[..iqs];
         }
 
-        if (!path.StartsWith("/", StringComparison.Ordinal))
+        if (!path.StartsWith('/'))
         {
             path = "/" + path;
         }

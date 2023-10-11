@@ -10,6 +10,7 @@ using System.Web.Caching;
 using System.Web.SessionState;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 using Moq;
 using Xunit;
@@ -470,6 +471,35 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
 
             // Assert
             feature.Verify(f => f.Rewrite(filePath, pathInfo, query, rebase), Times.Once);
+        }
+
+        [Fact]
+        public void SetHttpContext()
+        {
+            // Arrange
+            var coreContext = new DefaultHttpContext();
+            var context = new HttpContext(coreContext);
+
+            // Act
+            HttpContext.Current = context;
+
+            // Assert
+            Assert.IsType<HttpContext>(HttpContext.Current);
+        }
+
+        [Fact]
+        public void SetHttpContextToNull()
+        {
+            // Arrange
+            var coreContext = new DefaultHttpContext();
+            var context = new HttpContext(coreContext);
+            HttpContext.Current = context;
+
+            // Act
+            HttpContext.Current = null;
+
+            // Assert
+            Assert.Null(HttpContext.Current);
         }
     }
 }
