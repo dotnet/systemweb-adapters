@@ -18,6 +18,10 @@
     <StrongNameKeyId>MicrosoftAspNetCore</StrongNameKeyId>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <SolutionRootDirectory>$(MSBuildThisFileDirectory)</SolutionRootDirectory>
+  </PropertyGroup>
+
   <PropertyGroup Label="Package and Assembly Metadata">
     <Product>Microsoft ASP.NET Core</Product>
   </PropertyGroup>
