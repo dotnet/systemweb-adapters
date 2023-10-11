@@ -17,18 +17,6 @@
     <PackageReference Include="jQuery" Version="3.5.1" CopyContent="true" />
   </ItemGroup>
 
-  <Target Name="CopyToolsFilesForTest" AfterTargets="AddNugetContentFiles">
-    <ItemGroup>
-      <_TestOutput Include="$(OutDir)test_tools_output.txt" />
-    </ItemGroup>
-
-    <WriteLinesToFile
-        File="@(_TestOutput)"
-        Lines="@(_ToolsPackage)"
-        Overwrite="true"
-        Encoding="Unicode"/>
-  </Target>
-
   <Import Project="$(SolutionRootDirectory)src/Microsoft.AspNetCore.SystemWebAdapters/Build/Microsoft.AspNetCore.SystemWebAdapters.targets" />
 
 </Project>

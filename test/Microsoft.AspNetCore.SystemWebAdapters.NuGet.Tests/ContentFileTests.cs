@@ -11,13 +11,13 @@ public class ContentFileTests
         // Arrange
         var expected = new[]
         {
-            """Scripts\jquery-3.5.1-vsdoc.js""",
-            """Scripts\jquery-3.5.1.js""",
-            """Scripts\jquery-3.5.1.min.js""",
-            """Scripts\jquery-3.5.1.min.map""",
-            """Scripts\jquery-3.5.1.slim.js""",
-            """Scripts\jquery-3.5.1.slim.min.js""",
-            """Scripts\jquery-3.5.1.slim.min.map""",
+            Path.Combine("Scripts", "jquery-3.5.1-vsdoc.js"),
+            Path.Combine("Scripts", "jquery-3.5.1.js"),
+            Path.Combine("Scripts", "jquery-3.5.1.min.js"),
+            Path.Combine("Scripts", "jquery-3.5.1.min.map"),
+            Path.Combine("Scripts", "jquery-3.5.1.slim.js"),
+            Path.Combine("Scripts", "jquery-3.5.1.slim.min.js"),
+            Path.Combine("Scripts", "jquery-3.5.1.slim.min.map"),
         };
 
         // Act
@@ -25,18 +25,5 @@ public class ContentFileTests
 
         // Assert
         Assert.Equal(expected, files);
-    }
-
-    [Fact]
-    public void ToolsFiles()
-    {
-        // Arrange
-        const string Path = "test_tools_output.txt";
-        var content = File.ReadAllLines(Path);
-
-        // Assert
-        Assert.Collection(
-            content,
-            c => Assert.Equal("jQuery", c));
     }
 }
