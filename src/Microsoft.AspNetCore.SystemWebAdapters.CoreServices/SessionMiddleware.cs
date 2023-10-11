@@ -34,9 +34,6 @@ internal partial class SessionLoadMiddleware
         => context.Features.GetRequired<ISessionStateFeature>() is { Behavior: not SessionStateBehavior.Disabled and not SessionStateBehavior.Default } feature
             ? ManageStateAsync(context, feature)
             : _next(context);
-    }
-        
-
 
     private async Task ManageStateAsync(HttpContextCore context, ISessionStateFeature feature)
     {

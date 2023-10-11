@@ -73,6 +73,11 @@ public static class SystemWebAdaptersExtensions
         app.UseMiddleware<SingleThreadedRequestMiddleware>();
         app.UseMiddleware<CurrentPrincipalMiddleware>();
         app.UseMiddleware<SessionStateMiddleware>();
+
+        if (app.AreHttpApplicationEventsRequired())
+        {
+            app.UseHttpApplicationEvent(ApplicationEvent.BeginRequest);
+        }
     }
 
     public static void UseSystemWebAdapters(this IApplicationBuilder app)
