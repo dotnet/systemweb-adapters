@@ -34,7 +34,7 @@ public class HttpRuntimeIntegrationTests : SelfHostedTestBase
         using var host = await GetTestHost()
             .ConfigureAppConfiguration(config =>
             {
-                config.AddInMemoryCollection(new Dictionary<string, string>
+                config.AddInMemoryCollection(new Dictionary<string, string?>
                 {
                     [IIS_VERSION] = "10.0",
                     [IIS_SITE_ID] = "1",
