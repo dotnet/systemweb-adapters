@@ -21,6 +21,7 @@ public class SessionIntegrationTests
     [InlineData("/disabled", "Session:null")]
     [InlineData("/readonly", "ReadOnly:True")]
     [InlineData("/required", "ReadOnly:False")]
+    [InlineData("/default", "Session:null")]
     [Theory]
     public async Task TestSetSessionStateBehavior(string endpoint, string expected)
     {
