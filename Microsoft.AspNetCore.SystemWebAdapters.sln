@@ -7,6 +7,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.Tests", "test\Microsoft.AspNetCore.SystemWebAdapters.Tests\Microsoft.AspNetCore.SystemWebAdapters.Tests.csproj", "{DA28CCAB-3C88-46F1-B779-43C573ED49E5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{95915611-30BF-4AFF-AE41-5CDC6F57DCF7}"
+	ProjectSection(SolutionItems) = preProject
+		samples\Directory.Build.props = samples\Directory.Build.props
+		samples\Directory.Build.targets = samples\Directory.Build.targets
+		samples\README.md = samples\README.md
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary", "samples\ClassLibrary\ClassLibrary.csproj", "{11DD4D64-7A95-4635-A273-775715E18852}"
 EndProject
@@ -82,6 +87,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModulesFramework", "samples\Modules\ModulesFramework\ModulesFramework.csproj", "{B262AD69-11F0-4AE0-949A-AEAA2300C061}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModulesCore", "samples\Modules\ModulesCore\ModulesCore.csproj", "{F8B33C59-27CF-45DC-955C-2EBF9DA9DB7E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MachineKey", "MachineKey", "{03E4CEAB-D845-402A-9311-F7390B24BA2A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MachineKeyShared", "samples\MachineKey\MachineKeyShared\MachineKeyShared.csproj", "{E97B37F2-F0CE-4718-96FA-83D9587D9C8F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MachineKeyCore", "samples\MachineKey\MachineKeyCore\MachineKeyCore.csproj", "{6C83077B-AF80-44BC-BA9F-D1E3264F321C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachineKeyFramework", "samples\MachineKey\MachineKeyFramework\MachineKeyFramework.csproj", "{FA39AC22-0725-4532-A682-B054ADA5BDA2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.NuGet.Tests", "test\Microsoft.AspNetCore.SystemWebAdapters.NuGet.Tests\Microsoft.AspNetCore.SystemWebAdapters.NuGet.Tests.csproj", "{17055F45-E79A-41EF-825E-0B2211433729}"
 EndProject
@@ -191,6 +204,18 @@ Global
 		{17055F45-E79A-41EF-825E-0B2211433729}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17055F45-E79A-41EF-825E-0B2211433729}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17055F45-E79A-41EF-825E-0B2211433729}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E97B37F2-F0CE-4718-96FA-83D9587D9C8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E97B37F2-F0CE-4718-96FA-83D9587D9C8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E97B37F2-F0CE-4718-96FA-83D9587D9C8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E97B37F2-F0CE-4718-96FA-83D9587D9C8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C83077B-AF80-44BC-BA9F-D1E3264F321C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C83077B-AF80-44BC-BA9F-D1E3264F321C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C83077B-AF80-44BC-BA9F-D1E3264F321C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C83077B-AF80-44BC-BA9F-D1E3264F321C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA39AC22-0725-4532-A682-B054ADA5BDA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA39AC22-0725-4532-A682-B054ADA5BDA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA39AC22-0725-4532-A682-B054ADA5BDA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA39AC22-0725-4532-A682-B054ADA5BDA2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -228,6 +253,10 @@ Global
 		{B262AD69-11F0-4AE0-949A-AEAA2300C061} = {4ED7A31C-8DBE-4A32-A17A-D72794F9FE2C}
 		{F8B33C59-27CF-45DC-955C-2EBF9DA9DB7E} = {4ED7A31C-8DBE-4A32-A17A-D72794F9FE2C}
 		{17055F45-E79A-41EF-825E-0B2211433729} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
+		{03E4CEAB-D845-402A-9311-F7390B24BA2A} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
+		{E97B37F2-F0CE-4718-96FA-83D9587D9C8F} = {03E4CEAB-D845-402A-9311-F7390B24BA2A}
+		{6C83077B-AF80-44BC-BA9F-D1E3264F321C} = {03E4CEAB-D845-402A-9311-F7390B24BA2A}
+		{FA39AC22-0725-4532-A682-B054ADA5BDA2} = {03E4CEAB-D845-402A-9311-F7390B24BA2A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DABA3C65-9D74-4EB6-9B1C-730328710EAD}
