@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.WebUtilities;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 internal class HttpRequestInputStreamFeature : IHttpRequestInputStreamFeature, IHttpRequestPathFeature, IHttpRequestFeature, IRequestBodyPipeFeature, IDisposable
 {
@@ -216,6 +216,8 @@ internal class HttpRequestInputStreamFeature : IHttpRequestInputStreamFeature, I
     string IHttpRequestPathFeature.RawUrl => _other.RawTarget;
 
     string IHttpRequestPathFeature.CurrentExecutionFilePath => _filePath ?? Path;
+
+    string? IHttpRequestPathFeature.PhysicalPath => null;
 
     internal static class AspNetCoreTempDirectory
     {

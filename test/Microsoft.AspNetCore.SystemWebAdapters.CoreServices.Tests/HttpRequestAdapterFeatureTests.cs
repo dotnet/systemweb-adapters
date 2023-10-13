@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Moq;
 using Xunit;
 

@@ -8,6 +8,7 @@ using System.Web.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 
@@ -145,6 +146,11 @@ public static class SystemWebAdaptersExtensions
             {
                 builder.UseMiddleware<SetHttpContextTimestampMiddleware>();
                 builder.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
+
+                if (builder.AreHttpApplicationEventsRequired())
+                {
+                    builder.UseMiddleware<RegisterHttpApplicationFeatureMiddleware>();
+                }
 
                 next(builder);
             };

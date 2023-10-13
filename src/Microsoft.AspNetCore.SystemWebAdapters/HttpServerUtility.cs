@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Web.Hosting;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -17,6 +17,9 @@ T:Microsoft.AspNetCore.SystemWebAdapters.SystemWebAdaptersOptions
 # We manually type forward this only for .NET 4.7.2+
 T:System.Web.SameSiteMode
 
+# Features should only be available on the .NET Core builds
+N:Microsoft.AspNetCore.SystemWebAdapters.Features
+
 # We provide implementations of this on .NET Standard 2.0 and .NET 6.0
 T:System.Web.IHtmlString
 
