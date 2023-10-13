@@ -113,7 +113,7 @@ public class HttpServerUtility
     public void Transfer(string path, bool preserveForm)
     {
         _context.Features.GetRequired<ITransferRequestFeature>().Transfer(path, preserveForm);
-        _context.Response.GetAdapter().End();
+        _context.Response.GetSystemWebResponse().End();
     }
 
     [Obsolete(Constants.TransferRequest.Message, DiagnosticId = Constants.TransferRequest.DiagnosticId)]

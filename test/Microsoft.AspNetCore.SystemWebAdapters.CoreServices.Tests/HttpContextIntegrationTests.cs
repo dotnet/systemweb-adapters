@@ -106,7 +106,7 @@ public class HttpContextIntegrationTests
         => RunTest("/", context =>
         {
             var timestamp = context.RequestServices.GetRequiredService<TimeProvider>().GetLocalNow().DateTime;
-            Assert.Equal(timestamp, context.GetAdapter().Timestamp);
+            Assert.Equal(timestamp, context.GetSystemWebHttpContext().Timestamp);
         });
 
     private static async Task RunTest(string path, Action<HttpContextCore> run)
