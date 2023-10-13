@@ -6,9 +6,6 @@
 
     <!-- This will validate that the package will unify correctly with System.Web.dll -->
     <EnablePackageValidation>true</EnablePackageValidation>
-
-    <!-- AD0001 : https://github.com/dotnet/systemweb-adapters/issues/396 -->
-    <NoWarn>$(NoWarn);AD0001</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Label="Package Information">
