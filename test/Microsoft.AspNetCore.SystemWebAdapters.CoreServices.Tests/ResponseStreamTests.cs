@@ -48,7 +48,7 @@ public class ResponseStreamTests
         var result = await RunAsync(async context =>
         {
             context.Response.Write(ContentValue);
-            await context.Response.GetCoreResponse().StartAsync();
+            await context.Response.GetAspNetCoreResponse().StartAsync();
         }, builder => builder.BufferResponseStream());
 
         Assert.Equal(ContentValue, result);
@@ -60,7 +60,7 @@ public class ResponseStreamTests
         var result = await RunAsync(async context =>
         {
             context.Response.Write(ContentValue);
-            await context.Response.GetCoreResponse().CompleteAsync();
+            await context.Response.GetAspNetCoreResponse().CompleteAsync();
         }, builder => builder.BufferResponseStream());
 
         Assert.Equal(ContentValue, result);

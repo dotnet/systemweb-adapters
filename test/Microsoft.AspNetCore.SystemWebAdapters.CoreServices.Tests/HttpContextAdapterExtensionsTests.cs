@@ -20,9 +20,9 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             Assert.Null(((HttpRequestCore)null!).GetSystemWebRequestBase());
             Assert.Null(((HttpResponseCore)null!).GetSystemWebResponseBase());
 
-            Assert.Null(((HttpContext)null!).GetCoreHttpContext());
-            Assert.Null(((HttpRequest)null!).GetCoreRequest());
-            Assert.Null(((HttpResponse)null!).GetCoreResponse());
+            Assert.Null(((HttpContext)null!).GetAspNetCoreHttpContext());
+            Assert.Null(((HttpRequest)null!).GetAspNetCoreRequest());
+            Assert.Null(((HttpResponse)null!).GetAspNetCoreResponse());
         }
 
         [Fact]
@@ -31,7 +31,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             var context = new DefaultHttpContext();
             var adapter = new HttpContext(context);
 
-            Assert.Same(context, adapter.GetCoreHttpContext());
+            Assert.Same(context, adapter.GetAspNetCoreHttpContext());
         }
 
         [Fact]

@@ -1,10 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Web;
-using Microsoft.AspNetCore.Http.Features;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
@@ -19,7 +17,7 @@ public static class SystemWebAdapterExtensions
         => request?.HttpContext.GetSystemWebHttpContextBase().Request;
 
     [return: NotNullIfNotNull(nameof(request))]
-    public static HttpRequestCore? GetCoreRequest(this HttpRequest? request) => request;
+    public static HttpRequestCore? GetAspNetCoreRequest(this HttpRequest? request) => request;
 
     [return: NotNullIfNotNull(nameof(response))]
     public static HttpResponse? GetSystemWebResponse(this HttpResponseCore? response)
@@ -30,7 +28,7 @@ public static class SystemWebAdapterExtensions
         => response?.HttpContext.GetSystemWebHttpContextBase().Response;
 
     [return: NotNullIfNotNull(nameof(response))]
-    public static HttpResponseCore? GetCoreResponse(this HttpResponse? response) => response;
+    public static HttpResponseCore? GetAspNetCoreResponse(this HttpResponse? response) => response;
 
     [return: NotNullIfNotNull(nameof(context))]
     public static HttpContext? GetSystemWebHttpContext(this HttpContextCore? context)
@@ -52,7 +50,7 @@ public static class SystemWebAdapterExtensions
     }
 
     [return: NotNullIfNotNull(nameof(context))]
-    public static HttpContextCore? GetCoreHttpContext(this HttpContext? context) => context;
+    public static HttpContextCore? GetAspNetCoreHttpContext(this HttpContext? context) => context;
 
     [return: NotNullIfNotNull(nameof(context))]
     public static HttpContextBase? GetSystemWebHttpContextBase(this HttpContextCore? context)
@@ -70,16 +68,6 @@ public static class SystemWebAdapterExtensions
             context.Features.Set(result);
         }
 
-        return result!;
-    }
-
-    internal static TFeature GetRequired<TFeature>(this IFeatureCollection features)
-    {
-        if (features.Get<TFeature>() is TFeature feature)
-        {
-            return feature;
-        }
-
-        throw new InvalidOperationException($"Feature {typeof(TFeature)} is not available");
+        return result;
     }
 }
