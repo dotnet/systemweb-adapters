@@ -35,7 +35,7 @@
 
     <Warning
       Condition=" '@(_InvalidContentPkgProperties)' != '' "
-      Text="%(_InvalidContentPkgProperties.PackageName) does not contain a tools directory and thus needs 'GeneratePathProperty' == 'true'." />
+      Text="The PackageReference '%(_InvalidContentPkgProperties.PackageName)' must specify the attribute 'GeneratePathProperty="true"' when CopyContent is enabled." />
 
     <ItemGroup Condition=" '@(_ValidContentPkgProperties)' != '' ">
       <_NuGetContentFiles Include="%(_ValidContentPkgProperties.PackageRootPath)\Content\**\*">
