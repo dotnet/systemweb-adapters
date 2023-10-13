@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="$(SolutionRootDirectory)src/Microsoft.AspNetCore.SystemWebAdapters/Build/Microsoft.AspNetCore.SystemWebAdapters.props" />
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac.Extras.Moq" Version="6.0.0" />
+    <PackageReference Include="AutoFixture" Version="4.15.0" />
+    <PackageReference Include="Moq" Version="4.16.1" />
+  </ItemGroup>
+
+  <!-- Used for tests but not directly -->
+  <ItemGroup>
+    <PackageReference Include="jQuery" Version="3.5.1" CopyContent="true" />
+  </ItemGroup>
+
+  <Import Project="$(SolutionRootDirectory)src/Microsoft.AspNetCore.SystemWebAdapters/Build/Microsoft.AspNetCore.SystemWebAdapters.targets" />
+
+</Project>
