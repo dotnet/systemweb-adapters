@@ -3,22 +3,11 @@
 
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Security.Policy;
 using System.Threading.Tasks;
 using System.Web.SessionState;
-using Autofac.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -86,15 +75,18 @@ public class SessionIntegrationTests
                       app.UseRouting();
                       app.Use((ctx, next) =>
                       {
-                          SetOverrideSessionState(ctx);
+                          SetOverrideSessionBehavior(ctx);
                           return next(ctx);
                       });
                       app.UseSession();
                       app.UseSystemWebAdapters();
                       app.UseEndpoints(endpoints =>
                       {
-                          endpoints.MapControllers();
-
+                          endpoints.MapGet("/", (context) => GetSessionStatus(context));
+                          endpoints.MapGet("/disabled", (context) => GetSessionStatus(context)).WithMetadata(new SessionAttribute { SessionBehavior = SessionStateBehavior.Disabled });
+                          endpoints.MapGet("/readonly", (context) => GetSessionStatus(context)).WithMetadata(new SessionAttribute { SessionBehavior = SessionStateBehavior.ReadOnly });
+                          endpoints.MapGet("/required", (context) => GetSessionStatus(context)).WithMetadata(new SessionAttribute { SessionBehavior = SessionStateBehavior.Required });
+                          endpoints.MapGet("/default", (context) => GetSessionStatus(context)).WithMetadata(new SessionAttribute { SessionBehavior = SessionStateBehavior.Default });
                       });
                   });
           })
@@ -112,7 +104,7 @@ public class SessionIntegrationTests
         }
     }
 
-    private static void SetOverrideSessionState(HttpContext context)
+    private static void SetOverrideSessionBehavior(HttpContext context)
     {
         string? overrideValue = context.Request.QueryString["override"];
 
@@ -134,62 +126,19 @@ public class SessionIntegrationTests
                 break;
         }
     }
-}
 
-[ApiController]
-public class SessionStatusController : ControllerBase
-{
-    [HttpGet]
-    [Route("/")]
-    public ActionResult<string> Get()
-    {
-        return Ok(GetSessionStatusString(System.Web.HttpContext.Current));
-    }
-
-    [HttpGet]
-    [Session(SessionBehavior = SessionStateBehavior.Disabled)]
-    [Route("/disabled")]
-    public ActionResult<string> GetDisabled()
-    {
-        return Ok(GetSessionStatusString(System.Web.HttpContext.Current));
-    }
-
-    [HttpGet]
-    [Session(SessionBehavior = SessionStateBehavior.ReadOnly)]
-    [Route("/readonly")]
-    public ActionResult<string> GetReadOnly()
-    {
-        return Ok(GetSessionStatusString(System.Web.HttpContext.Current));
-    }
-
-    [HttpGet]
-    [Session(SessionBehavior = SessionStateBehavior.Required)]
-    [Route("/required")]
-    public ActionResult<string> GetRequired()
-    {
-        return Ok(GetSessionStatusString(System.Web.HttpContext.Current));
-    }
-
-    [HttpGet]
-    [Session(SessionBehavior = SessionStateBehavior.Default)]
-    [Route("/default")]
-    public ActionResult<string> GetDefault()
-    {
-        return Ok(GetSessionStatusString(System.Web.HttpContext.Current));
-    }
-
-    public static string GetSessionStatusString(HttpContext context)
+    private static Task GetSessionStatus(HttpContext context)
     {
         var session = context.Session;
         if (session == null)
         {
-            return "Session:null";
+            context.Response.Write("Session:null");
         }
         else
         {
-            return $"ReadOnly:{session.IsReadOnly}";
+            context.Response.Write($"ReadOnly:{session.IsReadOnly}"); ;
         }
 
+        return Task.CompletedTask;
     }
 }
-
