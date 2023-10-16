@@ -36,7 +36,6 @@ public class SessionIntegrationTests
     [Theory]
     public async Task TestSessionAttribute(string endpoint, string expected)
     {
-
         var actual = await GetAsync(endpoint);
         Assert.Equal(expected, actual);
     }
