@@ -12,7 +12,11 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class ISystemWebAdapterBuilderSessionExtensions
 {
+    [Obsolete("Prefer AddWrappedAspNetCoreSession instead")]
     public static ISystemWebAdapterBuilder WrapAspNetCoreSession(this ISystemWebAdapterBuilder builder, Action<SessionOptions>? options = null)
+        => builder.AddWrappedAspNetCoreSession(options);
+
+    public static ISystemWebAdapterBuilder AddWrappedAspNetCoreSession(this ISystemWebAdapterBuilder builder, Action<SessionOptions>? options = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
