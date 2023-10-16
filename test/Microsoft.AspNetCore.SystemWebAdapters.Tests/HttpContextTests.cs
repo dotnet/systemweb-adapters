@@ -501,5 +501,28 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Assert
             Assert.Null(HttpContext.Current);
         }
+
+        [InlineData(SessionStateBehavior.Required)]
+        [InlineData(SessionStateBehavior.Default)]
+        [InlineData(SessionStateBehavior.Disabled)]
+        [InlineData(SessionStateBehavior.ReadOnly)]
+        [Theory]
+        public void SetSessionStateBehavior(SessionStateBehavior behavior)
+        {
+            // Arrange
+            var coreContext = new DefaultHttpContext();
+            var context = new HttpContext(coreContext);
+
+            var feature = new Mock<ISessionStateFeature>();
+            feature.SetupAllProperties();
+
+            coreContext.Features.Set(feature.Object);
+
+            // Act
+            context.SetSessionStateBehavior(behavior);
+
+            // Assert
+            feature.VerifySet(f => f.Behavior = behavior);
+        }
     }
 }

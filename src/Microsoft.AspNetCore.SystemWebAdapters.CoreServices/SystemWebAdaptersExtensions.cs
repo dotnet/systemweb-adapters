@@ -106,7 +106,7 @@ public static class SystemWebAdaptersExtensions
                 ApplicationEvent.PostUpdateRequestCache,
             });
 
-        app.UseMiddleware<SessionMiddleware>();
+        app.UseMiddleware<SessionLoadMiddleware>();
 
         if (app.AreHttpApplicationEventsRequired())
         {
@@ -146,6 +146,7 @@ public static class SystemWebAdaptersExtensions
             {
                 builder.UseMiddleware<SetHttpContextTimestampMiddleware>();
                 builder.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
+                builder.UseMiddleware<SessionStateMiddleware>();
 
                 if (builder.AreHttpApplicationEventsRequired())
                 {
