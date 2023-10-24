@@ -66,7 +66,7 @@ public class SessionIntegrationTests
                       services.AddRouting();
                       services.AddControllers();
                       services.AddSystemWebAdapters()
-                        .WrapAspNetCoreSession();
+                        .AddWrappedAspNetCoreSession();
                       services.AddDistributedMemoryCache();
                   })
                   .Configure(app =>
