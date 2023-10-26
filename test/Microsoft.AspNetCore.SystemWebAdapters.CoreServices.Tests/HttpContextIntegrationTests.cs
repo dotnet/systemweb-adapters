@@ -22,7 +22,7 @@ public class HttpContextIntegrationTests
             Assert.Equal("/", context.Request.Path);
             Assert.Empty(context.Request.Query);
 
-            var adapter = context.Request.GetSystemWebRequest();
+            var adapter = context.Request.AsSystemWeb();
 
             Assert.Equal("", adapter.PathInfo);
             Assert.Equal("/", adapter.FilePath);
@@ -34,7 +34,7 @@ public class HttpContextIntegrationTests
     public Task RewriteRequestPath()
         => RunTest("/", context =>
         {
-            var adapter = context.GetSystemWebHttpContext();
+            var adapter = context.AsSystemWeb();
 
             adapter.RewritePath("/some/path?q=1");
 
@@ -57,7 +57,7 @@ public class HttpContextIntegrationTests
     public Task RewriteRequestPathInfo()
         => RunTest("/", context =>
         {
-            var adapter = context.GetSystemWebHttpContext();
+            var adapter = context.AsSystemWeb();
 
             adapter.RewritePath("/some/path", "/pathInfo", "q=1");
 
@@ -80,7 +80,7 @@ public class HttpContextIntegrationTests
     public Task RewritePathViaCoreApis()
         => RunTest("/", context =>
         {
-            var adapter = context.GetSystemWebHttpContext();
+            var adapter = context.AsSystemWeb();
 
             // This is the same as RewriteRequestPathInfo as above to get a custom PathInfo
             adapter.RewritePath("/some/path", "/pathInfo", "q=1");
@@ -106,7 +106,7 @@ public class HttpContextIntegrationTests
         => RunTest("/", context =>
         {
             var timestamp = context.RequestServices.GetRequiredService<TimeProvider>().GetLocalNow().DateTime;
-            Assert.Equal(timestamp, context.GetSystemWebHttpContext().Timestamp);
+            Assert.Equal(timestamp, context.AsSystemWeb().Timestamp);
         });
 
     private static async Task RunTest(string path, Action<HttpContextCore> run)

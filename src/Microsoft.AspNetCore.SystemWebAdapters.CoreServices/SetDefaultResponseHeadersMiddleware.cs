@@ -22,7 +22,7 @@ internal class SetDefaultResponseHeadersMiddleware
             var context = (HttpContext)state;
 
             WriteDefaultContentType(context);
-            context.Response.GetSystemWebResponse().Cache.UpdateHeaders();
+            context.Response.AsSystemWeb().Cache.UpdateHeaders();
 
             return Task.CompletedTask;
         }, context);

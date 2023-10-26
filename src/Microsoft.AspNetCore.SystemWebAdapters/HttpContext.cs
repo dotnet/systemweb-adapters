@@ -174,7 +174,7 @@ public class HttpContext : IServiceProvider
     }
 
     [return: NotNullIfNotNull(nameof(context))]
-    public static implicit operator HttpContext?(HttpContextCore? context) => context?.GetSystemWebHttpContext();
+    public static implicit operator HttpContext?(HttpContextCore? context) => context?.AsSystemWeb();
 
     [return: NotNullIfNotNull(nameof(context))]
     public static implicit operator HttpContextCore?(HttpContext? context) => context?._context;
