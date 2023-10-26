@@ -66,7 +66,7 @@ public static class SystemWebAdaptersConversionExtensions
 
         if (result is null)
         {
-            result = new HttpContextWrapper(context);
+            result = new HttpContextWrapper(context.AsSystemWeb());
             context.Features.Set(result);
         }
 
