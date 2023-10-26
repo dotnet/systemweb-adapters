@@ -1,7 +1,7 @@
 var builder = WebApplication.CreateBuilder();
 
 builder.Services.AddSystemWebAdapters()
-    .WrapAspNetCoreSession()
+    .AddWrappedAspNetCoreSession()
     .AddSessionSerializer()
     .AddCustomSerialization();
 

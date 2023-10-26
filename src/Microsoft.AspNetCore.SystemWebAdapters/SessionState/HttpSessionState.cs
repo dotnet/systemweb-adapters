@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 
 namespace System.Web.SessionState;
@@ -10,12 +11,19 @@ namespace System.Web.SessionState;
 [Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = Constants.ApiFromAspNet)]
 public class HttpSessionState : ICollection
 {
-    public HttpSessionState(ISessionState container)
+    private readonly Func<ISessionState> _state;
+
+    internal HttpSessionState(ISessionStateFeature feature)
     {
-        State = container;
+        _state = () => feature.State ?? throw new InvalidOperationException("Session state is no longer available");
     }
 
-    internal ISessionState State { get; }
+    public HttpSessionState(ISessionState container)
+    {
+        _state = () => container;
+    }
+
+    internal ISessionState State => _state();
 
     public string SessionID => State.SessionID;
 

@@ -5,6 +5,10 @@ using System;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
+/// <summary>
+/// Instead of this, please use <see cref="System.Web.SessionState.SessionStateBehavior"/>.
+/// </summary>
+[Obsolete("Prefer System.Web.SessionState")]
 public enum SessionBehavior
 {
     /// <summary>

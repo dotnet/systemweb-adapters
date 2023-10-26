@@ -6,9 +6,6 @@
 
     <!-- This will validate that the package will unify correctly with System.Web.dll -->
     <EnablePackageValidation>true</EnablePackageValidation>
-
-    <!-- AD0001 : https://github.com/dotnet/systemweb-adapters/issues/396 -->
-    <NoWarn>$(NoWarn);AD0001</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Label="Package Information">
@@ -60,6 +57,10 @@
     </PackageReference>
 
     <Reference Include="System.Web" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Build\*" Pack="true" PackagePath="Build\" />
   </ItemGroup>
 
   <Import Condition=" '$(TargetFramework)' == 'net6.0' " Project="Generated/GenerateApis.targets" />

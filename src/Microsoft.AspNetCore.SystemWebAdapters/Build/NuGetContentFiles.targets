@@ -1,0 +1,53 @@
+<Project>
+
+  <!--
+      Add NuGet content to the build output if specified:
+      <PackageReference Include="..." CopyContent="true" ... />
+       -->
+  <Target Name="AddNugetContentFiles" BeforeTargets="AssignTargetPaths">
+
+    <!-- Identity PackageReference and paths to packages -->
+    <ItemGroup>
+      <_PackageReferenceProperties Include="Pkg$([System.String]::Copy('%(PackageReference.Identity)').Replace('.','_'))">
+        <PackageName>%(PackageReference.Identity)</PackageName>
+        <CopyContent>%(PackageReference.CopyContent)</CopyContent>
+      </_PackageReferenceProperties>
+      <_PackageReferenceProperties Update="@(_PackageReferenceProperties)" PackageRootPath="$(%(_PackageReferenceProperties.Identity))" />
+      <_PackageReferenceCopyContent Include="@(_PackageReferenceProperties)" Condition="'%(CopyContent)' == 'true'" />
+    </ItemGroup>
+
+    <!-- Check for tools files -->
+    <ItemGroup>
+      <_ToolsFiles Include="%(_PackageReferenceCopyContent.PackageRootPath)/tools/*.ps1">
+        <PackageName>%(PackageName)</PackageName>
+      </_ToolsFiles>
+      <_ToolsPackage Include="%(_ToolsFiles.PackageName)" />
+    </ItemGroup>
+
+    <!-- Get content files-->
+    <ItemGroup>
+      <_ContentPkgProperties Include="@(_PackageReferenceCopyContent)" />
+
+      <!-- Filter out packages that need GeneratePathProperty -->
+      <_ValidContentPkgProperties Include="@(_ContentPkgProperties)" Condition=" '%(PackageRootPath)' != '' " />
+      <_InvalidContentPkgProperties Include="@(_ContentPkgProperties)" Condition=" '%(PackageRootPath)' == '' " />
+    </ItemGroup>
+
+    <Warning
+      Condition=" '@(_InvalidContentPkgProperties)' != '' "
+      Text="The PackageReference '%(_InvalidContentPkgProperties.PackageName)' must specify the attribute 'GeneratePathProperty=&quot;true&quot;' when CopyContent is enabled." />
+
+    <ItemGroup Condition=" '@(_ValidContentPkgProperties)' != '' ">
+      <_NuGetContentFiles Include="%(_ValidContentPkgProperties.PackageRootPath)\Content\**\*">
+        <BasePath>%(_ValidContentPkgProperties.PackageRootPath)\Content</BasePath>
+        <PackageIdentity>%(_ValidContentPkgProperties.PackageName)</PackageIdentity>
+      </_NuGetContentFiles>
+
+      <Content Include="@(_NuGetContentFiles)">
+        <Link>$([MSBuild]::MakeRelative(%(_NuGetContentFiles.BasePath),%(_NuGetContentFiles.Identity)))</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+  </Target>
+</Project>

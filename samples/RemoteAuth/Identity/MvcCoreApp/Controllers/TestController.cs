@@ -1,3 +1,4 @@
+using System.Web.SessionState;
 using ClassLibrary;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SystemWebAdapters;
@@ -9,7 +10,7 @@ namespace MvcCoreApp.Controllers
     public class TestController : Controller
     {
         [HttpGet]
-        [Session(IsReadOnly = true)]
+        [Session(SessionBehavior = SessionStateBehavior.ReadOnly)]
         [Route("/api/test/request/info")]
         public void Get([FromQuery] bool? suppress = false) => RequestInfo.WriteRequestInfo(suppress ?? false);
 
