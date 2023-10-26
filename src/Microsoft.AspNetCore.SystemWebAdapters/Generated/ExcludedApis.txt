@@ -9,7 +9,6 @@ M:System.Web.HttpResponse.op_Implicit(Microsoft.AspNetCore.Http.HttpResponse)~Sy
 M:System.Web.HttpResponse.op_Implicit(System.Web.HttpResponse)~Microsoft.AspNetCore.Http.HttpResponse
 M:System.Web.HttpResponseBase.op_Implicit(Microsoft.AspNetCore.Http.HttpResponse)~System.Web.HttpResponseBase
 M:System.Web.HttpRequestBase.op_Implicit(Microsoft.AspNetCore.Http.HttpRequest)~System.Web.HttpRequestBase
-T:Microsoft.AspNetCore.SystemWebAdapters.SystemWebAdapterExtensions
 
 T:Microsoft.AspNetCore.SystemWebAdapters.SessionState.ISessionState
 T:Microsoft.AspNetCore.SystemWebAdapters.SystemWebAdaptersOptions
