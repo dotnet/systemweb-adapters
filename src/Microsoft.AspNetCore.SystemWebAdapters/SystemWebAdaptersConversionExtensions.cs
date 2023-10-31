@@ -35,7 +35,7 @@ public static class SystemWebAdaptersConversionExtensions
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        return request;
+        return request.HttpContext.AsSystemWeb().Request;
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ public static class SystemWebAdaptersConversionExtensions
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        return context;
+        return context.Context;
     }
 
     /// <summary>
@@ -68,7 +68,7 @@ public static class SystemWebAdaptersConversionExtensions
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        return request;
+        return request.Request;
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ public static class SystemWebAdaptersConversionExtensions
     {
         ArgumentNullException.ThrowIfNull(response);
 
-        return response;
+        return response.Response;
     }
 
     internal static HttpContextBase AsSystemWebBase(this HttpContextCore context)

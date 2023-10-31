@@ -56,9 +56,6 @@ namespace System.Web
 
         public virtual object? GetService(Type serviceType) => throw new NotImplementedException();
 
-        [return: NotNullIfNotNull(nameof(context))]
-        public static implicit operator HttpContextBase?(HttpContextCore? context) => context?.AsSystemWebBase();
-
         public virtual Caching.Cache Cache => throw new NotImplementedException();
 
         public virtual void RewritePath(string path) => throw new NotImplementedException();
@@ -70,5 +67,8 @@ namespace System.Web
         public virtual void RewritePath(string filePath, string pathInfo, string? queryString, bool setClientFilePath) => throw new NotImplementedException();
 
         public virtual void SetSessionStateBehavior(SessionStateBehavior sessionStateBehavior) => throw new NotImplementedException();
+
+        [return: NotNullIfNotNull(nameof(context))]
+        public static implicit operator HttpContextBase?(HttpContextCore? context) => context?.AsSystemWebBase();
     }
 }

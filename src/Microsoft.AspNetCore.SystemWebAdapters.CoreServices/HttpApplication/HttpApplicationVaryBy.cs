@@ -42,7 +42,7 @@ public static class HttpApplicationVaryByExtensions
         {
             builder.VaryByValue(context =>
             {
-                var value = context.Features.Get<IHttpApplicationFeature>()?.Application.GetVaryByCustomString(context, custom);
+                var value = context.Features.Get<IHttpApplicationFeature>()?.Application.GetVaryByCustomString(context.AsSystemWeb(), custom);
 
                 return new(custom, value ?? string.Empty);
             });
@@ -79,7 +79,7 @@ public static class HttpApplicationVaryByExtensions
             {
                 foreach (var key in _keySelector(context.HttpContext))
                 {
-                    context.CacheVaryByRules.VaryByValues[key] = app.GetVaryByCustomString(context.HttpContext, key) ?? string.Empty;
+                    context.CacheVaryByRules.VaryByValues[key] = app.GetVaryByCustomString(context.HttpContext.AsSystemWeb(), key) ?? string.Empty;
                 }
             }
 

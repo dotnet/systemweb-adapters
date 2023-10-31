@@ -185,7 +185,7 @@ public static class HttpApplicationExtensions
             app.Context = new DefaultHttpContext
             {
                 RequestServices = scope.ServiceProvider,
-            };
+            }.AsSystemWeb();
 
             try
             {

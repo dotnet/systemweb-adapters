@@ -25,8 +25,6 @@ namespace System.Web
     {
         private const string NoContentTypeMessage = "No content type declared";
 
-        private readonly HttpResponseCore _response;
-
         private NameValueCollection? _headers;
         private ResponseHeaders? _typedHeaders;
         private TextWriter? _writer;
@@ -35,15 +33,17 @@ namespace System.Web
 
         internal HttpResponse(HttpResponseCore response)
         {
-            _response = response;
+            Response = response;
         }
 
-        internal ResponseHeaders TypedHeaders => _typedHeaders ??= new(_response.Headers);
+        internal HttpResponseCore Response { get; }
+
+        internal ResponseHeaders TypedHeaders => _typedHeaders ??= new(Response.Headers);
 
         public int StatusCode
         {
-            get => _response.StatusCode;
-            set => _response.StatusCode = value;
+            get => Response.StatusCode;
+            set => Response.StatusCode = value;
         }
 
         public int SubStatusCode { get; set; }
@@ -51,15 +51,15 @@ namespace System.Web
         [AllowNull]
         public string StatusDescription
         {
-            get => _response.HttpContext.Features.GetRequired<IHttpResponseFeature>().ReasonPhrase ?? ReasonPhrases.GetReasonPhrase(_response.StatusCode);
-            set => _response.HttpContext.Features.GetRequired<IHttpResponseFeature>().ReasonPhrase = value;
+            get => Response.HttpContext.Features.GetRequired<IHttpResponseFeature>().ReasonPhrase ?? ReasonPhrases.GetReasonPhrase(Response.StatusCode);
+            set => Response.HttpContext.Features.GetRequired<IHttpResponseFeature>().ReasonPhrase = value;
         }
 
-        public NameValueCollection Headers => _headers ??= _response.Headers.ToNameValueCollection();
+        public NameValueCollection Headers => _headers ??= Response.Headers.ToNameValueCollection();
 
         public void ClearHeaders()
         {
-            _response.Headers.Clear();
+            Response.Headers.Clear();
             _cookies?.Clear();
 
             StatusCode = 200;
@@ -71,19 +71,19 @@ namespace System.Web
 
         public bool TrySkipIisCustomErrors
         {
-            get => _response.HttpContext.Features.GetRequired<IStatusCodePagesFeature>().Enabled;
-            set => _response.HttpContext.Features.GetRequired<IStatusCodePagesFeature>().Enabled = value;
+            get => Response.HttpContext.Features.GetRequired<IStatusCodePagesFeature>().Enabled;
+            set => Response.HttpContext.Features.GetRequired<IStatusCodePagesFeature>().Enabled = value;
         }
 
-        public bool BufferOutput => _response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().IsEnabled;
+        public bool BufferOutput => Response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().IsEnabled;
 
-        public Stream OutputStream => _response.Body;
+        public Stream OutputStream => Response.Body;
 
         [AllowNull]
         public Stream Filter
         {
-            get => _response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().Filter;
-            set => _response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().Filter = value;
+            get => Response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().Filter;
+            set => Response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().Filter = value;
         }
 
         public HttpCookieCollection Cookies => _cookies ??= new(this);
@@ -92,8 +92,8 @@ namespace System.Web
 
         public bool SuppressContent
         {
-            get => _response.HttpContext.Features.GetRequired<IHttpResponseContentFeature>().SuppressContent;
-            set => _response.HttpContext.Features.GetRequired<IHttpResponseContentFeature>().SuppressContent = value;
+            get => Response.HttpContext.Features.GetRequired<IHttpResponseContentFeature>().SuppressContent;
+            set => Response.HttpContext.Features.GetRequired<IHttpResponseContentFeature>().SuppressContent = value;
         }
 
         public Encoding ContentEncoding
@@ -162,7 +162,7 @@ namespace System.Web
                 if (_writer is null)
                 {
                     // No need to dispose the stream writer as it doesn't own the stream and autoflushes
-                    _writer = new StreamWriter(_response.Body, ContentEncoding, leaveOpen: true)
+                    _writer = new StreamWriter(Response.Body, ContentEncoding, leaveOpen: true)
                     {
                         AutoFlush = true,
                     };
@@ -174,21 +174,21 @@ namespace System.Web
             set => _writer = value;
         }
 
-        public bool IsClientConnected => !_response.HttpContext.RequestAborted.IsCancellationRequested;
+        public bool IsClientConnected => !Response.HttpContext.RequestAborted.IsCancellationRequested;
 
         public void AddHeader(string name, string value) => AppendHeader(name, value);
 
-        public void AppendHeader(string name, string value) => _response.Headers.Append(name, value);
+        public void AppendHeader(string name, string value) => Response.Headers.Append(name, value);
 
         public bool HeadersWritten
         {
-            get => _response.HasStarted;
+            get => Response.HasStarted;
         }
 
         public string? RedirectLocation
         {
-            get => _response.Headers.Location;
-            set => _response.Headers.Location = value;
+            get => Response.Headers.Location;
+            set => Response.Headers.Location = value;
         }
 
         public bool IsRequestBeingRedirected => StatusCode is >= 300 and < 400;
@@ -210,7 +210,7 @@ namespace System.Web
             Clear();
 
             var resolved = ResolvePath(url);
-            _response.Redirect(resolved, permanent);
+            Response.Redirect(resolved, permanent);
 
             ContentType = "text/html";
 
@@ -226,7 +226,7 @@ namespace System.Web
             }
         }
 
-        public HttpCachePolicy Cache => _cache ??= new(_response.HttpContext);
+        public HttpCachePolicy Cache => _cache ??= new(Response.HttpContext);
 
         private string ResolvePath(string url)
         {
@@ -240,7 +240,7 @@ namespace System.Web
                 return url;
             }
 
-            var vdir = _response.HttpContext.RequestServices.GetRequiredService<IOptions<SystemWebAdaptersOptions>>().Value.AppDomainAppVirtualPath;
+            var vdir = Response.HttpContext.RequestServices.GetRequiredService<IOptions<SystemWebAdaptersOptions>>().Value.AppDomainAppVirtualPath;
 
             var sb = new StringBuilder(url, 1, url.Length - 1, url.Length + vdir.Length);
 
@@ -257,11 +257,11 @@ namespace System.Web
 
         public void SetCookie(HttpCookie cookie) => Cookies.Set(cookie);
 
-        public void Flush() => _response.Body.Flush();
+        public void Flush() => Response.Body.Flush();
 
-        public Task FlushAsync() => _response.Body.FlushAsync(_response.HttpContext.RequestAborted);
+        public Task FlushAsync() => Response.Body.FlushAsync(Response.HttpContext.RequestAborted);
 
-        public void End() => _response.HttpContext.Features.GetRequired<IHttpResponseEndFeature>().EndAsync().GetAwaiter().GetResult();
+        public void End() => Response.HttpContext.Features.GetRequired<IHttpResponseEndFeature>().EndAsync().GetAwaiter().GetResult();
 
         public void Write(char ch) => Output.Write(ch);
 
@@ -278,11 +278,11 @@ namespace System.Web
 
         public void Clear()
         {
-            _response.Clear();
+            Response.Clear();
             ClearContent();
         }
 
-        public void ClearContent() => _response.HttpContext.Features.GetRequired<IHttpResponseContentFeature>().ClearContent();
+        public void ClearContent() => Response.HttpContext.Features.GetRequired<IHttpResponseContentFeature>().ClearContent();
 
         public void WriteFile(string filename)
             => TransmitFile(filename);
@@ -291,12 +291,12 @@ namespace System.Web
             => TransmitFile(filename, 0, -1);
 
         public void TransmitFile(string filename, long offset, long length)
-            => _response.SendFileAsync(filename, offset, length >= 0 ? length : null).GetAwaiter().GetResult();
+            => Response.SendFileAsync(filename, offset, length >= 0 ? length : null).GetAwaiter().GetResult();
 
         [return: NotNullIfNotNull(nameof(response))]
         public static implicit operator HttpResponse?(HttpResponseCore? response) => response?.HttpContext.AsSystemWeb().Response;
 
         [return: NotNullIfNotNull(nameof(response))]
-        public static implicit operator HttpResponseCore?(HttpResponse? response) => response?._response;
+        public static implicit operator HttpResponseCore?(HttpResponse? response) => response?.AsAspNetCore();
     }
 }
