@@ -294,7 +294,7 @@ namespace System.Web
             => _response.SendFileAsync(filename, offset, length >= 0 ? length : null).GetAwaiter().GetResult();
 
         [return: NotNullIfNotNull(nameof(response))]
-        public static implicit operator HttpResponse?(HttpResponseCore? response) => response?.AsSystemWeb();
+        public static implicit operator HttpResponse?(HttpResponseCore? response) => response?.HttpContext.AsSystemWeb().Response;
 
         [return: NotNullIfNotNull(nameof(response))]
         public static implicit operator HttpResponseCore?(HttpResponse? response) => response?._response;

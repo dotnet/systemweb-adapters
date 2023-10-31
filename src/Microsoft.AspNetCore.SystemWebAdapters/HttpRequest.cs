@@ -290,7 +290,7 @@ namespace System.Web
         public void Abort() => _request.HttpContext.Abort();
 
         [return: NotNullIfNotNull(nameof(request))]
-        public static implicit operator HttpRequest?(HttpRequestCore? request) => request?.AsSystemWeb();
+        public static implicit operator HttpRequest?(HttpRequestCore? request) => request?.HttpContext.AsSystemWeb().Request;
 
         [return: NotNullIfNotNull(nameof(request))]
         public static implicit operator HttpRequestCore?(HttpRequest? request) => request?._request;

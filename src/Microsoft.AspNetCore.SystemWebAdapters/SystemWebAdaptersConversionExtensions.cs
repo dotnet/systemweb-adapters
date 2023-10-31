@@ -35,7 +35,7 @@ public static class SystemWebAdaptersConversionExtensions
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        return request.HttpContext.AsSystemWeb().Request;
+        return request;
     }
 
     /// <summary>
