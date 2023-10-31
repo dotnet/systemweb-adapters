@@ -10,9 +10,9 @@ public sealed class TraceContext
 {
     private readonly ITraceContext? _context;
 
-    internal TraceContext(HttpContext context)
+    internal TraceContext(HttpContextCore context)
     {
-        _context = context.UnwrapAdapter().RequestServices.GetService<ITraceContext>();
+        _context = context.RequestServices.GetService<ITraceContext>();
     }
 
     public bool IsEnabled { get; set; }

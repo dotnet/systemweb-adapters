@@ -27,9 +27,9 @@ public class HttpServerUtility
     public string MapPath(string? path)
         => _context.RequestServices.GetRequiredService<IMapPathUtility>().MapPath(_context.Request.Path, path);
 
-    public Exception? GetLastError() => _context.GetAdapter().Error;
+    public Exception? GetLastError() => _context.AsSystemWeb().Error;
 
-    public void ClearError() => _context.GetAdapter().ClearError();
+    public void ClearError() => _context.AsSystemWeb().ClearError();
 
     /// <summary>
     /// This method is similar to <see cref="WebEncoders.Base64UrlDecode(string)"/> but handles the trailing character that <see cref="UrlTokenEncode(byte[])"/>
@@ -113,7 +113,7 @@ public class HttpServerUtility
     public void Transfer(string path, bool preserveForm)
     {
         _context.Features.GetRequired<ITransferRequestFeature>().Transfer(path, preserveForm);
-        _context.Response.GetAdapter().End();
+        _context.Response.AsSystemWeb().End();
     }
 
     [Obsolete(Constants.TransferRequest.Message, DiagnosticId = Constants.TransferRequest.DiagnosticId)]

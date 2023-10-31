@@ -29,10 +29,10 @@ public sealed class HttpCookieCollection : NameObjectCollectionBase
 
     internal HttpCookieCollection(HttpResponse response)
     {
-        response.UnwrapAdapter().OnStarting(static state =>
+        response.AsAspNetCore().OnStarting(static state =>
         {
             var response = (HttpResponse)state;
-            var headers = response.UnwrapAdapter().Headers;
+            var headers = response.AsAspNetCore().Headers;
             var isShareable = false;
 
             for (var i = 0; i < response.Cookies.Count; i++)
@@ -54,7 +54,7 @@ public sealed class HttpCookieCollection : NameObjectCollectionBase
             // Additionally, we should not set this header during an SSL request, as certain versions
             // of IE don't handle it properly and simply refuse to render the page. More info:
             // http://blogs.msdn.com/b/ieinternals/archive/2009/10/02/internet-explorer-cannot-download-over-https-when-no-cache.aspx
-            if (!isShareable && !response.UnwrapAdapter().HttpContext.Request.IsHttps && response.TypedHeaders.CacheControl is { Public: true } cacheControl)
+            if (!isShareable && !response.AsAspNetCore().HttpContext.Request.IsHttps && response.TypedHeaders.CacheControl is { Public: true } cacheControl)
             {
                 cacheControl.NoCache = true;
                 cacheControl.NoCacheHeaders.Add(HeaderNames.SetCookie);

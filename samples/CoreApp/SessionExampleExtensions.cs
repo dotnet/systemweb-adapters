@@ -54,7 +54,7 @@ internal static class SessionExampleExtensions
 
         builder.MapGet("/count", (HttpContextCore ctx) =>
         {
-            var context = (HttpContext)ctx;
+            var context = ctx.AsSystemWeb();
 
             if (context.Session!["callCount"] is not int count)
             {
@@ -69,7 +69,7 @@ internal static class SessionExampleExtensions
 
         builder.MapGet("/item", (HttpContextCore ctx) =>
         {
-            var context = (HttpContext)ctx;
+            var context = ctx.AsSystemWeb();
 
             var result = context.Session!["item"];
             context.Session!["item"] = default(int);

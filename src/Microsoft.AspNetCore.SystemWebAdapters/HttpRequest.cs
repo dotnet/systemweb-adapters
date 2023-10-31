@@ -23,8 +23,6 @@ namespace System.Web
 {
     public class HttpRequest
     {
-        private readonly HttpRequestCore _request;
-
         private RequestHeaders? _typedHeaders;
         private string[]? _userLanguages;
         private string[]? _acceptTypes;
@@ -39,37 +37,39 @@ namespace System.Web
 
         internal HttpRequest(HttpRequestCore request)
         {
-            _request = request;
+            Request = request;
         }
 
-        internal RequestHeaders TypedHeaders => _typedHeaders ??= new(_request.Headers);
+        internal HttpRequestCore Request { get; }
 
-        public string Path => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().Path;
+        internal RequestHeaders TypedHeaders => _typedHeaders ??= new(Request.Headers);
 
-        public string PathInfo => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().PathInfo;
+        public string Path => Request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().Path;
 
-        public string FilePath => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().FilePath;
+        public string PathInfo => Request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().PathInfo;
+
+        public string FilePath => Request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().FilePath;
 
         [SuppressMessage("Design", "CA1056:URI-like properties should not be strings", Justification = Constants.ApiFromAspNet)]
-        public string RawUrl => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().RawUrl;
+        public string RawUrl => Request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().RawUrl;
 
-        public string? PhysicalPath => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().PhysicalPath;
+        public string? PhysicalPath => Request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().PhysicalPath;
 
-        public string CurrentExecutionFilePath => _request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().CurrentExecutionFilePath;
+        public string CurrentExecutionFilePath => Request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().CurrentExecutionFilePath;
 
-        public NameValueCollection Headers => _headers ??= _request.Headers.ToNameValueCollection();
+        public NameValueCollection Headers => _headers ??= Request.Headers.ToNameValueCollection();
 
-        public Uri Url => new(_request.GetEncodedUrl());
+        public Uri Url => new(Request.GetEncodedUrl());
 
-        public ReadEntityBodyMode ReadEntityBodyMode => _request.HttpContext.Features.GetRequired<IHttpRequestInputStreamFeature>().Mode;
+        public ReadEntityBodyMode ReadEntityBodyMode => Request.HttpContext.Features.GetRequired<IHttpRequestInputStreamFeature>().Mode;
 
-        public Stream GetBufferlessInputStream() => _request.HttpContext.Features.GetRequired<IHttpRequestInputStreamFeature>().GetBufferlessInputStream();
+        public Stream GetBufferlessInputStream() => Request.HttpContext.Features.GetRequired<IHttpRequestInputStreamFeature>().GetBufferlessInputStream();
 
-        public Stream GetBufferedInputStream() => _request.HttpContext.Features.GetRequired<IHttpRequestInputStreamFeature>().GetBufferedInputStream();
+        public Stream GetBufferedInputStream() => Request.HttpContext.Features.GetRequired<IHttpRequestInputStreamFeature>().GetBufferedInputStream();
 
-        public string HttpMethod => _request.Method;
+        public string HttpMethod => Request.Method;
 
-        public string? UserHostAddress => _request.HttpContext.Connection.RemoteIpAddress?.ToString();
+        public string? UserHostAddress => Request.HttpContext.Connection.RemoteIpAddress?.ToString();
 
         [SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = Constants.ApiFromAspNet)]
         public string[] UserLanguages
@@ -111,17 +111,17 @@ namespace System.Web
             }
         }
 
-        public string? UserAgent => _request.Headers[HeaderNames.UserAgent];
+        public string? UserAgent => Request.Headers[HeaderNames.UserAgent];
 
         public string RequestType => HttpMethod;
 
-        public NameValueCollection Form => _form ??= _request.HasFormContentType ? _request.Form.ToNameValueCollection() : StringValuesReadOnlyDictionaryNameValueCollection.Empty;
+        public NameValueCollection Form => _form ??= Request.HasFormContentType ? Request.Form.ToNameValueCollection() : StringValuesReadOnlyDictionaryNameValueCollection.Empty;
 
-        public HttpCookieCollection Cookies => _cookies ??= new(_request.Cookies);
+        public HttpCookieCollection Cookies => _cookies ??= new(Request.Cookies);
 
-        public HttpFileCollection Files => _files ??= _request.HasFormContentType ? new(_request.Form.Files) : HttpFileCollection.Empty;
+        public HttpFileCollection Files => _files ??= Request.HasFormContentType ? new(Request.Form.Files) : HttpFileCollection.Empty;
 
-        public int ContentLength => (int)(_request.ContentLength ?? 0);
+        public int ContentLength => (int)(Request.ContentLength ?? 0);
 
         [SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = Constants.ApiFromAspNet)]
         public string[] AcceptTypes
@@ -156,23 +156,23 @@ namespace System.Web
 
         public string? ContentType
         {
-            get => _request.ContentType;
-            set => _request.ContentType = value;
+            get => Request.ContentType;
+            set => Request.ContentType = value;
         }
 
-        public Stream InputStream => _request.HttpContext.Features.GetRequired<IHttpRequestInputStreamFeature>().InputStream;
+        public Stream InputStream => Request.HttpContext.Features.GetRequired<IHttpRequestInputStreamFeature>().InputStream;
 
-        public NameValueCollection ServerVariables => _serverVariables ??= _request.HttpContext.Features.GetRequired<IServerVariablesFeature>().ToNameValueCollection();
+        public NameValueCollection ServerVariables => _serverVariables ??= Request.HttpContext.Features.GetRequired<IServerVariablesFeature>().ToNameValueCollection();
 
-        public bool IsSecureConnection => _request.IsHttps;
+        public bool IsSecureConnection => Request.IsHttps;
 
-        public NameValueCollection QueryString => _query ??= _request.Query.ToNameValueCollection();
+        public NameValueCollection QueryString => _query ??= Request.Query.ToNameValueCollection();
 
         public bool IsLocal
         {
             get
             {
-                var connectionInfo = _request.HttpContext.Connection;
+                var connectionInfo = Request.HttpContext.Connection;
 
                 // If unknown, assume not local
                 if (connectionInfo.RemoteIpAddress is null)
@@ -192,7 +192,7 @@ namespace System.Web
 
         public string AppRelativeCurrentExecutionFilePath => $"~{FilePath}";
 
-        public string ApplicationPath => _request.HttpContext.RequestServices.GetRequiredService<IOptions<SystemWebAdaptersOptions>>().Value.AppDomainAppVirtualPath;
+        public string ApplicationPath => Request.HttpContext.RequestServices.GetRequiredService<IOptions<SystemWebAdaptersOptions>>().Value.AppDomainAppVirtualPath;
 
         public Uri? UrlReferrer => TypedHeaders.Referer;
 
@@ -200,17 +200,17 @@ namespace System.Web
 
         public bool IsAuthenticated => LogonUserIdentity?.IsAuthenticated ?? false;
 
-        public IIdentity? LogonUserIdentity => _request.HttpContext.User.Identity;
+        public IIdentity? LogonUserIdentity => Request.HttpContext.User.Identity;
 
         public Encoding? ContentEncoding => TypedHeaders.ContentType?.Encoding;
 
-        public string? UserHostName => _request.HttpContext.Connection.RemoteIpAddress?.ToString();
+        public string? UserHostName => Request.HttpContext.Connection.RemoteIpAddress?.ToString();
 
-        public HttpBrowserCapabilities Browser => _browser ??= new(_request.HttpContext);
+        public HttpBrowserCapabilities Browser => _browser ??= new(Request.HttpContext);
 
         public string? this[string key] => Params[key];
 
-        public NameValueCollection Params => _params ??= new ParamsCollection(_request);
+        public NameValueCollection Params => _params ??= new ParamsCollection(Request);
 
         public byte[] BinaryRead(int count)
         {
@@ -257,12 +257,12 @@ namespace System.Web
                 w.Write(Path);
 
                 // Includes the leading '?' if non-empty
-                w.Write(_request.QueryString);
+                w.Write(Request.QueryString);
 
                 w.Write(" ");
-                w.WriteLine(_request.Protocol);
+                w.WriteLine(Request.Protocol);
 
-                foreach (var header in _request.Headers)
+                foreach (var header in Request.Headers)
                 {
                     w.Write(header.Key);
                     w.Write(": ");
@@ -287,13 +287,13 @@ namespace System.Web
             source.Position = currentPosition;
         }
 
-        public void Abort() => _request.HttpContext.Abort();
+        public void Abort() => Request.HttpContext.Abort();
 
         [return: NotNullIfNotNull(nameof(request))]
-        public static implicit operator HttpRequest?(HttpRequestCore? request) => request.GetAdapter();
+        public static implicit operator HttpRequest?(HttpRequestCore? request) => request?.HttpContext.AsSystemWeb().Request;
 
         [return: NotNullIfNotNull(nameof(request))]
-        public static implicit operator HttpRequestCore?(HttpRequest? request) => request?._request;
+        public static implicit operator HttpRequestCore?(HttpRequest? request) => request?.AsAspNetCore();
 
         private class StringWithQualityHeaderValueComparer : IComparer<StringWithQualityHeaderValue>
         {

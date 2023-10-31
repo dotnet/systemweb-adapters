@@ -12,6 +12,7 @@ M:System.Web.HttpRequestBase.op_Implicit(Microsoft.AspNetCore.Http.HttpRequest)~
 
 T:Microsoft.AspNetCore.SystemWebAdapters.SessionState.ISessionState
 T:Microsoft.AspNetCore.SystemWebAdapters.SystemWebAdaptersOptions
+T:Microsoft.AspNetCore.SystemWebAdapters.SystemWebAdaptersConversionExtensions
 
 # We manually type forward this only for .NET 4.7.2+
 T:System.Web.SameSiteMode

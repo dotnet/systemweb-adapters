@@ -41,7 +41,7 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
     private HttpApplication InitializeApplication(HttpContextCore context)
     {
         var app = _pool.Get();
-        app.Context = context;
+        app.Context = context.AsSystemWeb();
         _contextOrApplication = app;
         return app;
     }
