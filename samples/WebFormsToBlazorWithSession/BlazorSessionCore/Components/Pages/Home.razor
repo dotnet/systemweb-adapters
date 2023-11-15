@@ -1,0 +1,46 @@
+@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<div>
+    <label for="session-string">Session String:</label>
+    <input name="session-string" type="text" @bind-value="testValue" />
+    <button type="button" @onclick="OnSubmit">Submit</button>
+</div>
+
+@code {
+    private string? testValue;
+
+    [CascadingParameter]
+    public HttpContext? HttpContext { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        if (HttpContext != null)
+        {
+            var webHttpContext = ((System.Web.HttpContext)HttpContext);
+            if (webHttpContext != null && webHttpContext.Session != null)
+            {
+                testValue = webHttpContext.Session["test-value"]?.ToString();
+            }
+        }
+
+        return base.OnInitializedAsync();
+    }
+
+    private void OnSubmit()
+    {
+        if (HttpContext != null)
+        {
+            var webHttpContext = ((System.Web.HttpContext)HttpContext);
+            if (webHttpContext != null && webHttpContext.Session != null)
+            {
+                webHttpContext.Session["test-value"] = testValue;
+            }
+        }
+    }
+}
