@@ -162,7 +162,10 @@ public class HttpContext : IServiceProvider
         {
             return Server;
         }
-
+        else if (Context.RequestServices != null)
+        {
+            return Context.RequestServices.GetService(service);
+        }
         return null;
     }
 

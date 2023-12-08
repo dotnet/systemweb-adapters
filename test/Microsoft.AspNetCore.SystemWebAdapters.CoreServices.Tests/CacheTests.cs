@@ -32,6 +32,10 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
 
             // Assert
             Assert.Same(cache, result);
+
+            //Act via GetService
+            var cacheFromService = context.GetService<Cache>();
+            Assert.Same(cache, cacheFromService);
         }
 
         [Fact]
@@ -54,6 +58,10 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
 
             // Assert
             Assert.Same(cache, result);
+
+            //Act via GetService
+            var cacheFromService = contextWrapper.GetService<Cache>();
+            Assert.Same(cache, cacheFromService);
         }
     }
 }
