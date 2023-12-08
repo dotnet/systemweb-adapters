@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -49,7 +48,7 @@ public class ResponseStreamTests
         var result = await RunAsync(async context =>
         {
             context.Response.Write(ContentValue);
-            await ((HttpResponseCore)context.Response).StartAsync();
+            await context.Response.AsAspNetCore().StartAsync();
         }, builder => builder.BufferResponseStream());
 
         Assert.Equal(ContentValue, result);
@@ -61,7 +60,7 @@ public class ResponseStreamTests
         var result = await RunAsync(async context =>
         {
             context.Response.Write(ContentValue);
-            await ((HttpResponseCore)context.Response).CompleteAsync();
+            await context.Response.AsAspNetCore().CompleteAsync();
         }, builder => builder.BufferResponseStream());
 
         Assert.Equal(ContentValue, result);

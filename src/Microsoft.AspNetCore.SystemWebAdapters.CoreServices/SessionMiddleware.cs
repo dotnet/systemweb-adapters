@@ -6,65 +6,65 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
-internal partial class SessionMiddleware
+internal partial class SessionLoadMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger<SessionMiddleware> _logger;
+    private readonly ILogger<SessionLoadMiddleware> _logger;
 
     [LoggerMessage(EventId = 0, Level = LogLevel.Trace, Message = "Initializing session state: {Behavior}")]
-    private partial void LogMessage(SessionBehavior behavior);
+    private partial void LogMessage(SessionStateBehavior behavior);
 
     [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Creating session on demand by synchronously waiting on a potential asynchronous connection")]
     private partial void LogOnDemand();
 
     private readonly TimeSpan CommitTimeout = TimeSpan.FromMinutes(1);
 
-    public SessionMiddleware(RequestDelegate next, ILogger<SessionMiddleware> logger)
+    public SessionLoadMiddleware(RequestDelegate next, ILogger<SessionLoadMiddleware> logger)
     {
         _next = next;
         _logger = logger;
     }
 
     public Task InvokeAsync(HttpContextCore context)
-        => context.GetEndpoint()?.Metadata.GetMetadata<SessionAttribute>() is { Behavior: not SessionBehavior.None } metadata
-            ? ManageStateAsync(context, metadata)
+        => context.Features.GetRequired<ISessionStateFeature>() is { Behavior: not SessionStateBehavior.Disabled and not SessionStateBehavior.Default } feature
+            ? ManageStateAsync(context, feature)
             : _next(context);
 
-    private async Task ManageStateAsync(HttpContextCore context, SessionAttribute metadata)
+    private async Task ManageStateAsync(HttpContextCore context, ISessionStateFeature feature)
     {
-        LogMessage(metadata.Behavior);
+        LogMessage(feature.Behavior);
 
         var manager = context.RequestServices.GetRequiredService<ISessionManager>();
+        var details = new SessionAttribute { SessionBehavior = feature.Behavior, IsPreLoad = feature.IsPreLoad };
 
-        using var state = metadata.Behavior switch
-        {
+        using var state = !feature.IsPreLoad
 #pragma warning disable CA2000 // False positive for CA2000 here
-#pragma warning disable CS0618 // Type or member is obsolete
-            SessionBehavior.OnDemand => new LazySessionState(context, LogOnDemand, metadata, manager),
-#pragma warning restore CS0618 // Type or member is obsolete
+            ? new LazySessionState(context, LogOnDemand, details, manager)
 #pragma warning restore CA2000 // Dispose objects before losing scope
+            : await manager.CreateAsync(context, details);
 
-            SessionBehavior.Preload => await manager.CreateAsync(context, metadata),
-            var behavior => throw new InvalidOperationException($"Unknown session behavior {behavior}"),
-        };
-
-        context.Features.Set(new HttpSessionState(state));
+        feature.State = state;
 
         try
         {
             await _next(context);
 
             using var cts = new CancellationTokenSource(CommitTimeout);
-            await state.CommitAsync(cts.Token);
+
+            if (!details.IsReadOnly)
+            {
+                await state.CommitAsync(cts.Token);
+            }
         }
         finally
         {
-            context.Features.Set<HttpSessionState?>(null);
+            feature.State = null;
         }
     }
 

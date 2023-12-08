@@ -17,6 +17,7 @@
 #pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
 #pragma warning disable CA1063 // Implement IDisposable Correctly
 #pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
+#pragma warning disable CS0436 // Type conflicts with imported type
 
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpApplication))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpApplicationState))]
@@ -67,5 +68,7 @@
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Caching.CacheItemUpdateReason))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Configuration.HttpCapabilitiesBase))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Hosting.HostingEnvironment))]
+[assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.Security.MachineKey))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.SessionState.HttpSessionState))]
+[assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.SessionState.SessionStateBehavior))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.SessionState.SessionStateMode))]

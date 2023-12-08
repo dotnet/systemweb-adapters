@@ -22,7 +22,7 @@ public class HttpContextIntegrationTests
             Assert.Equal("/", context.Request.Path);
             Assert.Empty(context.Request.Query);
 
-            var adapter = (System.Web.HttpRequest)context.Request;
+            var adapter = context.Request.AsSystemWeb();
 
             Assert.Equal("", adapter.PathInfo);
             Assert.Equal("/", adapter.FilePath);
@@ -34,7 +34,7 @@ public class HttpContextIntegrationTests
     public Task RewriteRequestPath()
         => RunTest("/", context =>
         {
-            var adapter = (System.Web.HttpContext)context;
+            var adapter = context.AsSystemWeb();
 
             adapter.RewritePath("/some/path?q=1");
 
@@ -57,7 +57,7 @@ public class HttpContextIntegrationTests
     public Task RewriteRequestPathInfo()
         => RunTest("/", context =>
         {
-            var adapter = (System.Web.HttpContext)context;
+            var adapter = context.AsSystemWeb();
 
             adapter.RewritePath("/some/path", "/pathInfo", "q=1");
 
@@ -80,7 +80,7 @@ public class HttpContextIntegrationTests
     public Task RewritePathViaCoreApis()
         => RunTest("/", context =>
         {
-            var adapter = (System.Web.HttpContext)context;
+            var adapter = context.AsSystemWeb();
 
             // This is the same as RewriteRequestPathInfo as above to get a custom PathInfo
             adapter.RewritePath("/some/path", "/pathInfo", "q=1");
@@ -101,6 +101,14 @@ public class HttpContextIntegrationTests
             Assert.Equal("1", adapter.Request.QueryString["q"]);
         });
 
+    [Fact]
+    public Task Timestamp()
+        => RunTest("/", context =>
+        {
+            var timestamp = context.RequestServices.GetRequiredService<TimeProvider>().GetLocalNow().DateTime;
+            Assert.Equal(timestamp, context.AsSystemWeb().Timestamp);
+        });
+
     private static async Task RunTest(string path, Action<HttpContextCore> run)
     {
         // Arrange
@@ -111,6 +119,7 @@ public class HttpContextIntegrationTests
                     .UseTestServer()
                     .ConfigureServices(services =>
                     {
+                        services.AddSingleton<TimeProvider>(new MockTimeProvider());
                         services.AddRouting();
                         services.AddSystemWebAdapters();
                     })
@@ -137,5 +146,12 @@ public class HttpContextIntegrationTests
         {
             await host.StopAsync();
         }
+    }
+
+    private sealed class MockTimeProvider : TimeProvider
+    {
+        private static readonly DateTimeOffset now = DateTimeOffset.Now;
+
+        public override DateTimeOffset GetUtcNow() => now;
     }
 }

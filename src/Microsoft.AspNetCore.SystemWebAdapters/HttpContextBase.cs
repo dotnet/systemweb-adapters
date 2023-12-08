@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Security.Principal;
 using System.Diagnostics.CodeAnalysis;
+using System.Web.SessionState;
 using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace System.Web
@@ -55,10 +56,7 @@ namespace System.Web
 
         public virtual object? GetService(Type serviceType) => throw new NotImplementedException();
 
-        [return: NotNullIfNotNull(nameof(context))]
-        public static implicit operator HttpContextBase?(HttpContextCore? context) => context?.GetAdapterBase();
-
-        public virtual System.Web.Caching.Cache Cache => throw new NotImplementedException();
+        public virtual Caching.Cache Cache => throw new NotImplementedException();
 
         public virtual void RewritePath(string path) => throw new NotImplementedException();
 
@@ -67,5 +65,10 @@ namespace System.Web
         public virtual void RewritePath(string filePath, string pathInfo, string? queryString) => throw new NotImplementedException();
 
         public virtual void RewritePath(string filePath, string pathInfo, string? queryString, bool setClientFilePath) => throw new NotImplementedException();
+
+        public virtual void SetSessionStateBehavior(SessionStateBehavior sessionStateBehavior) => throw new NotImplementedException();
+
+        [return: NotNullIfNotNull(nameof(context))]
+        public static implicit operator HttpContextBase?(HttpContextCore? context) => context?.AsSystemWebBase();
     }
 }

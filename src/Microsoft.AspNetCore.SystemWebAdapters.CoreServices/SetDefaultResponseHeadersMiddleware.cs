@@ -22,7 +22,7 @@ internal class SetDefaultResponseHeadersMiddleware
             var context = (HttpContext)state;
 
             WriteDefaultContentType(context);
-            context.Response.GetAdapter().Cache.UpdateHeaders();
+            context.Response.AsSystemWeb().Cache.UpdateHeaders();
 
             return Task.CompletedTask;
         }, context);
@@ -32,7 +32,7 @@ internal class SetDefaultResponseHeadersMiddleware
 
     private static void WriteDefaultContentType(HttpContext context)
     {
-        if (context.Response.Headers.ContentType.Count == 0)
+        if (context.Response.ContentLength.HasValue && context.Response.Headers.ContentType.Count == 0)
         {
             context.Response.Headers.ContentType = "text/html";
         }

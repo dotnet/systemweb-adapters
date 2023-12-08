@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
+using Microsoft.AspNetCore.SystemWebAdapters.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -20,77 +22,96 @@ public class HttpContext : IServiceProvider
 {
     private static readonly HttpContextAccessor _accessor = new();
 
-    private readonly HttpContextCore _context;
-
     private HttpRequest? _request;
     private HttpResponse? _response;
     private HttpServerUtility? _server;
     private IDictionary? _items;
     private TraceContext? _trace;
 
-    public static HttpContext? Current => _accessor.HttpContext;
+    public static HttpContext? Current
+    {
+        get => _accessor.HttpContext?.AsSystemWeb();
+        set => _accessor.HttpContext = value?.AsAspNetCore();
+    }
 
     internal HttpContext(HttpContextCore context)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        Context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public HttpRequest Request => _request ??= new(_context.Request);
+    internal HttpContextCore Context { get; }
 
-    public HttpResponse Response => _response ??= new(_context.Response);
+    public HttpRequest Request => _request ??= new(Context.Request);
 
-    public IDictionary Items => _items ??= _context.Items.AsNonGeneric();
+    public HttpResponse Response => _response ??= new(Context.Response);
 
-    public HttpServerUtility Server => _server ??= new(_context);
+    public IDictionary Items
+    {
+        get
+        {
+            if (_items is null)
+            {
+                var items = Context.Items;
+                _items = items is IDictionary d ? d : new NonGenericDictionaryWrapper(items);
+            }
 
-    public TraceContext Trace => _trace ??= new(_context);
+            return _items;
+        }
+    }
 
-    public Exception? Error => _context.Features.Get<IRequestExceptionFeature>()?.Exceptions is [{ } error, ..] ? error : null;
+    public HttpServerUtility Server => _server ??= new(Context);
+
+    public TraceContext Trace => _trace ??= new(Context);
+
+    public Exception? Error => Context.Features.Get<IRequestExceptionFeature>()?.Exceptions is [{ } error, ..] ? error : null;
 
     [SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = Constants.ApiFromAspNet)]
-    public Exception[] AllErrors => _context.Features.Get<IRequestExceptionFeature>()?.Exceptions.ToArray() ?? Array.Empty<Exception>();
+    public Exception[] AllErrors => Context.Features.Get<IRequestExceptionFeature>()?.Exceptions.ToArray() ?? Array.Empty<Exception>();
 
-    public void ClearError() => _context.Features.Get<IRequestExceptionFeature>()?.Clear();
+    public void ClearError() => Context.Features.Get<IRequestExceptionFeature>()?.Clear();
 
-    public void AddError(Exception ex) => _context.Features.Get<IRequestExceptionFeature>()?.Add(ex);
+    public void AddError(Exception ex) => Context.Features.Get<IRequestExceptionFeature>()?.Add(ex);
 
-    public RequestNotification CurrentNotification => _context.Features.GetRequired<IHttpApplicationFeature>().CurrentNotification;
+    public RequestNotification CurrentNotification => Context.Features.GetRequired<IHttpApplicationFeature>().CurrentNotification;
 
-    public bool IsPostNotification => _context.Features.GetRequired<IHttpApplicationFeature>().IsPostNotification;
+    public bool IsPostNotification => Context.Features.GetRequired<IHttpApplicationFeature>().IsPostNotification;
 
-    public HttpApplication ApplicationInstance => _context.Features.GetRequired<IHttpApplicationFeature>().Application;
+    public HttpApplication ApplicationInstance => Context.Features.GetRequired<IHttpApplicationFeature>().Application;
 
     public HttpApplicationState Application => ApplicationInstance.Application;
 
-    public Cache Cache => _context.RequestServices.GetRequiredService<Cache>();
+    public Cache Cache => Context.RequestServices.GetRequiredService<Cache>();
 
     /// <summary>
     /// Gets whether the current request is running in the development environment.
     /// </summary>
-    public bool IsDebuggingEnabled => _context.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment();
+    public bool IsDebuggingEnabled => Context.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment();
 
     public IPrincipal User
     {
-        get => _context.Features.Get<IPrincipalUserFeature>()?.User ?? _context.User;
+        get => Context.Features.Get<IPrincipalUserFeature>()?.User ?? Context.User;
         set
         {
-            if (_context.Features.Get<IPrincipalUserFeature>() is { } feature)
+            if (Context.Features.Get<IPrincipalUserFeature>() is { } feature)
             {
                 feature.User = value;
             }
             else
             {
-                var newFeature = new PrincipalUserFeature(_context) { User = value };
+                var newFeature = new PrincipalUserFeature(Context) { User = value };
 
-                _context.Features.Set<IPrincipalUserFeature>(newFeature);
-                _context.Features.Set<IHttpAuthenticationFeature>(newFeature);
+                Context.Features.Set<IPrincipalUserFeature>(newFeature);
+                Context.Features.Set<IHttpAuthenticationFeature>(newFeature);
             }
         }
     }
 
-    public HttpSessionState? Session => _context.Features.Get<HttpSessionState>();
+    public HttpSessionState? Session => Context.Features.Get<ISessionStateFeature>()?.Session;
 
-    public DateTime Timestamp { get; } = DateTime.UtcNow.ToLocalTime();
+    public void SetSessionStateBehavior(SessionStateBehavior sessionStateBehavior)
+        => Context.Features.GetRequired<ISessionStateFeature>().Behavior = sessionStateBehavior;
+
+    public DateTime Timestamp => Context.Features.GetRequired<ITimestampFeature>().Timestamp.DateTime;
 
     public void RewritePath(string path) => RewritePath(path, true);
 
@@ -108,7 +129,7 @@ public class HttpContext : IServiceProvider
             path = path[..iqs];
         }
 
-        if (!path.StartsWith("/", StringComparison.Ordinal))
+        if (!path.StartsWith('/'))
         {
             path = "/" + path;
         }
@@ -120,7 +141,7 @@ public class HttpContext : IServiceProvider
         => RewritePath(filePath, pathInfo, queryString, false);
 
     public void RewritePath(string filePath, string pathInfo, string? queryString, bool setClientFilePath)
-        => _context.Features.GetRequired<IHttpRequestPathFeature>().Rewrite(filePath, pathInfo, queryString, setClientFilePath);
+        => Context.Features.GetRequired<IHttpRequestPathFeature>().Rewrite(filePath, pathInfo, queryString, setClientFilePath);
 
     [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = Constants.ApiFromAspNet)]
     object? IServiceProvider.GetService(Type service)
@@ -148,15 +169,15 @@ public class HttpContext : IServiceProvider
     public ISubscriptionToken DisposeOnPipelineCompleted(IDisposable target)
     {
         var token = new DisposeOnPipelineSubscriptionToken(target);
-        _context.Response.RegisterForDispose(token);
+        Context.Response.RegisterForDispose(token);
         return token;
     }
 
     [return: NotNullIfNotNull(nameof(context))]
-    public static implicit operator HttpContext?(HttpContextCore? context) => context?.GetAdapter();
+    public static implicit operator HttpContext?(HttpContextCore? context) => context?.AsSystemWeb();
 
     [return: NotNullIfNotNull(nameof(context))]
-    public static implicit operator HttpContextCore?(HttpContext? context) => context?._context;
+    public static implicit operator HttpContextCore?(HttpContext? context) => context?.AsAspNetCore();
 
     private sealed class DisposeOnPipelineSubscriptionToken : ISubscriptionToken, IDisposable
     {
