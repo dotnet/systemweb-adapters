@@ -162,11 +162,7 @@ public class HttpContext : IServiceProvider
         {
             return Server;
         }
-        else if (Context.RequestServices != null)
-        {
-            return Context.RequestServices.GetService(service);
-        }
-        return null;
+        return Context.RequestServices.GetService(service);
     }
 
     public ISubscriptionToken DisposeOnPipelineCompleted(IDisposable target)
