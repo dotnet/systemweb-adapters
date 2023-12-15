@@ -100,4 +100,16 @@ public class HttpPostedFileTests
         // Assert
         Assert.Equal(expected.Object, stream);
     }
+
+    [Fact]
+    public void SaveAs()
+    {
+        var file = new Mock<IFormFile>();
+        var expectedStream = new Mock<Stream>();
+        file.Setup(f => f.OpenReadStream()).Returns(expectedStream.Object);
+
+        var posted = new HttpPostedFile(file.Object);
+        Assert.Throws<HttpException>(() => posted.SaveAs("InvalidPath"));
+    }
+
 }
