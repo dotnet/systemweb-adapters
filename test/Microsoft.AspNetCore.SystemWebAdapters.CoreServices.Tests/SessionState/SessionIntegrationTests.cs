@@ -31,6 +31,7 @@ public class SessionIntegrationTests
 
     [InlineData("/disabled", "Session:null")]
     [InlineData("/readonly", "ReadOnly:True")]
+    [InlineData("/session", "ReadOnly:False")]
     [InlineData("/required", "ReadOnly:False")]
     [InlineData("/default", "Session:null")]
     [Theory]
@@ -82,6 +83,7 @@ public class SessionIntegrationTests
                       app.UseEndpoints(endpoints =>
                       {
                           endpoints.MapGet("/", (context) => GetSessionStatus(context));
+                          endpoints.MapGet("/session", (context) => GetSessionStatus(context)).RequireSystemWebAdapterSession();
                           endpoints.MapGet("/disabled", (context) => GetSessionStatus(context)).WithMetadata(new SessionAttribute { SessionBehavior = SessionStateBehavior.Disabled });
                           endpoints.MapGet("/readonly", (context) => GetSessionStatus(context)).WithMetadata(new SessionAttribute { SessionBehavior = SessionStateBehavior.ReadOnly });
                           endpoints.MapGet("/required", (context) => GetSessionStatus(context)).WithMetadata(new SessionAttribute { SessionBehavior = SessionStateBehavior.Required });
