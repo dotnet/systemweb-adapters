@@ -4,16 +4,21 @@
 
 <h1>Hello, world!</h1>
 
-Welcome to your new app.
-
-<div>
-    <label for="session-string">Session String:</label>
-    <input name="session-string" type="text" @bind-value="testValue" />
-    <button type="button" @onclick="OnSubmit">Submit</button>
+<div class="container-fluid">
+    <EditForm Model="SessionData" OnSubmit="OnSubmit" class="col-md-4" FormName="Session">
+        <div class="mb-2">
+            <label for="session-message" class="form-label">Session Message:</label>
+            <InputText id="session-message" class="form-control" @bind-Value="SessionData.SessionMessage" />
+        </div>
+        <div class="mb-2">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </EditForm>
 </div>
 
 @code {
-    private string? testValue;
+    [SupplyParameterFromForm]
+    private SessionData SessionData { get; set; } = new();
 
     [CascadingParameter]
     public HttpContext? HttpContext { get; set; }
@@ -23,9 +28,9 @@ Welcome to your new app.
         if (HttpContext != null)
         {
             var webHttpContext = ((System.Web.HttpContext)HttpContext);
-            if (webHttpContext != null && webHttpContext.Session != null)
+            if (webHttpContext != null && webHttpContext.Session != null && string.IsNullOrEmpty(SessionData.SessionMessage))
             {
-                testValue = webHttpContext.Session["test-value"]?.ToString();
+                SessionData.SessionMessage = webHttpContext.Session["test-value"]?.ToString() ?? string.Empty;
             }
         }
 
@@ -39,7 +44,7 @@ Welcome to your new app.
             var webHttpContext = ((System.Web.HttpContext)HttpContext);
             if (webHttpContext != null && webHttpContext.Session != null)
             {
-                webHttpContext.Session["test-value"] = testValue;
+                webHttpContext.Session["test-value"] = SessionData.SessionMessage;
             }
         }
     }
