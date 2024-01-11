@@ -163,7 +163,7 @@ public class HttpContext : IServiceProvider
             return Server;
         }
 
-        return null;
+        return Context.RequestServices?.GetService(service);
     }
 
     public ISubscriptionToken DisposeOnPipelineCompleted(IDisposable target)

@@ -32,7 +32,7 @@ internal class SetDefaultResponseHeadersMiddleware
 
     private static void WriteDefaultContentType(HttpContext context)
     {
-        if (context.Response.Headers.ContentType.Count == 0)
+        if (context.Response.ContentLength.HasValue && context.Response.Headers.ContentType.Count == 0)
         {
             context.Response.Headers.ContentType = "text/html";
         }
