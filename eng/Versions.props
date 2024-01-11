@@ -7,8 +7,8 @@
   <PropertyGroup>
     <MajorVersion>1</MajorVersion>
     <MinorVersion>3</MinorVersion>
-    <PatchVersion>1</PatchVersion>
-    <PreReleaseVersionLabel>rtw</PreReleaseVersionLabel>
+    <PatchVersion>2</PatchVersion>
+    <PreReleaseVersionLabel>preview1</PreReleaseVersionLabel>
     <DotNetFinalVersionKind Condition="'$(PreReleaseVersionLabel)' == 'rtw'">release</DotNetFinalVersionKind>
   </PropertyGroup>
   <PropertyGroup>
