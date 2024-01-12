@@ -14,7 +14,7 @@
 
   <!-- Used for tests but not directly -->
   <ItemGroup>
-    <PackageReference Include="jQuery" Version="3.5.1" CopyContent="true" />
+    <PackageReference Include="jQuery" Version="3.7.0" CopyContent="true" />
   </ItemGroup>
 
   <Import Project="$(SolutionRootDirectory)src/Microsoft.AspNetCore.SystemWebAdapters/Build/Microsoft.AspNetCore.SystemWebAdapters.targets" />
