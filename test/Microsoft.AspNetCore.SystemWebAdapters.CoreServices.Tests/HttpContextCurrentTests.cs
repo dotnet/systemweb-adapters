@@ -39,7 +39,6 @@ public class HttpContextCurrentTests
     public async Task UsesIHttpContextAccessor()
     {
         // Arrange
-        var defaultAccessor = new HttpContextAccessor();
         var accessor = new Mock<IHttpContextAccessor>();
         accessor.SetupAllProperties();
 
@@ -65,6 +64,6 @@ public class HttpContextCurrentTests
 
         // Assert
         Assert.Same(context, accessor.Object.HttpContext);
-        Assert.Null(defaultAccessor.HttpContext);
+        Assert.Null(new HttpContextAccessor().HttpContext);
     }
 }
