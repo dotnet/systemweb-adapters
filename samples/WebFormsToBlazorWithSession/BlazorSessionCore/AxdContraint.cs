@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace BlazorSessionCore.Components
+namespace BlazorSessionCore
 {
     internal sealed class AxdContraint : IRouteConstraint
     {
