@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Principal;
 using System.Web.Caching;
+using System.Web.Hosting;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +21,7 @@ namespace System.Web;
 
 public class HttpContext : IServiceProvider
 {
-    private static readonly HttpContextAccessor _accessor = new();
+    private static readonly HttpContextAccessor _defaultHttpContextAccessor = new();
 
     private HttpRequest? _request;
     private HttpResponse? _response;
@@ -30,8 +31,21 @@ public class HttpContext : IServiceProvider
 
     public static HttpContext? Current
     {
-        get => _accessor.HttpContext?.AsSystemWeb();
-        set => _accessor.HttpContext = value?.AsAspNetCore();
+        get => Accessor.HttpContext?.AsSystemWeb();
+        set => Accessor.HttpContext = value?.AsAspNetCore();
+    }
+
+    private static IHttpContextAccessor Accessor
+    {
+        get
+        {
+            if (HostingEnvironmentAccessor.TryGet(out var current) && current.Services.GetService<IHttpContextAccessor>() is { } accessor)
+            {
+                return accessor;
+            }
+
+            return _defaultHttpContextAccessor;
+        }
     }
 
     internal HttpContext(HttpContextCore context)
