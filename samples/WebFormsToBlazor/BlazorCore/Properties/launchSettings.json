@@ -15,7 +15,7 @@
       "applicationUrl": "http://localhost:5094",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ReverseProxy__Clusters__fallbackCluster__Destinations__fallbackApp__Address": "https://localhost:44360"
+        "ProxyTo": "https://localhost:44360"
       }
     },
     "https": {
@@ -25,7 +25,7 @@
       "applicationUrl": "https://localhost:7013;http://localhost:5094",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ReverseProxy__Clusters__fallbackCluster__Destinations__fallbackApp__Address": "https://localhost:44360"
+        "ProxyTo": "https://localhost:44360"
       }
     },
     "IIS Express": {
@@ -33,7 +33,7 @@
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ReverseProxy__Clusters__fallbackCluster__Destinations__fallbackApp__Address": "https://localhost:44360"
+        "ProxyTo": "https://localhost:44360"
       }
     }
   }
