@@ -98,12 +98,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachineKeyFramework", "samp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.NuGet.Tests", "test\Microsoft.AspNetCore.SystemWebAdapters.NuGet.Tests\Microsoft.AspNetCore.SystemWebAdapters.NuGet.Tests.csproj", "{17055F45-E79A-41EF-825E-0B2211433729}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebFormsToBlazorWithSession", "WebFormsToBlazorWithSession", "{BBAC2782-3CB8-431A-B381-7641CF4575F7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorSessionCore", "samples\WebFormsToBlazorWithSession\BlazorSessionCore\BlazorSessionCore.csproj", "{EC3AA531-A08D-4A84-868E-CB01E1C6D061}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebFormsSessionFramework", "samples\WebFormsToBlazorWithSession\WebFormsSessionFramework\WebFormsSessionFramework.csproj", "{1AD25951-08A4-4102-AA23-CC0CEF1B77C4}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -222,14 +216,6 @@ Global
 		{17055F45-E79A-41EF-825E-0B2211433729}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17055F45-E79A-41EF-825E-0B2211433729}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17055F45-E79A-41EF-825E-0B2211433729}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EC3AA531-A08D-4A84-868E-CB01E1C6D061}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EC3AA531-A08D-4A84-868E-CB01E1C6D061}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EC3AA531-A08D-4A84-868E-CB01E1C6D061}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EC3AA531-A08D-4A84-868E-CB01E1C6D061}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1AD25951-08A4-4102-AA23-CC0CEF1B77C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1AD25951-08A4-4102-AA23-CC0CEF1B77C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1AD25951-08A4-4102-AA23-CC0CEF1B77C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1AD25951-08A4-4102-AA23-CC0CEF1B77C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -271,9 +257,6 @@ Global
 		{6C83077B-AF80-44BC-BA9F-D1E3264F321C} = {03E4CEAB-D845-402A-9311-F7390B24BA2A}
 		{FA39AC22-0725-4532-A682-B054ADA5BDA2} = {03E4CEAB-D845-402A-9311-F7390B24BA2A}
 		{17055F45-E79A-41EF-825E-0B2211433729} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
-		{BBAC2782-3CB8-431A-B381-7641CF4575F7} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
-		{EC3AA531-A08D-4A84-868E-CB01E1C6D061} = {BBAC2782-3CB8-431A-B381-7641CF4575F7}
-		{1AD25951-08A4-4102-AA23-CC0CEF1B77C4} = {BBAC2782-3CB8-431A-B381-7641CF4575F7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DABA3C65-9D74-4EB6-9B1C-730328710EAD}
