@@ -129,6 +129,19 @@ namespace System.Web
 
         public virtual void TransmitFile(string filename, long offset, long length) => throw new NotImplementedException();
 
+
+        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = Constants.ApiFromAspNet)]
+        public virtual void Redirect(string url) => throw new NotImplementedException();
+
+        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = Constants.ApiFromAspNet)]
+        public virtual void Redirect(string url, bool endResponse) => throw new NotImplementedException();
+
+        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = Constants.ApiFromAspNet)]
+        public virtual void RedirectPermanent(string url) => throw new NotImplementedException();
+
+        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = Constants.ApiFromAspNet)]
+        public virtual void RedirectPermanent(string url, bool endResponse) => throw new NotImplementedException();
+
         [return: NotNullIfNotNull(nameof(response))]
         public static implicit operator HttpResponseBase?(HttpResponseCore? response) => response?.HttpContext.AsSystemWebBase().Response;
     }
