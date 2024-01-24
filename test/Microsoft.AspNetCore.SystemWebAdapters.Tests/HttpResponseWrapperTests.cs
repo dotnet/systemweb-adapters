@@ -4,12 +4,12 @@ using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
 {
-    public class HttpServerUtilityWrapperTests
+    public class HttpResponseWrapperTests
     {
         [Fact]
         public void Constructor()
         {
-            Assert.Throws<ArgumentNullException>(() => new HttpServerUtilityWrapper(null!));
-        } 
+            Assert.Throws<ArgumentNullException>(() => new HttpResponseWrapper(null!));
+        }
     }
 }
