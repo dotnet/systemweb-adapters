@@ -23,4 +23,6 @@ public class HttpPostedFileWrapper : HttpPostedFileBase
     public override string FileName => _file.FileName;
 
     public override Stream InputStream => _file.InputStream;
+
+    public override void SaveAs(string filename) => _file.SaveAs(filename);
 }
