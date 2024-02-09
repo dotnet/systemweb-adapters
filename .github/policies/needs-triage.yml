@@ -1,0 +1,19 @@
+id: needs-triage
+name: GitOps.PullRequestIssueManagement
+description: Manage the needs triage label
+owner: 
+resource: repository
+disabled: false
+where: 
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+    - if:
+      - payloadType: Issues
+      - isAction:
+          action: Opened
+      - not:
+          isAssignedToSomeone
+      then:
+      - addLabel:
+          label: 'Needs: Triage :mag:'
