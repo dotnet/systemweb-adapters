@@ -5,9 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -210,6 +212,25 @@ public class ResponseStreamTests
         }, builder => builder.BufferResponseStream());
 
         Assert.Equal("part4", result);
+    }
+
+    [Fact]
+    public async Task BufferMultipleTimes()
+    {
+        const string Result = "text";
+
+        // Act
+        var result = await RunAsync(context =>
+        {
+            var feature = context.AsAspNetCore().Features.GetRequired<IHttpResponseBufferingFeature>();
+
+            feature.EnableBuffering(1024, default);
+            feature.EnableBuffering(1024, default);
+
+            context.Response.Write(Result);
+        });
+
+        Assert.Equal(Result, result);
     }
 
     [Fact]
