@@ -4,9 +4,11 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Security.Principal;
+using System.Web.Hosting;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace System.Web;
 
@@ -58,6 +60,9 @@ public class HttpApplication : IDisposable
 
     [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1065:Do not raise exceptions in unexpected locations", Justification = Constants.ApiFromAspNet)]
     public HttpSessionState Session => Context.Session ?? throw new HttpException("Session is not available");
+
+    public static void RegisterModule(Type moduleType)
+        => HostingEnvironmentAccessor.Current.Services.GetRequiredService<IModuleRegistrar>().RegisterModule(moduleType);
 
     public IPrincipal User => Context.User;
 

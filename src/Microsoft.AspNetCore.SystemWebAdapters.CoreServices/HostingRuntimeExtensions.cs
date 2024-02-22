@@ -22,7 +22,7 @@ internal static class HostingRuntimeExtensions
         services.TryAddSingleton<HostingEnvironmentAccessor>();
         services.TryAddSingleton<VirtualPathUtilityImpl>();
         services.TryAddSingleton<IMapPathUtility, MapPathUtility>();
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IStartupFilter, HostingEnvironmentStartupFilter>());
+        services.TryAddEnumerable(ServiceDescriptor.Transient<IStartupFilter, HostingEnvironmentStartupFilter>());
 
         services.AddOptions<SystemWebAdaptersOptions>()
 
@@ -55,11 +55,14 @@ internal static class HostingRuntimeExtensions
             });
     }
 
-    private sealed class HostingEnvironmentStartupFilter : IStartupFilter, IDisposable
+    private sealed class HostingEnvironmentStartupFilter : IStartupFilter
     {
         public HostingEnvironmentStartupFilter(HostingEnvironmentAccessor accessor)
         {
-            HostingEnvironmentAccessor.Current = accessor;
+            // We don't need to store this as it will remain in the DI container. However, we force it to be injected here
+            // so that it will be activated early on in the pipeline and set the current runtime. When the host is completed,
+            // it will be disposed and unset itself from the System.Web runtime.
+            _ = accessor;
         }
 
         public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
@@ -76,11 +79,6 @@ internal static class HostingRuntimeExtensions
 
                 next(builder);
             };
-
-        public void Dispose()
-        {
-            HostingEnvironmentAccessor.Current = null;
-        }
     }
 
     /// <summary>
