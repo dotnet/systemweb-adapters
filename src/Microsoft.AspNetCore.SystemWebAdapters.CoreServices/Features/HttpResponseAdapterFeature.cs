@@ -91,6 +91,11 @@ internal class HttpResponseAdapterFeature :
 
     private async ValueTask FlushInternalAsync()
     {
+        if (_pipeWriter is { })
+        {
+            await _pipeWriter.FlushAsync();
+        }
+
         if (_state is StreamState.Buffering && _bufferedStream is not null && !SuppressContent)
         {
             if (_filter is { } filter)
@@ -111,7 +116,23 @@ internal class HttpResponseAdapterFeature :
 
     Stream IHttpResponseBodyFeature.Stream => this;
 
-    PipeWriter IHttpResponseBodyFeature.Writer => _pipeWriter ??= PipeWriter.Create(this, new StreamPipeWriterOptions(leaveOpen: true));
+    PipeWriter IHttpResponseBodyFeature.Writer
+    {
+        get
+        {
+            if (_pipeWriter is null)
+            {
+                _pipeWriter = PipeWriter.Create(this, new StreamPipeWriterOptions(leaveOpen: true));
+
+                if (_state is StreamState.Complete)
+                {
+                    _pipeWriter.Complete();
+                }
+            }
+
+            return _pipeWriter;
+        }
+    }
 
     public bool SuppressContent
     {
@@ -228,6 +249,11 @@ internal class HttpResponseAdapterFeature :
         await FlushInternalAsync();
 
         _state = StreamState.Complete;
+
+        if (_pipeWriter is { })
+        {
+            await _pipeWriter.CompleteAsync();
+        }
 
         await _responseBodyFeature.CompleteAsync();
     }
