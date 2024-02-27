@@ -57,6 +57,21 @@ public class ResponseStreamTests
     }
 
     [Fact]
+    public async Task OutputPipeIsMarkedCompleteIfRequestIsComplete()
+    {
+        var result = await RunAsync(async context =>
+        {
+            var response = context.AsAspNetCore().Response;
+
+            await response.CompleteAsync();
+
+            Assert.Throws<InvalidOperationException>(() => context.AsAspNetCore().Response.BodyWriter.Write("Hello world"u8));
+        });
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
     public async Task BufferedOutputIsFlushedOnceWithStart()
     {
         var result = await RunAsync(async context =>
