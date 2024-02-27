@@ -61,9 +61,7 @@ public class ResponseStreamTests
     {
         var result = await RunAsync(async context =>
         {
-            var response = context.AsAspNetCore().Response;
-
-            await response.CompleteAsync();
+            await context.AsAspNetCore().Response.CompleteAsync();
 
             Assert.Throws<InvalidOperationException>(() => context.AsAspNetCore().Response.BodyWriter.Write("Hello world"u8));
         });
