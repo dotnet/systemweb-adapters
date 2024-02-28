@@ -49,6 +49,8 @@ public static class VirtualPathUtility
     /// <param name="virtualPath">The virtual path. </param>
     /// <exception cref="ArgumentException">
     ///   <paramref name="virtualPath" /> contains one or more characters that are not valid, as defined in <see cref="IO.Path.InvalidPathChars" />. </exception>
+
+    [return: NotNullIfNotNull(nameof(virtualPath))]
     public static string? GetFileName(string virtualPath) => VirtualPathUtilityImpl.GetFileName(virtualPath);
 
     /// <summary>Returns a Boolean value indicating whether the specified virtual path is absolute; that is, it starts with a literal slash mark (/).</summary>

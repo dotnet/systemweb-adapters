@@ -4,6 +4,7 @@
 #if NETCOREAPP
 
 using System;
+using System.Web.Hosting;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
@@ -18,6 +19,8 @@ public class SystemWebAdaptersOptions
     public string AppDomainAppVirtualPath { get; set; } = "/";
 
     public string AppDomainAppPath { get; set; } = AppContext.BaseDirectory;
+
+    public VirtualPathProvider? VirtualPathProvider { get; set; }
 }
 
 #endif

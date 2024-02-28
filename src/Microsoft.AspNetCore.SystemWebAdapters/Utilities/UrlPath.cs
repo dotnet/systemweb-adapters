@@ -75,6 +75,35 @@ internal sealed class UrlPath
         return indexOfSlash == -1 || indexOfColon < indexOfSlash;
     }
 
+    internal static string GetDirectory(string path)
+    {
+        if (string.IsNullOrEmpty(path))
+        {
+            throw new ArgumentException("Path must not be empty", nameof(path));
+        }
+
+        if (path[0] != '/' && path[0] != AppRelativeCharacter)
+        {
+            throw new ArgumentException($"Path {path} must be rooted");
+        }
+
+        // If it's just "~" or "/", return it unchanged
+        if (path.Length == 1)
+        {
+            return path;
+        }
+
+        int slashIndex = path.LastIndexOf('/');
+
+        // This could happen if the input looks like "~abc"
+        if (slashIndex < 0)
+        {
+            throw new ArgumentException($"Path {path} must be rooted");
+        }
+
+        return path[..(slashIndex + 1)];
+    }
+
     private static bool IsDirectorySeparatorChar(char ch) => ch == '\\' || ch == '/';
 
     // e.g \\server\share\foo or //server/share/foo
@@ -532,6 +561,7 @@ internal sealed class UrlPath
         return relativePath + queryString + toUri.Fragment;
     }
 
+    [return: NotNullIfNotNull(nameof(virtualPath))]
     internal static string? GetFileName(string virtualPath)
     {
         if (virtualPath is not null)
