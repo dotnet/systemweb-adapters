@@ -17,11 +17,6 @@ public static class HostingEnvironment
     {
         ArgumentNullException.ThrowIfNull(provider);
 
-        var options = HostingEnvironmentAccessor.Current.Options;
-
-        provider.Initialize(options.VirtualPathProvider);
-
-        options.VirtualPathProvider = provider;
-
+        HostingEnvironmentAccessor.Current.Options.VirtualPathProvider = provider;
     }
 }
