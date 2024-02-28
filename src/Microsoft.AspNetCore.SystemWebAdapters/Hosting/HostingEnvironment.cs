@@ -9,5 +9,9 @@ public static class HostingEnvironment
 
     public static bool IsHosted => HostingEnvironmentAccessor.TryGet(out var current) && current.Options.IsHosted;
 
+    public static string ApplicationPhysicalPath => HostingEnvironmentAccessor.Current.Options.ApplicationPhysicalPath;
+
+    public static string ApplicationVirtualPath => HostingEnvironmentAccessor.Current.Options.ApplicationVirtualPath;
+
     public static string SiteName => HostingEnvironmentAccessor.Current.Options.SiteName;
 }

@@ -35,8 +35,8 @@ internal static class HostingRuntimeExtensions
                 {
                     var config = NativeMethods.HttpGetApplicationProperties();
 
-                    options.AppDomainAppVirtualPath = config.pwzVirtualApplicationPath;
-                    options.AppDomainAppPath = config.pwzFullApplicationPath;
+                    options.ApplicationPhysicalPath = config.pwzFullApplicationPath;
+                    options.ApplicationVirtualPath = config.pwzVirtualApplicationPath;
                 }
             })
 
@@ -47,11 +47,17 @@ internal static class HostingRuntimeExtensions
             {
                 if (server.Features.Get<IIISEnvironmentFeature>() is { } feature)
                 {
-                    options.AppDomainAppPath = feature.ApplicationPhysicalPath;
-                    options.AppDomainAppVirtualPath = feature.ApplicationVirtualPath;
+                    options.ApplicationPhysicalPath = feature.ApplicationPhysicalPath;
+                    options.ApplicationVirtualPath = feature.ApplicationVirtualPath;
                     options.ApplicationID = feature.ApplicationId;
                     options.SiteName = feature.SiteName;
                 }
+            })
+            .Configure(options =>
+            {
+                // On ASP.NET Core this should be the same. We're doing it here rather than a PostConfigure because someone may want to set it up differently
+                options.AppDomainAppPath = options.ApplicationPhysicalPath;
+                options.AppDomainAppVirtualPath = options.ApplicationVirtualPath;
             });
     }
 
