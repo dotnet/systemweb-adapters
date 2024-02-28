@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Basic.Reference.Assemblies;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -25,8 +26,10 @@ public class VerifyMembersHaveSameSignature
     {
         var netstandard = GetDocumentationIds("adapters/netstandard/Microsoft.AspNetCore.SystemWebAdapters.dll", NetStandard20.References.All);
         var framework = GetDocumentationIds("adapters/netfx/Microsoft.AspNetCore.SystemWebAdapters.dll", Net472.References.All);
+        var ok = File.ReadAllLines("BaselineOk.txt");
 
         netstandard.ExceptWith(framework);
+        netstandard.ExceptWith(ok);
 
         foreach (var adaptedType in netstandard)
         {

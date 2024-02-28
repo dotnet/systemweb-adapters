@@ -40,7 +40,7 @@ internal class TypeCollector : SymbolVisitor
 
     public override void VisitNamedType(INamedTypeSymbol symbol)
     {
-        if (!IsPublic(symbol))
+        if (!ShouldValidate(symbol))
         {
             return;
         }
@@ -53,7 +53,9 @@ internal class TypeCollector : SymbolVisitor
         }
     }
 
-    public static bool IsPublic(ISymbol symbol) => symbol.DeclaredAccessibility switch
+    private static bool ShouldValidate(ISymbol symbol) => IsPublic(symbol);
+
+    private static bool IsPublic(ISymbol symbol) => symbol.DeclaredAccessibility switch
     {
         Accessibility.Private => false,
         Accessibility.Internal => false,
@@ -66,7 +68,7 @@ internal class TypeCollector : SymbolVisitor
 
     public override void VisitMethod(IMethodSymbol symbol)
     {
-        if (IsPublic(symbol))
+        if (ShouldValidate(symbol))
         {
             Members.Add($"{symbol.ReturnType.GetDocumentationCommentId()} {symbol.GetDocumentationCommentId()}");
         }
@@ -74,7 +76,7 @@ internal class TypeCollector : SymbolVisitor
 
     public override void VisitProperty(IPropertySymbol symbol)
     {
-        if (IsPublic(symbol))
+        if (ShouldValidate(symbol))
         {
             Members.Add($"{symbol.Type.GetDocumentationCommentId()} {symbol.GetDocumentationCommentId()}");
         }
@@ -82,7 +84,7 @@ internal class TypeCollector : SymbolVisitor
 
     public override void VisitEvent(IEventSymbol symbol)
     {
-        if (IsPublic(symbol))
+        if (ShouldValidate(symbol))
         {
             Members.Add($"{symbol.Type.GetDocumentationCommentId()} {symbol.GetDocumentationCommentId()}");
         }
@@ -90,7 +92,7 @@ internal class TypeCollector : SymbolVisitor
 
     public override void VisitField(IFieldSymbol symbol)
     {
-        if (IsPublic(symbol))
+        if (ShouldValidate(symbol))
         {
             Members.Add($"{symbol.Type.GetDocumentationCommentId()} {symbol.GetDocumentationCommentId()}");
         }

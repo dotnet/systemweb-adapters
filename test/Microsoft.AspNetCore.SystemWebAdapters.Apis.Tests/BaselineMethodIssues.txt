@@ -8,11 +8,6 @@ T:System.Void M:System.Web.HttpException.#ctor(System.Net.HttpStatusCode,System.
 T:System.Void M:System.Web.HttpException.#ctor(System.Net.HttpStatusCode,System.String,System.Exception)
 T:System.Int32 M:System.Web.HttpException.get_StatusCode
 T:System.Int32 P:System.Web.HttpException.StatusCode
-T:System.Int32 M:System.Web.HttpFileCollection.get_Count
-T:System.Collections.Specialized.NameObjectCollectionBase.KeysCollection M:System.Web.HttpFileCollection.get_Keys
-T:System.Collections.IEnumerator M:System.Web.HttpFileCollection.GetEnumerator
-T:System.Int32 P:System.Web.HttpFileCollection.Count
-T:System.Collections.Specialized.NameObjectCollectionBase.KeysCollection P:System.Web.HttpFileCollection.Keys
 T:System.Security.Principal.IIdentity M:System.Web.HttpRequest.get_LogonUserIdentity
 T:System.Security.Principal.IIdentity P:System.Web.HttpRequest.LogonUserIdentity
 T:System.Security.Principal.IIdentity M:System.Web.HttpRequestBase.get_LogonUserIdentity
