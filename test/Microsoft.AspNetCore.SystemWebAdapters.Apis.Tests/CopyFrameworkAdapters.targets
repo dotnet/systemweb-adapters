@@ -37,6 +37,24 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
-
   </Target>
+
+  <!-- Get .NET Framework build of adapters to verify type forwards -->
+  <Target Name="_GetNetStandardAdapterAssembly" BeforeTargets="AssignTargetPaths">
+    <PropertyGroup>
+      <NetStandardAdapterDirectory>adapters/netstandard/</NetStandardAdapterDirectory>
+    </PropertyGroup>
+
+    <MSBuild Projects="..\..\src\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj" Properties="TargetFramework=netstandard2.0">
+      <Output TaskParameter="TargetOutputs" ItemName="NetStandardAdapterFiles" />
+    </MSBuild>
+
+    <ItemGroup>
+      <Content Include="@(NetStandardAdapterFiles)">
+        <Link>$(NetStandardAdapterDirectory)/$([System.IO.Path]::GetFileName(%(Identity)))</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+  </Target>
+
 </Project>
