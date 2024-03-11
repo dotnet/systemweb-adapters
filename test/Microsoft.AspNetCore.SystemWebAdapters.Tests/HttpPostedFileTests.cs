@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Globalization;
+using System;
 using System.IO;
 using System.Web;
 using AutoFixture;
@@ -99,5 +101,38 @@ public class HttpPostedFileTests
 
         // Assert
         Assert.Equal(expected.Object, stream);
+    }
+
+    [Fact]
+    public void SaveAsForInvalidRootPath()
+    {
+        // Arrange
+        var file = new Mock<IFormFile>();
+        var expectedStream = new Mock<Stream>();
+        file.Setup(f => f.OpenReadStream()).Returns(expectedStream.Object);
+        var posted = new HttpPostedFile(file.Object);
+
+        //Act and Assert
+        Assert.Throws<HttpException>(() => posted.SaveAs("InvalidPath"));
+    }
+
+    [Fact]
+    public void SaveAsWithValidRootPath()
+    {
+        // Arrange
+        var file = new Mock<IFormFile>();
+        var expectedStream = new Mock<Stream>();
+        file.Setup(f => f.OpenReadStream()).Returns(expectedStream.Object);
+        string validTempPath = string.Format(CultureInfo.InvariantCulture, @"{0}{1}.txt", Path.GetTempPath(), Guid.NewGuid());
+        var posted = new HttpPostedFile(file.Object);
+
+        //Act
+        posted.SaveAs(validTempPath);
+
+        //Assert
+        Assert.True(File.Exists(validTempPath), "Temp file should be created");
+
+        //Cleanup
+        File.Delete(validTempPath);
     }
 }
