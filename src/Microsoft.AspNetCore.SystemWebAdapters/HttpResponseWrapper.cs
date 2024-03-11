@@ -129,5 +129,19 @@ namespace System.Web
         public override void TransmitFile(string filename, long offset, long length) => _response.TransmitFile(filename, offset, length);
 
         public override void WriteFile(string filename) => _response.WriteFile(filename);
+
+
+        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = Constants.ApiFromAspNet)]
+        public override void Redirect(string url) => _response.Redirect(url);
+
+        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = Constants.ApiFromAspNet)]
+        public override void Redirect(string url, bool endResponse) => _response.Redirect(url, endResponse);
+
+        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = Constants.ApiFromAspNet)]
+        public override void RedirectPermanent(string url) => _response.RedirectPermanent(url);
+
+        [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = Constants.ApiFromAspNet)]
+        public override void RedirectPermanent(string url, bool endResponse) => _response.RedirectPermanent(url, endResponse);
+
     }
 }
