@@ -11,7 +11,7 @@ variables:
     value: .NETCore
 
   # Variables to automatically handle build pools
-  - template: /eng/common/templates/variables/pool-providers.yml@self
+  - template: /eng/common/templates-official/variables/pool-providers.yml@self
 
   # Variables for internal Official builds
   - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
@@ -44,7 +44,7 @@ extends:
     - stage: build
       displayName: Build
       jobs:
-      - template: /eng/common/templates/jobs/jobs.yml@self
+      - template: /eng/common/templates-official/jobs/jobs.yml@self
         parameters:
           enablePublishBuildArtifacts: true
           enablePublishTestResults: true
@@ -209,7 +209,7 @@ extends:
                 path: '$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)'
 
     - ${{ if notin(variables['Build.Reason'], 'PullRequest') }}:
-      - template: eng\common\templates\post-build\post-build.yml@self
+      - template: eng\common\templates-official\post-build\post-build.yml@self
         parameters:
           publishingInfraVersion: 3
           # Symbol validation isn't being very reliable lately. This should be enabled back
