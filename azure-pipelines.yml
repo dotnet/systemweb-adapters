@@ -40,6 +40,11 @@ pr:
 extends:
   template: v1/1ES.Official.PipelineTemplate.yml@1esPipelines
   parameters:
+    sdl:
+      sourceAnalysisPool:
+        name: NetCore1ESPool-Svc-Internal
+        image: 1es-windows-2022-pt
+        os: windows
     stages:
     - stage: build
       displayName: Build
