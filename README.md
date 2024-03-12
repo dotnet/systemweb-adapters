@@ -9,7 +9,7 @@ This project provides a collection of adapters that help migrating from `System.
 
 These adapters help enable large scale, incremental migration from ASP.NET to ASP.NET Core. For more details on incremental migration from ASP.NET to ASP.NET Core, see [Incremental ASP.NET to ASP.NET Core Migration](https://learn.microsoft.com/aspnet/core/migration/inc/overview).
 
-## Get started
+## Get started 
 
 Use the [Get started with incremental ASP.NET to ASP.NET Core migration](https://learn.microsoft.com/en-us/aspnet/core/migration/inc/start) guide in the docs to start using the `System.Web` adapters as part of an incremental migration from ASP.NET to ASP.NET Core.
 
