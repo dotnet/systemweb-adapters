@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Optimization;
@@ -18,7 +19,16 @@ namespace WebFormsFramework
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
-                .AddProxySupport(options => options.UseForwardedHeaders = true);
+                .AddProxySupport(options => options.UseForwardedHeaders = true)
+                .AddJsonSessionSerializer(options =>
+                {
+                    options.RegisterKey<string>("test-value");
+                })
+                .AddRemoteAppServer(options =>
+                {
+                    options.ApiKey = ConfigurationManager.AppSettings["RemoteAppApiKey"];
+                })
+                .AddSessionServer();
         }
     }
 }
