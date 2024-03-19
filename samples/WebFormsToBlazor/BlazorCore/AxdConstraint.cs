@@ -3,11 +3,11 @@ using System.Text.RegularExpressions;
 
 namespace BlazorCore
 {
-    internal sealed class AxdContraint : IRouteConstraint
+    internal sealed class AxdConstraint : IRouteConstraint
     {
         private readonly Regex regex;
 
-        public AxdContraint()
+        public AxdConstraint()
         {
             regex = new Regex(@"^*.axd", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100));
         }
