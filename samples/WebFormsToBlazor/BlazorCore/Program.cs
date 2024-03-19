@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpForwarder();
 
 // Add constraint to redirect .axd files to WebForms
-builder.Services.AddRouting(options => options.ConstraintMap.Add("isAxdFile", typeof(AxdContraint)));
+builder.Services.AddRouting(options => options.ConstraintMap.Add("isAxdFile", typeof(AxdConstraint)));
 // Add System Web Adapters and setup session
 builder.Services.AddSystemWebAdapters()
     .AddJsonSessionSerializer(options =>
@@ -32,7 +32,22 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
-app.UseSystemWebAdapters();
+
+/*
+ * When Blazor interactive SSR establishes a SignalR connection, a CONNECT method is requested.
+ * This request will stay open until Blazor sends a disconnect request. 
+ * Since it stays open, the session is not properly committed and will stay in the heartbeat loop on the framework side of System.WebAdapters.
+ * We can either:
+ *     A: Block all connect requests from using System.Web.Adapters
+ *     B: Block all requests from paths containing "/_blazor"
+ * TLDR: We need to ensure that System.Web.Adapters is not used with Blazor SignalR
+ */
+app.UseWhen(
+    (context) => HttpMethods.IsConnect(context.Request.Method) == false,
+    appBuilder => appBuilder.UseSystemWebAdapters());
+//app.UseWhen(
+//    (context) => context.Request.Path.ToString().Contains("/_blazor", StringComparison.OrdinalIgnoreCase) == false,
+//    appBuilder => appBuilder.UseSystemWebAdapters());
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
