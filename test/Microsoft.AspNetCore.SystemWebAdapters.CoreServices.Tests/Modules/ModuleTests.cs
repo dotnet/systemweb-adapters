@@ -49,34 +49,45 @@ public class ModuleTests
     };
 
     public static IEnumerable<object[]> GetAllEvents()
-        => Initial.Concat(Always).Select(o => new[] { o });
+    {
+        var all = Initial.Concat(Always);
+        var modes = Enum.GetValues<RegisterMode>();
+
+        foreach (var notification in all)
+        {
+            foreach (var mode in modes)
+            {
+                yield return new object[] { notification, mode };
+            }
+        }
+    }
 
     [MemberData(nameof(GetAllEvents))]
     [Theory]
-    public async Task EndModuleEarly(string notification)
+    public async Task EndModuleEarly(string notification, RegisterMode mode)
     {
         var expected = GetNotificationsUpTo(notification);
-        var result = await RunAsync(ModuleTestModule.End, notification);
+        var result = await RunAsync(ModuleTestModule.End, notification, mode);
 
         Assert.Equal(expected, result);
     }
 
     [MemberData(nameof(GetAllEvents))]
     [Theory]
-    public async Task CompleteModuleEarly(string notification)
+    public async Task CompleteModuleEarly(string notification, RegisterMode mode)
     {
         var expected = GetNotificationsUpTo(notification);
-        var result = await RunAsync(ModuleTestModule.Complete, notification);
+        var result = await RunAsync(ModuleTestModule.Complete, notification, mode);
 
         Assert.Equal(expected, result);
     }
 
     [MemberData(nameof(GetAllEvents))]
     [Theory]
-    public async Task ModulesThrow(string notification)
+    public async Task ModulesThrow(string notification, RegisterMode mode)
     {
         var expected = GetExpected(notification).ToList();
-        var result = await RunAsync(ModuleTestModule.Throw, notification);
+        var result = await RunAsync(ModuleTestModule.Throw, notification, mode);
 
         Assert.Equal(expected, result);
 
@@ -112,7 +123,7 @@ public class ModuleTests
         }
     }
 
-    private static async Task<List<string>> RunAsync(string action, string eventName)
+    private static async Task<List<string>> RunAsync(string action, string eventName, RegisterMode mode)
     {
         var notifier = new NotificationCollection();
 
@@ -131,12 +142,27 @@ public class ModuleTests
                         services.AddSystemWebAdapters()
                             .AddHttpApplication(options =>
                             {
-                                options.RegisterModule<ModuleTestModule>();
+                                if (mode == RegisterMode.Options)
+                                {
+                                    options.RegisterModule<ModuleTestModule>();
+                                }
                             });
 
                     })
                     .Configure(app =>
                     {
+                        if (mode == RegisterMode.RegisterModule)
+                        {
+                            HttpApplication.RegisterModule(typeof(ModuleTestModule));
+                        }
+                        else if (mode == RegisterMode.RegisterModuleOnStartup)
+                        {
+                            app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>().ApplicationStarted.Register(() =>
+                            {
+                                HttpApplication.RegisterModule(typeof(ModuleTestModule));
+                            });
+                        }
+
                         app.UseRouting();
 
                         app.UseAuthenticationEvents();
@@ -209,5 +235,12 @@ public class ModuleTests
         {
             context.Features.GetRequired<NotificationCollection>().Add(name);
         }
+    }
+
+    public enum RegisterMode
+    {
+        Options,
+        RegisterModule,
+        RegisterModuleOnStartup,
     }
 }

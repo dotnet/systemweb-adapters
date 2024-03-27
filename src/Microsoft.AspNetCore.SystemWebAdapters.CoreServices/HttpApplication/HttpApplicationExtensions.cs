@@ -4,11 +4,11 @@
 using System;
 using System.Web;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.Extensions.Options;
 
@@ -16,13 +16,17 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class HttpApplicationExtensions
 {
+    public static ISystemWebAdapterBuilder AddHttpApplication(this ISystemWebAdapterBuilder builder)
+        => builder.AddHttpApplication(_ => { });
+
     public static ISystemWebAdapterBuilder AddHttpApplication(this ISystemWebAdapterBuilder builder, Action<HttpApplicationOptions> configure)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
+        builder.Services.TryAddSingleton<ModuleCollection>();
+        builder.Services.AddTransient<IModuleRegistrar>(sp => sp.GetRequiredService<ModuleCollection>());
         builder.Services.TryAddSingleton<HttpApplicationPooledObjectPolicy>();
-        builder.Services.AddTransient<IStartupFilter, HttpApplicationStartupFilter>();
-        builder.Services.TryAddSingleton<IPooledObjectPolicy<HttpApplication>>(ctx => ctx.GetRequiredService<HttpApplicationPooledObjectPolicy>());
+        builder.Services.TryAddSingleton<IPooledObjectPolicy<HttpApplication>>(sp => sp.GetRequiredService<HttpApplicationPooledObjectPolicy>());
         builder.Services.TryAddSingleton<ObjectPool<HttpApplication>>(sp =>
         {
             var options = sp.GetRequiredService<IOptions<HttpApplicationOptions>>();
@@ -37,8 +41,11 @@ public static class HttpApplicationExtensions
         });
 
         builder.Services.AddOptions<HttpApplicationOptions>()
-            .Configure(configure)
-            .PostConfigure(c => c.MakeReadOnly());
+            .Configure<ModuleCollection>((options, modules) =>
+            {
+                options.ModuleCollection = modules;
+            })
+            .Configure(configure);
 
         return builder;
     }
@@ -140,63 +147,5 @@ public static class HttpApplicationExtensions
     }
 
     internal static bool AreHttpApplicationEventsRequired(this IApplicationBuilder builder)
-    {
-        const string AreHttpApplicationEventsRequired = nameof(AreHttpApplicationEventsRequired);
-
-        if (builder.Properties.TryGetValue(AreHttpApplicationEventsRequired, out var existing) && existing is bool b)
-        {
-            return b;
-        }
-
-        var options = builder.ApplicationServices.GetRequiredService<IOptions<HttpApplicationOptions>>().Value;
-
-        var hasModules = options.Modules.Count > 0;
-        var hasCustomApplication = options.ApplicationType != typeof(HttpApplication);
-
-        var areEventsRequired = hasModules || hasCustomApplication;
-
-        builder.Properties[AreHttpApplicationEventsRequired] = areEventsRequired;
-
-        return areEventsRequired;
-    }
-
-    private sealed class HttpApplicationStartupFilter : IStartupFilter
-    {
-        private readonly ObjectPool<HttpApplication> _pool;
-
-        public HttpApplicationStartupFilter(ObjectPool<HttpApplication> pool)
-        {
-            _pool = pool;
-        }
-
-        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) => builder =>
-        {
-            CallStartup(builder.ApplicationServices);
-            next(builder);
-        };
-
-        private void CallStartup(IServiceProvider services)
-        {
-            using var scope = services.CreateScope();
-
-            var app = _pool.Get();
-
-            // ASP.NET Framework provided an HttpContext instance that was not tied to a request for Start
-            app.Context = new DefaultHttpContext
-            {
-                RequestServices = scope.ServiceProvider,
-            }.AsSystemWeb();
-
-            try
-            {
-                // This is only invoked at the beginning of the application
-                // See https://referencesource.microsoft.com/#System.Web/HttpApplication.cs,2417
-                app.InvokeEvent(ApplicationEvent.ApplicationStart);
-            }
-            finally
-            {
-                _pool.Return(app);
-            }
-        }
-    }
+        => builder.ApplicationServices.GetRequiredService<IOptions<HttpApplicationOptions>>().Value.IsAdded;
 }

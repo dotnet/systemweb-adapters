@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace System.Web.Hosting;
 
-internal sealed class HostingEnvironmentAccessor
+internal sealed class HostingEnvironmentAccessor : IDisposable
 {
     private static HttpContextAccessor? _defaultHttpContextAccessor;
     private static HostingEnvironmentAccessor? _current;
@@ -23,6 +23,8 @@ internal sealed class HostingEnvironmentAccessor
         Services = services;
         _accessor = services.GetService<IHttpContextAccessor>();
         _options = options;
+
+        Current = this;
     }
 
     public IServiceProvider Services { get; }
@@ -31,7 +33,7 @@ internal sealed class HostingEnvironmentAccessor
     public static HostingEnvironmentAccessor Current
     {
         get => _current ?? throw new InvalidOperationException("Hosting environment is only available when a host is running.");
-        set
+        private set
         {
             if (_current is not null && value is not null && !ReferenceEquals(_current, value))
             {
@@ -46,6 +48,11 @@ internal sealed class HostingEnvironmentAccessor
     {
         current = _current;
         return current is not null;
+    }
+
+    public void Dispose()
+    {
+        Current = null;
     }
 
     /// <summary>

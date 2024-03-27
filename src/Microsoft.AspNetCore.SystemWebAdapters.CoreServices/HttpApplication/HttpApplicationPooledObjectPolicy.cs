@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -108,6 +109,8 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
 
     public override HttpApplication Create()
     {
+        EnsureStartHasBeenCalled();
+
         var app = _factory.Value(_services);
 
         // This is invoked each time an HttpApplication is constructed
@@ -123,13 +126,15 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
     }
 
     /// <summary>
-    /// Creates a callback that will regsiter implicit events on <see cref="HttpApplication"/>.
+    /// Creates a callback that will register implicit events on <see cref="HttpApplication"/>.
     /// </summary>
     /// <param name="options">Options for the <see cref="HttpApplication"/>.</param>
     /// <returns>A callback to create a new <see cref="HttpApplication"/> instance.</returns>
     /// <seealso cref="https://referencesource.microsoft.com/#System.Web/HttpApplication.cs,b24816e1097719dd"/>
     private Func<IServiceProvider, HttpApplication> CreateFactory(HttpApplicationOptions options)
     {
+        options.ModuleCollection.MakeReadOnly();
+
         var eventInitializer = GetEventInitializer(options);
         var factory = ActivatorUtilities.CreateFactory(options.ApplicationType, Array.Empty<Type>());
         var moduleFactories = options.Modules
@@ -241,5 +246,40 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
         Registered,
         NotSupported,
         InvalidSignature,
+    }
+
+    private bool _started;
+
+    private void EnsureStartHasBeenCalled()
+    {
+        if (!_started)
+        {
+            CallApplicationStart();
+        }
+    }
+
+    private void CallApplicationStart()
+    {
+        lock (_factory)
+        {
+            if (!_started)
+            {
+                using var scope = _services.CreateScope();
+
+                var app = _factory.Value(_services);
+
+                // ASP.NET Framework provided an HttpContext instance that was not tied to a request for Start
+                app.Context = new DefaultHttpContext
+                {
+                    RequestServices = scope.ServiceProvider,
+                }.AsSystemWeb();
+
+                // This is only invoked at the beginning of the application
+                // See https://referencesource.microsoft.com/#System.Web/HttpApplication.cs,2417
+                app.InvokeEvent(ApplicationEvent.ApplicationStart);
+
+                _started = true;
+            }
+        }
     }
 }
