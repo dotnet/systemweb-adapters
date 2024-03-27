@@ -2,12 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -40,6 +43,32 @@ public class ResponseStreamTests
         }, builder => builder.BufferResponseStream());
 
         Assert.Equal(ContentValue, result);
+    }
+
+    [Fact]
+    public async Task OutputPipeIsFlushed()
+    {
+        const string Message = "hello world from pipe!";
+
+        var result = await RunAsync(context =>
+        {
+            context.AsAspNetCore().Response.BodyWriter.Write(Encoding.UTF8.GetBytes(Message));
+        });
+
+        Assert.Equal(Message, result);
+    }
+
+    [Fact]
+    public async Task OutputPipeIsMarkedCompleteIfRequestIsComplete()
+    {
+        var result = await RunAsync(async context =>
+        {
+            await context.AsAspNetCore().Response.CompleteAsync();
+
+            Assert.Throws<InvalidOperationException>(() => context.AsAspNetCore().Response.BodyWriter.Write("Hello world"u8));
+        });
+
+        Assert.Empty(result);
     }
 
     [Fact]
@@ -210,6 +239,25 @@ public class ResponseStreamTests
         }, builder => builder.BufferResponseStream());
 
         Assert.Equal("part4", result);
+    }
+
+    [Fact]
+    public async Task BufferMultipleTimes()
+    {
+        const string Result = "text";
+
+        // Act
+        var result = await RunAsync(context =>
+        {
+            var feature = context.AsAspNetCore().Features.GetRequired<IHttpResponseBufferingFeature>();
+
+            feature.EnableBuffering(1024, default);
+            feature.EnableBuffering(1024, default);
+
+            context.Response.Write(Result);
+        });
+
+        Assert.Equal(Result, result);
     }
 
     [Fact]

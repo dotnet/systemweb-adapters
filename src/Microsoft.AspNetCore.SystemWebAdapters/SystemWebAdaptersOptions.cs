@@ -11,6 +11,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public class SystemWebAdaptersOptions
 {
+    private VirtualPathProvider? _virtualPathProvider;
+
     /// <summary>
     /// Gets or sets the value used by <see cref="HostingEnvironment.ApplicationID"/>
     /// </summary>
@@ -45,6 +47,20 @@ public class SystemWebAdaptersOptions
     /// Gets or sets the value used by <see cref="HttpRuntime.AppDomainAppPath"/>. Generally should be the same as <see cref="ApplicationPhysicalPath"/> since ASP.NET Core does not have the concept of AppDomains.
     /// </summary>
     public string AppDomainAppPath { get; set; } = AppContext.BaseDirectory;
+
+    /// <summary>
+    /// Gets or sets the value used by <see cref="HostingEnvironment.VirtualPathProvider"/>.
+    /// </summary>
+    public VirtualPathProvider? VirtualPathProvider
+    {
+        get => _virtualPathProvider;
+        set
+        {
+            value?.Initialize(_virtualPathProvider);
+
+            _virtualPathProvider = value;
+        }
+    }
 }
 
 #endif

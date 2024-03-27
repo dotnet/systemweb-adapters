@@ -17,5 +17,14 @@ public static class HostingEnvironment
 
     public static string SiteName => HostingEnvironmentAccessor.Current.Options.SiteName;
 
+    public static VirtualPathProvider? VirtualPathProvider => HostingEnvironmentAccessor.Current.Options.VirtualPathProvider;
+
+    public static void RegisterVirtualPathProvider(VirtualPathProvider provider)
+    {
+        ArgumentNullException.ThrowIfNull(provider);
+
+        HostingEnvironmentAccessor.Current.Options.VirtualPathProvider = provider;
+    }
+
     public static Cache Cache => HttpRuntime.Cache;
 }
