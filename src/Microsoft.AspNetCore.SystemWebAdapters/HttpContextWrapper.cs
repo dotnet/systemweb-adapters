@@ -72,6 +72,18 @@ namespace System.Web
 
         public override Cache Cache => _context.Cache;
 
+        public override IHttpHandler? CurrentHandler => _context.CurrentHandler;
+
+        public override IHttpHandler? Handler
+        {
+            get => _context.Handler;
+            set => _context.Handler = value;
+        }
+
+        public override IHttpHandler? PreviousHandler => _context.PreviousHandler;
+
+        public override void RemapHandler(IHttpHandler handler) => _context.RemapHandler(handler);
+
         public override void RewritePath(string path) => _context.RewritePath(path);
 
         public override void RewritePath(string path, bool rebaseClientPath) => _context.RewritePath(path, rebaseClientPath);

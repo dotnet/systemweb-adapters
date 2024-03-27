@@ -80,6 +80,18 @@ public class HttpContext : IServiceProvider
 
     public Cache Cache => Context.RequestServices.GetRequiredService<Cache>();
 
+    public IHttpHandler? Handler
+    {
+        get => Context.Features.GetRequired<IHttpHandlerFeature>().Current;
+        set => Context.Features.GetRequired<IHttpHandlerFeature>().Current = value;
+    }
+
+    public IHttpHandler? CurrentHandler => Handler;
+
+    public IHttpHandler? PreviousHandler => Context.Features.GetRequired<IHttpHandlerFeature>().Previous;
+
+    public void RemapHandler(IHttpHandler handler) => Handler = handler;
+
     /// <summary>
     /// Gets whether the current request is running in the development environment.
     /// </summary>

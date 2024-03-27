@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -77,6 +79,24 @@ public partial class InputStreamTests
         {
             context.Request.InputStream.CopyTo(context.Response.OutputStream);
         }, builder => builder.PreBufferRequestStream());
+
+        // Assert
+        Assert.Equal(ContentValue, result);
+    }
+
+    [Fact]
+    public async Task BufferMultipleTimes()
+    {
+        // Act
+        var result = await RunAsync(ContentValue, async context =>
+        {
+            var feature = context.AsAspNetCore().Features.GetRequired<IHttpRequestInputStreamFeature>();
+
+            await feature.BufferInputStreamAsync(default);
+            await feature.BufferInputStreamAsync(default);
+
+            context.Request.InputStream.CopyTo(context.Response.OutputStream);
+        });
 
         // Assert
         Assert.Equal(ContentValue, result);
