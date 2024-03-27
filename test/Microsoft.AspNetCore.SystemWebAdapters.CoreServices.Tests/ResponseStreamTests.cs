@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -42,6 +43,32 @@ public class ResponseStreamTests
         }, builder => builder.BufferResponseStream());
 
         Assert.Equal(ContentValue, result);
+    }
+
+    [Fact]
+    public async Task OutputPipeIsFlushed()
+    {
+        const string Message = "hello world from pipe!";
+
+        var result = await RunAsync(context =>
+        {
+            context.AsAspNetCore().Response.BodyWriter.Write(Encoding.UTF8.GetBytes(Message));
+        });
+
+        Assert.Equal(Message, result);
+    }
+
+    [Fact]
+    public async Task OutputPipeIsMarkedCompleteIfRequestIsComplete()
+    {
+        var result = await RunAsync(async context =>
+        {
+            await context.AsAspNetCore().Response.CompleteAsync();
+
+            Assert.Throws<InvalidOperationException>(() => context.AsAspNetCore().Response.BodyWriter.Write("Hello world"u8));
+        });
+
+        Assert.Empty(result);
     }
 
     [Fact]
