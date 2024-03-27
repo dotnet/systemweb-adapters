@@ -62,7 +62,7 @@ public class HttpApplication : IDisposable
     public HttpSessionState Session => Context.Session ?? throw new HttpException("Session is not available");
 
     public static void RegisterModule(Type moduleType)
-        => HostingEnvironmentAccessor.Current.Services.GetRequiredService<IModuleRegistrar>().RegisterModule(moduleType);
+        => HttpRuntime.WebObjectActivator.GetRequiredService<IModuleRegistrar>().RegisterModule(moduleType);
 
     public IPrincipal User => Context.User;
 
