@@ -42,6 +42,18 @@ namespace System.Web
 
         public virtual DateTime Timestamp => throw new NotImplementedException();
 
+        public virtual IHttpHandler? Handler
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
+
+        public virtual IHttpHandler? CurrentHandler => throw new NotImplementedException();
+
+        public virtual IHttpHandler? PreviousHandler => throw new NotImplementedException();
+
+        public virtual void RemapHandler(IHttpHandler handler) => throw new NotImplementedException();
+
         public virtual IPrincipal User
         {
             get => throw new NotImplementedException();
