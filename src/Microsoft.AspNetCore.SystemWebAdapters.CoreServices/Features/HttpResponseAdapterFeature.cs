@@ -58,7 +58,11 @@ internal class HttpResponseAdapterFeature :
 
     void IHttpResponseBufferingFeature.EnableBuffering(int memoryThreshold, long? bufferLimit)
     {
-        if (_state == StreamState.NotStarted)
+        if (_state == StreamState.Buffering)
+        {
+            return;
+        }
+        else if (_state == StreamState.NotStarted)
         {
             Debug.Assert(_bufferedStream is null);
 
