@@ -59,7 +59,13 @@ namespace System.Web
 
         public override string Path => _request.Path;
 
+        public override string CurrentExecutionFilePath => _request.CurrentExecutionFilePath;
+
+        public override string PathInfo => _request.PathInfo;
+
         public override string? PhysicalPath => _request.PhysicalPath;
+
+        public override string? FilePath => _request.FilePath;
 
         public override NameValueCollection QueryString => _request.QueryString;
 
@@ -92,6 +98,10 @@ namespace System.Web
         public override NameValueCollection ServerVariables => _request.ServerVariables;
 
         public override NameValueCollection Params => _request.Params;
+
+        public override ReadEntityBodyMode ReadEntityBodyMode => _request.ReadEntityBodyMode;
+
+        public override void SaveAs(string filename, bool includeHeaders) => _request.SaveAs(filename, includeHeaders);
 
         public override string? this[string key] => _request[key];
     }

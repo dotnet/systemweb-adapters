@@ -5,7 +5,7 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
-using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
 
 namespace System.Web
 {
@@ -122,6 +122,10 @@ namespace System.Web
 
         public override void ClearHeaders() => _response.ClearHeaders();
 
+        public override void Flush() => _response.Flush();
+
+        public override Task FlushAsync() => _response.FlushAsync();
+
         public override void End() => _response.End();
 
         public override void TransmitFile(string filename) => _response.TransmitFile(filename);
@@ -143,5 +147,10 @@ namespace System.Web
         [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = Constants.ApiFromAspNet)]
         public override void RedirectPermanent(string url, bool endResponse) => _response.RedirectPermanent(url, endResponse);
 
+        public override string? RedirectLocation
+        {
+            get => _response.RedirectLocation;
+            set => _response.RedirectLocation = value;
+        }
     }
 }

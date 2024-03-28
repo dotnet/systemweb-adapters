@@ -18,7 +18,17 @@ namespace System.Web
 
         public virtual string Path => throw new NotImplementedException();
 
+        public virtual string PathInfo => throw new NotImplementedException();
+
+        public virtual string CurrentExecutionFilePath => throw new NotImplementedException();
+
         public virtual string? PhysicalPath => throw new NotImplementedException();
+
+        public virtual string? FilePath => throw new NotImplementedException();
+
+        public virtual ReadEntityBodyMode ReadEntityBodyMode => throw new NotImplementedException();
+
+        public virtual void SaveAs(string filename, bool includeHeaders) => throw new NotImplementedException();
 
         public virtual NameValueCollection Headers => throw new NotImplementedException();
 

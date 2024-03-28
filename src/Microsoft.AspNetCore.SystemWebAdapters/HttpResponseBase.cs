@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace System.Web
@@ -63,7 +64,7 @@ namespace System.Web
             set => throw new NotImplementedException();
         }
 
-        public virtual bool BufferOutput  => throw new NotImplementedException();
+        public virtual bool BufferOutput => throw new NotImplementedException();
 
         public virtual Stream OutputStream => throw new NotImplementedException();
 
@@ -123,6 +124,10 @@ namespace System.Web
 
         public virtual void ClearHeaders() => throw new NotImplementedException();
 
+        public virtual void Flush() => throw new NotImplementedException();
+
+        public virtual Task FlushAsync() => throw new NotImplementedException();
+
         public virtual void WriteFile(string filename) => throw new NotImplementedException();
 
         public virtual void TransmitFile(string filename) => throw new NotImplementedException();
@@ -141,6 +146,12 @@ namespace System.Web
 
         [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = Constants.ApiFromAspNet)]
         public virtual void RedirectPermanent(string url, bool endResponse) => throw new NotImplementedException();
+
+        public virtual string? RedirectLocation
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
 
         [return: NotNullIfNotNull(nameof(response))]
         public static implicit operator HttpResponseBase?(HttpResponseCore? response) => response?.HttpContext.AsSystemWebBase().Response;
