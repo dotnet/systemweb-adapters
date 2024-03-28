@@ -15,7 +15,7 @@ public class RemoteAppAuthenticationServerOptionsTests
     [InlineData(null, false)]
     [InlineData("", false)]
     [Theory]
-    public void VerifyIsCalled(string endpoint, bool shouldSucceed)
+    public void VerifyIsCalled(string? endpoint, bool shouldSucceed)
     {
         // Arrange
         var services = new ServiceCollection();
@@ -23,7 +23,7 @@ public class RemoteAppAuthenticationServerOptionsTests
 
         builder.AddAuthenticationServer(options =>
         {
-            options.AuthenticationEndpointPath = endpoint;
+            options.AuthenticationEndpointPath = endpoint!;
         });
 
         using var serviceProvider = services.BuildServiceProvider();

@@ -30,7 +30,7 @@ public class HttpCookieCollectionTests
     [InlineData(false, false, true, null)]
     [InlineData(false, false, false, null)]
     [Theory]
-    public async Task ShareableCookieSetsCacheControlAsync(bool isPublic, bool isShareable, bool isHttps, string expectedCacheControl)
+    public async Task ShareableCookieSetsCacheControlAsync(bool isPublic, bool isShareable, bool isHttps, string? expectedCacheControl)
     {
         // Arrange
         var cookieName = _fixture.Create<string>();

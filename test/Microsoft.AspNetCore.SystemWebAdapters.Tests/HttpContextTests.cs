@@ -411,7 +411,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         [InlineData("/path1?q=1", "/path1", "?q=1")]
         [InlineData("/path1 ?q=1", "/path1", "?q=1")]
         [Theory]
-        public void RewritePath(string rewritePath, string finalPath, string finalQuery)
+        public void RewritePath(string rewritePath, string finalPath, string? finalQuery)
         {
             // Arrange
             var coreContext = new DefaultHttpContext();
@@ -441,7 +441,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         [InlineData("/path1 ?q=1", "/path1", "?q=1", true)]
         [InlineData("/path1 ?q=1", "/path1", "?q=1", false)]
         [Theory]
-        public void RewritePathWithRebaseValue(string rewritePath, string finalPath, string finalQuery, bool rebase)
+        public void RewritePathWithRebaseValue(string rewritePath, string finalPath, string? finalQuery, bool rebase)
         {
             // Arrange
             var coreContext = new DefaultHttpContext();
