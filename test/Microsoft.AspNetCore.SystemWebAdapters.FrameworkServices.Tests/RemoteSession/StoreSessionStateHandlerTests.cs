@@ -66,7 +66,7 @@ public class StoreSessionStateHandlerTests
     [InlineData((int)SessionSaveResult.AlreadyUpdated, 400, StoreSessionStateHandler.Messages.SessionAlreadyUpdated)]
     [InlineData((int)SessionSaveResult.DeserializationError, 400, StoreSessionStateHandler.Messages.DeserializationFailed)]
     [Theory]
-    public async Task WithCookie(int result, int statusCode, string description)
+    public async Task WithCookie(int result, int statusCode, string? description)
     {
         // Arrange
         var output = new Mock<Stream>();

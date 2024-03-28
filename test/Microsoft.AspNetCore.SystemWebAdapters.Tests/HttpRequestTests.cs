@@ -632,7 +632,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         [InlineData(null, ContentEncodingType.None)]
         [InlineData("application/json;charset=utf-8", ContentEncodingType.UTF8)]
         [InlineData("application/json;charset=utf-32", ContentEncodingType.UTF32)]
-        public void ContentEncoding(string contentType, ContentEncodingType type)
+        public void ContentEncoding(string? contentType, ContentEncodingType type)
         {
             // Arrange
             var headers = new HeaderDictionary

@@ -21,7 +21,7 @@ public class RemoteAppServerOptionsTests
     [InlineData("HeaderName", null, false)]
     [InlineData("HeaderName", "", false)]
     [Theory]
-    public void VerifyIsCalled(string apiKeyHeader, string apiKey, bool shouldSucceed)
+    public void VerifyIsCalled(string? apiKeyHeader, string? apiKey, bool shouldSucceed)
     {
         // Arrange
         var services = new ServiceCollection();
@@ -29,8 +29,8 @@ public class RemoteAppServerOptionsTests
 
         builder.AddRemoteAppServer(options =>
         {
-            options.ApiKey = apiKey;
-            options.ApiKeyHeader = apiKeyHeader;
+            options.ApiKey = apiKey!;
+            options.ApiKeyHeader = apiKeyHeader!;
         });
 
         using var serviceProvider = services.BuildServiceProvider();
