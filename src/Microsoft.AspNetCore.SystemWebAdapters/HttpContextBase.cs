@@ -26,6 +26,10 @@ namespace System.Web
         [SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = Constants.ApiFromAspNet)]
         public virtual Exception[] AllErrors => throw new NotImplementedException();
 
+        public virtual TraceContext Trace => throw new NotImplementedException();
+
+        public virtual ISubscriptionToken DisposeOnPipelineCompleted(IDisposable target) => throw new NotImplementedException();
+
         public virtual void ClearError() => throw new NotImplementedException();
 
         public virtual void AddError(Exception ex) => throw new NotImplementedException();
