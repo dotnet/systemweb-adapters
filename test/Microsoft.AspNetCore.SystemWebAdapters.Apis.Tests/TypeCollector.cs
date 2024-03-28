@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal class TypeCollector : SymbolVisitor
+internal sealed class TypeCollector : SymbolVisitor
 {
     private HashSet<string> Members { get; } = new HashSet<string>();
 
