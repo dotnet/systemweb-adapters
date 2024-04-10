@@ -80,6 +80,10 @@ namespace System.Web
             set => _context.Handler = value;
         }
 
+        public override ISubscriptionToken DisposeOnPipelineCompleted(IDisposable target) => _context.DisposeOnPipelineCompleted(target);
+
+        public override TraceContext Trace => _context.Trace;
+
         public override IHttpHandler? PreviousHandler => _context.PreviousHandler;
 
         public override void RemapHandler(IHttpHandler handler) => _context.RemapHandler(handler);
