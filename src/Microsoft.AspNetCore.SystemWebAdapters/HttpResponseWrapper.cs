@@ -99,7 +99,7 @@ namespace System.Web
             set => _response.TrySkipIisCustomErrors = value;
         }
 
-        public override HttpCachePolicy Cache => _response.Cache;
+        public override HttpCachePolicyBase Cache => new HttpCachePolicyWrapper(_response.Cache);
 
         [AllowNull]
         public override Stream Filter
