@@ -19,10 +19,10 @@ public class VerifyHttpBaseTypes
 {
     private static readonly Dictionary<Type, string> _skipped = new()
     {
-        // This is only defined on the non-base types as there is a well defined conversion
         [typeof(HttpContext)] = "op_Implicit",
         [typeof(HttpRequest)] = "op_Implicit",
         [typeof(HttpResponse)] = "op_Implicit",
+        [typeof(HttpCachePolicy)] = nameof(HttpCachePolicy.GetCacheability),
     };
 
     private readonly ITestOutputHelper _output;
