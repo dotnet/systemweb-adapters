@@ -97,7 +97,7 @@ namespace System.Web
             set => throw new NotImplementedException();
         }
 
-        public virtual HttpCachePolicy Cache => throw new NotImplementedException();
+        public virtual HttpCachePolicyBase Cache => throw new NotImplementedException();
 
         public virtual bool IsClientConnected => throw new NotImplementedException();
 
