@@ -9,6 +9,7 @@ using System.Web.Caching;
 using System.Web.Hosting;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
@@ -70,11 +71,11 @@ public class HttpContext : IServiceProvider
 
     public void AddError(Exception ex) => Context.Features.Get<IRequestExceptionFeature>()?.Add(ex);
 
-    public RequestNotification CurrentNotification => Context.Features.GetRequired<IHttpApplicationFeature>().CurrentNotification;
+    public RequestNotification CurrentNotification => Context.Features.GetRequiredFeature<IHttpApplicationFeature>().CurrentNotification;
 
-    public bool IsPostNotification => Context.Features.GetRequired<IHttpApplicationFeature>().IsPostNotification;
+    public bool IsPostNotification => Context.Features.GetRequiredFeature<IHttpApplicationFeature>().IsPostNotification;
 
-    public HttpApplication ApplicationInstance => Context.Features.GetRequired<IHttpApplicationFeature>().Application;
+    public HttpApplication ApplicationInstance => Context.Features.GetRequiredFeature<IHttpApplicationFeature>().Application;
 
     public HttpApplicationState Application => ApplicationInstance.Application;
 
@@ -82,13 +83,13 @@ public class HttpContext : IServiceProvider
 
     public IHttpHandler? Handler
     {
-        get => Context.Features.GetRequired<IHttpHandlerFeature>().Current;
-        set => Context.Features.GetRequired<IHttpHandlerFeature>().Current = value;
+        get => Context.Features.GetRequiredFeature<IHttpHandlerFeature>().Current;
+        set => Context.Features.GetRequiredFeature<IHttpHandlerFeature>().Current = value;
     }
 
     public IHttpHandler? CurrentHandler => Handler;
 
-    public IHttpHandler? PreviousHandler => Context.Features.GetRequired<IHttpHandlerFeature>().Previous;
+    public IHttpHandler? PreviousHandler => Context.Features.GetRequiredFeature<IHttpHandlerFeature>().Previous;
 
     public void RemapHandler(IHttpHandler handler) => Handler = handler;
 
@@ -119,9 +120,9 @@ public class HttpContext : IServiceProvider
     public HttpSessionState? Session => Context.Features.Get<ISessionStateFeature>()?.Session;
 
     public void SetSessionStateBehavior(SessionStateBehavior sessionStateBehavior)
-        => Context.Features.GetRequired<ISessionStateFeature>().Behavior = sessionStateBehavior;
+        => Context.Features.GetRequiredFeature<ISessionStateFeature>().Behavior = sessionStateBehavior;
 
-    public DateTime Timestamp => Context.Features.GetRequired<ITimestampFeature>().Timestamp.DateTime;
+    public DateTime Timestamp => Context.Features.GetRequiredFeature<ITimestampFeature>().Timestamp.DateTime;
 
     public void RewritePath(string path) => RewritePath(path, true);
 
@@ -151,7 +152,7 @@ public class HttpContext : IServiceProvider
         => RewritePath(filePath, pathInfo, queryString, false);
 
     public void RewritePath(string filePath, string pathInfo, string? queryString, bool setClientFilePath)
-        => Context.Features.GetRequired<IHttpRequestPathFeature>().Rewrite(filePath, pathInfo, queryString, setClientFilePath);
+        => Context.Features.GetRequiredFeature<IHttpRequestPathFeature>().Rewrite(filePath, pathInfo, queryString, setClientFilePath);
 
     [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = Constants.ApiFromAspNet)]
     object? IServiceProvider.GetService(Type service)

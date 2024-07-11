@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
@@ -18,7 +19,7 @@ internal sealed class SessionEventsMiddleware
 
     public async Task InvokeAsync(HttpContextCore context)
     {
-        var app = context.Features.GetRequired<IHttpApplicationFeature>();
+        var app = context.Features.GetRequiredFeature<IHttpApplicationFeature>();
         var session = context.AsSystemWeb().Session;
 
         if (session is { IsNewSession: true })

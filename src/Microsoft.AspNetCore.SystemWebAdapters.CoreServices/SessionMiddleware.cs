@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +33,7 @@ internal partial class SessionLoadMiddleware
     }
 
     public Task InvokeAsync(HttpContextCore context)
-        => context.Features.GetRequired<ISessionStateFeature>() is { Behavior: not SessionStateBehavior.Disabled and not SessionStateBehavior.Default } feature
+        => context.Features.GetRequiredFeature<ISessionStateFeature>() is { Behavior: not SessionStateBehavior.Disabled and not SessionStateBehavior.Default } feature
             ? ManageStateAsync(context, feature)
             : _next(context);
 

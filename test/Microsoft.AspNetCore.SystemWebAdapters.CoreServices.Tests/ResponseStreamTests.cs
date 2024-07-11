@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -249,7 +250,7 @@ public class ResponseStreamTests
         // Act
         var result = await RunAsync(context =>
         {
-            var feature = context.AsAspNetCore().Features.GetRequired<IHttpResponseBufferingFeature>();
+            var feature = context.AsAspNetCore().Features.GetRequiredFeature<IHttpResponseBufferingFeature>();
 
             feature.EnableBuffering(1024, default);
             feature.EnableBuffering(1024, default);

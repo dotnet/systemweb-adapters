@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -233,7 +234,7 @@ public class ModuleTests
 
         private static void Add(HttpContextCore context, string name)
         {
-            context.Features.GetRequired<NotificationCollection>().Add(name);
+            context.Features.GetRequiredFeature<NotificationCollection>().Add(name);
         }
     }
 

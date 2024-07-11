@@ -30,14 +30,14 @@ internal sealed class RegisterAdapterFeaturesMiddleware
             }
             finally
             {
-                await context.Features.GetRequired<IHttpResponseBufferingFeature>().FlushAsync();
+                await context.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().FlushAsync();
             }
         }
     }
 
     private static DelegateDisposable RegisterRequestFeatures(HttpContextCore context)
     {
-        var existing = context.Features.GetRequired<IHttpRequestFeature>();
+        var existing = context.Features.GetRequiredFeature<IHttpRequestFeature>();
         var existingPipe = context.Features.Get<IRequestBodyPipeFeature>();
 
         var inputStreamFeature = new HttpRequestInputStreamFeature(existing);
@@ -59,7 +59,7 @@ internal sealed class RegisterAdapterFeaturesMiddleware
 
     private static DelegateDisposable RegisterResponseFeatures(HttpContextCore context)
     {
-        var responseBodyFeature = context.Features.GetRequired<IHttpResponseBodyFeature>();
+        var responseBodyFeature = context.Features.GetRequiredFeature<IHttpResponseBodyFeature>();
 
         var adapterFeature = new HttpResponseAdapterFeature(responseBodyFeature);
 
