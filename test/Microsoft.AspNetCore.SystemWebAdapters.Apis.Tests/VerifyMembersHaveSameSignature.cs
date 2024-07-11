@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Basic.Reference.Assemblies;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -35,10 +34,6 @@ public class VerifyMembersHaveSameSignature
         {
             _output.WriteLine(adaptedType);
         }
-
-        // Remove baseline
-        var knownIssues = File.ReadAllLines("BaselineMethodIssues.txt");
-        netstandard.ExceptWith(knownIssues);
 
         Assert.Empty(netstandard);
     }

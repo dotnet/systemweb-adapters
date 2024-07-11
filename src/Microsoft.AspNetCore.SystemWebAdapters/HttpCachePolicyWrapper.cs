@@ -11,7 +11,7 @@ public class HttpCachePolicyWrapper : HttpCachePolicyBase
     {
         if (httpCachePolicy == null)
         {
-			ArgumentNullException.ThrowIfNull(httpCachePolicy);
+            ArgumentNullException.ThrowIfNull(httpCachePolicy);
         }
         _httpCachePolicy = httpCachePolicy;
     }

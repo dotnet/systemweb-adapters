@@ -159,5 +159,5 @@ public sealed class Cache : IEnumerable
 
     internal ObjectCache ObjectCache => _cache;
 
-    public IEnumerator GetEnumerator() => ((IEnumerable)_cache).GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_cache).GetEnumerator();
 }
