@@ -145,6 +145,13 @@ public static class SystemWebAdaptersExtensions
             => builder =>
             {
                 builder.UseMiddleware<SetHttpContextTimestampMiddleware>();
+
+                if (builder.AreHttpApplicationEventsRequired())
+                {
+                    // Must be registered first in order to intercept each flush to the client
+                    builder.UseMiddleware<RegisterHttpApplicationPreSendEventsMiddleware>();
+                }
+
                 builder.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
                 builder.UseMiddleware<SessionStateMiddleware>();
 

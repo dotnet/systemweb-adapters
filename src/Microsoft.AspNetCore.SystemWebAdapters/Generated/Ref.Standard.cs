@@ -52,6 +52,7 @@ namespace System.Web
         public event System.EventHandler PostResolveRequestCache { add { } remove { } }
         public event System.EventHandler PostUpdateRequestCache { add { } remove { } }
         public event System.EventHandler PreRequestHandlerExecute { add { } remove { } }
+        public event System.EventHandler PreSendRequestContent { add { } remove { } }
         public event System.EventHandler PreSendRequestHeaders { add { } remove { } }
         public event System.EventHandler ReleaseRequestState { add { } remove { } }
         public event System.EventHandler ResolveRequestCache { add { } remove { } }

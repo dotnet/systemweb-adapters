@@ -12,7 +12,7 @@ namespace ModulesLibrary
         {
         }
 
-        public void Init(HttpApplication application)
+        public virtual void Init(HttpApplication application)
         {
             if (application is null)
             {
@@ -38,6 +38,7 @@ namespace ModulesLibrary
             application.PostUpdateRequestCache += (s, e) => WriteDetails(s, nameof(application.PostUpdateRequestCache));
             application.PreRequestHandlerExecute += (s, e) => WriteDetails(s, nameof(application.PreRequestHandlerExecute));
             application.PreSendRequestHeaders += (s, e) => WriteDetails(s, nameof(application.PreSendRequestHeaders));
+            application.PreSendRequestContent += (s, e) => WriteDetails(s, nameof(application.PreSendRequestContent));
             application.ReleaseRequestState += (s, e) => WriteDetails(s, nameof(application.ReleaseRequestState));
             application.ResolveRequestCache += (s, e) => WriteDetails(s, nameof(application.ResolveRequestCache));
             application.UpdateRequestCache += (s, e) => WriteDetails(s, nameof(application.UpdateRequestCache));
