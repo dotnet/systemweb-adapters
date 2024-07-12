@@ -24,7 +24,7 @@ public static class HttpApplicationExtensions
         ArgumentNullException.ThrowIfNull(builder);
 
         builder.Services.TryAddSingleton<ModuleCollection>();
-        builder.Services.AddTransient<IModuleRegistrar>(sp => sp.GetRequiredService<ModuleCollection>());
+        builder.Services.TryAddTransient<IModuleRegistrar>(sp => sp.GetRequiredService<ModuleCollection>());
         builder.Services.TryAddSingleton<HttpApplicationPooledObjectPolicy>();
         builder.Services.TryAddSingleton<IPooledObjectPolicy<HttpApplication>>(sp => sp.GetRequiredService<HttpApplicationPooledObjectPolicy>());
         builder.Services.TryAddSingleton<ObjectPool<HttpApplication>>(sp =>
