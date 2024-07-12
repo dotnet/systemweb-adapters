@@ -64,6 +64,8 @@ public enum ApplicationEvent
     SessionEnd,
 
     Disposed,
+
+    ExecuteRequestHandler,
 }
 
 #endif

@@ -11,6 +11,14 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpResponseEndFeature, IRequestExceptionFeature, IDisposable
 {
+    private static readonly HashSet<ApplicationEvent> _suppressThrow =
+    [
+        ApplicationEvent.LogRequest,
+        ApplicationEvent.PostLogRequest,
+        ApplicationEvent.EndRequest,
+        ApplicationEvent.PreSendRequestHeaders,
+    ];
+
     private readonly IHttpResponseEndFeature _previous;
     private readonly ObjectPool<HttpApplication> _pool;
 
@@ -22,6 +30,13 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
         _contextOrApplication = context;
         _pool = pool;
         _previous = previousEnd;
+
+        context.Response.OnStarting(static state =>
+        {
+            var context = (HttpContextCore)state;
+
+            return context.Features.GetRequired<IHttpApplicationFeature>().RaiseEventAsync(ApplicationEvent.PreSendRequestHeaders).AsTask();
+        }, context);
     }
 
     public RequestNotification CurrentNotification { get; set; }
@@ -48,12 +63,12 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
 
     ValueTask IHttpApplicationFeature.RaiseEventAsync(ApplicationEvent @event)
     {
-        RaiseEvent(@event, suppressThrow: false);
+        RaiseEvent(@event);
         return ValueTask.CompletedTask;
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Must handle all exceptions here")]
-    private void RaiseEvent(ApplicationEvent appEvent, bool suppressThrow)
+    private void RaiseEvent(ApplicationEvent appEvent)
     {
         (CurrentNotification, IsPostNotification) = appEvent switch
         {
@@ -77,6 +92,7 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
             ApplicationEvent.LogRequest => (RequestNotification.LogRequest, false),
             ApplicationEvent.PostLogRequest => (RequestNotification.LogRequest, true),
             ApplicationEvent.EndRequest => (RequestNotification.EndRequest, false),
+            ApplicationEvent.ExecuteRequestHandler => (RequestNotification.ExecuteRequestHandler, false),
 
             // Remaining events just continue using the existing notifications
             _ => (CurrentNotification, IsPostNotification),
@@ -91,7 +107,7 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
             AddError(ex);
             Application.InvokeEvent(ApplicationEvent.Error);
 
-            if (!suppressThrow)
+            if (!_suppressThrow.Contains(appEvent))
             {
                 ThrowIfErrors();
             }
@@ -119,10 +135,9 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
 
         IsEnded = true;
 
-        RaiseEvent(ApplicationEvent.LogRequest, suppressThrow: true);
-        RaiseEvent(ApplicationEvent.PostLogRequest, suppressThrow: true);
-        RaiseEvent(ApplicationEvent.EndRequest, suppressThrow: true);
-        RaiseEvent(ApplicationEvent.PreSendRequestHeaders, suppressThrow: true);
+        RaiseEvent(ApplicationEvent.LogRequest);
+        RaiseEvent(ApplicationEvent.PostLogRequest);
+        RaiseEvent(ApplicationEvent.EndRequest);
 
         await _previous.EndAsync();
 
