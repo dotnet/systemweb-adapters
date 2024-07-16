@@ -126,6 +126,27 @@ namespace System.Web
         public void SetMaxAge(System.TimeSpan delta) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void SetOmitVaryStar(bool omit) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
+    public partial class HttpCachePolicyBase
+    {
+        public HttpCachePolicyBase() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual System.Web.HttpCacheVaryByHeaders VaryByHeaders { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public virtual void SetCacheability(System.Web.HttpCacheability cacheability) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void SetCacheability(System.Web.HttpCacheability cacheability, string field) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void SetExpires(System.DateTime date) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void SetLastModified(System.DateTime date) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void SetMaxAge(System.TimeSpan delta) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual void SetOmitVaryStar(bool omit) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+    }
+    public partial class HttpCachePolicyWrapper : System.Web.HttpCachePolicyBase
+    {
+        public HttpCachePolicyWrapper(System.Web.HttpCachePolicy httpCachePolicy) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override System.Web.HttpCacheVaryByHeaders VaryByHeaders { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public override void SetCacheability(System.Web.HttpCacheability cacheability) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void SetExpires(System.DateTime date) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void SetLastModified(System.DateTime date) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void SetMaxAge(System.TimeSpan delta) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public override void SetOmitVaryStar(bool omit) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+    }
     public sealed partial class HttpCacheVaryByHeaders
     {
         internal HttpCacheVaryByHeaders() { }
