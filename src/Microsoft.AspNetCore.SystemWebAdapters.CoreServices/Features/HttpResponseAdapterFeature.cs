@@ -47,7 +47,7 @@ internal class HttpResponseAdapterFeature :
 
     Task IHttpResponseBodyFeature.CompleteAsync() => CompleteAsync();
 
-    void IHttpResponseBodyFeature.DisableBuffering()
+    public void DisableBuffering()
     {
         _responseBodyFeature.DisableBuffering();
         _state = StreamState.NotBuffering;
@@ -65,7 +65,7 @@ internal class HttpResponseAdapterFeature :
         }
     }
 
-    void IHttpResponseBufferingFeature.EnableBuffering(int memoryThreshold, long? bufferLimit)
+    void IHttpResponseBufferingFeature.EnableBuffering(int? memoryThreshold, long? bufferLimit)
     {
         if (_state == StreamState.Buffering)
         {
@@ -76,7 +76,7 @@ internal class HttpResponseAdapterFeature :
             Debug.Assert(_bufferedStream is null);
 
             _state = StreamState.Buffering;
-            _factory = () => new FileBufferingWriteStream(memoryThreshold, bufferLimit);
+            _factory = () => new FileBufferingWriteStream(memoryThreshold ?? PreBufferRequestStreamAttribute.DefaultBufferThreshold, bufferLimit);
         }
         else
         {
