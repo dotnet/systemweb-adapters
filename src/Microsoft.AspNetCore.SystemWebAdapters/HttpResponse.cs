@@ -75,7 +75,23 @@ namespace System.Web
             set => Response.HttpContext.Features.GetRequired<IStatusCodePagesFeature>().Enabled = value;
         }
 
-        public bool BufferOutput => Response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().IsEnabled;
+        public bool BufferOutput
+        {
+            get => Response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().IsEnabled;
+            set
+            {
+                var feature = Response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>();
+
+                if (value)
+                {
+                    feature.EnableBuffering();
+                }
+                else
+                {
+                    feature.DisableBuffering();
+                }
+            }
+        }
 
         public Stream OutputStream => Response.Body;
 
