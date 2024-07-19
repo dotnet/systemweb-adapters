@@ -229,6 +229,8 @@ public abstract class ModuleTests(bool isBuffered)
                                 {
                                     options.RegisterModule(module);
                                 }
+
+                                options.ArePreSendEventsEnabled = true;
                             });
 
                     })
