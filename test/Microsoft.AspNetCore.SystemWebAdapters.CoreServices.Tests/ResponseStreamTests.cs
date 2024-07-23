@@ -378,6 +378,18 @@ public class ResponseStreamTests
         Assert.Equal("before after", result);
     }
 
+    [Fact]
+    public async Task BufferIsNotFlushedIfNotAvailable()
+    {
+        var result = await RunAsync(middleware: (ctx, next) =>
+        {
+            ctx.Features.Set<IHttpResponseBufferingFeature>(null);
+            return next(ctx);
+        });
+
+        Assert.Equal(string.Empty, result);
+    }
+
     private static Task<string> RunAsync(Action<HttpContext> action, Action<IEndpointConventionBuilder>? builder = null, Func<Http.HttpContext, RequestDelegate, Task>? middleware = null)
         => RunAsync(ctx =>
         {
