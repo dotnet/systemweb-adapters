@@ -114,7 +114,7 @@ public static class SystemWebAdaptersExtensions
         }
 
         app.UseHttpApplicationEvent(
-            preEvents: new[] { ApplicationEvent.PreRequestHandlerExecute },
+            preEvents: new[] { ApplicationEvent.PreRequestHandlerExecute, ApplicationEvent.ExecuteRequestHandler },
             postEvents: new[] { ApplicationEvent.PostRequestHandlerExecute });
     }
 

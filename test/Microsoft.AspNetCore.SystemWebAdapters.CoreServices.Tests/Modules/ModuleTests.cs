@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -20,38 +21,42 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests;
 [Collection(nameof(SelfHostedTests))]
 public class ModuleTests
 {
-    private static readonly string[] Initial = new[]
-    {
-        nameof(HttpApplication.BeginRequest),
-        nameof(HttpApplication.AuthenticateRequest),
-        nameof(HttpApplication.PostAuthenticateRequest),
-        nameof(HttpApplication.AuthorizeRequest),
-        nameof(HttpApplication.PostAuthorizeRequest),
-        nameof(HttpApplication.ResolveRequestCache),
-        nameof(HttpApplication.PostResolveRequestCache),
-        nameof(HttpApplication.MapRequestHandler),
-        nameof(HttpApplication.PostMapRequestHandler),
-        nameof(HttpApplication.AcquireRequestState),
-        nameof(HttpApplication.PostAcquireRequestState),
-        nameof(HttpApplication.PreRequestHandlerExecute),
-        nameof(HttpApplication.PostRequestHandlerExecute),
-        nameof(HttpApplication.ReleaseRequestState),
-        nameof(HttpApplication.PostReleaseRequestState),
-        nameof(HttpApplication.UpdateRequestCache),
-        nameof(HttpApplication.PostUpdateRequestCache),
-    };
+    private static readonly ImmutableArray<ApplicationEvent> BeforeHandlerEvents =
+    [
+        ApplicationEvent.BeginRequest,
+        ApplicationEvent.AuthenticateRequest,
+        ApplicationEvent.PostAuthenticateRequest,
+        ApplicationEvent.AuthorizeRequest,
+        ApplicationEvent.PostAuthorizeRequest,
+        ApplicationEvent.ResolveRequestCache,
+        ApplicationEvent.PostResolveRequestCache,
+        ApplicationEvent.MapRequestHandler,
+        ApplicationEvent.PostMapRequestHandler,
+        ApplicationEvent.AcquireRequestState,
+        ApplicationEvent.PostAcquireRequestState,
+        ApplicationEvent.PreRequestHandlerExecute,
+    ];
 
-    private static readonly string[] Always = new[]
-    {
-        nameof(HttpApplication.LogRequest),
-        nameof(HttpApplication.PostLogRequest),
-        nameof(HttpApplication.EndRequest),
-        nameof(HttpApplication.PreSendRequestHeaders),
-    };
+    private static readonly ImmutableArray<ApplicationEvent> AfterHandlerEvents =
+    [
+        ApplicationEvent.PostRequestHandlerExecute,
+        ApplicationEvent.ReleaseRequestState,
+        ApplicationEvent.PostReleaseRequestState,
+        ApplicationEvent.UpdateRequestCache,
+        ApplicationEvent.PostUpdateRequestCache,
+    ];
+
+    private static readonly ImmutableArray<ApplicationEvent> EndEvents =
+    [
+        ApplicationEvent.LogRequest,
+        ApplicationEvent.PostLogRequest,
+        ApplicationEvent.EndRequest,
+    ];
 
     public static IEnumerable<object[]> GetAllEvents()
     {
-        var all = Initial.Concat(Always);
+        IEnumerable<ApplicationEvent> all = [.. BeforeHandlerEvents, .. AfterHandlerEvents, .. EndEvents, ApplicationEvent.PreSendRequestHeaders];
+
         var modes = Enum.GetValues<RegisterMode>();
 
         foreach (var notification in all)
@@ -65,7 +70,7 @@ public class ModuleTests
 
     [MemberData(nameof(GetAllEvents))]
     [Theory]
-    public async Task EndModuleEarly(string notification, RegisterMode mode)
+    public async Task EndModuleEarly(ApplicationEvent notification, RegisterMode mode)
     {
         var expected = GetNotificationsUpTo(notification);
         var result = await RunAsync(ModuleTestModule.End, notification, mode);
@@ -75,7 +80,7 @@ public class ModuleTests
 
     [MemberData(nameof(GetAllEvents))]
     [Theory]
-    public async Task CompleteModuleEarly(string notification, RegisterMode mode)
+    public async Task CompleteModuleEarly(ApplicationEvent notification, RegisterMode mode)
     {
         var expected = GetNotificationsUpTo(notification);
         var result = await RunAsync(ModuleTestModule.Complete, notification, mode);
@@ -85,46 +90,50 @@ public class ModuleTests
 
     [MemberData(nameof(GetAllEvents))]
     [Theory]
-    public async Task ModulesThrow(string notification, RegisterMode mode)
+    public async Task ModulesThrow(ApplicationEvent notification, RegisterMode mode)
     {
         var expected = GetExpected(notification).ToList();
         var result = await RunAsync(ModuleTestModule.Throw, notification, mode);
 
         Assert.Equal(expected, result);
 
-        static IEnumerable<string> GetExpected(string notification)
+        static IEnumerable<ApplicationEvent> GetExpected(ApplicationEvent notification)
         {
             foreach (var item in GetNotificationsUpTo(notification))
             {
                 yield return item;
 
-                if (string.Equals(item, notification, StringComparison.Ordinal))
+                if (item == notification)
                 {
-                    yield return nameof(HttpApplication.Error);
+                    yield return ApplicationEvent.Error;
                 }
             }
         }
     }
 
-    private static IEnumerable<string> GetNotificationsUpTo(string notification)
+    private static IEnumerable<ApplicationEvent> GetNotificationsUpTo(ApplicationEvent notification)
     {
-        foreach (var n in Initial)
+        IEnumerable<ApplicationEvent> initial = [.. BeforeHandlerEvents, .. AfterHandlerEvents];
+
+        foreach (var n in initial)
         {
             yield return n;
 
-            if (string.Equals(n, notification, StringComparison.Ordinal))
+            if (n == notification)
             {
                 break;
             }
         }
 
-        foreach (var n in Always)
+        foreach (var n in EndEvents)
         {
             yield return n;
         }
+
+        yield return ApplicationEvent.PreSendRequestHeaders;
     }
 
-    private static async Task<List<string>> RunAsync(string action, string eventName, RegisterMode mode)
+    private static async Task<List<ApplicationEvent>> RunAsync(string action, ApplicationEvent @event, RegisterMode mode)
     {
         var notifier = new NotificationCollection();
 
@@ -175,7 +184,7 @@ public class ModuleTests
             })
             .StartAsync();
 
-        var url = $"/?action={action}&notification={eventName}";
+        var url = $"/?action={action}&notification={@event}";
 
         try
         {
@@ -189,7 +198,75 @@ public class ModuleTests
         return notifier;
     }
 
-    private sealed class NotificationCollection : List<string>
+    [Fact]
+    public async Task PreSendEventThrownIfNotBuffering()
+    {
+        // Arrange
+        IEnumerable<ApplicationEvent> expected =
+        [
+            .. BeforeHandlerEvents,
+            ApplicationEvent.PreSendRequestHeaders,
+            .. AfterHandlerEvents,
+            .. EndEvents
+        ];
+
+        var notifier = new NotificationCollection();
+        using var host = await new HostBuilder()
+            .ConfigureWebHost(webBuilder =>
+            {
+                webBuilder
+                    .UseTestServer(options =>
+                    {
+                        options.AllowSynchronousIO = true;
+                    })
+                    .ConfigureServices(services =>
+                    {
+                        services.AddRouting();
+                        services.AddSystemWebAdapters()
+                            .AddHttpApplication(options =>
+                            {
+                                options.RegisterModule<ModulePreSendHeaders>();
+                            });
+
+                    })
+                    .Configure(app =>
+                    {
+                        app.Use((ctx, next) =>
+                        {
+                            ctx.Features.Set(notifier);
+                            return next(ctx);
+                        });
+                        app.UseRouting();
+
+                        app.UseSystemWebAdapters();
+
+                        app.UseEndpoints(endpoints =>
+                        {
+                            endpoints.Map("/", (HttpContextCore ctx) =>
+                            {
+                                ctx.Features.GetRequired<IHttpResponseBodyFeature>().DisableBuffering();
+
+                                var systemWeb = ctx.AsSystemWeb();
+                                systemWeb.Response.Write(systemWeb.CurrentNotification);
+                                systemWeb.Response.Write(" ");
+                                systemWeb.Response.Output.Flush();
+                                systemWeb.Response.Write(systemWeb.CurrentNotification);
+                                systemWeb.Response.Output.Flush();
+                            });
+                        });
+                    });
+            })
+            .StartAsync();
+
+        // Act
+        var result = await host.GetTestClient().GetStringAsync(new Uri("/", UriKind.Relative));
+
+        // Assert
+        Assert.Equal(expected, notifier);
+        Assert.Equal(result, $"{ApplicationEvent.ExecuteRequestHandler} {ApplicationEvent.ExecuteRequestHandler}");
+    }
+
+    private sealed class NotificationCollection : List<ApplicationEvent>
     {
     }
 
@@ -222,6 +299,14 @@ public class ModuleTests
 
                 next(builder);
             };
+    }
+
+    private sealed class ModulePreSendHeaders : BaseModule
+    {
+        protected override void InvokeEvent(HttpContext context, string name)
+        {
+            context.AsAspNetCore().Features.GetRequired<NotificationCollection>().Add(Enum.Parse<ApplicationEvent>(name, ignoreCase: false));
+        }
     }
 
     private sealed class ModuleTestModule : EventsModule
