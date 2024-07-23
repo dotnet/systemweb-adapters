@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.TestHost;
@@ -287,10 +288,10 @@ public class ResponseStreamTests
     {
         await RunAsync(middleware: (ctx, next) =>
         {
-            ctx.Features.GetRequired<IHttpResponseBufferingFeature>().EnableBuffering(1024, default);
-            Assert.True(ctx.Features.GetRequired<IHttpResponseBufferingFeature>().IsEnabled);
-            ctx.Features.GetRequired<IHttpResponseBodyFeature>().DisableBuffering();
-            Assert.False(ctx.Features.GetRequired<IHttpResponseBufferingFeature>().IsEnabled);
+            ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().EnableBuffering(1024, default);
+            Assert.True(ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled);
+            ctx.Features.GetRequiredFeature<IHttpResponseBodyFeature>().DisableBuffering();
+            Assert.False(ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled);
 
             return next(ctx);
         });
@@ -301,15 +302,15 @@ public class ResponseStreamTests
     {
         var result = await RunAsync(middleware: async (ctx, next) =>
         {
-            ctx.Features.GetRequired<IHttpResponseBufferingFeature>().EnableBuffering(1024, default);
-            Assert.True(ctx.Features.GetRequired<IHttpResponseBufferingFeature>().IsEnabled);
+            ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().EnableBuffering(1024, default);
+            Assert.True(ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled);
 
             await ctx.Response.WriteAsync("before ");
 
-            ctx.Features.GetRequired<IHttpResponseContentFeature>().SuppressContent = true;
+            ctx.Features.GetRequiredFeature<IHttpResponseContentFeature>().SuppressContent = true;
 
-            ctx.Features.GetRequired<IHttpResponseBodyFeature>().DisableBuffering();
-            Assert.False(ctx.Features.GetRequired<IHttpResponseBufferingFeature>().IsEnabled);
+            ctx.Features.GetRequiredFeature<IHttpResponseBodyFeature>().DisableBuffering();
+            Assert.False(ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled);
 
             await ctx.Response.WriteAsync("after");
 
@@ -324,13 +325,13 @@ public class ResponseStreamTests
     {
         var result = await RunAsync(middleware: async (ctx, next) =>
         {
-            ctx.Features.GetRequired<IHttpResponseBufferingFeature>().EnableBuffering(1024, default);
-            Assert.True(ctx.Features.GetRequired<IHttpResponseBufferingFeature>().IsEnabled);
+            ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().EnableBuffering(1024, default);
+            Assert.True(ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled);
 
             await ctx.Response.WriteAsync("before ");
 
-            ctx.Features.GetRequired<IHttpResponseBodyFeature>().DisableBuffering();
-            Assert.False(ctx.Features.GetRequired<IHttpResponseBufferingFeature>().IsEnabled);
+            ctx.Features.GetRequiredFeature<IHttpResponseBodyFeature>().DisableBuffering();
+            Assert.False(ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled);
 
             await ctx.Response.WriteAsync("after");
 
@@ -349,7 +350,7 @@ public class ResponseStreamTests
 
             Assert.Throws<InvalidOperationException>(() =>
             {
-                ctx.Features.GetRequired<IHttpResponseBufferingFeature>().EnableBuffering(1024, default);
+                ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().EnableBuffering(1024, default);
             });
 
             await next(ctx);
@@ -361,13 +362,13 @@ public class ResponseStreamTests
     {
         var result = await RunAsync(middleware: async (ctx, next) =>
         {
-            ctx.Features.GetRequired<IHttpResponseBufferingFeature>().EnableBuffering(1024, default);
-            Assert.True(ctx.Features.GetRequired<IHttpResponseBufferingFeature>().IsEnabled);
+            ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().EnableBuffering(1024, default);
+            Assert.True(ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled);
 
             await ctx.Response.BodyWriter.WriteAsync(Encoding.UTF8.GetBytes("before "));
 
-            ctx.Features.GetRequired<IHttpResponseBodyFeature>().DisableBuffering();
-            Assert.False(ctx.Features.GetRequired<IHttpResponseBufferingFeature>().IsEnabled);
+            ctx.Features.GetRequiredFeature<IHttpResponseBodyFeature>().DisableBuffering();
+            Assert.False(ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled);
 
             await ctx.Response.BodyWriter.WriteAsync(Encoding.UTF8.GetBytes("after"));
 

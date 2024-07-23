@@ -10,6 +10,7 @@ using System.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -244,7 +245,7 @@ public class ModuleTests
                         {
                             endpoints.Map("/", (HttpContextCore ctx) =>
                             {
-                                ctx.Features.GetRequired<IHttpResponseBodyFeature>().DisableBuffering();
+                                ctx.Features.GetRequiredFeature<IHttpResponseBodyFeature>().DisableBuffering();
 
                                 var systemWeb = ctx.AsSystemWeb();
                                 systemWeb.Response.Write(systemWeb.CurrentNotification);
@@ -305,7 +306,7 @@ public class ModuleTests
     {
         protected override void InvokeEvent(HttpContext context, string name)
         {
-            context.AsAspNetCore().Features.GetRequired<NotificationCollection>().Add(Enum.Parse<ApplicationEvent>(name, ignoreCase: false));
+            context.AsAspNetCore().Features.GetRequiredFeature<NotificationCollection>().Add(Enum.Parse<ApplicationEvent>(name, ignoreCase: false));
         }
     }
 
@@ -313,13 +314,8 @@ public class ModuleTests
     {
         protected override void InvokeEvent(HttpContext context, string name)
         {
-            Add(context, name);
+            context.AsAspNetCore().Features.GetRequiredFeature<NotificationCollection>().Add(Enum.Parse<ApplicationEvent>(name, ignoreCase: false));
             base.InvokeEvent(context, name);
-        }
-
-        private static void Add(HttpContextCore context, string name)
-        {
-            context.Features.GetRequiredFeature<NotificationCollection>().Add(name);
         }
     }
 

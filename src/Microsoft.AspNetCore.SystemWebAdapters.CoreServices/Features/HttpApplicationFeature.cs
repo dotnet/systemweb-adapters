@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.ObjectPool;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
@@ -35,7 +36,7 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
         {
             var context = (HttpContextCore)state;
 
-            return context.Features.GetRequired<IHttpApplicationFeature>().RaiseEventAsync(ApplicationEvent.PreSendRequestHeaders).AsTask();
+            return context.Features.GetRequiredFeature<IHttpApplicationFeature>().RaiseEventAsync(ApplicationEvent.PreSendRequestHeaders).AsTask();
         }, context);
     }
 
