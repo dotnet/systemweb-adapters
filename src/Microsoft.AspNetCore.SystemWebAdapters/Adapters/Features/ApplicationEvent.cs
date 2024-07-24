@@ -57,6 +57,8 @@ public enum ApplicationEvent
 
     PreSendRequestHeaders,
 
+    PreSendRequestContent,
+
     Error,
 
     SessionStart,
