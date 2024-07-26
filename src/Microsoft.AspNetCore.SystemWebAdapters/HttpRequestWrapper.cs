@@ -3,7 +3,6 @@
 
 using System.Collections.Specialized;
 using System.IO;
-using System.Security.Principal;
 using System.Text;
 
 namespace System.Web
@@ -54,8 +53,6 @@ namespace System.Web
         public override bool IsAuthenticated => _request.IsAuthenticated;
 
         public override bool IsLocal => _request.IsLocal;
-
-        public override IIdentity? LogonUserIdentity => _request.LogonUserIdentity;
 
         public override string Path => _request.Path;
 
