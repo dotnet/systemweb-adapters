@@ -43,6 +43,7 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
     /// Authenticate the user of a request by making a request to a remote app using configured
     /// headers and/or cookies from the current request.
     /// </summary>
+    /// <param name="scheme">The authentication scheme currently in use.</param>
     /// <param name="request">The HTTP request to authenticate.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>
