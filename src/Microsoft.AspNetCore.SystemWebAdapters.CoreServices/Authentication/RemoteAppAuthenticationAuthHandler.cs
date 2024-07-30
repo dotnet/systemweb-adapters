@@ -67,6 +67,13 @@ internal partial class RemoteAppAuthenticationAuthHandler : AuthenticationHandle
     {
         var authResult = await GetRemoteAppAuthenticationResultAsync();
 
+        // Propagate headers back to the caller. Authentication may reissue an authentication cookie, for instance, so the headers need to be returned
+        // to the caller to ensure they are not lost.
+        foreach (var header in authResult.ResponseHeaders)
+        {
+            Context.Response.Headers.Append(header.Key, header.Value);
+        }
+
         if (authResult.User is not null)
         {
             var ticket = new AuthenticationTicket(authResult.User, Scheme.Name);
