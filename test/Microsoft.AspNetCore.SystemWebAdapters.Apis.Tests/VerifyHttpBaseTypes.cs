@@ -17,9 +17,12 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 /// </summary>
 public class VerifyHttpBaseTypes
 {
-    private static readonly HashSet<string> _skipped = new HashSet<string>()
+    private static readonly Dictionary<Type, string> _skipped = new()
     {
-        "op_Implicit", // This is only defined on the non-base types as there is a well defined conversion
+        [typeof(HttpContext)] = "op_Implicit",
+        [typeof(HttpRequest)] = "op_Implicit",
+        [typeof(HttpResponse)] = "op_Implicit",
+        [typeof(HttpCachePolicy)] = nameof(HttpCachePolicy.GetCacheability),
     };
 
     private readonly ITestOutputHelper _output;
@@ -32,6 +35,11 @@ public class VerifyHttpBaseTypes
     [InlineData(typeof(HttpContext), typeof(HttpContextBase))]
     [InlineData(typeof(HttpRequest), typeof(HttpRequestBase))]
     [InlineData(typeof(HttpResponse), typeof(HttpResponseBase))]
+    [InlineData(typeof(HttpCachePolicy), typeof(HttpCachePolicyBase))]
+    [InlineData(typeof(HttpPostedFile), typeof(HttpPostedFileBase))]
+    [InlineData(typeof(HttpFileCollectionBase), typeof(HttpFileCollectionBase))]
+    [InlineData(typeof(HttpServerUtilityBase), typeof(HttpServerUtilityBase))]
+    [InlineData(typeof(HttpSessionStateBase), typeof(HttpSessionStateBase))]
     [Theory]
     public void ValidateMemberExistsOnBaseType(Type type, Type baseType)
     {
@@ -44,7 +52,7 @@ public class VerifyHttpBaseTypes
 
         foreach (var method in type.GetMethods(Flags))
         {
-            if (_skipped.Contains(method.Name))
+            if (_skipped.Contains(new(type, method.Name)))
             {
                 continue;
             }

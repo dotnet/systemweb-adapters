@@ -42,8 +42,8 @@ extends:
   parameters:
     sdl:
       sourceAnalysisPool:
-        name: NetCore1ESPool-Svc-Internal
-        image: 1es-windows-2022-pt
+        name: NetCore1ESPool-Internal
+        image: windows.vs2022preview.amd64
         os: windows
     stages:
     - stage: build
@@ -64,8 +64,8 @@ extends:
           jobs:
           - job: Windows
             pool:
-              name: NetCore1ESPool-Svc-Internal
-              image: 1es-windows-2019-pt
+              name: NetCore1ESPool-Internal
+              image: windows.vs2022preview.amd64
               os: windows
             variables:
             - name: _HelixBuildConfig
@@ -171,8 +171,8 @@ extends:
 
           - job: Linux
             pool:
-              name: NetCore1ESPool-Svc-Internal
-              image: 1es-ubuntu-2204-pt
+              name: NetCore1ESPool-Internal
+              image: 1es-mariner-2
               container: LinuxContainer
               os: linux
             strategy:

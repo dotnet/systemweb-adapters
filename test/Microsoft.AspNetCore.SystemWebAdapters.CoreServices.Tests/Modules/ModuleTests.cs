@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +19,7 @@ using Xunit;
 namespace Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests;
 
 [Collection(nameof(SelfHostedTests))]
-public class ModuleTests
+public abstract class ModuleTests(bool isBuffered)
 {
     private static readonly ImmutableArray<ApplicationEvent> BeforeHandlerEvents =
     [
@@ -56,7 +55,14 @@ public class ModuleTests
 
     public static IEnumerable<object[]> GetAllEvents()
     {
-        IEnumerable<ApplicationEvent> all = [.. BeforeHandlerEvents, .. AfterHandlerEvents, .. EndEvents, ApplicationEvent.PreSendRequestHeaders];
+        IEnumerable<ApplicationEvent> all =
+        [
+            .. BeforeHandlerEvents,
+            .. AfterHandlerEvents,
+            .. EndEvents,
+            ApplicationEvent.PreSendRequestHeaders,
+            ApplicationEvent.PreSendRequestContent
+        ];
 
         var modes = Enum.GetValues<RegisterMode>();
 
@@ -74,7 +80,7 @@ public class ModuleTests
     public async Task EndModuleEarly(ApplicationEvent notification, RegisterMode mode)
     {
         var expected = GetNotificationsUpTo(notification);
-        var result = await RunAsync(ModuleTestModule.End, notification, mode);
+        var result = await RunAsync(EventsModule.End, notification, mode);
 
         Assert.Equal(expected, result);
     }
@@ -84,7 +90,7 @@ public class ModuleTests
     public async Task CompleteModuleEarly(ApplicationEvent notification, RegisterMode mode)
     {
         var expected = GetNotificationsUpTo(notification);
-        var result = await RunAsync(ModuleTestModule.Complete, notification, mode);
+        var result = await RunAsync(EventsModule.Complete, notification, mode);
 
         Assert.Equal(expected, result);
     }
@@ -94,13 +100,13 @@ public class ModuleTests
     public async Task ModulesThrow(ApplicationEvent notification, RegisterMode mode)
     {
         var expected = GetExpected(notification).ToList();
-        var result = await RunAsync(ModuleTestModule.Throw, notification, mode);
+        var result = await RunAsync(EventsModule.Throw, notification, mode);
 
         Assert.Equal(expected, result);
 
-        static IEnumerable<ApplicationEvent> GetExpected(ApplicationEvent notification)
+        IEnumerable<ApplicationEvent> GetExpected(ApplicationEvent notification)
         {
-            foreach (var item in GetNotificationsUpTo(notification))
+            foreach (var item in GetNotificationsUpTo(notification, isThrowing: true))
             {
                 yield return item;
 
@@ -112,31 +118,97 @@ public class ModuleTests
         }
     }
 
-    private static IEnumerable<ApplicationEvent> GetNotificationsUpTo(ApplicationEvent notification)
+    private IEnumerable<ApplicationEvent> GetNotificationsUpTo(ApplicationEvent notification, bool isThrowing = false)
     {
-        IEnumerable<ApplicationEvent> initial = [.. BeforeHandlerEvents, .. AfterHandlerEvents];
+        return isBuffered
+                ? GetExpectedBufferedNotificationsUntilAction(notification, isThrowing)
+                : GetExpectedUnbufferedNotificationsUntilAction(notification, isThrowing);
 
-        foreach (var n in initial)
+        // When the stream is buffered, we expect the notifications to be grouped mostly together and the PreSend* events are sent at the end
+        static IEnumerable<ApplicationEvent> GetExpectedBufferedNotificationsUntilAction(ApplicationEvent notification, bool isThrowing = false)
         {
-            yield return n;
+            IEnumerable<ApplicationEvent> initial = [.. BeforeHandlerEvents, .. AfterHandlerEvents];
 
-            if (n == notification)
+            foreach (var n in initial)
             {
-                break;
+                yield return n;
+
+                if (n == notification)
+                {
+                    break;
+                }
+            }
+
+            foreach (var n in EndEvents)
+            {
+                yield return n;
+            }
+
+            yield return ApplicationEvent.PreSendRequestHeaders;
+
+            var expectsFinalPreSendRequestContent = !(isThrowing && notification is ApplicationEvent.PreSendRequestHeaders);
+
+            if (expectsFinalPreSendRequestContent)
+            {
+                yield return ApplicationEvent.PreSendRequestContent;
             }
         }
 
-        foreach (var n in EndEvents)
+        // When the stream is unbuffered, the PreSend* events will occur during each event because we we cause data to be flushed for the test
+        static IEnumerable<ApplicationEvent> GetExpectedUnbufferedNotificationsUntilAction(ApplicationEvent notification, bool isThrowing)
         {
-            yield return n;
-        }
+            var remaining = EndEvents;
+            var bufferedEvents = GetExpectedBufferedNotificationsUntilAction(notification, isThrowing)
+                .Where(e => e is not ApplicationEvent.PreSendRequestHeaders)
+                .Where(e => e is not ApplicationEvent.PreSendRequestContent);
+            var hasSentPreSendHeader = false;
 
-        yield return ApplicationEvent.PreSendRequestHeaders;
+            foreach (var appEvent in bufferedEvents)
+            {
+                yield return appEvent;
+
+                remaining = remaining.Remove(appEvent);
+
+                if (!hasSentPreSendHeader)
+                {
+                    hasSentPreSendHeader = true;
+                    yield return ApplicationEvent.PreSendRequestHeaders;
+
+                    if (notification is ApplicationEvent.PreSendRequestHeaders)
+                    {
+                        break;
+                    }
+                }
+
+                if (notification != ApplicationEvent.PreSendRequestHeaders || !isThrowing)
+                {
+                    yield return ApplicationEvent.PreSendRequestContent;
+                }
+
+                if (notification is ApplicationEvent.PreSendRequestContent)
+                {
+                    break;
+                }
+            }
+
+            foreach (var r in remaining)
+            {
+                yield return r;
+            }
+
+            var expectsFinalPreSendRequestContent = !(isThrowing && notification is ApplicationEvent.PreSendRequestContent or ApplicationEvent.PreSendRequestHeaders);
+
+            if (!remaining.IsEmpty && expectsFinalPreSendRequestContent)
+            {
+                yield return ApplicationEvent.PreSendRequestContent;
+            }
+        }
     }
 
-    private static async Task<List<ApplicationEvent>> RunAsync(string action, ApplicationEvent @event, RegisterMode mode)
+    private async Task<List<ApplicationEvent>> RunAsync(string action, ApplicationEvent @event, RegisterMode mode)
     {
         var notifier = new NotificationCollection();
+        var module = isBuffered ? typeof(BufferedTestModule) : typeof(NotBufferedTestModule);
 
         using var host = await new HostBuilder()
             .ConfigureWebHost(webBuilder =>
@@ -155,8 +227,10 @@ public class ModuleTests
                             {
                                 if (mode == RegisterMode.Options)
                                 {
-                                    options.RegisterModule<ModuleTestModule>();
+                                    options.RegisterModule(module);
                                 }
+
+                                options.ArePreSendEventsEnabled = true;
                             });
 
                     })
@@ -164,13 +238,13 @@ public class ModuleTests
                     {
                         if (mode == RegisterMode.RegisterModule)
                         {
-                            HttpApplication.RegisterModule(typeof(ModuleTestModule));
+                            HttpApplication.RegisterModule(module);
                         }
                         else if (mode == RegisterMode.RegisterModuleOnStartup)
                         {
                             app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>().ApplicationStarted.Register(() =>
                             {
-                                HttpApplication.RegisterModule(typeof(ModuleTestModule));
+                                HttpApplication.RegisterModule(module);
                             });
                         }
 
@@ -293,7 +367,7 @@ public class ModuleTests
                     {
                         await next(ctx);
                     }
-                    catch (InvalidOperationException) when (_action == ModuleTestModule.Throw)
+                    catch (InvalidOperationException) when (_action == EventsModule.Throw)
                     {
                     }
                 });
@@ -302,15 +376,16 @@ public class ModuleTests
             };
     }
 
-    private sealed class ModulePreSendHeaders : BaseModule
+    private sealed class NotBufferedTestModule : BufferedTestModule
     {
-        protected override void InvokeEvent(HttpContext context, string name)
+        public override void Init(HttpApplication application)
         {
-            context.AsAspNetCore().Features.GetRequiredFeature<NotificationCollection>().Add(Enum.Parse<ApplicationEvent>(name, ignoreCase: false));
+            application.BeginRequest += (s, o) => ((HttpApplication)s!).Context.Response.BufferOutput = false;
+            base.Init(application);
         }
     }
 
-    private sealed class ModuleTestModule : EventsModule
+    private class BufferedTestModule : EventsModule
     {
         protected override void InvokeEvent(HttpContext context, string name)
         {

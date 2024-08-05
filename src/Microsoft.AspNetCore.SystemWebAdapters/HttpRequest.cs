@@ -198,9 +198,7 @@ namespace System.Web
 
         public int TotalBytes => (int)InputStream.Length;
 
-        public bool IsAuthenticated => LogonUserIdentity?.IsAuthenticated ?? false;
-
-        public IIdentity? LogonUserIdentity => Request.HttpContext.User.Identity;
+        public bool IsAuthenticated => Request.HttpContext.User is { Identity.IsAuthenticated: true };
 
         public Encoding? ContentEncoding => TypedHeaders.ContentType?.Encoding;
 

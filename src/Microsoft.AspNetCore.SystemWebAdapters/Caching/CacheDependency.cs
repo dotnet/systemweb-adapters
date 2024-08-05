@@ -131,7 +131,8 @@ public class CacheDependency : IDisposable
     #region "IDisposable"
     protected virtual void DependencyDispose() { }
 
-    protected virtual void Dispose(bool disposing)
+    [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = Constants.ApiFromAspNet)]
+    internal void Dispose(bool disposing)
     {
         if (disposing)
         {

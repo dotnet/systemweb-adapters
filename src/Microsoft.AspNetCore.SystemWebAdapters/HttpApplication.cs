@@ -251,6 +251,12 @@ public class HttpApplication : IDisposable
         remove => RemoveEvent(value);
     }
 
+    public event EventHandler? PreSendRequestContent
+    {
+        add => AddEvent(value);
+        remove => RemoveEvent(value);
+    }
+
     private void AddEvent(EventHandler? handler, [CallerMemberName] string? name = null)
     {
         if (handler is null)

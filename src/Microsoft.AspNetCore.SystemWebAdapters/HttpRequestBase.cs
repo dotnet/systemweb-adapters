@@ -90,8 +90,6 @@ namespace System.Web
 
         public virtual bool IsAuthenticated => throw new NotImplementedException();
 
-        public virtual IIdentity? LogonUserIdentity => throw new NotImplementedException();
-
         public virtual Encoding? ContentEncoding => throw new NotImplementedException();
 
         public virtual string? UserHostName => throw new NotImplementedException();

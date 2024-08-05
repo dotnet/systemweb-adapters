@@ -36,7 +36,7 @@ namespace System.Web
 
         public virtual HttpApplication ApplicationInstance => throw new NotImplementedException();
 
-        public virtual HttpApplicationState Application => throw new NotImplementedException();
+        public virtual HttpApplicationStateBase Application => throw new NotImplementedException();
 
         public virtual bool IsPostNotification => throw new NotImplementedException();
 
