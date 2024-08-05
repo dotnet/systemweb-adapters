@@ -31,6 +31,8 @@
     <Compile Include="Adapters/SessionState/ISessionState.cs" />
     <Compile Include="IHtmlString.cs" />
     <Compile Include="HtmlString.cs" />
+
+    <PackageReference Include="System.Security.Principal.Windows" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">

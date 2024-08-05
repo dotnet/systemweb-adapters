@@ -439,6 +439,7 @@ namespace System.Web
         public bool IsLocal { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public bool IsSecureConnection { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public string this[string key] { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public System.Security.Principal.WindowsIdentity LogonUserIdentity { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Collections.Specialized.NameValueCollection Params { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public string Path { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public string PathInfo { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }

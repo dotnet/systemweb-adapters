@@ -5,6 +5,8 @@
 
 using Microsoft.AspNetCore.Http.Features.Authentication;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Web;
@@ -12,13 +14,20 @@ using System.Web;
 namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 /// <summary>
-/// Represents the user as an <see cref="IPrincipal"/> as opposed to the in-built <see cref="IHttpAuthenticationFeature.User"/> which
-/// expects a <see cref="ClaimsPrincipal"/>.
+/// Represents the users that ASP.NET Framework used.
 /// </summary>
 [Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
-public interface IPrincipalUserFeature
+public interface IRequestUserFeature
 {
+    /// <summary>
+    /// Gets or sets the user that corresponds to <see cref="HttpContext.User" />
+    /// </summary>
     IPrincipal? User { get; set; }
+
+    /// <summary>
+    /// Gets the logged on user that corresponds to <see cref="HttpRequest.LogonUserIdentity" />
+    /// </summary>
+    WindowsIdentity? LogonUserIdentity { get; }
 }
 
 #endif
