@@ -32,7 +32,7 @@
     <Compile Include="IHtmlString.cs" />
     <Compile Include="HtmlString.cs" />
 
-    <PackageReference Include="System.Security.Principal.Windows" Version="4.3.0" />
+    <PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
