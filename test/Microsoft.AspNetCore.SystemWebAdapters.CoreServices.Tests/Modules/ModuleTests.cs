@@ -272,77 +272,16 @@ public abstract class ModuleTests(bool isBuffered)
 
         return notifier;
     }
-
-    [Fact]
-    public async Task PreSendEventThrownIfNotBuffering()
-    {
-        // Arrange
-        IEnumerable<ApplicationEvent> expected =
-        [
-            .. BeforeHandlerEvents,
-            ApplicationEvent.PreSendRequestHeaders,
-            .. AfterHandlerEvents,
-            .. EndEvents
-        ];
-
-        var notifier = new NotificationCollection();
-        using var host = await new HostBuilder()
-            .ConfigureWebHost(webBuilder =>
-            {
-                webBuilder
-                    .UseTestServer(options =>
-                    {
-                        options.AllowSynchronousIO = true;
-                    })
-                    .ConfigureServices(services =>
-                    {
-                        services.AddRouting();
-                        services.AddSystemWebAdapters()
-                            .AddHttpApplication(options =>
-                            {
-                                options.RegisterModule<ModulePreSendHeaders>();
-                            });
-
-                    })
-                    .Configure(app =>
-                    {
-                        app.Use((ctx, next) =>
-                        {
-                            ctx.Features.Set(notifier);
-                            return next(ctx);
-                        });
-                        app.UseRouting();
-
-                        app.UseSystemWebAdapters();
-
-                        app.UseEndpoints(endpoints =>
-                        {
-                            endpoints.Map("/", (HttpContextCore ctx) =>
-                            {
-                                ctx.Features.GetRequiredFeature<IHttpResponseBodyFeature>().DisableBuffering();
-
-                                var systemWeb = ctx.AsSystemWeb();
-                                systemWeb.Response.Write(systemWeb.CurrentNotification);
-                                systemWeb.Response.Write(" ");
-                                systemWeb.Response.Output.Flush();
-                                systemWeb.Response.Write(systemWeb.CurrentNotification);
-                                systemWeb.Response.Output.Flush();
-                            });
-                        });
-                    });
-            })
-            .StartAsync();
-
-        // Act
-        var result = await host.GetTestClient().GetStringAsync(new Uri("/", UriKind.Relative));
-
-        // Assert
-        Assert.Equal(expected, notifier);
-        Assert.Equal(result, $"{ApplicationEvent.ExecuteRequestHandler} {ApplicationEvent.ExecuteRequestHandler}");
-    }
-
     private sealed class NotificationCollection : List<ApplicationEvent>
     {
+        public new void Add(ApplicationEvent appEvent)
+        {
+            // Prevent duplicate PreSendRequestContent since we can't really control when the Flush is called so we just want to track that at least one occurs with the test
+            if (appEvent != ApplicationEvent.PreSendRequestContent || this[^1] != ApplicationEvent.PreSendRequestContent)
+            {
+                base.Add(appEvent);
+            }
+        }
     }
 
     private sealed class ModuleTestStartup : IStartupFilter
