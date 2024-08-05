@@ -12,7 +12,7 @@ internal sealed class RegisterHttpApplicationPreSendEventsMiddleware(RequestDele
 {
     public async Task InvokeAsync(HttpContextCore context)
     {
-        var previous = context.Features.GetRequired<IHttpResponseBodyFeature>();
+        var previous = context.Features.GetRequiredFeature<IHttpResponseBodyFeature>();
         var feature = new HttpApplicationPreSendEventsResponseBodyFeature(context, previous);
 
         context.Features.Set<IHttpResponseBodyFeature>(feature);
