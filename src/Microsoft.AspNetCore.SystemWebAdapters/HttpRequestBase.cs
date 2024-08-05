@@ -26,6 +26,8 @@ namespace System.Web
 
         public virtual string? FilePath => throw new NotImplementedException();
 
+        public virtual WindowsIdentity? LogonUserIdentity => throw new NotImplementedException();
+
         public virtual ReadEntityBodyMode ReadEntityBodyMode => throw new NotImplementedException();
 
         public virtual void SaveAs(string filename, bool includeHeaders) => throw new NotImplementedException();
