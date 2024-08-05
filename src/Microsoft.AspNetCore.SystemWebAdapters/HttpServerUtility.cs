@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Web.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.WebUtilities;
@@ -102,7 +103,7 @@ public class HttpServerUtility
 
     [Obsolete(Constants.Execute.Message, DiagnosticId = Constants.Execute.DiagnosticId)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public void Execute(string path, TextWriter? writer, bool preserveForm) => _context.Features.GetRequired<ITransferRequestFeature>().Execute(path, writer, preserveForm);
+    public void Execute(string path, TextWriter? writer, bool preserveForm) => _context.Features.GetRequiredFeature<ITransferRequestFeature>().Execute(path, writer, preserveForm);
 
     [Obsolete(Constants.Transfer.Message, DiagnosticId = Constants.Transfer.DiagnosticId)]
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -112,7 +113,7 @@ public class HttpServerUtility
     [EditorBrowsable(EditorBrowsableState.Never)]
     public void Transfer(string path, bool preserveForm)
     {
-        _context.Features.GetRequired<ITransferRequestFeature>().Transfer(path, preserveForm);
+        _context.Features.GetRequiredFeature<ITransferRequestFeature>().Transfer(path, preserveForm);
         _context.Response.AsSystemWeb().End();
     }
 
@@ -134,5 +135,5 @@ public class HttpServerUtility
     [Obsolete(Constants.TransferRequest.Message, DiagnosticId = Constants.TransferRequest.DiagnosticId)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public void TransferRequest(string path, bool preserveForm, string? method, NameValueCollection? headers, bool preserveUser)
-        => _context.Features.GetRequired<ITransferRequestFeature>().TransferRequest(path, preserveForm, method, headers, preserveUser);
+        => _context.Features.GetRequiredFeature<ITransferRequestFeature>().TransferRequest(path, preserveForm, method, headers, preserveUser);
 }

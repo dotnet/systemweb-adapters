@@ -77,7 +77,7 @@ internal sealed class HttpApplicationPreSendEventsResponseBodyFeature : PipeWrit
             if (_state is State.NotStarted)
             {
                 _state = State.RaisingPreHeader;
-                await _context.Features.GetRequired<IHttpApplicationFeature>().RaiseEventAsync(ApplicationEvent.PreSendRequestHeaders);
+                await _context.Features.GetRequiredFeature<IHttpApplicationFeature>().RaiseEventAsync(ApplicationEvent.PreSendRequestHeaders);
                 _state = State.ReadyForContent;
             }
 

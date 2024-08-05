@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -272,7 +273,6 @@ public abstract class ModuleTests(bool isBuffered)
 
         return notifier;
     }
-
     private sealed class NotificationCollection : List<ApplicationEvent>
     {
         public new void Add(ApplicationEvent appEvent)
@@ -329,7 +329,7 @@ public abstract class ModuleTests(bool isBuffered)
     {
         protected override void InvokeEvent(HttpContext context, string name)
         {
-            context.AsAspNetCore().Features.GetRequired<NotificationCollection>().Add(Enum.Parse<ApplicationEvent>(name, ignoreCase: false));
+            context.AsAspNetCore().Features.GetRequiredFeature<NotificationCollection>().Add(Enum.Parse<ApplicationEvent>(name, ignoreCase: false));
             base.InvokeEvent(context, name);
         }
     }

@@ -5,6 +5,7 @@ using System;
 using System.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -87,8 +88,8 @@ public static class HttpApplicationExtensions
         {
             app.Use(async (ctx, next) =>
             {
-                var appFeature = ctx.Features.GetRequired<IHttpApplicationFeature>();
-                var endFeature = ctx.Features.GetRequired<IHttpResponseEndFeature>();
+                var appFeature = ctx.Features.GetRequiredFeature<IHttpApplicationFeature>();
+                var endFeature = ctx.Features.GetRequiredFeature<IHttpResponseEndFeature>();
 
                 foreach (var @event in preEvents)
                 {
