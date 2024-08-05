@@ -100,21 +100,8 @@ public class HttpContext : IServiceProvider
 
     public IPrincipal User
     {
-        get => Context.Features.Get<IPrincipalUserFeature>()?.User ?? Context.User;
-        set
-        {
-            if (Context.Features.Get<IPrincipalUserFeature>() is { } feature)
-            {
-                feature.User = value;
-            }
-            else
-            {
-                var newFeature = new PrincipalUserFeature(Context) { User = value };
-
-                Context.Features.Set<IPrincipalUserFeature>(newFeature);
-                Context.Features.Set<IHttpAuthenticationFeature>(newFeature);
-            }
-        }
+        get => Context.Features.Get<IRequestUserFeature>()?.User ?? Context.User;
+        set => Context.GetRequestUser().User = value;
     }
 
     public HttpSessionState? Session => Context.Features.Get<ISessionStateFeature>()?.Session;

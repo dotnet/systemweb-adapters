@@ -3,6 +3,7 @@
 
 using System.Collections.Specialized;
 using System.IO;
+using System.Security.Principal;
 using System.Text;
 
 namespace System.Web
@@ -41,6 +42,8 @@ namespace System.Web
         public override HttpFileCollectionBase Files => new HttpFileCollectionWrapper(_request.Files);
 
         public override NameValueCollection Form => _request.Form;
+
+        public override WindowsIdentity? LogonUserIdentity => _request.LogonUserIdentity;
 
         public override string HttpMethod => _request.HttpMethod;
 

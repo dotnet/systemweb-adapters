@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Basic.Reference.Assemblies;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -23,8 +24,12 @@ public class VerifyMembersHaveSameSignature
     [Fact]
     public void VerifyMembersOnTypesAreConsistent()
     {
-        var netstandard = GetDocumentationIds("adapters/netstandard/Microsoft.AspNetCore.SystemWebAdapters.dll", NetStandard20.References.All);
-        var framework = GetDocumentationIds("adapters/netfx/Microsoft.AspNetCore.SystemWebAdapters.dll", Net472.References.All);
+        var netstandard = GetDocumentationIds(
+            "adapters/netstandard/Microsoft.AspNetCore.SystemWebAdapters.dll",
+            NetStandard20.References.All.Concat(GetAdditionalNetStandardReferences()));
+        var framework = GetDocumentationIds(
+            "adapters/netfx/Microsoft.AspNetCore.SystemWebAdapters.dll",
+            Net472.References.All);
         var ok = File.ReadAllLines("BaselineOk.txt");
 
         netstandard.ExceptWith(framework);
@@ -36,6 +41,12 @@ public class VerifyMembersHaveSameSignature
         }
 
         Assert.Empty(netstandard);
+    }
+
+    private static IEnumerable<PortableExecutableReference> GetAdditionalNetStandardReferences()
+    {
+        // Even though this isn't the exact reference assembly for .NET Standard, it is sufficient to be able to reconstruct docids
+        yield return ReferenceAssemblies.Net60.Single(p => p.FilePath == "System.Security.Principal.Windows.dll");
     }
 
     public static HashSet<string> GetDocumentationIds(string path, IEnumerable<PortableExecutableReference> referenceAssemblies)

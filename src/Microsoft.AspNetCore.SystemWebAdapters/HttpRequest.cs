@@ -57,6 +57,8 @@ namespace System.Web
 
         public string CurrentExecutionFilePath => Request.HttpContext.Features.GetRequiredFeature<IHttpRequestPathFeature>().CurrentExecutionFilePath;
 
+        public WindowsIdentity? LogonUserIdentity => Request.HttpContext.GetRequestUser().LogonUserIdentity;
+
         public NameValueCollection Headers => _headers ??= Request.Headers.ToNameValueCollection();
 
         public Uri Url => new(Request.GetEncodedUrl());
