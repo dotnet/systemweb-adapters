@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Web;
-
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using static System.FormattableString;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
@@ -47,6 +47,11 @@ public class HttpApplicationOptions
     }
 
     public IDictionary<string, Type> Modules => ModuleCollection;
+
+    /// <summary>
+    /// Gets or sets whether <see cref="HttpApplication.PreSendRequestHeaders"/> and <see cref="HttpApplication.PreSendRequestContent"/> is supported
+    /// </summary>
+    public bool ArePreSendEventsEnabled { get; set; }
 
     /// <summary>
     /// Gets or sets the number of <see cref="HttpApplication"/> retained for reuse. In order to support modules and applications that may contain state,

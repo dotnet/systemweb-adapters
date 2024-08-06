@@ -43,6 +43,8 @@ namespace System.Web
 
         public override NameValueCollection Form => _request.Form;
 
+        public override WindowsIdentity? LogonUserIdentity => _request.LogonUserIdentity;
+
         public override string HttpMethod => _request.HttpMethod;
 
         public override Stream InputStream => _request.InputStream;
@@ -54,8 +56,6 @@ namespace System.Web
         public override bool IsAuthenticated => _request.IsAuthenticated;
 
         public override bool IsLocal => _request.IsLocal;
-
-        public override IIdentity? LogonUserIdentity => _request.LogonUserIdentity;
 
         public override string Path => _request.Path;
 

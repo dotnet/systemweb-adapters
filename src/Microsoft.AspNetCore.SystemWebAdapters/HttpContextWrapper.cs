@@ -43,7 +43,7 @@ namespace System.Web
 
         public override HttpApplication ApplicationInstance => _context.ApplicationInstance;
 
-        public override HttpApplicationState Application => _context.Application;
+        public override HttpApplicationStateBase Application => new HttpApplicationStateWrapper(_context.Application);
 
         public override RequestNotification CurrentNotification => _context.CurrentNotification;
 

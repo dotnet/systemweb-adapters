@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.ObjectPool;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
@@ -16,7 +18,6 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
         ApplicationEvent.LogRequest,
         ApplicationEvent.PostLogRequest,
         ApplicationEvent.EndRequest,
-        ApplicationEvent.PreSendRequestHeaders,
     ];
 
     private readonly IHttpResponseEndFeature _previous;
@@ -30,13 +31,6 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
         _contextOrApplication = context;
         _pool = pool;
         _previous = previousEnd;
-
-        context.Response.OnStarting(static state =>
-        {
-            var context = (HttpContextCore)state;
-
-            return context.Features.GetRequired<IHttpApplicationFeature>().RaiseEventAsync(ApplicationEvent.PreSendRequestHeaders).AsTask();
-        }, context);
     }
 
     public RequestNotification CurrentNotification { get; set; }
@@ -102,7 +96,7 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
         {
             Application.InvokeEvent(appEvent);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (!IsReentrant(ex))
         {
             AddError(ex);
             Application.InvokeEvent(ApplicationEvent.Error);
@@ -112,6 +106,24 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
                 ThrowIfErrors();
             }
         }
+    }
+
+    /// <summary>
+    /// Checks to see if we're attempting to invoke the Error event when we're currently throwing the existing errors.
+    /// This would imply a nested event invocation and we don't need to rethrow in that case.
+    /// </summary>
+    private bool IsReentrant(Exception e)
+    {
+        if (_exceptions is [{ } exception])
+        {
+            return ReferenceEquals(e, exception);
+        }
+        else if (e is AggregateException a && _exceptions is { } exceptions)
+        {
+            return a.InnerExceptions.SequenceEqual(exceptions);
+        }
+
+        return false;
     }
 
     private void ThrowIfErrors()

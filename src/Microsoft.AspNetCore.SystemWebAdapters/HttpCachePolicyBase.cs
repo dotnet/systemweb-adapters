@@ -12,17 +12,14 @@ public class HttpCachePolicyBase
 
     public virtual void SetCacheability(HttpCacheability cacheability) => throw new NotImplementedException();
 
-    public virtual void SetCacheability(HttpCacheability cacheability, string field) => throw new NotImplementedException();
-    
-    [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", MessageId = "Date",
-        Justification = "Matches HttpCachePolicy class")]
+    [SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = Constants.ApiFromAspNet)]
     public virtual void SetLastModified(DateTime date) => throw new NotImplementedException();
 
     public virtual void SetMaxAge(TimeSpan delta) => throw new NotImplementedException();
-    
-    [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", MessageId = "Date",
-        Justification = "Matches HttpCachePolicy class")]
+
+    [SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = Constants.ApiFromAspNet)]
     public virtual void SetExpires(DateTime date) => throw new NotImplementedException();
 
+    [SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = Constants.ApiFromAspNet)]
     public virtual void SetOmitVaryStar(bool omit) => throw new NotImplementedException();
 }

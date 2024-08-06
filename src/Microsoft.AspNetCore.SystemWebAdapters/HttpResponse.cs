@@ -51,8 +51,8 @@ namespace System.Web
         [AllowNull]
         public string StatusDescription
         {
-            get => Response.HttpContext.Features.GetRequired<IHttpResponseFeature>().ReasonPhrase ?? ReasonPhrases.GetReasonPhrase(Response.StatusCode);
-            set => Response.HttpContext.Features.GetRequired<IHttpResponseFeature>().ReasonPhrase = value;
+            get => Response.HttpContext.Features.GetRequiredFeature<IHttpResponseFeature>().ReasonPhrase ?? ReasonPhrases.GetReasonPhrase(Response.StatusCode);
+            set => Response.HttpContext.Features.GetRequiredFeature<IHttpResponseFeature>().ReasonPhrase = value;
         }
 
         public NameValueCollection Headers => _headers ??= Response.Headers.ToNameValueCollection();
@@ -71,16 +71,16 @@ namespace System.Web
 
         public bool TrySkipIisCustomErrors
         {
-            get => Response.HttpContext.Features.GetRequired<IStatusCodePagesFeature>().Enabled;
-            set => Response.HttpContext.Features.GetRequired<IStatusCodePagesFeature>().Enabled = value;
+            get => Response.HttpContext.Features.GetRequiredFeature<IStatusCodePagesFeature>().Enabled;
+            set => Response.HttpContext.Features.GetRequiredFeature<IStatusCodePagesFeature>().Enabled = value;
         }
 
         public bool BufferOutput
         {
-            get => Response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().IsEnabled;
+            get => Response.HttpContext.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled;
             set
             {
-                var feature = Response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>();
+                var feature = Response.HttpContext.Features.GetRequiredFeature<IHttpResponseBufferingFeature>();
 
                 if (value)
                 {
@@ -98,8 +98,8 @@ namespace System.Web
         [AllowNull]
         public Stream Filter
         {
-            get => Response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().Filter;
-            set => Response.HttpContext.Features.GetRequired<IHttpResponseBufferingFeature>().Filter = value;
+            get => Response.HttpContext.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().Filter;
+            set => Response.HttpContext.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().Filter = value;
         }
 
         public HttpCookieCollection Cookies => _cookies ??= new(this);
@@ -108,8 +108,8 @@ namespace System.Web
 
         public bool SuppressContent
         {
-            get => Response.HttpContext.Features.GetRequired<IHttpResponseContentFeature>().SuppressContent;
-            set => Response.HttpContext.Features.GetRequired<IHttpResponseContentFeature>().SuppressContent = value;
+            get => Response.HttpContext.Features.GetRequiredFeature<IHttpResponseContentFeature>().SuppressContent;
+            set => Response.HttpContext.Features.GetRequiredFeature<IHttpResponseContentFeature>().SuppressContent = value;
         }
 
         public Encoding ContentEncoding
@@ -277,7 +277,7 @@ namespace System.Web
 
         public Task FlushAsync() => Response.Body.FlushAsync(Response.HttpContext.RequestAborted);
 
-        public void End() => Response.HttpContext.Features.GetRequired<IHttpResponseEndFeature>().EndAsync().GetAwaiter().GetResult();
+        public void End() => Response.HttpContext.Features.GetRequiredFeature<IHttpResponseEndFeature>().EndAsync().GetAwaiter().GetResult();
 
         public void Write(char ch) => Output.Write(ch);
 
@@ -298,7 +298,7 @@ namespace System.Web
             ClearContent();
         }
 
-        public void ClearContent() => Response.HttpContext.Features.GetRequired<IHttpResponseContentFeature>().ClearContent();
+        public void ClearContent() => Response.HttpContext.Features.GetRequiredFeature<IHttpResponseContentFeature>().ClearContent();
 
         public void WriteFile(string filename)
             => TransmitFile(filename);

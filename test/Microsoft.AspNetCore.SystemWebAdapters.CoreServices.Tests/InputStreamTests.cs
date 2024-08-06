@@ -90,7 +90,7 @@ public partial class InputStreamTests
         // Act
         var result = await RunAsync(ContentValue, async context =>
         {
-            var feature = context.AsAspNetCore().Features.GetRequired<IHttpRequestInputStreamFeature>();
+            var feature = context.AsAspNetCore().Features.GetRequiredFeature<IHttpRequestInputStreamFeature>();
 
             await feature.BufferInputStreamAsync(default);
             await feature.BufferInputStreamAsync(default);

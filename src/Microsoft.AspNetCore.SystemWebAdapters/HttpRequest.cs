@@ -44,28 +44,30 @@ namespace System.Web
 
         internal RequestHeaders TypedHeaders => _typedHeaders ??= new(Request.Headers);
 
-        public string Path => Request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().Path;
+        public string Path => Request.HttpContext.Features.GetRequiredFeature<IHttpRequestPathFeature>().Path;
 
-        public string PathInfo => Request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().PathInfo;
+        public string PathInfo => Request.HttpContext.Features.GetRequiredFeature<IHttpRequestPathFeature>().PathInfo;
 
-        public string FilePath => Request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().FilePath;
+        public string FilePath => Request.HttpContext.Features.GetRequiredFeature<IHttpRequestPathFeature>().FilePath;
 
         [SuppressMessage("Design", "CA1056:URI-like properties should not be strings", Justification = Constants.ApiFromAspNet)]
-        public string RawUrl => Request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().RawUrl;
+        public string RawUrl => Request.HttpContext.Features.GetRequiredFeature<IHttpRequestPathFeature>().RawUrl;
 
-        public string? PhysicalPath => Request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().PhysicalPath;
+        public string? PhysicalPath => Request.HttpContext.Features.GetRequiredFeature<IHttpRequestPathFeature>().PhysicalPath;
 
-        public string CurrentExecutionFilePath => Request.HttpContext.Features.GetRequired<IHttpRequestPathFeature>().CurrentExecutionFilePath;
+        public string CurrentExecutionFilePath => Request.HttpContext.Features.GetRequiredFeature<IHttpRequestPathFeature>().CurrentExecutionFilePath;
+
+        public WindowsIdentity? LogonUserIdentity => Request.HttpContext.GetRequestUser().LogonUserIdentity;
 
         public NameValueCollection Headers => _headers ??= Request.Headers.ToNameValueCollection();
 
         public Uri Url => new(Request.GetEncodedUrl());
 
-        public ReadEntityBodyMode ReadEntityBodyMode => Request.HttpContext.Features.GetRequired<IHttpRequestInputStreamFeature>().Mode;
+        public ReadEntityBodyMode ReadEntityBodyMode => Request.HttpContext.Features.GetRequiredFeature<IHttpRequestInputStreamFeature>().Mode;
 
-        public Stream GetBufferlessInputStream() => Request.HttpContext.Features.GetRequired<IHttpRequestInputStreamFeature>().GetBufferlessInputStream();
+        public Stream GetBufferlessInputStream() => Request.HttpContext.Features.GetRequiredFeature<IHttpRequestInputStreamFeature>().GetBufferlessInputStream();
 
-        public Stream GetBufferedInputStream() => Request.HttpContext.Features.GetRequired<IHttpRequestInputStreamFeature>().GetBufferedInputStream();
+        public Stream GetBufferedInputStream() => Request.HttpContext.Features.GetRequiredFeature<IHttpRequestInputStreamFeature>().GetBufferedInputStream();
 
         public string HttpMethod => Request.Method;
 
@@ -160,9 +162,9 @@ namespace System.Web
             set => Request.ContentType = value;
         }
 
-        public Stream InputStream => Request.HttpContext.Features.GetRequired<IHttpRequestInputStreamFeature>().InputStream;
+        public Stream InputStream => Request.HttpContext.Features.GetRequiredFeature<IHttpRequestInputStreamFeature>().InputStream;
 
-        public NameValueCollection ServerVariables => _serverVariables ??= Request.HttpContext.Features.GetRequired<IServerVariablesFeature>().ToNameValueCollection();
+        public NameValueCollection ServerVariables => _serverVariables ??= Request.HttpContext.Features.GetRequiredFeature<IServerVariablesFeature>().ToNameValueCollection();
 
         public bool IsSecureConnection => Request.IsHttps;
 
@@ -198,9 +200,7 @@ namespace System.Web
 
         public int TotalBytes => (int)InputStream.Length;
 
-        public bool IsAuthenticated => LogonUserIdentity?.IsAuthenticated ?? false;
-
-        public IIdentity? LogonUserIdentity => Request.HttpContext.User.Identity;
+        public bool IsAuthenticated => Request.HttpContext.User is { Identity.IsAuthenticated: true };
 
         public Encoding? ContentEncoding => TypedHeaders.ContentType?.Encoding;
 

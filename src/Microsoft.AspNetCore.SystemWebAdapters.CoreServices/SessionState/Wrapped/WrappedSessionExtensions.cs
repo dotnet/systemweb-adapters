@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.ComponentModel;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
@@ -11,13 +10,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-public static class ISystemWebAdapterBuilderSessionExtensions
+public static class WrappedSessionExtensions
 {
-    [Obsolete("Prefer AddWrappedAspNetCoreSession instead")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static ISystemWebAdapterBuilder WrapAspNetCoreSession(this ISystemWebAdapterBuilder builder, Action<SessionOptions>? options = null)
-        => builder.AddWrappedAspNetCoreSession(options);
-
     public static ISystemWebAdapterBuilder AddWrappedAspNetCoreSession(this ISystemWebAdapterBuilder builder, Action<SessionOptions>? options = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
