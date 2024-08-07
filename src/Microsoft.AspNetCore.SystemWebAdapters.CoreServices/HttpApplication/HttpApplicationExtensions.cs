@@ -18,12 +18,21 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class HttpApplicationExtensions
 {
     public static ISystemWebAdapterBuilder AddHttpApplication(this ISystemWebAdapterBuilder builder)
-        => builder.AddHttpApplication(_ => { });
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+
+        return builder.AddHttpApplicationInternal(null);
+    }
 
     public static ISystemWebAdapterBuilder AddHttpApplication(this ISystemWebAdapterBuilder builder, Action<HttpApplicationOptions> configure)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
+        return builder.AddHttpApplicationInternal(configure);
+    }
+
+    private static ISystemWebAdapterBuilder AddHttpApplicationInternal(this ISystemWebAdapterBuilder builder, Action<HttpApplicationOptions>? configure)
+    {
         builder.Services.TryAddSingleton<ModuleCollection>();
         builder.Services.TryAddTransient<IModuleRegistrar>(sp => sp.GetRequiredService<ModuleCollection>());
         builder.Services.TryAddSingleton<HttpApplicationPooledObjectPolicy>();
@@ -41,12 +50,12 @@ public static class HttpApplicationExtensions
             return provider.Create(policy);
         });
 
-        builder.Services.AddOptions<HttpApplicationOptions>()
-            .Configure<ModuleCollection>((options, modules) =>
-            {
-                options.ModuleCollection = modules;
-            })
-            .Configure(configure);
+        if (configure is { })
+        {
+            builder.Services.Configure(configure);
+        }
+
+        builder.Services.TryAddEnumerable(ServiceDescriptor.Transient<IConfigureOptions<HttpApplicationOptions>, ModuleCollectionInitializeOptions>());
 
         return builder;
     }
@@ -149,4 +158,12 @@ public static class HttpApplicationExtensions
 
     internal static bool AreHttpApplicationEventsRequired(this IApplicationBuilder builder)
         => builder.ApplicationServices.GetRequiredService<IOptions<HttpApplicationOptions>>().Value.IsAdded;
+
+    private sealed class ModuleCollectionInitializeOptions(ModuleCollection modules) : IConfigureOptions<HttpApplicationOptions>
+    {
+        public void Configure(HttpApplicationOptions options)
+        {
+            options.ModuleCollection = modules;
+        }
+    }
 }
