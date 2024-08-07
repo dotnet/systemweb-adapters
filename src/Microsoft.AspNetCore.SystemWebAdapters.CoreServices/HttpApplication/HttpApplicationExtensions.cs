@@ -50,12 +50,12 @@ public static class HttpApplicationExtensions
             return provider.Create(policy);
         });
 
+        builder.Services.TryAddEnumerable(ServiceDescriptor.Transient<IConfigureOptions<HttpApplicationOptions>, ModuleCollectionInitializeOptions>());
+
         if (configure is { })
         {
             builder.Services.Configure(configure);
         }
-
-        builder.Services.TryAddEnumerable(ServiceDescriptor.Transient<IConfigureOptions<HttpApplicationOptions>, ModuleCollectionInitializeOptions>());
 
         return builder;
     }
