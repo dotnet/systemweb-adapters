@@ -4,6 +4,7 @@
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.ObjectPool;
 
@@ -22,7 +23,7 @@ internal sealed class RegisterHttpApplicationFeatureMiddleware
 
     public async Task InvokeAsync(HttpContextCore context)
     {
-        var endFeature = context.Features.GetRequired<IHttpResponseEndFeature>();
+        var endFeature = context.Features.GetRequiredFeature<IHttpResponseEndFeature>();
         using var httpApplicationFeature = new HttpApplicationFeature(context, endFeature, _pool);
 
         context.Features.Set<IHttpApplicationFeature>(httpApplicationFeature);

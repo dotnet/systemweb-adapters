@@ -100,6 +100,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.System
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.Apis.Tests", "test\Microsoft.AspNetCore.SystemWebAdapters.Apis.Tests\Microsoft.AspNetCore.SystemWebAdapters.Apis.Tests.csproj", "{E4D9A131-DC4E-403F-A10F-65F5E5E42475}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsAuth", "samples\WindowsAuth\WindowsAuth.csproj", "{B5E840F8-2021-4175-BFBF-F9447506242E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -222,6 +224,10 @@ Global
 		{E4D9A131-DC4E-403F-A10F-65F5E5E42475}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4D9A131-DC4E-403F-A10F-65F5E5E42475}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4D9A131-DC4E-403F-A10F-65F5E5E42475}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5E840F8-2021-4175-BFBF-F9447506242E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5E840F8-2021-4175-BFBF-F9447506242E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5E840F8-2021-4175-BFBF-F9447506242E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5E840F8-2021-4175-BFBF-F9447506242E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -264,6 +270,7 @@ Global
 		{FA39AC22-0725-4532-A682-B054ADA5BDA2} = {03E4CEAB-D845-402A-9311-F7390B24BA2A}
 		{17055F45-E79A-41EF-825E-0B2211433729} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
 		{E4D9A131-DC4E-403F-A10F-65F5E5E42475} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
+		{B5E840F8-2021-4175-BFBF-F9447506242E} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DABA3C65-9D74-4EB6-9B1C-730328710EAD}

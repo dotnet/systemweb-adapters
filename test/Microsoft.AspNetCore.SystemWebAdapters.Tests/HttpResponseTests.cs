@@ -596,7 +596,7 @@ public class HttpResponseTests
 
         // Assert
         Assert.Equal(resolved, response.RedirectLocation);
-        Assert.Null(context.Features.GetRequired<IHttpResponseFeature>().ReasonPhrase);
+        Assert.Null(context.Features.GetRequiredFeature<IHttpResponseFeature>().ReasonPhrase);
         Assert.Equal(2, context.Response.Headers.Count);
         Assert.Equal(resolved, context.Response.Headers.Location);
         Assert.Equal("text/html", context.Response.Headers.ContentType);

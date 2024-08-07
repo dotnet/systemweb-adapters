@@ -22,6 +22,8 @@
 
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpApplication))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpApplicationState))]
+[assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpApplicationStateBase))]
+[assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpApplicationStateWrapper))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpBrowserCapabilities))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpBrowserCapabilitiesBase))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpBrowserCapabilitiesWrapper))]

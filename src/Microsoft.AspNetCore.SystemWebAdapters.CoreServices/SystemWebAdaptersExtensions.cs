@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -114,7 +115,7 @@ public static class SystemWebAdaptersExtensions
         }
 
         app.UseHttpApplicationEvent(
-            preEvents: new[] { ApplicationEvent.PreRequestHandlerExecute },
+            preEvents: new[] { ApplicationEvent.PreRequestHandlerExecute, ApplicationEvent.ExecuteRequestHandler },
             postEvents: new[] { ApplicationEvent.PostRequestHandlerExecute });
     }
 
@@ -145,6 +146,13 @@ public static class SystemWebAdaptersExtensions
             => builder =>
             {
                 builder.UseMiddleware<SetHttpContextTimestampMiddleware>();
+
+                if (builder.AreHttpApplicationEventsRequired() && builder.ApplicationServices.GetRequiredService<IOptions<HttpApplicationOptions>>().Value.ArePreSendEventsEnabled)
+                {
+                    // Must be registered first in order to intercept each flush to the client
+                    builder.UseMiddleware<RegisterHttpApplicationPreSendEventsMiddleware>();
+                }
+
                 builder.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
                 builder.UseMiddleware<SessionStateMiddleware>();
 

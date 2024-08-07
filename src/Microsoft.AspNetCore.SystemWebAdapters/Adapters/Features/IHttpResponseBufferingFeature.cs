@@ -16,12 +16,14 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 [Experimental(Constants.ExperimentalFeatures.DiagnosticId)]
 public interface IHttpResponseBufferingFeature
 {
-    void EnableBuffering(int memoryThreshold, long? bufferLimit);
+    void EnableBuffering(int? memoryThreshold = default, long? bufferLimit = default);
 
     ValueTask FlushAsync();
 
     [AllowNull]
     Stream Filter { get; set; }
+
+    void DisableBuffering();
 
     bool IsEnabled { get; }
 }

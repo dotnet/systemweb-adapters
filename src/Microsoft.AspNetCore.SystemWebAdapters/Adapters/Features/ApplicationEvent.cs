@@ -57,6 +57,8 @@ public enum ApplicationEvent
 
     PreSendRequestHeaders,
 
+    PreSendRequestContent,
+
     Error,
 
     SessionStart,
@@ -64,6 +66,8 @@ public enum ApplicationEvent
     SessionEnd,
 
     Disposed,
+
+    ExecuteRequestHandler,
 }
 
 #endif

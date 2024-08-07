@@ -42,14 +42,12 @@ internal partial class RemoteAppAuthenticationAuthHandler : AuthenticationHandle
         _resultProcessors = resultProcessors;
     }
 
-    protected override Task InitializeHandlerAsync() => _authService.InitializeAsync(Scheme);
-
     private async Task<RemoteAppAuthenticationResult> GetRemoteAppAuthenticationResultAsync()
     {
         if (_remoteAppAuthResult is null)
         {
             // Retrieve the remote authentication result and apply any processors
-            _remoteAppAuthResult = await _authService.AuthenticateAsync(Context.Request, CancellationToken.None);
+            _remoteAppAuthResult = await _authService.AuthenticateAsync(Scheme, Context.Request, Context.RequestAborted);
             foreach (var processor in _resultProcessors)
             {
                 await processor.ProcessAsync(_remoteAppAuthResult, Context);

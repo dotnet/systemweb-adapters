@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.Logging;
 
@@ -28,7 +29,7 @@ internal partial class BufferResponseStreamMiddleware
         {
             LogBuffering(metadata.BufferLimit, metadata.MemoryThreshold);
 
-            context.Features.GetRequired<IHttpResponseBufferingFeature>().EnableBuffering(metadata.MemoryThreshold, metadata.BufferLimit);
+            context.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().EnableBuffering(metadata.MemoryThreshold, metadata.BufferLimit);
         }
 
         return _next(context);
