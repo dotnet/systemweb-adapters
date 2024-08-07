@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Net.Mime;
 using System.Text;
 using System.Web;
 using System.Web.Security;
@@ -35,6 +36,7 @@ namespace MachineKeyExample
             var inputData = context.Request.Form["data"];
             Enum.TryParse<Action>(context.Request.Form["action"], ignoreCase: true, out var inputAction);
 
+            context.Response.ContentType = "text/html";
             context.Response.Write($"""
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 
