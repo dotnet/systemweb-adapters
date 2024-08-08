@@ -21,9 +21,9 @@ public static class SystemWebAdaptersExtensions
     {
         services.AddHttpContextAccessor();
         services.TryAddSingleton(TimeProvider.System);
-        services.AddSingleton<Cache>();
-        services.AddSingleton<IBrowserCapabilitiesFactory, BrowserCapabilitiesFactory>();
-        services.AddTransient<IStartupFilter, HttpContextStartupFilter>();
+        services.TryAddSingleton<Cache>();
+        services.TryAddSingleton<IBrowserCapabilitiesFactory, BrowserCapabilitiesFactory>();
+        services.TryAddEnumerable(ServiceDescriptor.Transient<IStartupFilter, HttpContextStartupFilter>());
         services.AddHostingRuntime();
 
         return new SystemWebAdapterBuilder(services)

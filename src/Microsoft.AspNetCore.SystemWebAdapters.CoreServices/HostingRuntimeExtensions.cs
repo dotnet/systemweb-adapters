@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Server.IIS;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
@@ -24,41 +25,59 @@ internal static class HostingRuntimeExtensions
         services.TryAddSingleton<IMapPathUtility, MapPathUtility>();
         services.TryAddEnumerable(ServiceDescriptor.Transient<IStartupFilter, HostingEnvironmentStartupFilter>());
 
-        services.AddOptions<SystemWebAdaptersOptions>()
+        services.TryAddEnumerable(ServiceDescriptor.Transient<IConfigureOptions<SystemWebAdaptersOptions>, OlderIISModuleSupport>());
+        services.TryAddEnumerable(ServiceDescriptor.Transient<IConfigureOptions<SystemWebAdaptersOptions>, EnvironmentFeatureConfigureOptions>());
+        services.TryAddEnumerable(ServiceDescriptor.Transient<IConfigureOptions<SystemWebAdaptersOptions>, DefaultAppPathConfigureOptions>());
+    }
 
-            // This configures for anyone using older IIS modules that don't set the values (and to maintain behavior with the adapters <1.3)
-            .Configure(options =>
+    /// <summary>
+    /// On .NET 8+, IIISEnvironmentFeature is available by default if running on IIS. We have an internal version
+    /// we load at startup so that regardless of version and server this may be available (for example, in case some
+    /// one wants to set the environment variables on a Kestrel hosted system to get the behavior)
+    /// </summary>
+    private sealed class EnvironmentFeatureConfigureOptions(IServer server) : IConfigureOptions<SystemWebAdaptersOptions>
+    {
+        public void Configure(SystemWebAdaptersOptions options)
+        {
+            if (server.Features.Get<IIISEnvironmentFeature>() is { } feature)
             {
-                options.IsHosted = true;
+                options.ApplicationPhysicalPath = feature.ApplicationPhysicalPath;
+                options.ApplicationVirtualPath = feature.ApplicationVirtualPath;
+                options.ApplicationID = feature.ApplicationId;
+                options.SiteName = feature.SiteName;
+            }
+        }
+    }
 
-                if (NativeMethods.IsAspNetCoreModuleLoaded())
-                {
-                    var config = NativeMethods.HttpGetApplicationProperties();
+    /// <summary>
+    /// On ASP.NET Core this should be the same. We're doing it here rather than a PostConfigure because someone may want to set it up differently
+    /// </summary>
+    private sealed class DefaultAppPathConfigureOptions : IConfigureOptions<SystemWebAdaptersOptions>
+    {
+        public void Configure(SystemWebAdaptersOptions options)
+        {
+            options.AppDomainAppPath = options.ApplicationPhysicalPath;
+            options.AppDomainAppVirtualPath = options.ApplicationVirtualPath;
+        }
+    }
 
-                    options.ApplicationPhysicalPath = config.pwzFullApplicationPath;
-                    options.ApplicationVirtualPath = config.pwzVirtualApplicationPath;
-                }
-            })
+    /// <summary>
+    /// This configures for anyone using older IIS modules that don't set the values (and to maintain behavior with the adapters <1.3)
+    /// </summary>
+    private sealed class OlderIISModuleSupport : IConfigureOptions<SystemWebAdaptersOptions>
+    {
+        public void Configure(SystemWebAdaptersOptions options)
+        {
+            options.IsHosted = true;
 
-            // On .NET 8+, IIISEnvironmentFeature is available by default if running on IIS. We have an internal version
-            // we load at startup so that regardless of version and server this may be available (for example, in case some
-            // one wants to set the environment variables on a Kestrel hosted system to get the behavior)
-            .Configure<IServer>((options, server) =>
+            if (NativeMethods.IsAspNetCoreModuleLoaded())
             {
-                if (server.Features.Get<IIISEnvironmentFeature>() is { } feature)
-                {
-                    options.ApplicationPhysicalPath = feature.ApplicationPhysicalPath;
-                    options.ApplicationVirtualPath = feature.ApplicationVirtualPath;
-                    options.ApplicationID = feature.ApplicationId;
-                    options.SiteName = feature.SiteName;
-                }
-            })
-            .Configure(options =>
-            {
-                // On ASP.NET Core this should be the same. We're doing it here rather than a PostConfigure because someone may want to set it up differently
-                options.AppDomainAppPath = options.ApplicationPhysicalPath;
-                options.AppDomainAppVirtualPath = options.ApplicationVirtualPath;
-            });
+                var config = NativeMethods.HttpGetApplicationProperties();
+
+                options.ApplicationPhysicalPath = config.pwzFullApplicationPath;
+                options.ApplicationVirtualPath = config.pwzVirtualApplicationPath;
+            }
+        }
     }
 
     private sealed class HostingEnvironmentStartupFilter : IStartupFilter
