@@ -53,6 +53,16 @@ internal partial class RemoteAppAuthenticationAuthHandler : AuthenticationHandle
                 await processor.ProcessAsync(_remoteAppAuthResult, Context);
             }
 
+            // Different authentication schemes may challenge in different ways in the remote
+            // app, so make a best effort to forward the effects of these challenges by forwarding
+            // configured headers (like Location, perhaps). Additionally, the act of authentication may
+            // reissue an authentication cookie, for example, so headers (i.e. Set-Cookie) will need 
+            // to be propagated for authenticate calls too.
+            foreach (var header in _remoteAppAuthResult.ResponseHeaders)
+            {
+                Context.Response.Headers.Append(header.Key, header.Value);
+            }
+
             if (_remoteAppAuthResult.StatusCode == 400)
             {
                 LogInvalidApiKey();
@@ -84,15 +94,8 @@ internal partial class RemoteAppAuthenticationAuthHandler : AuthenticationHandle
     {
         var authResult = await GetRemoteAppAuthenticationResultAsync();
 
-        // Propagate headers and status code back to the caller
-        // Different authentication schemes may challenge in different ways in the remote
-        // app, so make a best effort to forward the effects of these challenges by forwarding
-        // configured headers (like Location, perhaps) and status code (like 302 or 401, for example).
+        // Propagate status code back to the caller to forward the effect of the challenge as best we can.
         Context.Response.StatusCode = authResult.StatusCode;
-        foreach (var header in authResult.ResponseHeaders)
-        {
-            Context.Response.Headers.Append(header.Key, header.Value);
-        }
     }
 
     [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "Failed to authenticate using the remote app due to invalid or missing API key")]
