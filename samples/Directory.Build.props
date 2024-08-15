@@ -5,7 +5,10 @@
   <Import Project="$(MSBuildThisFileDirectory)../src/Microsoft.AspNetCore.SystemWebAdapters/Build/Microsoft.AspNetCore.SystemWebAdapters.props"/>
 
   <PropertyGroup>
-    <LangVersion>11</LangVersion>
+    <LangVersion>11.0</LangVersion>
     <GeneratedBindingRedirectsAction>Overwrite</GeneratedBindingRedirectsAction>
+
+    <!-- Workaround for now -->
+    <BuildWithNetFrameworkHostedCompiler>false</BuildWithNetFrameworkHostedCompiler>
   </PropertyGroup>
 </Project>

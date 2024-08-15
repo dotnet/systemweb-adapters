@@ -3,8 +3,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSystemWebAdapters()
     .AddRemoteAppClient(options =>
     {
-        options.RemoteAppUrl = new(builder.Configuration["ProxyTo"]);
-        options.ApiKey = builder.Configuration["RemoteAppApiKey"];
+        options.RemoteAppUrl = new(builder.Configuration["ProxyTo"]!);
+        options.ApiKey = builder.Configuration["RemoteAppApiKey"]!;
     })
     .AddAuthenticationClient(true);
 

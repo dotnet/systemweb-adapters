@@ -11,7 +11,10 @@
 
   <PropertyGroup>
     <Nullable>enable</Nullable>
-    <LangVersion>12</LangVersion>
+    <LangVersion>12.0</LangVersion>
+
+    <!-- Workaround for now -->
+    <BuildWithNetFrameworkHostedCompiler>false</BuildWithNetFrameworkHostedCompiler>
   </PropertyGroup>
 
   <PropertyGroup>
