@@ -28,7 +28,7 @@ app.UseAuthorization();
 
 app.MapGet("/core", (ClaimsPrincipal user) => user is { } ? new
 {
-    Name = user.Identity?.Name,
+    user.Identity?.Name,
     Claims = user.Claims.Select(c => new
     {
         c.Type,
