@@ -12,6 +12,13 @@
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <LangVersion>12</LangVersion>
+
+    <!--
+      Workaround for now as things are broken in VS without this. Update when .NET SDK 9 Preview 7 or later is added via arcade
+
+      See https://github.com/dotnet/arcade/issues/14311 for details
+    -->
+    <BuildWithNetFrameworkHostedCompiler>false</BuildWithNetFrameworkHostedCompiler>
   </PropertyGroup>
 
   <PropertyGroup>
