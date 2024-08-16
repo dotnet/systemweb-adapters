@@ -1,12 +1,8 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests;
 
-public class BufferedModuleTests : ModuleTests
+public class BufferedModuleTests : ModuleTests<BufferedModuleTests>
 {
-    public BufferedModuleTests()
-        : base(true)
-    {
-    }
 }
