@@ -424,7 +424,7 @@ public abstract class ModuleTests<T>
         }
     }
 
-    private class NotificationTrackingModule : EventsModule
+    private sealed class NotificationTrackingModule : EventsModule
     {
         protected override void InvokeEvent(HttpContext context, string name)
         {
