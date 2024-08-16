@@ -74,7 +74,8 @@ public abstract class ModuleTests<T>
         }
     }
 
-    private static IEnumerable<object[]> GetAllEvents()
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1000:Do not declare static members on generic types", Justification = "Needed for xUnit theory tests")]
+    public static TheoryData<ApplicationEvent, RegisterMode> GetAllEvents()
     {
         IEnumerable<ApplicationEvent> all =
         [
@@ -86,14 +87,17 @@ public abstract class ModuleTests<T>
         ];
 
         var modes = Enum.GetValues<RegisterMode>();
+        var data = new TheoryData<ApplicationEvent, RegisterMode>();
 
         foreach (var notification in all)
         {
             foreach (var mode in modes)
             {
-                yield return new object[] { notification, mode };
+                data.Add(notification, mode);
             }
         }
+
+        return data;
     }
 
     [MemberData(nameof(GetAllEvents))]
