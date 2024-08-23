@@ -7,6 +7,7 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 
@@ -50,7 +51,15 @@ internal sealed class HttpApplicationPreSendEventsResponseBodyFeature : PipeWrit
     public Task SendFileAsync(string path, long offset, long? count, CancellationToken cancellationToken = default)
         => SendFileFallback.SendFileAsync(Stream, path, offset, count, cancellationToken);
 
-    public Task StartAsync(CancellationToken cancellationToken = default) => _other.StartAsync(cancellationToken);
+    public async Task StartAsync(CancellationToken cancellationToken = default)
+    {
+        if (_context.Features.Get<IHttpApplicationFeature>() is { } httpApplication)
+        {
+            await RaisePreSendRequestHeadersEvent(httpApplication);
+        }
+
+        await _other.StartAsync(cancellationToken);
+    }
 
     public override void Advance(int bytes)
     {
@@ -69,27 +78,41 @@ internal sealed class HttpApplicationPreSendEventsResponseBodyFeature : PipeWrit
 
     public override async ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
     {
-        // Only need to raise events if data will be flushed and the feature is available
-        if (_byteCount > 0 && _context.Features.Get<IHttpApplicationFeature>() is { } httpApplication)
+        // Only need to raise events if data will be flushed 
+        if (_byteCount == 0)
+        {
+            return default;
+        }
+
+        if (_context.Features.Get<IHttpApplicationFeature>() is { } httpApplication)
         {
             _byteCount = 0;
 
-            if (_state is State.NotStarted)
-            {
-                _state = State.RaisingPreHeader;
-                await _context.Features.GetRequiredFeature<IHttpApplicationFeature>().RaiseEventAsync(ApplicationEvent.PreSendRequestHeaders);
-                _state = State.ReadyForContent;
-            }
-
-            if (_state is State.ReadyForContent)
-            {
-                _state = State.RaisingPreContent;
-                await httpApplication.RaiseEventAsync(ApplicationEvent.PreSendRequestContent);
-                _state = State.ReadyForContent;
-            }
+            await RaisePreSendRequestHeadersEvent(httpApplication);
+            await RaisePreSendRequestContentEvent(httpApplication);
         }
 
         return await _pipe.FlushAsync(cancellationToken);
+    }
+
+    private async ValueTask RaisePreSendRequestHeadersEvent(IHttpApplicationFeature httpApplication)
+    {
+        if (_state is State.NotStarted)
+        {
+            _state = State.RaisingPreHeader;
+            await httpApplication.RaiseEventAsync(ApplicationEvent.PreSendRequestHeaders);
+            _state = State.ReadyForContent;
+        }
+    }
+
+    private async ValueTask RaisePreSendRequestContentEvent(IHttpApplicationFeature httpApplication)
+    {
+        if (_state is State.ReadyForContent)
+        {
+            _state = State.RaisingPreContent;
+            await httpApplication.RaiseEventAsync(ApplicationEvent.PreSendRequestContent);
+            _state = State.ReadyForContent;
+        }
     }
 
     public override Memory<byte> GetMemory(int sizeHint = 0) => _pipe.GetMemory(sizeHint);

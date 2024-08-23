@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.TestHost;
@@ -20,7 +21,7 @@ using Xunit;
 namespace Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests;
 
 [Collection(nameof(SelfHostedTests))]
-public abstract class ModuleTests(bool isBuffered)
+public abstract class ModuleTests<T>
 {
     private static readonly ImmutableArray<ApplicationEvent> BeforeHandlerEvents =
     [
@@ -54,7 +55,27 @@ public abstract class ModuleTests(bool isBuffered)
         ApplicationEvent.EndRequest,
     ];
 
-    public static IEnumerable<object[]> GetAllEvents()
+    private static bool IsBuffered
+    {
+        get
+        {
+            if (typeof(T) == typeof(NotBufferedModuleTests))
+            {
+                return false;
+            }
+            else if (typeof(T) == typeof(BufferedModuleTests))
+            {
+                return true;
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException(typeof(T).FullName);
+            }
+        }
+    }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1000:Do not declare static members on generic types", Justification = "Needed for xUnit theory tests")]
+    public static TheoryData<ApplicationEvent, RegisterMode> GetAllEvents()
     {
         IEnumerable<ApplicationEvent> all =
         [
@@ -66,14 +87,17 @@ public abstract class ModuleTests(bool isBuffered)
         ];
 
         var modes = Enum.GetValues<RegisterMode>();
+        var data = new TheoryData<ApplicationEvent, RegisterMode>();
 
         foreach (var notification in all)
         {
             foreach (var mode in modes)
             {
-                yield return new object[] { notification, mode };
+                data.Add(notification, mode);
             }
         }
+
+        return data;
     }
 
     [MemberData(nameof(GetAllEvents))]
@@ -105,7 +129,7 @@ public abstract class ModuleTests(bool isBuffered)
 
         Assert.Equal(expected, result);
 
-        IEnumerable<ApplicationEvent> GetExpected(ApplicationEvent notification)
+        static IEnumerable<ApplicationEvent> GetExpected(ApplicationEvent notification)
         {
             foreach (var item in GetNotificationsUpTo(notification, isThrowing: true))
             {
@@ -119,9 +143,77 @@ public abstract class ModuleTests(bool isBuffered)
         }
     }
 
-    private IEnumerable<ApplicationEvent> GetNotificationsUpTo(ApplicationEvent notification, bool isThrowing = false)
+    [Fact]
+    public async Task PreSendRequestHeadersAddHeaders()
     {
-        return isBuffered
+        // Arrange
+        const string HeaderName = "name";
+        const string HeaderValue = "value";
+        const string Result = "Hello world!";
+
+        using var host = await new HostBuilder()
+            .ConfigureWebHost(webBuilder => webBuilder
+                .UseTestServer()
+                .ConfigureServices(services =>
+                {
+                    services.AddSystemWebAdapters()
+                        .AddHttpApplication(options =>
+                        {
+                            options.RegisterModule<BufferToggleModule>();
+                            options.RegisterModule<PreSendHeadersAddHeaderModule>();
+                            options.ArePreSendEventsEnabled = true;
+                        });
+
+                })
+                .Configure(app =>
+                {
+                    app.Use((ctx, next) =>
+                    {
+                        ctx.Features.Set(new ResultHeader { { HeaderName, HeaderValue } });
+                        return next(ctx);
+                    });
+                    app.UseSystemWebAdapters();
+
+                    app.Run(ctx => ctx.Response.WriteAsync(Result));
+                })).StartAsync();
+
+        // Act
+        using var response = await host.GetTestClient().GetAsync(new Uri("/", UriKind.Relative));
+
+        // Assert
+        Assert.True(response.Headers.TryGetValues(HeaderName, out var resultHeader));
+        Assert.Equal([HeaderValue], resultHeader);
+        Assert.Equal(Result, await response.Content.ReadAsStringAsync());
+    }
+
+    private sealed class PreSendHeadersAddHeaderModule : IHttpModule
+    {
+        public void Dispose()
+        {
+        }
+
+        public void Init(HttpApplication application)
+        {
+            application.PreSendRequestHeaders += (s, o) =>
+            {
+                if (s is HttpApplication { Context: { } context })
+                {
+                    foreach (var (name, value) in context.AsAspNetCore().Features.GetRequiredFeature<ResultHeader>())
+                    {
+                        context.Response.AddHeader(name, value);
+                    }
+                }
+            };
+        }
+    }
+
+    private sealed class ResultHeader : Dictionary<string, string>
+    {
+    }
+
+    private static IEnumerable<ApplicationEvent> GetNotificationsUpTo(ApplicationEvent notification, bool isThrowing = false)
+    {
+        return IsBuffered
                 ? GetExpectedBufferedNotificationsUntilAction(notification, isThrowing)
                 : GetExpectedUnbufferedNotificationsUntilAction(notification, isThrowing);
 
@@ -206,10 +298,9 @@ public abstract class ModuleTests(bool isBuffered)
         }
     }
 
-    private async Task<List<ApplicationEvent>> RunAsync(string action, ApplicationEvent @event, RegisterMode mode)
+    private static async Task<List<ApplicationEvent>> RunAsync(string action, ApplicationEvent @event, RegisterMode mode)
     {
         var notifier = new NotificationCollection();
-        var module = isBuffered ? typeof(BufferedTestModule) : typeof(NotBufferedTestModule);
 
         using var host = await new HostBuilder()
             .ConfigureWebHost(webBuilder =>
@@ -226,9 +317,11 @@ public abstract class ModuleTests(bool isBuffered)
                         services.AddSystemWebAdapters()
                             .AddHttpApplication(options =>
                             {
+                                options.RegisterModule<BufferToggleModule>();
+
                                 if (mode == RegisterMode.Options)
                                 {
-                                    options.RegisterModule(module);
+                                    options.RegisterModule<NotificationTrackingModule>();
                                 }
 
                                 options.ArePreSendEventsEnabled = true;
@@ -239,13 +332,13 @@ public abstract class ModuleTests(bool isBuffered)
                     {
                         if (mode == RegisterMode.RegisterModule)
                         {
-                            HttpApplication.RegisterModule(module);
+                            HttpApplication.RegisterModule(typeof(NotificationTrackingModule));
                         }
                         else if (mode == RegisterMode.RegisterModuleOnStartup)
                         {
                             app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>().ApplicationStarted.Register(() =>
                             {
-                                HttpApplication.RegisterModule(module);
+                                HttpApplication.RegisterModule(typeof(NotificationTrackingModule));
                             });
                         }
 
@@ -316,16 +409,22 @@ public abstract class ModuleTests(bool isBuffered)
             };
     }
 
-    private sealed class NotBufferedTestModule : BufferedTestModule
+    /// <summary>
+    /// Module used to toggle buffer output depending on the test suite we're running
+    /// </summary>
+    private sealed class BufferToggleModule : IHttpModule
     {
-        public override void Init(HttpApplication application)
+        public void Dispose()
         {
-            application.BeginRequest += (s, o) => ((HttpApplication)s!).Context.Response.BufferOutput = false;
-            base.Init(application);
+        }
+
+        public void Init(HttpApplication application)
+        {
+            application.BeginRequest += (s, o) => ((HttpApplication)s!).Context.Response.BufferOutput = IsBuffered;
         }
     }
 
-    private class BufferedTestModule : EventsModule
+    private sealed class NotificationTrackingModule : EventsModule
     {
         protected override void InvokeEvent(HttpContext context, string name)
         {
