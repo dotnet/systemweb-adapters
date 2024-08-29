@@ -293,6 +293,27 @@ public class JsonSessionKeySerializerTests
         Assert.Equal(primitive, deserialized);
     }
 
+    [Fact]
+    public void CaseInsensitiveSessionKeys()
+    {
+        // Arrange
+        var key = _fixture.Create<string>();
+
+        var options = new JsonSessionSerializerOptions
+        {
+            KnownKeys =
+            {
+                { key, typeof(Type1) },
+            }
+        };
+
+        // Act
+        var result = options.KnownKeys.ContainsKey(key.ToUpperInvariant());
+
+        // Assert
+        Assert.True(result);
+    }
+
     private sealed class Type1
     {
     }

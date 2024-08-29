@@ -14,7 +14,7 @@ public class JsonSessionSerializerOptions
     /// <summary>
     /// Gets the mapping of known session keys to types
     /// </summary>
-    public IDictionary<string, Type> KnownKeys { get; } = new Dictionary<string, Type>();
+    public IDictionary<string, Type> KnownKeys { get; } = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Registers a session key name to be of type <typeparamref name="T"/>
