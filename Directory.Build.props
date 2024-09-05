@@ -10,9 +10,6 @@
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <LangVersion>12.0</LangVersion>
-
-    <!-- Workaround for now - update when .NET SDK 9 Preview 7 or later is added via arcade -->
-    <BuildWithNetFrameworkHostedCompiler>false</BuildWithNetFrameworkHostedCompiler>
   </PropertyGroup>
 
   <PropertyGroup>
