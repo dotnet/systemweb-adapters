@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <Nullable>enable</Nullable>
-    <LangVersion>12.0</LangVersion>
+    <LangVersion>12</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup>
