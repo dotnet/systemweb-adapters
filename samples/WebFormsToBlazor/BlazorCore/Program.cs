@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components.Web;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSystemWebAdapters();
-builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+builder.Services.AddReverseProxy();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -22,6 +22,6 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapBlazorPages("/_Host");
-app.MapReverseProxy();
+app.MapForwarder("/{**catch-all}", app.Configuration["ProxyTo"]!).WithOrder(int.MaxValue);
 
 app.Run();
