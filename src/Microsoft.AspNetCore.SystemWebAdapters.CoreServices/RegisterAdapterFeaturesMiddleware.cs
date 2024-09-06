@@ -30,7 +30,11 @@ internal sealed class RegisterAdapterFeaturesMiddleware
             }
             finally
             {
-                await context.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().FlushAsync();
+                // The buffering feature may be removed if the response has ended i.e in usage with YARP
+                if (context.Features.Get<IHttpResponseBufferingFeature>() is { } buffer)
+                {
+                    await buffer.FlushAsync();
+                }
             }
         }
     }
