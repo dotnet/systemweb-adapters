@@ -9,12 +9,13 @@ namespace RemoteOAuth
     {
         protected void Application_Start()
         {
-            GlobalConfiguration.Configure(WebApiConfig.Register);
-            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
-
             SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
+                .AddVirtualizedContentDirectories()
                 .AddRemoteAppServer(options => options.ApiKey = ConfigurationManager.AppSettings["RemoteAppApiKey"])
                 .AddAuthenticationServer();
+
+            GlobalConfiguration.Configure(WebApiConfig.Register);
+            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
         }
     }
 }

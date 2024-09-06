@@ -20,8 +20,8 @@ builder.Services.AddSystemWebAdapters()
     .AddJsonSessionSerializer(options => ClassLibrary.RemoteServiceUtils.RegisterSessionKeys(options.KnownKeys))
     .AddRemoteAppClient(options =>
     {
-        options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
-        options.ApiKey = builder.Configuration["RemoteAppApiKey"];
+        options.RemoteAppUrl = new(builder.Configuration["ProxyTo"]!);
+        options.ApiKey = builder.Configuration["RemoteAppApiKey"]!;
     })
     .AddAuthenticationClient(true)
     .AddSessionClient();
@@ -63,13 +63,10 @@ app.MapGet("/current-principals-no-metadata", (HttpContext ctx) =>
     return "done";
 });
 
-app.UseEndpoints(endpoints =>
-{
-    app.MapDefaultControllerRoute();
-    // This method can be used to enable session (or read-only session) on all controllers
-    //.RequireSystemWebAdapterSession();
+app.MapDefaultControllerRoute();
+// This method can be used to enable session (or read-only session) on all controllers
+//.RequireSystemWebAdapterSession();
 
-    app.MapReverseProxy();
-});
+app.MapForwarder("/{**catch-all}", app.Configuration["ProxyTo"]!).WithOrder(int.MaxValue);
 
 app.Run();

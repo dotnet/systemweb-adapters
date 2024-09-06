@@ -42,7 +42,7 @@ public static class BlazorEndpointRouteBuilderExtensions
             {
                 if (typeof(IComponent).IsAssignableFrom(type))
                 {
-                    foreach (var attribute in type.GetCustomAttributes(typeof(RouteAttribute)))
+                    foreach (var attribute in type.GetCustomAttributes<RouteAttribute>())
                     {
                         if (attribute is RouteAttribute { Template: { } route })
                         {

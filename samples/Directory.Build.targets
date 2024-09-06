@@ -1,7 +1,40 @@
-<!-- Disable any build stuff brought in by arcade for the samples.
-     By default, Arcade will bring in PackageReferences which will break any old-style projects (they will prefer those packages over packages.config) -->
 <Project>
   <!-- CI builds will run `dotnet test` which expects a target named test. The samples have no target for that, so this enables
        an empty target so that this command will work and be a no-op for the tests. -->
   <Target Name="Test"></Target>
+
+  <!--
+    Used to know where the content directories are so we can serve themup in the samples.
+
+    This is potentially something we'll want to move into the framework services library for general
+    use, but for now, we can test it out in the samples. -->
+  <Target Name="WriteNuGetContentFiles"
+          DependsOnTargets="AddNugetContentFiles"
+          BeforeTargets="AssignTargetPaths">
+    <PropertyGroup>
+      <_NuGetContentMapName>contentDirectories.txt</_NuGetContentMapName>
+      <_NuGetContentPath>$(IntermediateOutputPath)$(_NuGetContentMapName)</_NuGetContentPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_NuGetContentDirectories Include="%(_NuGetContentFiles.BasePath)" />
+    </ItemGroup>
+
+    <WriteLinesToFile
+      File="$(_NuGetContentPath)"
+      Lines="@(_NuGetContentDirectories)"
+      Overwrite="true"
+      WriteOnlyWhenDifferent="true" />
+
+    <ItemGroup Condition=" '@(_NuGetContentDirectories)' != '' ">
+      <Content Include="$(_NuGetContentPath)">
+        <Link>$(_NuGetContentMapName)</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+  </Target>
+
+  <!-- When consuming the NuGet package, this is automatically added, but we must add it manually -->
+  <Import Project="$(MSBuildThisFileDirectory)../src/Microsoft.AspNetCore.SystemWebAdapters/Build/Microsoft.AspNetCore.SystemWebAdapters.targets"/>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
 </Project>
