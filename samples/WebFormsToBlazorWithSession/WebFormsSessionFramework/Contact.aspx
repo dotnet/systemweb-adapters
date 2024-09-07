@@ -17,7 +17,7 @@
         </address>
 
         <div>
-            <p>Session Message:<asp:TextBox ID="SessionTextBox" runat="server" /></p>
+            <p>Session String:<asp:TextBox ID="SessionTextBox" runat="server" /></p>
             <asp:Button ID="SubmitSessionButton" runat="server" Text="Submit" OnClick="SubmitSessionButton_Click" />
         </div>
     </main>
