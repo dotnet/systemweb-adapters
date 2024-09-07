@@ -1,4 +1,4 @@
-<%@ Page Title="Contact" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Contact.aspx.cs" Inherits="WebFormsFramework.Contact" %>
+﻿<%@ Page Title="Contact" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Contact.aspx.cs" Inherits="WebFormsFramework.Contact" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <main aria-labelledby="title">
@@ -15,10 +15,5 @@
             <strong>Support:</strong>   <a href="mailto:Support@example.com">Support@example.com</a><br />
             <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
         </address>
-
-        <div>
-            <p>Session Message:<asp:TextBox ID="SessionTextBox" runat="server" /></p>
-            <asp:Button ID="SubmitSessionButton" runat="server" Text="Submit" OnClick="SubmitSessionButton_Click" />
-        </div>
     </main>
 </asp:Content>
