@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Buffers;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -47,36 +46,24 @@ internal class HttpResponseAdapterFeature :
 
     Task IHttpResponseBodyFeature.CompleteAsync() => CompleteAsync();
 
-    public void DisableBuffering()
+    void IHttpResponseBodyFeature.DisableBuffering()
     {
-        _responseBodyFeature.DisableBuffering();
-        _state = StreamState.NotBuffering;
-
-        // If anything is already buffered, we'll use a custom pipe that will
-        // clear out the buffer the next time flush is called since this method
-        // is not async
-        if (_bufferedStream is { })
+        if (_state == StreamState.NotStarted)
         {
-            _pipeWriter = new FlushingBufferedPipeWriter(this, _responseBodyFeature.Writer);
-        }
-        else
-        {
+            _state = StreamState.NotBuffering;
+            _responseBodyFeature.DisableBuffering();
             _pipeWriter = _responseBodyFeature.Writer;
         }
     }
 
-    void IHttpResponseBufferingFeature.EnableBuffering(int? memoryThreshold, long? bufferLimit)
+    void IHttpResponseBufferingFeature.EnableBuffering(int memoryThreshold, long? bufferLimit)
     {
-        if (_state == StreamState.Buffering)
-        {
-            return;
-        }
-        else if (_state == StreamState.NotStarted)
+        if (_state == StreamState.NotStarted)
         {
             Debug.Assert(_bufferedStream is null);
 
             _state = StreamState.Buffering;
-            _factory = () => new FileBufferingWriteStream(memoryThreshold ?? PreBufferRequestStreamAttribute.DefaultBufferThreshold, bufferLimit);
+            _factory = () => new FileBufferingWriteStream(memoryThreshold, bufferLimit);
         }
         else
         {
@@ -104,61 +91,27 @@ internal class HttpResponseAdapterFeature :
 
     private async ValueTask FlushInternalAsync()
     {
-        if (_pipeWriter is { })
-        {
-            await _pipeWriter.FlushAsync();
-        }
-
-        if (_state is StreamState.Buffering)
-        {
-            await DrainStreamAsync(default);
-        }
-    }
-
-    private async ValueTask DrainStreamAsync(CancellationToken token)
-    {
-        if (_bufferedStream is null)
-        {
-            return;
-        }
-
-        if (!SuppressContent)
+        if (_state is StreamState.Buffering && _bufferedStream is not null && !SuppressContent)
         {
             if (_filter is { } filter)
             {
-                await _bufferedStream.DrainBufferAsync(filter, token);
+                await _bufferedStream.DrainBufferAsync(filter);
                 await filter.DisposeAsync();
                 _filter = null;
             }
             else
             {
-                await _bufferedStream.DrainBufferAsync(_responseBodyFeature.Stream, token);
+                await _bufferedStream.DrainBufferAsync(_responseBodyFeature.Stream);
             }
-        }
 
-        await _bufferedStream.DisposeAsync();
-        _bufferedStream = null;
+            await _bufferedStream.DisposeAsync();
+            _bufferedStream = null;
+        }
     }
 
     Stream IHttpResponseBodyFeature.Stream => this;
 
-    PipeWriter IHttpResponseBodyFeature.Writer
-    {
-        get
-        {
-            if (_pipeWriter is null)
-            {
-                _pipeWriter = PipeWriter.Create(this, new StreamPipeWriterOptions(leaveOpen: true));
-
-                if (_state is StreamState.Complete)
-                {
-                    _pipeWriter.Complete();
-                }
-            }
-
-            return _pipeWriter;
-        }
-    }
+    PipeWriter IHttpResponseBodyFeature.Writer => _pipeWriter ??= PipeWriter.Create(this, new StreamPipeWriterOptions(leaveOpen: true));
 
     public bool SuppressContent
     {
@@ -276,11 +229,6 @@ internal class HttpResponseAdapterFeature :
 
         _state = StreamState.Complete;
 
-        if (_pipeWriter is { })
-        {
-            await _pipeWriter.CompleteAsync();
-        }
-
         await _responseBodyFeature.CompleteAsync();
     }
 
@@ -308,92 +256,4 @@ internal class HttpResponseAdapterFeature :
 
     public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         => CurrentStream.WriteAsync(buffer, offset, count, cancellationToken);
-
-    /// <summary>
-    /// A <see cref="PipeWriter"/> that can flush any existing buffered items before writing next sequence of bytes
-    /// Intended to be used if <see cref="IHttpResponseBodyFeature.DisableBuffering"/> is called and data has been buffered
-    /// to ensure that the final output will be ordered correctly (since we can't asynchronously write the data in that call).
-    /// </summary>
-    /// <remarks>
-    /// Calls to <see cref="Advance(int)"/>, <see cref="GetSpan(int)"/>, <see cref="GetMemory(int)"/> must be called
-    /// in a group without calling <see cref="FlushAsync(CancellationToken)"/>. If not, then the call to <see cref="Advance(int)"/>
-    /// will potentially advance the inner pipe rather than the buffer.
-    /// </remarks>
-    private sealed class FlushingBufferedPipeWriter : PipeWriter
-    {
-        private readonly PipeWriter _other;
-
-        private HttpResponseAdapterFeature? _feature;
-        private ArrayBufferWriter<byte>? _buffer;
-
-        public FlushingBufferedPipeWriter(HttpResponseAdapterFeature feature, PipeWriter other)
-        {
-            _feature = feature;
-            _other = other;
-        }
-
-        public override void CancelPendingFlush() => _other.CancelPendingFlush();
-
-        public override void Complete(Exception? exception = null) => _other.Complete(exception);
-
-        public override async ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
-        {
-            await FlushExistingDataAsync(cancellationToken);
-
-            return await _other.FlushAsync(cancellationToken);
-        }
-
-        private async ValueTask FlushExistingDataAsync(CancellationToken cancellationToken)
-        {
-            if (_feature is { })
-            {
-                await _feature.DrainStreamAsync(cancellationToken);
-                _feature = null;
-            }
-
-            if (_buffer is { })
-            {
-                await _other.WriteAsync(_buffer.WrittenMemory, cancellationToken);
-                _buffer = null;
-            }
-        }
-
-        public bool IsBuffered => _feature is { };
-
-        public override void Advance(int bytes)
-        {
-            if (_buffer is { })
-            {
-                _buffer.Advance(bytes);
-            }
-            else
-            {
-                _other.Advance(bytes);
-            }
-        }
-
-        public override Memory<byte> GetMemory(int sizeHint = 0)
-        {
-            if (IsBuffered)
-            {
-                return (_buffer ??= new()).GetMemory(sizeHint);
-            }
-            else
-            {
-                return _other.GetMemory(sizeHint);
-            }
-        }
-
-        public override Span<byte> GetSpan(int sizeHint = 0)
-        {
-            if (IsBuffered)
-            {
-                return (_buffer ??= new()).GetSpan(sizeHint);
-            }
-            else
-            {
-                return _other.GetSpan(sizeHint);
-            }
-        }
-    }
 }

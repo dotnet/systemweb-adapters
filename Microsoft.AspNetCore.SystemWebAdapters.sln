@@ -21,7 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Build.props = Directory.Build.props
 		Directory.Build.targets = Directory.Build.targets
 		global.json = global.json
-		NuGet.config = NuGet.config
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -33,15 +32,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{A1BDA50C-D
 		test\Directory.Build.targets = test\Directory.Build.targets
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemoteBearer", "samples\RemoteAuth\Bearer\RemoteBearer\RemoteBearer.csproj", "{898C9B2C-E43A-434F-9927-F6697C0ACE40}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteBearer", "samples\RemoteAuth\Bearer\RemoteBearer\RemoteBearer.csproj", "{898C9B2C-E43A-434F-9927-F6697C0ACE40}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemoteBearerCore", "samples\RemoteAuth\Bearer\RemoteBearerCore\RemoteBearerCore.csproj", "{6ECC8509-2937-4667-AECC-C20BA62D3FC5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FormsAuth", "samples\RemoteAuth\Forms\FormsAuth\FormsAuth.csproj", "{87223E5F-A0B2-4827-A4A4-B4C40BEAFBE8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormsAuth", "samples\RemoteAuth\Forms\FormsAuth\FormsAuth.csproj", "{87223E5F-A0B2-4827-A4A4-B4C40BEAFBE8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FormsAuthCore", "samples\RemoteAuth\Forms\FormsAuthCore\FormsAuthCore.csproj", "{EB87A63B-D71F-43E3-B0B7-588B4BED3BE3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OIDCAuth", "samples\RemoteAuth\OIDC\OIDCAuth\OIDCAuth.csproj", "{0BA8335A-9F56-4439-9A71-4BD5B58C2273}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OIDCAuth", "samples\RemoteAuth\OIDC\OIDCAuth\OIDCAuth.csproj", "{0BA8335A-9F56-4439-9A71-4BD5B58C2273}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OIDCAuthCore", "samples\RemoteAuth\OIDC\OIDCAuthCore\OIDCAuthCore.csproj", "{32192715-5F15-4E11-B96F-971468DA33E6}"
 EndProject
@@ -69,7 +68,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.System
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Identity", "Identity", "{9C8EBDB5-FA17-4C9C-8946-04692AC752CE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvcApp", "samples\RemoteAuth\Identity\MvcApp\MvcApp.csproj", "{174A36F1-27ED-43FC-A3A1-00DA58C4E30C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcApp", "samples\RemoteAuth\Identity\MvcApp\MvcApp.csproj", "{174A36F1-27ED-43FC-A3A1-00DA58C4E30C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvcCoreApp", "samples\RemoteAuth\Identity\MvcCoreApp\MvcCoreApp.csproj", "{2BF8EE74-1AB3-4DB8-ADDE-27A35981CA04}"
 EndProject
@@ -77,7 +76,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreApp", "samples\CoreApp\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebFormsToBlazor", "WebFormsToBlazor", "{3A71E8B4-7E40-4326-B5FC-0CFA30A388D1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebFormsFramework", "samples\WebFormsToBlazor\WebFormsFramework\WebFormsFramework.csproj", "{0993BA4C-218B-43DD-A8A0-997B05808A08}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebFormsFramework", "samples\WebFormsToBlazor\WebFormsFramework\WebFormsFramework.csproj", "{0993BA4C-218B-43DD-A8A0-997B05808A08}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorCore", "samples\WebFormsToBlazor\BlazorCore\BlazorCore.csproj", "{23094126-C05C-4172-A01F-998780976709}"
 EndProject
@@ -85,7 +84,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{4ED7
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModulesLibrary", "samples\Modules\ModulesLibrary\ModulesLibrary.csproj", "{5597A485-4D9B-4CE6-A489-DEBE9338450F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModulesFramework", "samples\Modules\ModulesFramework\ModulesFramework.csproj", "{B262AD69-11F0-4AE0-949A-AEAA2300C061}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModulesFramework", "samples\Modules\ModulesFramework\ModulesFramework.csproj", "{B262AD69-11F0-4AE0-949A-AEAA2300C061}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModulesCore", "samples\Modules\ModulesCore\ModulesCore.csproj", "{F8B33C59-27CF-45DC-955C-2EBF9DA9DB7E}"
 EndProject
@@ -95,15 +94,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MachineKeyShared", "samples
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MachineKeyCore", "samples\MachineKey\MachineKeyCore\MachineKeyCore.csproj", "{6C83077B-AF80-44BC-BA9F-D1E3264F321C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MachineKeyFramework", "samples\MachineKey\MachineKeyFramework\MachineKeyFramework.csproj", "{FA39AC22-0725-4532-A682-B054ADA5BDA2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachineKeyFramework", "samples\MachineKey\MachineKeyFramework\MachineKeyFramework.csproj", "{FA39AC22-0725-4532-A682-B054ADA5BDA2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.NuGet.Tests", "test\Microsoft.AspNetCore.SystemWebAdapters.NuGet.Tests\Microsoft.AspNetCore.SystemWebAdapters.NuGet.Tests.csproj", "{17055F45-E79A-41EF-825E-0B2211433729}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters.Apis.Tests", "test\Microsoft.AspNetCore.SystemWebAdapters.Apis.Tests\Microsoft.AspNetCore.SystemWebAdapters.Apis.Tests.csproj", "{E4D9A131-DC4E-403F-A10F-65F5E5E42475}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrameworkSampleUtilities", "samples\FrameworkSampleUtilities\FrameworkSampleUtilities.csproj", "{7F09946A-3D08-4A34-9C6A-F1D6557E4FAD}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsAuth", "samples\WindowsAuth\WindowsAuth.csproj", "{B5E840F8-2021-4175-BFBF-F9447506242E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -207,6 +200,10 @@ Global
 		{F8B33C59-27CF-45DC-955C-2EBF9DA9DB7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8B33C59-27CF-45DC-955C-2EBF9DA9DB7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8B33C59-27CF-45DC-955C-2EBF9DA9DB7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17055F45-E79A-41EF-825E-0B2211433729}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17055F45-E79A-41EF-825E-0B2211433729}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17055F45-E79A-41EF-825E-0B2211433729}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17055F45-E79A-41EF-825E-0B2211433729}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E97B37F2-F0CE-4718-96FA-83D9587D9C8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E97B37F2-F0CE-4718-96FA-83D9587D9C8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E97B37F2-F0CE-4718-96FA-83D9587D9C8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -219,22 +216,6 @@ Global
 		{FA39AC22-0725-4532-A682-B054ADA5BDA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA39AC22-0725-4532-A682-B054ADA5BDA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA39AC22-0725-4532-A682-B054ADA5BDA2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{17055F45-E79A-41EF-825E-0B2211433729}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{17055F45-E79A-41EF-825E-0B2211433729}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{17055F45-E79A-41EF-825E-0B2211433729}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{17055F45-E79A-41EF-825E-0B2211433729}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E4D9A131-DC4E-403F-A10F-65F5E5E42475}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E4D9A131-DC4E-403F-A10F-65F5E5E42475}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E4D9A131-DC4E-403F-A10F-65F5E5E42475}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E4D9A131-DC4E-403F-A10F-65F5E5E42475}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B5E840F8-2021-4175-BFBF-F9447506242E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B5E840F8-2021-4175-BFBF-F9447506242E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B5E840F8-2021-4175-BFBF-F9447506242E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B5E840F8-2021-4175-BFBF-F9447506242E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7F09946A-3D08-4A34-9C6A-F1D6557E4FAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7F09946A-3D08-4A34-9C6A-F1D6557E4FAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7F09946A-3D08-4A34-9C6A-F1D6557E4FAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7F09946A-3D08-4A34-9C6A-F1D6557E4FAD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -271,14 +252,11 @@ Global
 		{5597A485-4D9B-4CE6-A489-DEBE9338450F} = {4ED7A31C-8DBE-4A32-A17A-D72794F9FE2C}
 		{B262AD69-11F0-4AE0-949A-AEAA2300C061} = {4ED7A31C-8DBE-4A32-A17A-D72794F9FE2C}
 		{F8B33C59-27CF-45DC-955C-2EBF9DA9DB7E} = {4ED7A31C-8DBE-4A32-A17A-D72794F9FE2C}
+		{17055F45-E79A-41EF-825E-0B2211433729} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
 		{03E4CEAB-D845-402A-9311-F7390B24BA2A} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 		{E97B37F2-F0CE-4718-96FA-83D9587D9C8F} = {03E4CEAB-D845-402A-9311-F7390B24BA2A}
 		{6C83077B-AF80-44BC-BA9F-D1E3264F321C} = {03E4CEAB-D845-402A-9311-F7390B24BA2A}
 		{FA39AC22-0725-4532-A682-B054ADA5BDA2} = {03E4CEAB-D845-402A-9311-F7390B24BA2A}
-		{17055F45-E79A-41EF-825E-0B2211433729} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
-		{E4D9A131-DC4E-403F-A10F-65F5E5E42475} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
-		{B5E840F8-2021-4175-BFBF-F9447506242E} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
-		{7F09946A-3D08-4A34-9C6A-F1D6557E4FAD} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DABA3C65-9D74-4EB6-9B1C-730328710EAD}

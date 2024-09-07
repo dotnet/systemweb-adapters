@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 using System.Web.Optimization;
 using System.Web.Routing;
+using System.Web.Security;
+using System.Web.SessionState;
 
 namespace WebFormsFramework
 {
@@ -9,13 +13,12 @@ namespace WebFormsFramework
     {
         void Application_Start(object sender, EventArgs e)
         {
-            SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
-                .AddVirtualizedContentDirectories()
-                .AddProxySupport(options => options.UseForwardedHeaders = true);
-
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
+                .AddProxySupport(options => options.UseForwardedHeaders = true);
         }
     }
 }

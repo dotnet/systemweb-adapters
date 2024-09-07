@@ -30,18 +30,14 @@ internal sealed class RegisterAdapterFeaturesMiddleware
             }
             finally
             {
-                // The buffering feature may be removed if the response has ended i.e in usage with YARP
-                if (context.Features.Get<IHttpResponseBufferingFeature>() is { } buffer)
-                {
-                    await buffer.FlushAsync();
-                }
+                await context.Features.GetRequired<IHttpResponseBufferingFeature>().FlushAsync();
             }
         }
     }
 
     private static DelegateDisposable RegisterRequestFeatures(HttpContextCore context)
     {
-        var existing = context.Features.GetRequiredFeature<IHttpRequestFeature>();
+        var existing = context.Features.GetRequired<IHttpRequestFeature>();
         var existingPipe = context.Features.Get<IRequestBodyPipeFeature>();
 
         var inputStreamFeature = new HttpRequestInputStreamFeature(existing);
@@ -63,7 +59,7 @@ internal sealed class RegisterAdapterFeaturesMiddleware
 
     private static DelegateDisposable RegisterResponseFeatures(HttpContextCore context)
     {
-        var responseBodyFeature = context.Features.GetRequiredFeature<IHttpResponseBodyFeature>();
+        var responseBodyFeature = context.Features.GetRequired<IHttpResponseBodyFeature>();
 
         var adapterFeature = new HttpResponseAdapterFeature(responseBodyFeature);
 

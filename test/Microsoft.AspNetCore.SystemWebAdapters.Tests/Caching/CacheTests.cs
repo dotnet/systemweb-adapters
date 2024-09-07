@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.IO;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -69,7 +70,7 @@ public class CacheTests
         var cache = new Cache(memCache);
 
         // Act
-        var result = ((IEnumerable)cache).GetEnumerator();
+        var result = cache.GetEnumerator();
 
         // Assert
         var enumerator = (IDictionaryEnumerator)result;

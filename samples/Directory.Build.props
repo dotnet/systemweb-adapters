@@ -1,53 +1,7 @@
+<!-- Disable any build stuff brought in by arcade for the samples.
+     By default, Arcade will bring in PackageReferences which will break any old-style projects (they will prefer those packages over packages.config) -->
 <Project>
-  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
-
-  <!-- When consuming the NuGet package, this is automatically added, but we must add it manually -->
-  <Import Project="$(MSBuildThisFileDirectory)../src/Microsoft.AspNetCore.SystemWebAdapters/Build/Microsoft.AspNetCore.SystemWebAdapters.props"/>
-
   <PropertyGroup>
-    <!-- MSBuild.SDK.SystemWeb tries to bring in default versions of the compilers, but that is now handled automatically by .NET 9 SDK -->
-    <ExcludeSDKDefaultPackages>true</ExcludeSDKDefaultPackages>
-
-    <!-- This allows the first build to be correct without any warnings on a new clone of the repo -->
-    <GeneratedBindingRedirectsAction>Overwrite</GeneratedBindingRedirectsAction>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <NoWarn>
-      $(NoWarn);
-      CA1024;
-      CA1031;
-      CA1051;
-      CA1052;
-      CA1054;
-      CA1056;
-      CA1062;
-      CA1305;
-      CA1515;
-      CA1822;
-      CA1852;
-      CA1861;
-      CA1722;
-      CA1707;
-      CA1716;
-      CA1721;
-      CA1752;
-      CA2000;
-      CA2211;
-      CA2227;
-      CA3002;
-      CA3147;
-      CA5368;
-      CA5394;
-      CA5395;
-      CA5391;
-      CS8603;
-      CS8604;
-      CS8618;
-      CS8625;
-      IDE0037;
-      IDE0060;
-      IDE1006;
-    </NoWarn>
+    <LangVersion>11</LangVersion>
   </PropertyGroup>
 </Project>

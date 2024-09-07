@@ -11,15 +11,20 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Authentication
     /// <summary>
     /// A service for authenticating an HTTP request with a remote service.
     /// </summary>
-    public interface IRemoteAppAuthenticationService
+    internal interface IRemoteAppAuthenticationService
     {
+        /// <summary>
+        /// Initializes the remote authentication service for the given scheme.
+        /// </summary>
+        /// <param name="scheme">The scheme whose configuration the remote authentication service should use for authenticating requests.</param>
+        Task InitializeAsync(AuthenticationScheme scheme);
+
         /// <summary>
         /// Attempts to authenticate a user who made a given HTTP request by forwarding portions of the request to a remote service.
         /// </summary>
-        /// <param name="scheme">The scheme being used for authentication.</param>
-        /// <param name="request">The request that is to be authenticated.</param>
+        /// <param name="originalRequest">The request originally made by the user to be authenticated.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         /// <returns></returns>
-        Task<RemoteAppAuthenticationResult> AuthenticateAsync(AuthenticationScheme scheme, HttpRequest request, CancellationToken cancellationToken);
+        Task<RemoteAppAuthenticationResult> AuthenticateAsync(HttpRequest originalRequest, CancellationToken cancellationToken);
     }
 }

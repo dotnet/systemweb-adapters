@@ -18,7 +18,6 @@
 #pragma warning disable CA1063 // Implement IDisposable Correctly
 #pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
 #pragma warning disable CS0436 // Type conflicts with imported type
-#pragma warning disable CA1040 // Avoid empty interfaces
 
 namespace System.Web
 {
@@ -52,7 +51,6 @@ namespace System.Web
         public event System.EventHandler PostResolveRequestCache { add { } remove { } }
         public event System.EventHandler PostUpdateRequestCache { add { } remove { } }
         public event System.EventHandler PreRequestHandlerExecute { add { } remove { } }
-        public event System.EventHandler PreSendRequestContent { add { } remove { } }
         public event System.EventHandler PreSendRequestHeaders { add { } remove { } }
         public event System.EventHandler ReleaseRequestState { add { } remove { } }
         public event System.EventHandler ResolveRequestCache { add { } remove { } }
@@ -60,7 +58,6 @@ namespace System.Web
         public void CompleteRequest() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void Dispose() { }
         public virtual string GetVaryByCustomString(System.Web.HttpContext context, string custom) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public static void RegisterModule(System.Type moduleType) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
     public sealed partial class HttpApplicationState : System.Collections.Specialized.NameObjectCollectionBase
     {
@@ -80,55 +77,6 @@ namespace System.Web
         public void RemoveAt(int index) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void Set(string name, object value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void UnLock() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-    }
-    public abstract partial class HttpApplicationStateBase : System.Collections.Specialized.NameObjectCollectionBase, System.Collections.ICollection, System.Collections.IEnumerable
-    {
-        protected HttpApplicationStateBase() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual string[] AllKeys { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual System.Web.HttpApplicationStateBase Contents { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override int Count { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual bool IsSynchronized { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual object this[int index] { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual object this[string name] { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual object SyncRoot { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual void Add(string name, object value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual void Clear() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual void CopyTo(System.Array array, int index) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual object Get(int index) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual object Get(string name) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override System.Collections.IEnumerator GetEnumerator() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual string GetKey(int index) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual void Lock() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual void Remove(string name) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual void RemoveAll() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual void RemoveAt(int index) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual void Set(string name, object value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual void UnLock() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-    }
-    public partial class HttpApplicationStateWrapper : System.Web.HttpApplicationStateBase
-    {
-        public HttpApplicationStateWrapper(System.Web.HttpApplicationState httpApplicationState) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override string[] AllKeys { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override System.Web.HttpApplicationStateBase Contents { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override int Count { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override bool IsSynchronized { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override object this[int index] { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override object this[string name] { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override System.Collections.Specialized.NameObjectCollectionBase.KeysCollection Keys { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override object SyncRoot { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override void Add(string name, object value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override void Clear() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override void CopyTo(System.Array array, int index) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override object Get(int index) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override object Get(string name) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override System.Collections.IEnumerator GetEnumerator() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override string GetKey(int index) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override void Lock() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override void Remove(string name) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override void RemoveAll() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override void RemoveAt(int index) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override void Set(string name, object value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override void UnLock() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
     public partial class HttpBrowserCapabilities : System.Web.Configuration.HttpCapabilitiesBase
     {
@@ -176,26 +124,6 @@ namespace System.Web
         public void SetMaxAge(System.TimeSpan delta) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void SetOmitVaryStar(bool omit) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
-    public partial class HttpCachePolicyBase
-    {
-        public HttpCachePolicyBase() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual System.Web.HttpCacheVaryByHeaders VaryByHeaders { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual void SetCacheability(System.Web.HttpCacheability cacheability) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual void SetExpires(System.DateTime date) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual void SetLastModified(System.DateTime date) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual void SetMaxAge(System.TimeSpan delta) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual void SetOmitVaryStar(bool omit) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-    }
-    public partial class HttpCachePolicyWrapper : System.Web.HttpCachePolicyBase
-    {
-        public HttpCachePolicyWrapper(System.Web.HttpCachePolicy httpCachePolicy) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override System.Web.HttpCacheVaryByHeaders VaryByHeaders { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override void SetCacheability(System.Web.HttpCacheability cacheability) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override void SetExpires(System.DateTime date) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override void SetLastModified(System.DateTime date) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override void SetMaxAge(System.TimeSpan delta) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override void SetOmitVaryStar(bool omit) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-    }
     public sealed partial class HttpCacheVaryByHeaders
     {
         internal HttpCacheVaryByHeaders() { }
@@ -211,14 +139,11 @@ namespace System.Web
         public System.Web.HttpApplication ApplicationInstance { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Web.Caching.Cache Cache { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public static System.Web.HttpContext Current { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public System.Web.IHttpHandler CurrentHandler { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Web.RequestNotification CurrentNotification { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Exception Error { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public System.Web.IHttpHandler Handler { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public bool IsDebuggingEnabled { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public bool IsPostNotification { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Collections.IDictionary Items { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public System.Web.IHttpHandler PreviousHandler { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Web.HttpRequest Request { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Web.HttpResponse Response { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Web.HttpServerUtility Server { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
@@ -229,7 +154,6 @@ namespace System.Web
         public void AddError(System.Exception ex) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void ClearError() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public System.Web.ISubscriptionToken DisposeOnPipelineCompleted(System.IDisposable target) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public void RemapHandler(System.Web.IHttpHandler handler) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void RewritePath(string path) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void RewritePath(string path, bool rebaseClientPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void RewritePath(string filePath, string pathInfo, string queryString) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
@@ -241,29 +165,23 @@ namespace System.Web
     {
         protected HttpContextBase() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual System.Exception[] AllErrors { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual System.Web.HttpApplicationStateBase Application { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public virtual System.Web.HttpApplicationState Application { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Web.HttpApplication ApplicationInstance { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Web.Caching.Cache Cache { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual System.Web.IHttpHandler CurrentHandler { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Web.RequestNotification CurrentNotification { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Exception Error { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual System.Web.IHttpHandler Handler { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual bool IsDebuggingEnabled { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual bool IsPostNotification { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Collections.IDictionary Items { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual System.Web.IHttpHandler PreviousHandler { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Web.HttpRequestBase Request { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Web.HttpResponseBase Response { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Web.HttpServerUtilityBase Server { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Web.HttpSessionStateBase Session { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.DateTime Timestamp { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual System.Web.TraceContext Trace { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Security.Principal.IPrincipal User { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual void AddError(System.Exception ex) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual void ClearError() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual System.Web.ISubscriptionToken DisposeOnPipelineCompleted(System.IDisposable target) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual object GetService(System.Type serviceType) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual void RemapHandler(System.Web.IHttpHandler handler) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual void RewritePath(string path) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual void RewritePath(string path, bool rebaseClientPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual void RewritePath(string filePath, string pathInfo, string queryString) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
@@ -274,29 +192,23 @@ namespace System.Web
     {
         public HttpContextWrapper(System.Web.HttpContext httpContext) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override System.Exception[] AllErrors { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override System.Web.HttpApplicationStateBase Application { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public override System.Web.HttpApplicationState Application { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Web.HttpApplication ApplicationInstance { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Web.Caching.Cache Cache { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override System.Web.IHttpHandler CurrentHandler { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Web.RequestNotification CurrentNotification { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Exception Error { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override System.Web.IHttpHandler Handler { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override bool IsDebuggingEnabled { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override bool IsPostNotification { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Collections.IDictionary Items { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override System.Web.IHttpHandler PreviousHandler { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Web.HttpRequestBase Request { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Web.HttpResponseBase Response { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Web.HttpServerUtilityBase Server { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Web.HttpSessionStateBase Session { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.DateTime Timestamp { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override System.Web.TraceContext Trace { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Security.Principal.IPrincipal User { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override void AddError(System.Exception ex) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override void ClearError() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override System.Web.ISubscriptionToken DisposeOnPipelineCompleted(System.IDisposable target) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override object GetService(System.Type serviceType) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override void RemapHandler(System.Web.IHttpHandler handler) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override void RewritePath(string path) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override void RewritePath(string path, bool rebaseClientPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override void RewritePath(string filePath, string pathInfo, string queryString) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
@@ -337,10 +249,15 @@ namespace System.Web
     public partial class HttpException : System.SystemException
     {
         public HttpException() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public HttpException(int httpStatusCode) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public HttpException(int httpStatusCode, string message) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public HttpException(int httpStatusCode, string message, System.Exception innerException) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public HttpException(System.Net.HttpStatusCode httpStatusCode) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public HttpException(System.Net.HttpStatusCode httpStatusCode, string message) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public HttpException(System.Net.HttpStatusCode httpStatusCode, string message, System.Exception innerException) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public HttpException(string message) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public HttpException(string message, System.Exception innerException) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public int StatusCode { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public int GetHttpCode() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
     public sealed partial class HttpFileCollection : System.Collections.Specialized.NameObjectCollectionBase
@@ -439,7 +356,7 @@ namespace System.Web
         public bool IsLocal { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public bool IsSecureConnection { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public string this[string key] { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public System.Security.Principal.WindowsIdentity LogonUserIdentity { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public System.Security.Principal.IIdentity LogonUserIdentity { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Collections.Specialized.NameValueCollection Params { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public string Path { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public string PathInfo { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
@@ -473,8 +390,6 @@ namespace System.Web
         public virtual int ContentLength { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual string ContentType { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Web.HttpCookieCollection Cookies { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual string CurrentExecutionFilePath { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual string FilePath { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Web.HttpFileCollectionBase Files { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Collections.Specialized.NameValueCollection Form { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Collections.Specialized.NameValueCollection Headers { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
@@ -484,14 +399,12 @@ namespace System.Web
         public virtual bool IsLocal { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual bool IsSecureConnection { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual string this[string key] { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual System.Security.Principal.WindowsIdentity LogonUserIdentity { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public virtual System.Security.Principal.IIdentity LogonUserIdentity { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Collections.Specialized.NameValueCollection Params { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual string Path { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual string PathInfo { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual string PhysicalPath { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Collections.Specialized.NameValueCollection QueryString { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual string RawUrl { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual System.Web.ReadEntityBodyMode ReadEntityBodyMode { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual string RequestType { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Collections.Specialized.NameValueCollection ServerVariables { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual int TotalBytes { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
@@ -505,7 +418,6 @@ namespace System.Web
         public virtual byte[] BinaryRead(int count) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual System.IO.Stream GetBufferedInputStream() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual System.IO.Stream GetBufferlessInputStream() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual void SaveAs(string filename, bool includeHeaders) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
     public partial class HttpRequestWrapper : System.Web.HttpRequestBase
     {
@@ -518,8 +430,6 @@ namespace System.Web
         public override int ContentLength { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override string ContentType { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Web.HttpCookieCollection Cookies { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override string CurrentExecutionFilePath { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override string FilePath { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Web.HttpFileCollectionBase Files { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Collections.Specialized.NameValueCollection Form { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Collections.Specialized.NameValueCollection Headers { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
@@ -529,14 +439,12 @@ namespace System.Web
         public override bool IsLocal { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override bool IsSecureConnection { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override string this[string key] { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override System.Security.Principal.WindowsIdentity LogonUserIdentity { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public override System.Security.Principal.IIdentity LogonUserIdentity { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Collections.Specialized.NameValueCollection Params { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override string Path { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override string PathInfo { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override string PhysicalPath { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Collections.Specialized.NameValueCollection QueryString { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override string RawUrl { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override System.Web.ReadEntityBodyMode ReadEntityBodyMode { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override string RequestType { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Collections.Specialized.NameValueCollection ServerVariables { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override int TotalBytes { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
@@ -550,12 +458,11 @@ namespace System.Web
         public override byte[] BinaryRead(int count) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override System.IO.Stream GetBufferedInputStream() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override System.IO.Stream GetBufferlessInputStream() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override void SaveAs(string filename, bool includeHeaders) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
     public partial class HttpResponse
     {
         internal HttpResponse() { }
-        public bool BufferOutput { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public bool BufferOutput { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Web.HttpCachePolicy Cache { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public string Charset { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Text.Encoding ContentEncoding { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
@@ -599,8 +506,8 @@ namespace System.Web
     public partial class HttpResponseBase
     {
         public HttpResponseBase() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual bool BufferOutput { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual System.Web.HttpCachePolicyBase Cache { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public virtual bool BufferOutput { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public virtual System.Web.HttpCachePolicy Cache { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual string Charset { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Text.Encoding ContentEncoding { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual string ContentType { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
@@ -612,7 +519,6 @@ namespace System.Web
         public virtual bool IsRequestBeingRedirected { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.IO.TextWriter Output { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.IO.Stream OutputStream { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual string RedirectLocation { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual int StatusCode { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual string StatusDescription { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual int SubStatusCode { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
@@ -626,8 +532,6 @@ namespace System.Web
         public virtual void ClearContent() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual void ClearHeaders() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual void End() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual void Flush() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual System.Threading.Tasks.Task FlushAsync() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual void Redirect(string url) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual void Redirect(string url, bool endResponse) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual void RedirectPermanent(string url) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
@@ -643,8 +547,8 @@ namespace System.Web
     public partial class HttpResponseWrapper : System.Web.HttpResponseBase
     {
         public HttpResponseWrapper(System.Web.HttpResponse response) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override bool BufferOutput { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override System.Web.HttpCachePolicyBase Cache { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public override bool BufferOutput { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public override System.Web.HttpCachePolicy Cache { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override string Charset { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Text.Encoding ContentEncoding { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override string ContentType { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
@@ -656,7 +560,6 @@ namespace System.Web
         public override bool IsRequestBeingRedirected { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.IO.TextWriter Output { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.IO.Stream OutputStream { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override string RedirectLocation { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override int StatusCode { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override string StatusDescription { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override int SubStatusCode { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
@@ -670,8 +573,6 @@ namespace System.Web
         public override void ClearContent() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override void ClearHeaders() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override void End() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override void Flush() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override System.Threading.Tasks.Task FlushAsync() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override void Redirect(string url) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override void Redirect(string url, bool endResponse) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override void RedirectPermanent(string url) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
@@ -781,31 +682,11 @@ namespace System.Web
         public override void Remove(string name) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override void RemoveAll() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
-    public abstract partial class HttpTaskAsyncHandler : System.Web.IHttpAsyncHandler, System.Web.IHttpHandler
-    {
-        protected HttpTaskAsyncHandler() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual bool IsReusable { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
-        public virtual void ProcessRequest(System.Web.HttpContext context) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public abstract System.Threading.Tasks.Task ProcessRequestAsync(System.Web.HttpContext context);
-        System.IAsyncResult System.Web.IHttpAsyncHandler.BeginProcessRequest(System.Web.HttpContext context, System.AsyncCallback cb, object extraData) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        void System.Web.IHttpAsyncHandler.EndProcessRequest(System.IAsyncResult result) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-    }
     public sealed partial class HttpUnhandledException : System.Web.HttpException
     {
         public HttpUnhandledException() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public HttpUnhandledException(string message) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public HttpUnhandledException(string message, System.Exception innerException) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-    }
-    public partial interface IHttpAsyncHandler : System.Web.IHttpHandler
-    {
-        System.IAsyncResult BeginProcessRequest(System.Web.HttpContext context, System.AsyncCallback cb, object extraData);
-        void EndProcessRequest(System.IAsyncResult result);
-    }
-    public partial interface IHttpHandler
-    {
-        bool IsReusable { get; }
-        void ProcessRequest(System.Web.HttpContext context);
     }
     public partial interface IHttpModule
     {
@@ -880,13 +761,13 @@ namespace System.Web.Caching
         public object this[string key] { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} set { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public object Add(string key, object value, System.Web.Caching.CacheDependency dependencies, System.DateTime absoluteExpiration, System.TimeSpan slidingExpiration, System.Web.Caching.CacheItemPriority priority, System.Web.Caching.CacheItemRemovedCallback onRemoveCallback) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public object Get(string key) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public System.Collections.IEnumerator GetEnumerator() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void Insert(string key, object value) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void Insert(string key, object value, System.Web.Caching.CacheDependency dependencies) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void Insert(string key, object value, System.Web.Caching.CacheDependency dependencies, System.DateTime absoluteExpiration, System.TimeSpan slidingExpiration) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void Insert(string key, object value, System.Web.Caching.CacheDependency dependencies, System.DateTime absoluteExpiration, System.TimeSpan slidingExpiration, System.Web.Caching.CacheItemPriority priority, System.Web.Caching.CacheItemRemovedCallback onRemoveCallback) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void Insert(string key, object value, System.Web.Caching.CacheDependency dependencies, System.DateTime absoluteExpiration, System.TimeSpan slidingExpiration, System.Web.Caching.CacheItemUpdateCallback onUpdateCallback) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public object Remove(string key) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
     public partial class CacheDependency : System.IDisposable
     {
@@ -903,6 +784,7 @@ namespace System.Web.Caching
         public System.DateTime UtcLastModified { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         protected virtual void DependencyDispose() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void Dispose() { }
+        protected virtual void Dispose(bool disposing) { }
         protected internal void FinishInit() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual string[] GetFileDependencies() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual string GetUniqueID() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
@@ -962,47 +844,8 @@ namespace System.Web.Hosting
     public static partial class HostingEnvironment
     {
         public static string ApplicationID { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public static string ApplicationPhysicalPath { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public static string ApplicationVirtualPath { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public static System.Web.Caching.Cache Cache { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public static bool IsHosted { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public static string SiteName { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public static System.Web.Hosting.VirtualPathProvider VirtualPathProvider { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public static void RegisterVirtualPathProvider(System.Web.Hosting.VirtualPathProvider provider) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-    }
-    public abstract partial class VirtualDirectory : System.Web.Hosting.VirtualFileBase
-    {
-        protected VirtualDirectory(string virtualPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public abstract System.Collections.IEnumerable Children { get; }
-        public abstract System.Collections.IEnumerable Directories { get; }
-        public abstract System.Collections.IEnumerable Files { get; }
-        public override bool IsDirectory { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-    }
-    public abstract partial class VirtualFile : System.Web.Hosting.VirtualFileBase
-    {
-        protected VirtualFile(string virtualPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public override bool IsDirectory { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public abstract System.IO.Stream Open();
-    }
-    public abstract partial class VirtualFileBase
-    {
-        internal VirtualFileBase() { }
-        public abstract bool IsDirectory { get; }
-        public virtual string Name { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public string VirtualPath { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-    }
-    public abstract partial class VirtualPathProvider
-    {
-        protected VirtualPathProvider() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        protected internal System.Web.Hosting.VirtualPathProvider Previous { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual string CombineVirtualPaths(string basePath, string relativePath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual bool DirectoryExists(string virtualDir) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual bool FileExists(string virtualPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual System.Web.Caching.CacheDependency GetCacheDependency(string virtualPath, System.Collections.IEnumerable virtualPathDependencies, System.DateTime utcStart) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual System.Web.Hosting.VirtualDirectory GetDirectory(string virtualDir) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual System.Web.Hosting.VirtualFile GetFile(string virtualPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public virtual string GetFileHash(string virtualPath, System.Collections.IEnumerable virtualPathDependencies) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        protected virtual void Initialize() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
 }
 namespace System.Web.Security
@@ -1034,12 +877,6 @@ namespace System.Web.SessionState
         public System.Collections.IEnumerator GetEnumerator() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void Remove(string name) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void RemoveAll() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-    }
-    public partial interface IReadOnlySessionState : System.Web.SessionState.IRequiresSessionState
-    {
-    }
-    public partial interface IRequiresSessionState
-    {
     }
     public enum SessionStateBehavior
     {

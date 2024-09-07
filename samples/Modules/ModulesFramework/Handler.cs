@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 
 namespace ModulesFramework
@@ -8,11 +11,6 @@ namespace ModulesFramework
 
         public void ProcessRequest(HttpContext context)
         {
-            context.Response.Write($"State: {context.CurrentNotification}\n");
-            context.Response.Flush();
-            context.Response.Write($"State: {context.CurrentNotification}\n");
-            context.Response.Flush();
-            context.Response.Write($"State: {context.CurrentNotification}\n");
         }
     }
 }

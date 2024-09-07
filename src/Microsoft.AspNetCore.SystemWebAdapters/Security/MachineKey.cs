@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.AspNetCore.DataProtection;
+using System.Web.Hosting;
 
 namespace System.Web.Security;
 
@@ -18,7 +19,7 @@ public static class MachineKey
 
         VerifyPurposes(purposes);
 
-        return HttpRuntime.WebObjectActivator.GetDataProtector(MachineKeyPurpose, purposes);
+        return HostingEnvironmentAccessor.Current.Services.GetDataProtector(MachineKeyPurpose, purposes);
     }
 
     public static byte[] Protect(byte[] userData, params string[] purposes)

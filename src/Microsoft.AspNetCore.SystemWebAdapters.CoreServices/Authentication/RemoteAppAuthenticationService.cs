@@ -25,52 +25,70 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
     private readonly HttpClient _client;
     private readonly IAuthenticationResultFactory _resultFactory;
     private readonly ILogger<RemoteAppAuthenticationService> _logger;
-    private readonly IOptionsMonitor<RemoteAppAuthenticationClientOptions> _authOptionsMonitor;
+    private readonly IOptionsSnapshot<RemoteAppAuthenticationClientOptions> _authOptionsSnapshot;
+
+    private RemoteAppAuthenticationClientOptions? _options;
 
     public RemoteAppAuthenticationService(
         IAuthenticationResultFactory resultFactory,
-        IOptionsMonitor<RemoteAppAuthenticationClientOptions> authOptions,
+        IOptionsSnapshot<RemoteAppAuthenticationClientOptions> authOptions,
         IOptions<RemoteAppClientOptions> remoteAppOptions,
         ILogger<RemoteAppAuthenticationService> logger)
     {
         _resultFactory = resultFactory ?? throw new ArgumentNullException(nameof(resultFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _authOptionsMonitor = authOptions ?? throw new ArgumentNullException(nameof(authOptions));
+        _authOptionsSnapshot = authOptions ?? throw new ArgumentNullException(nameof(authOptions));
         _client = remoteAppOptions?.Value.BackchannelClient ?? throw new ArgumentNullException(nameof(remoteAppOptions));
+    }
+
+    /// <summary>
+    /// Initialize the remote authentication service for a given authentication scheme.
+    /// </summary>
+    /// <param name="scheme">The scheme whose configuration should be used to authenticate.</param>
+    public Task InitializeAsync(AuthenticationScheme scheme)
+    {
+        // Finish initializing the http client here since the scheme won't be known
+        // until the owning authentication handler is initialized.
+        _options = _authOptionsSnapshot.Get(scheme.Name);
+
+        return Task.CompletedTask;
     }
 
     /// <summary>
     /// Authenticate the user of a request by making a request to a remote app using configured
     /// headers and/or cookies from the current request.
     /// </summary>
-    /// <param name="scheme">The authentication scheme currently in use.</param>
-    /// <param name="request">The HTTP request to authenticate.</param>
+    /// <param name="originalRequest">The HTTP request to authenticate.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>
-    /// An authentication result including the claims principal of the authenticated user (if any)
+    /// An authenticaiton result including the claims principal of the authenticated user (if any)
     /// and a status code and headers to include in the response to the request in case the user could not be authenticated.
     /// </returns>
     /// <exception cref="InvalidOperationException">
     /// An invalid operation exception is thrown if
     /// AuthenticateAsync is called without calling Initialize.
     /// </exception>
-    public async Task<RemoteAppAuthenticationResult> AuthenticateAsync(AuthenticationScheme scheme, HttpRequest request, CancellationToken cancellationToken)
+    public async Task<RemoteAppAuthenticationResult> AuthenticateAsync(HttpRequest originalRequest, CancellationToken cancellationToken)
     {
-        var options = _authOptionsMonitor.Get(scheme.Name);
+        if (_options is null)
+        {
+            LogHandlerNotInitialized();
+            throw new InvalidOperationException("Remote authentication handler must be initialized before authenticating");
+        }
 
         // Create a new HTTP request, but propagate along configured headers or cookies
         // that may matter for authentication. Also include the original request path as
         // as a query parameter so that the ASP.NET app can redirect back to it if an
         // authentication provider attempts to redirect back to the authenticate URL.
-        var url = $"{options.Path.Relative}?{AuthenticationConstants.OriginalUrlQueryParamName}={WebUtility.UrlEncode(request.GetEncodedPathAndQuery())}";
+        var url = $"{_options.Path.Relative}?{AuthenticationConstants.OriginalUrlQueryParamName}={WebUtility.UrlEncode(originalRequest.GetEncodedPathAndQuery())}";
         using var authRequest = new HttpRequestMessage(HttpMethod.Get, url);
-        AddHeaders(options.RequestHeadersToForward, request, authRequest);
+        AddHeaders(_options.RequestHeadersToForward, originalRequest, authRequest);
 
         // Get the response from the remote app and convert the response into a remote authentication result
         using var response = await _client.SendAsync(authRequest, cancellationToken);
         LogAuthenticationResponse(response.StatusCode);
 
-        return await _resultFactory.CreateRemoteAppAuthenticationResultAsync(response, options);
+        return await _resultFactory.CreateRemoteAppAuthenticationResultAsync(response, _options);
     }
 
     // Add configured headers to the request, or all headers if none in particular are specified
@@ -116,6 +134,9 @@ internal partial class RemoteAppAuthenticationService : IRemoteAppAuthentication
             authRequest.Headers.Add(headerName, originalHeaders);
         }
     }
+
+    [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "Failed to authenticate using the remote app due to invalid or missing API key")]
+    private partial void LogHandlerNotInitialized();
 
     [LoggerMessage(EventId = 1, Level = LogLevel.Debug, Message = "Received remote authentication response with status code {StatusCode}")]
     private partial void LogAuthenticationResponse(HttpStatusCode statusCode);

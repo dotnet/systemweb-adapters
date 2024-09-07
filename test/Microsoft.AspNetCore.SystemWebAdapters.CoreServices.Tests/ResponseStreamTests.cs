@@ -2,16 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -44,32 +40,6 @@ public class ResponseStreamTests
         }, builder => builder.BufferResponseStream());
 
         Assert.Equal(ContentValue, result);
-    }
-
-    [Fact]
-    public async Task OutputPipeIsFlushed()
-    {
-        const string Message = "hello world from pipe!";
-
-        var result = await RunAsync(context =>
-        {
-            context.AsAspNetCore().Response.BodyWriter.Write(Encoding.UTF8.GetBytes(Message));
-        });
-
-        Assert.Equal(Message, result);
-    }
-
-    [Fact]
-    public async Task OutputPipeIsMarkedCompleteIfRequestIsComplete()
-    {
-        var result = await RunAsync(async context =>
-        {
-            await context.AsAspNetCore().Response.CompleteAsync();
-
-            Assert.Throws<InvalidOperationException>(() => context.AsAspNetCore().Response.BodyWriter.Write("Hello world"u8));
-        });
-
-        Assert.Empty(result);
     }
 
     [Fact]
@@ -243,25 +213,6 @@ public class ResponseStreamTests
     }
 
     [Fact]
-    public async Task BufferMultipleTimes()
-    {
-        const string Result = "text";
-
-        // Act
-        var result = await RunAsync(context =>
-        {
-            var feature = context.AsAspNetCore().Features.GetRequiredFeature<IHttpResponseBufferingFeature>();
-
-            feature.EnableBuffering(1024, default);
-            feature.EnableBuffering(1024, default);
-
-            context.Response.Write(Result);
-        });
-
-        Assert.Equal(Result, result);
-    }
-
-    [Fact]
     public async Task BufferOutputIsNotEnabled()
     {
         var result = await RunAsync(context =>
@@ -283,121 +234,14 @@ public class ResponseStreamTests
         Assert.Equal("True", result);
     }
 
-    [Fact]
-    public async Task BufferingCanBeDisabled()
-    {
-        await RunAsync(middleware: (ctx, next) =>
-        {
-            ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().EnableBuffering(1024, default);
-            Assert.True(ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled);
-            ctx.Features.GetRequiredFeature<IHttpResponseBodyFeature>().DisableBuffering();
-            Assert.False(ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled);
-
-            return next(ctx);
-        });
-    }
-
-    [Fact]
-    public async Task BufferingCanBeDisabledWithSuppressContent()
-    {
-        var result = await RunAsync(middleware: async (ctx, next) =>
-        {
-            ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().EnableBuffering(1024, default);
-            Assert.True(ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled);
-
-            await ctx.Response.WriteAsync("before ");
-
-            ctx.Features.GetRequiredFeature<IHttpResponseContentFeature>().SuppressContent = true;
-
-            ctx.Features.GetRequiredFeature<IHttpResponseBodyFeature>().DisableBuffering();
-            Assert.False(ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled);
-
-            await ctx.Response.WriteAsync("after");
-
-            await next(ctx);
-        });
-
-        Assert.Equal("after", result);
-    }
-
-    [Fact]
-    public async Task BufferingCanBeDisabledAndFlushes()
-    {
-        var result = await RunAsync(middleware: async (ctx, next) =>
-        {
-            ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().EnableBuffering(1024, default);
-            Assert.True(ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled);
-
-            await ctx.Response.WriteAsync("before ");
-
-            ctx.Features.GetRequiredFeature<IHttpResponseBodyFeature>().DisableBuffering();
-            Assert.False(ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled);
-
-            await ctx.Response.WriteAsync("after");
-
-            await next(ctx);
-        });
-
-        Assert.Equal("before after", result);
-    }
-
-    [Fact]
-    public async Task BufferingCannotBeEnabledIfWritingHasBegun()
-    {
-        await RunAsync(middleware: async (ctx, next) =>
-        {
-            await ctx.Response.WriteAsync("start");
-
-            Assert.Throws<InvalidOperationException>(() =>
-            {
-                ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().EnableBuffering(1024, default);
-            });
-
-            await next(ctx);
-        });
-    }
-
-    [Fact]
-    public async Task BufferingCanBeDisabledAndFlushesUsingPipe()
-    {
-        var result = await RunAsync(middleware: async (ctx, next) =>
-        {
-            ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().EnableBuffering(1024, default);
-            Assert.True(ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled);
-
-            await ctx.Response.BodyWriter.WriteAsync(Encoding.UTF8.GetBytes("before "));
-
-            ctx.Features.GetRequiredFeature<IHttpResponseBodyFeature>().DisableBuffering();
-            Assert.False(ctx.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().IsEnabled);
-
-            await ctx.Response.BodyWriter.WriteAsync(Encoding.UTF8.GetBytes("after"));
-
-            await next(ctx);
-        });
-
-        Assert.Equal("before after", result);
-    }
-
-    [Fact]
-    public async Task BufferIsNotFlushedIfNotAvailable()
-    {
-        var result = await RunAsync(middleware: (ctx, next) =>
-        {
-            ctx.Features.Set<IHttpResponseBufferingFeature>(null);
-            return next(ctx);
-        });
-
-        Assert.Equal(string.Empty, result);
-    }
-
-    private static Task<string> RunAsync(Action<HttpContext> action, Action<IEndpointConventionBuilder>? builder = null, Func<Http.HttpContext, RequestDelegate, Task>? middleware = null)
+    private static Task<string> RunAsync(Action<HttpContext> action, Action<IEndpointConventionBuilder>? builder = null)
         => RunAsync(ctx =>
         {
             action(ctx);
             return Task.CompletedTask;
-        }, builder, middleware);
+        }, builder);
 
-    private static async Task<string> RunAsync(Func<HttpContext, Task>? endpointAction = null, Action<IEndpointConventionBuilder>? builder = null, Func<Http.HttpContext, RequestDelegate, Task>? middleware = null)
+    private static async Task<string> RunAsync(Func<HttpContext, Task> action, Action<IEndpointConventionBuilder>? builder = null)
     {
         builder ??= _ => { };
 
@@ -418,21 +262,9 @@ public class ResponseStreamTests
                     {
                         app.UseRouting();
                         app.UseSystemWebAdapters();
-
-                        if (middleware is { })
-                        {
-                            app.Use(middleware);
-                        }
-
                         app.UseEndpoints(endpoints =>
                         {
-                            builder(endpoints.Map("/", (HttpContextCore context) =>
-                            {
-                                if (endpointAction is { })
-                                {
-                                    endpointAction(context);
-                                }
-                            }));
+                            builder(endpoints.Map("/", (HttpContextCore context) => action(context)));
                         });
                     });
             })

@@ -90,7 +90,6 @@ internal sealed class VirtualPathUtilityImpl
         return UrlPath.GetExtension(virtualPath);
     }
 
-    [return: NotNullIfNotNull(nameof(virtualPath))]
     public static string? GetFileName(string virtualPath)
     {
         if (string.IsNullOrEmpty(virtualPath))

@@ -17,7 +17,5 @@ public sealed class HttpRuntime
 
     public static string AppDomainAppPath => HostingEnvironmentAccessor.Current.Options.AppDomainAppPath;
 
-    public static IServiceProvider WebObjectActivator => HostingEnvironmentAccessor.Current.Services;
-
-    public static Cache Cache => WebObjectActivator.GetRequiredService<Cache>();
+    public static Cache Cache => HostingEnvironmentAccessor.Current.Services.GetRequiredService<Cache>();
 }

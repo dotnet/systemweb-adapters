@@ -25,8 +25,8 @@ namespace FormsAuth
             string[] passwords = { "PasswordA", "PasswordB", "PasswordC" };
             for (int i = 0; i < users.Length; i++)
             {
-                bool validUsername = (string.Equals(UserName.Text, users[i], StringComparison.OrdinalIgnoreCase));
-                bool validPassword = (string.Equals(Password.Text, passwords[i], StringComparison.Ordinal));
+                bool validUsername = (string.Compare(UserName.Text, users[i], true) == 0);
+                bool validPassword = (string.Compare(Password.Text, passwords[i], false) == 0);
                 if (validUsername && validPassword)
                 {
                     FormsAuthentication.RedirectFromLoginPage(UserName.Text, RememberMe.Checked);

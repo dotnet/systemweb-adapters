@@ -10,16 +10,6 @@ namespace ModulesLibrary
         public const string Complete = "complete";
         public const string Throw = "throw";
 
-        public override void Init(HttpApplication application)
-        {
-            if (application is { })
-            {
-                application.BeginRequest += (s, o) => ((HttpApplication)s!).Context.Response.ContentType = "text/plain";
-
-                base.Init(application);
-            }
-        }
-
         protected override void InvokeEvent(HttpContext context, string name)
         {
             if (context is null)
@@ -27,18 +17,16 @@ namespace ModulesLibrary
                 throw new ArgumentNullException(nameof(context));
             }
 
-            var action = context.Request.QueryString["action"];
-
-            var writeOutputBefore = action != Throw;
-
-            if (writeOutputBefore)
+            if (context.CurrentNotification == RequestNotification.BeginRequest)
             {
-                context.Response.Output.WriteLine(name);
+                context.Response.ContentType = "text/plain";
             }
+
+            context.Response.Output.WriteLine(name);
 
             if (string.Equals(name, context.Request.QueryString["notification"], StringComparison.OrdinalIgnoreCase))
             {
-                switch (action)
+                switch (context.Request.QueryString["action"])
                 {
                     case End:
                         context.Response.End();
@@ -49,11 +37,6 @@ namespace ModulesLibrary
                     case Throw:
                         throw new InvalidOperationException();
                 }
-            }
-
-            if (!writeOutputBefore)
-            {
-                context.Response.Output.WriteLine(name);
             }
         }
     }

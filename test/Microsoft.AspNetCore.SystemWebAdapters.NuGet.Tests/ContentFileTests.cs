@@ -16,13 +16,13 @@ public class ContentFileTests
         // Arrange
         var expected = new[]
         {
-            Path.Combine("Scripts", "jquery-3.7.1-vsdoc.js"),
-            Path.Combine("Scripts", "jquery-3.7.1.js"),
-            Path.Combine("Scripts", "jquery-3.7.1.min.js"),
-            Path.Combine("Scripts", "jquery-3.7.1.min.map"),
-            Path.Combine("Scripts", "jquery-3.7.1.slim.js"),
-            Path.Combine("Scripts", "jquery-3.7.1.slim.min.js"),
-            Path.Combine("Scripts", "jquery-3.7.1.slim.min.map"),
+            Path.Combine("Scripts", "jquery-3.7.0-vsdoc.js"),
+            Path.Combine("Scripts", "jquery-3.7.0.js"),
+            Path.Combine("Scripts", "jquery-3.7.0.min.js"),
+            Path.Combine("Scripts", "jquery-3.7.0.min.map"),
+            Path.Combine("Scripts", "jquery-3.7.0.slim.js"),
+            Path.Combine("Scripts", "jquery-3.7.0.slim.min.js"),
+            Path.Combine("Scripts", "jquery-3.7.0.slim.min.map"),
         };
 
         // Act

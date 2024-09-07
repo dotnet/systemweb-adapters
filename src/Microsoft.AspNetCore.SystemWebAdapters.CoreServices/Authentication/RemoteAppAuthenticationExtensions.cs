@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters.Authentication.ResultProcessors;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -53,9 +52,9 @@ public static class RemoteAppAuthenticationExtensions
     {
         ArgumentNullException.ThrowIfNull(authenticationBuilder);
 
-        authenticationBuilder.Services.TryAddScoped<IRemoteAppAuthenticationResultProcessor, RedirectUrlProcessor>();
-        authenticationBuilder.Services.TryAddSingleton<IAuthenticationResultFactory, RemoteAppAuthenticationResultFactory>();
-        authenticationBuilder.Services.TryAddSingleton<IRemoteAppAuthenticationService, RemoteAppAuthenticationService>();
+        authenticationBuilder.Services.AddScoped<IRemoteAppAuthenticationResultProcessor, RedirectUrlProcessor>();
+        authenticationBuilder.Services.AddSingleton<IAuthenticationResultFactory, RemoteAppAuthenticationResultFactory>();
+        authenticationBuilder.Services.AddTransient<IRemoteAppAuthenticationService, RemoteAppAuthenticationService>();
         authenticationBuilder.Services.AddOptions<RemoteAppAuthenticationClientOptions>(scheme)
             .Configure(configureOptions ?? (_ => { }))
             .ValidateDataAnnotations();

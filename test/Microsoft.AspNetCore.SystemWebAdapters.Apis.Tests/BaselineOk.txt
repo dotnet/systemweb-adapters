@@ -1,7 +1,0 @@
-# These are overriden and do resolve correctly - it's a test issue that they are found
-T:System.Int32 M:System.Web.HttpFileCollection.get_Count
-T:System.Collections.Specialized.NameObjectCollectionBase.KeysCollection M:System.Web.HttpFileCollection.get_Keys
-T:System.Collections.IEnumerator M:System.Web.HttpFileCollection.GetEnumerator
-T:System.Int32 P:System.Web.HttpFileCollection.Count
-T:System.Collections.Specialized.NameObjectCollectionBase.KeysCollection P:System.Web.HttpFileCollection.Keys
-

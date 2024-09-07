@@ -1,14 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.IO;
-using Microsoft.AspNetCore.Http;
+using System.Net;
 
 namespace System.Web;
 
 public class HttpException : SystemException
 {
-    private readonly int _httpStatusCode; 
+    private readonly int _httpStatusCode = 500;
 
     public HttpException()
     {
@@ -18,9 +17,19 @@ public class HttpException : SystemException
     {
     }
 
-    public HttpException(String message, Exception innerException)
+    public HttpException(string message, Exception innerException)
         : base(message, innerException)
     {
+    }
+
+    public HttpException(int httpStatusCode)
+    {
+        _httpStatusCode = httpStatusCode;
+    }
+
+    public HttpException(HttpStatusCode httpStatusCode)
+    {
+        _httpStatusCode = (int)httpStatusCode;
     }
 
     public HttpException(int httpStatusCode, string message)
@@ -29,21 +38,29 @@ public class HttpException : SystemException
         _httpStatusCode = httpStatusCode;
     }
 
+    public HttpException(HttpStatusCode httpStatusCode, string message)
+        : base(message)
+    {
+        _httpStatusCode = (int)httpStatusCode;
+    }
+
     public HttpException(int httpStatusCode, string message, Exception innerException)
         : base(message, innerException)
     {
         _httpStatusCode = httpStatusCode;
     }
 
-    [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1024:Use properties where appropriate", Justification = Constants.ApiFromAspNet)]
-    public int GetHttpCode() => GetHttpCodeForException(this);
-
-    internal static int GetHttpCodeForException(Exception e) => e switch
+    public HttpException(HttpStatusCode httpStatusCode, string message, Exception innerException)
+        : base(message, innerException)
     {
-        HttpException { _httpStatusCode: { } code } when code > 0 => code,
-        UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
-        PathTooLongException => StatusCodes.Status414UriTooLong,
-        { InnerException: { } inner } => GetHttpCodeForException(inner),
-        _ => 500
-    };
+        _httpStatusCode = (int)httpStatusCode;
+    }
+
+    [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1024:Use properties where appropriate", Justification = Constants.ApiFromAspNet)]
+    public int GetHttpCode()
+    {
+        return StatusCode;
+    }
+
+    public int StatusCode => _httpStatusCode;
 }

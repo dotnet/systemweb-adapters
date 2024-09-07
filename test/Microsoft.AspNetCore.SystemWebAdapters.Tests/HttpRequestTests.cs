@@ -597,6 +597,30 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             Assert.Equal(isAuthenticated, result);
         }
 
+        [Fact]
+        public void Identity()
+        {
+            // Arrange
+            var identity = new Mock<IIdentity>();
+
+            var user = new Mock<ClaimsPrincipal>();
+            user.Setup(u => u.Identity).Returns(identity.Object);
+
+            var coreContext = new Mock<HttpContextCore>();
+            coreContext.Setup(c => c.User).Returns(user.Object);
+
+            var coreRequest = new Mock<HttpRequestCore>();
+            coreRequest.Setup(c => c.HttpContext).Returns(coreContext.Object);
+
+            var request = new HttpRequest(coreRequest.Object);
+
+            // Act
+            var result = request.LogonUserIdentity;
+
+            // Assert
+            Assert.Same(identity.Object, result);
+        }
+
         public enum ContentEncodingType
         {
             None,
@@ -608,7 +632,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         [InlineData(null, ContentEncodingType.None)]
         [InlineData("application/json;charset=utf-8", ContentEncodingType.UTF8)]
         [InlineData("application/json;charset=utf-32", ContentEncodingType.UTF32)]
-        public void ContentEncoding(string? contentType, ContentEncodingType type)
+        public void ContentEncoding(string contentType, ContentEncodingType type)
         {
             // Arrange
             var headers = new HeaderDictionary

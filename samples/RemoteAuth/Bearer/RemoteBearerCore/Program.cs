@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.SystemWebAdapters;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,8 +8,8 @@ builder.Services.AddControllers();
 builder.Services.AddSystemWebAdapters()
     .AddRemoteAppClient(options =>
     {
-        options.RemoteAppUrl = new(builder.Configuration["ProxyTo"]!);
-        options.ApiKey = builder.Configuration["RemoteAppApiKey"]!;
+        options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
+        options.ApiKey = builder.Configuration["RemoteAppApiKey"];
     })
 
     // This registers the remote app authentication handler. The boolean argument indicates whether remote app auth
@@ -26,17 +25,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/core", (ClaimsPrincipal user) => user is { } ? new
-{
-    user.Identity?.Name,
-    Claims = user.Claims.Select(c => new
-    {
-        c.Type,
-        c.Value,
-    })
-} : null)
-    .RequireAuthorization();
+app.MapControllers();
 
-app.MapForwarder("/{**catch-all}", app.Configuration["ProxyTo"]!).WithOrder(int.MaxValue);
+app.MapReverseProxy();
 
 app.Run();

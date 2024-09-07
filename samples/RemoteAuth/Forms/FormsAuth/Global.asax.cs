@@ -11,17 +11,17 @@ namespace FormsAuth
     {
         void Application_Start(object sender, EventArgs e)
         {
+            // Code that runs on application startup
+            RouteConfig.RegisterRoutes(RouteTable.Routes);
+            BundleConfig.RegisterBundles(BundleTable.Bundles);
+
             SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
-                .AddVirtualizedContentDirectories()
                 .AddProxySupport(options => options.UseForwardedHeaders = true)
                 .AddRemoteAppServer(options =>
                     {
                         options.ApiKey = ConfigurationManager.AppSettings["RemoteAppApiKey"];
                     })
                 .AddAuthenticationServer();
-
-            RouteConfig.RegisterRoutes(RouteTable.Routes);
-            BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
     }
 }

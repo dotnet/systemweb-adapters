@@ -43,7 +43,7 @@ namespace System.Web
 
         public override HttpApplication ApplicationInstance => _context.ApplicationInstance;
 
-        public override HttpApplicationStateBase Application => new HttpApplicationStateWrapper(_context.Application);
+        public override HttpApplicationState Application => _context.Application;
 
         public override RequestNotification CurrentNotification => _context.CurrentNotification;
 
@@ -71,22 +71,6 @@ namespace System.Web
         }
 
         public override Cache Cache => _context.Cache;
-
-        public override IHttpHandler? CurrentHandler => _context.CurrentHandler;
-
-        public override IHttpHandler? Handler
-        {
-            get => _context.Handler;
-            set => _context.Handler = value;
-        }
-
-        public override ISubscriptionToken DisposeOnPipelineCompleted(IDisposable target) => _context.DisposeOnPipelineCompleted(target);
-
-        public override TraceContext Trace => _context.Trace;
-
-        public override IHttpHandler? PreviousHandler => _context.PreviousHandler;
-
-        public override void RemapHandler(IHttpHandler handler) => _context.RemapHandler(handler);
 
         public override void RewritePath(string path) => _context.RewritePath(path);
 

@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
@@ -16,7 +15,7 @@ internal class HttpApplicationMiddleware
 
     public async Task InvokeAsync(HttpContextCore context)
     {
-        context.Features.GetRequiredFeature<IHttpResponseBufferingFeature>().EnableBuffering(BufferResponseStreamAttribute.DefaultMemoryThreshold, default);
+        context.Features.GetRequired<IHttpResponseBufferingFeature>().EnableBuffering(BufferResponseStreamAttribute.DefaultMemoryThreshold, default);
 
         try
         {
@@ -24,7 +23,7 @@ internal class HttpApplicationMiddleware
         }
         finally
         {
-            await context.Features.GetRequiredFeature<IHttpResponseEndFeature>().EndAsync();
+            await context.Features.GetRequired<IHttpResponseEndFeature>().EndAsync();
         }
     }
 }

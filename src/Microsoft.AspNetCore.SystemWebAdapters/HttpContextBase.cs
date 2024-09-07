@@ -26,17 +26,13 @@ namespace System.Web
         [SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = Constants.ApiFromAspNet)]
         public virtual Exception[] AllErrors => throw new NotImplementedException();
 
-        public virtual TraceContext Trace => throw new NotImplementedException();
-
-        public virtual ISubscriptionToken DisposeOnPipelineCompleted(IDisposable target) => throw new NotImplementedException();
-
         public virtual void ClearError() => throw new NotImplementedException();
 
         public virtual void AddError(Exception ex) => throw new NotImplementedException();
 
         public virtual HttpApplication ApplicationInstance => throw new NotImplementedException();
 
-        public virtual HttpApplicationStateBase Application => throw new NotImplementedException();
+        public virtual HttpApplicationState Application => throw new NotImplementedException();
 
         public virtual bool IsPostNotification => throw new NotImplementedException();
 
@@ -45,18 +41,6 @@ namespace System.Web
         public virtual IDictionary Items => throw new NotImplementedException();
 
         public virtual DateTime Timestamp => throw new NotImplementedException();
-
-        public virtual IHttpHandler? Handler
-        {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
-        }
-
-        public virtual IHttpHandler? CurrentHandler => throw new NotImplementedException();
-
-        public virtual IHttpHandler? PreviousHandler => throw new NotImplementedException();
-
-        public virtual void RemapHandler(IHttpHandler handler) => throw new NotImplementedException();
 
         public virtual IPrincipal User
         {

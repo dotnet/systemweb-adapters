@@ -72,7 +72,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [InlineData("/test", "/test/")]
         [InlineData("test", "test/")]
         [Theory]
-        public void AppendTrailingSlash(string? virtualPath, string? expected)
+        public void AppendTrailingSlash(string virtualPath, string expected)
         {
             Assert.Equal(expected, VirtualPathUtilityImpl.AppendTrailingSlash(virtualPath));
         }
@@ -82,9 +82,9 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [InlineData("/", "/")]
         [InlineData("/test/", "/test")]
         [Theory]
-        public void RemoveTrailingSlash(string? virtualPath, string? expected)
+        public void RemoveTrailingSlash(string virtualPath, string expected)
         {
-            Assert.Equal(expected, VirtualPathUtilityImpl.RemoveTrailingSlash(virtualPath!));
+            Assert.Equal(expected, VirtualPathUtilityImpl.RemoveTrailingSlash(virtualPath));
         }
 
         // These are conditional so that these tests can be run against net48.
@@ -99,7 +99,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests
         [InlineData("/test", "/")]
         [InlineData("/test/world.jpg", "/test/")]
         [Theory]
-        public void GetDirectory(string virtualPath, string? expected)
+        public void GetDirectory(string virtualPath, string expected)
         {
             Assert.Equal(expected, VirtualPathUtilityImpl.GetDirectory(virtualPath));
         }

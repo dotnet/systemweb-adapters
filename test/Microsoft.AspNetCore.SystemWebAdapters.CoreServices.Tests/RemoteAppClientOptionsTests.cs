@@ -24,7 +24,7 @@ public class RemoteAppClientOptionsTests
     [InlineData("HeaderName", "", "http://test", false)]
     [InlineData("HeaderName", "36705d36-eba0-44f9-a2e0-c57e6f521274", null, false)]
     [Theory]
-    public void VerifyIsCalled(string? apiKeyHeader, string? apiKey, string? remoteApp, bool shouldSucceed)
+    public void VerifyIsCalled(string apiKeyHeader, string apiKey, string remoteApp, bool shouldSucceed)
     {
         // Arrange
         var services = new ServiceCollection();
@@ -32,8 +32,8 @@ public class RemoteAppClientOptionsTests
 
         builder.AddRemoteAppClient(options =>
         {
-            options.ApiKey = apiKey!;
-            options.ApiKeyHeader = apiKeyHeader!;
+            options.ApiKey = apiKey;
+            options.ApiKeyHeader = apiKeyHeader;
 
             if (remoteApp is not null)
             {

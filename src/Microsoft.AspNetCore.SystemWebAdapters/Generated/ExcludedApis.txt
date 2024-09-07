@@ -27,7 +27,3 @@ T:System.Web.IHtmlString
 T:System.Web.HtmlString
 
 T:Microsoft.AspNetCore.SystemWebAdapters.ITraceContext
-
-# Only available .NET 4.7.2+
-P:System.Web.HttpRuntime.WebObjectActivator
- 

@@ -3,23 +3,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.ObjectPool;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpResponseEndFeature, IRequestExceptionFeature, IDisposable
 {
-    private static readonly HashSet<ApplicationEvent> _suppressThrow =
-    [
-        ApplicationEvent.LogRequest,
-        ApplicationEvent.PostLogRequest,
-        ApplicationEvent.EndRequest,
-    ];
-
     private readonly IHttpResponseEndFeature _previous;
     private readonly ObjectPool<HttpApplication> _pool;
 
@@ -57,12 +48,12 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
 
     ValueTask IHttpApplicationFeature.RaiseEventAsync(ApplicationEvent @event)
     {
-        RaiseEvent(@event);
+        RaiseEvent(@event, suppressThrow: false);
         return ValueTask.CompletedTask;
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Must handle all exceptions here")]
-    private void RaiseEvent(ApplicationEvent appEvent)
+    private void RaiseEvent(ApplicationEvent appEvent, bool suppressThrow)
     {
         (CurrentNotification, IsPostNotification) = appEvent switch
         {
@@ -86,7 +77,6 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
             ApplicationEvent.LogRequest => (RequestNotification.LogRequest, false),
             ApplicationEvent.PostLogRequest => (RequestNotification.LogRequest, true),
             ApplicationEvent.EndRequest => (RequestNotification.EndRequest, false),
-            ApplicationEvent.ExecuteRequestHandler => (RequestNotification.ExecuteRequestHandler, false),
 
             // Remaining events just continue using the existing notifications
             _ => (CurrentNotification, IsPostNotification),
@@ -96,34 +86,16 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
         {
             Application.InvokeEvent(appEvent);
         }
-        catch (Exception ex) when (!IsReentrant(ex))
+        catch (Exception ex)
         {
             AddError(ex);
             Application.InvokeEvent(ApplicationEvent.Error);
 
-            if (!_suppressThrow.Contains(appEvent))
+            if (!suppressThrow)
             {
                 ThrowIfErrors();
             }
         }
-    }
-
-    /// <summary>
-    /// Checks to see if we're attempting to invoke the Error event when we're currently throwing the existing errors.
-    /// This would imply a nested event invocation and we don't need to rethrow in that case.
-    /// </summary>
-    private bool IsReentrant(Exception e)
-    {
-        if (_exceptions is [{ } exception])
-        {
-            return ReferenceEquals(e, exception);
-        }
-        else if (e is AggregateException a && _exceptions is { } exceptions)
-        {
-            return a.InnerExceptions.SequenceEqual(exceptions);
-        }
-
-        return false;
     }
 
     private void ThrowIfErrors()
@@ -147,9 +119,10 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
 
         IsEnded = true;
 
-        RaiseEvent(ApplicationEvent.LogRequest);
-        RaiseEvent(ApplicationEvent.PostLogRequest);
-        RaiseEvent(ApplicationEvent.EndRequest);
+        RaiseEvent(ApplicationEvent.LogRequest, suppressThrow: true);
+        RaiseEvent(ApplicationEvent.PostLogRequest, suppressThrow: true);
+        RaiseEvent(ApplicationEvent.EndRequest, suppressThrow: true);
+        RaiseEvent(ApplicationEvent.PreSendRequestHeaders, suppressThrow: true);
 
         await _previous.EndAsync();
 

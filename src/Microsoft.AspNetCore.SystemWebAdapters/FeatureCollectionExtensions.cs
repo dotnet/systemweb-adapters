@@ -1,15 +1,14 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#if !NET7_0_OR_GREATER
-
 using System;
+using Microsoft.AspNetCore.Http.Features;
 
-namespace Microsoft.AspNetCore.Http.Features;
+namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal static class FeatureCollectionExtensions
 {
-    internal static TFeature GetRequiredFeature<TFeature>(this IFeatureCollection features)
+    internal static TFeature GetRequired<TFeature>(this IFeatureCollection features)
     {
         if (features.Get<TFeature>() is TFeature feature)
         {
@@ -19,5 +18,3 @@ internal static class FeatureCollectionExtensions
         throw new InvalidOperationException($"Feature {typeof(TFeature)} is not available");
     }
 }
-#endif
-

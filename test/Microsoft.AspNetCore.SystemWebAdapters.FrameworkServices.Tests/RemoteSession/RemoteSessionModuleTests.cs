@@ -37,7 +37,7 @@ public class RemoteSessionModuleTests
     [InlineData("PUT", "false", 0, ApiKey1, ApiKey1, typeof(StoreSessionStateHandler))]
     [InlineData("POST", null, 405, ApiKey1, ApiKey1, null)]
     [Theory]
-    public void VerifyCorrectHandler(string method, string? readOnlyHeaderValue, int statusCode, string expectedApiKey, string apiKey, Type? handlerType)
+    public void VerifyCorrectHandler(string method, string readOnlyHeaderValue, int statusCode, string expectedApiKey, string apiKey, Type handlerType)
     {
         // Arrange
         var sessionOptions = Options.Create(new RemoteAppSessionStateServerOptions());

@@ -18,7 +18,7 @@ internal struct SimpleJsonWriter : IDisposable
         _response.Output.WriteLine("{");
     }
 
-    public readonly void Dispose()
+    public void Dispose()
     {
         if (_hasWritten)
         {

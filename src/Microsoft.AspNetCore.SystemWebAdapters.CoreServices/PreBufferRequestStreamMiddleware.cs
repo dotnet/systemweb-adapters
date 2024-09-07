@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
@@ -18,7 +17,7 @@ internal partial class PreBufferRequestStreamMiddleware
     {
         if (context.GetEndpoint()?.Metadata.GetMetadata<PreBufferRequestStreamAttribute>() is { IsDisabled: false } metadata)
         {
-            var inputStreamFeature = context.Features.GetRequiredFeature<IHttpRequestInputStreamFeature>();
+            var inputStreamFeature = context.Features.GetRequired<IHttpRequestInputStreamFeature>();
 
             inputStreamFeature.BufferThreshold = metadata.BufferThreshold;
 

@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <EnablePackageValidation>true</EnablePackageValidation>
     <RootNamespace>Microsoft.AspNetCore.SystemWebAdapters</RootNamespace>
@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <!-- Provided in box for .NET 8+ -->
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'net7.0' ">
     <PackageReference Include="Microsoft.Bcl.TimeProvider" Version="8.0.0" />
   </ItemGroup>
 

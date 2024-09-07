@@ -5,7 +5,7 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace System.Web
 {
@@ -59,11 +59,7 @@ namespace System.Web
             set => _response.Output = value;
         }
 
-        public override bool BufferOutput
-        {
-            get => _response.BufferOutput;
-            set => _response.BufferOutput = value;
-        }
+        public override bool BufferOutput => _response.BufferOutput;
 
         public override Stream OutputStream => _response.OutputStream;
 
@@ -103,7 +99,7 @@ namespace System.Web
             set => _response.TrySkipIisCustomErrors = value;
         }
 
-        public override HttpCachePolicyBase Cache => new HttpCachePolicyWrapper(_response.Cache);
+        public override HttpCachePolicy Cache => _response.Cache;
 
         [AllowNull]
         public override Stream Filter
@@ -126,10 +122,6 @@ namespace System.Web
 
         public override void ClearHeaders() => _response.ClearHeaders();
 
-        public override void Flush() => _response.Flush();
-
-        public override Task FlushAsync() => _response.FlushAsync();
-
         public override void End() => _response.End();
 
         public override void TransmitFile(string filename) => _response.TransmitFile(filename);
@@ -151,10 +143,5 @@ namespace System.Web
         [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = Constants.ApiFromAspNet)]
         public override void RedirectPermanent(string url, bool endResponse) => _response.RedirectPermanent(url, endResponse);
 
-        public override string? RedirectLocation
-        {
-            get => _response.RedirectLocation;
-            set => _response.RedirectLocation = value;
-        }
     }
 }

@@ -2,9 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.IO;
+using System.Net;
 using System.Web;
-using Microsoft.AspNetCore.Http;
 using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
@@ -59,10 +58,23 @@ public class HttpExceptionTests
         var httpStatusCode = 404;
 
         // Act
-        var exception = new HttpException(httpStatusCode, "message");
+        var exception = new HttpException(httpStatusCode);
 
         // Assert
         Assert.Equal(httpStatusCode, exception.GetHttpCode());
+    }
+
+    [Fact]
+    public void CreateWithHttpStatusCodeEnum()
+    {
+        // Arrange
+        var httpStatusCode = HttpStatusCode.NotFound;
+
+        // Act
+        var exception = new HttpException(httpStatusCode);
+
+        // Assert
+        Assert.Equal((int)httpStatusCode, exception.GetHttpCode());
     }
 
     [Fact]
@@ -78,6 +90,21 @@ public class HttpExceptionTests
         // Assert
         Assert.Equal(message, exception.Message);
         Assert.Equal(httpStatusCode, exception.GetHttpCode());
+    }
+
+    [Fact]
+    public void CreateWithHttpStatusCodeEnumAndMessage()
+    {
+        // Arrange
+        var httpStatusCode = HttpStatusCode.NotFound;
+        var message = "message";
+
+        // Act
+        var exception = new HttpException(httpStatusCode, message);
+
+        // Assert
+        Assert.Equal(message, exception.Message);
+        Assert.Equal((int)httpStatusCode, exception.GetHttpCode());
     }
 
     [Fact]
@@ -97,28 +124,18 @@ public class HttpExceptionTests
     }
 
     [Fact]
-    public void PathTooLongCode()
+    public void CreateWithEnumHttpStatusCodeAndMessageAndInnerException()
     {
         // Arrange
-        var exception = new HttpException(string.Empty, new PathTooLongException());
+        var httpStatusCode = HttpStatusCode.NotFound;
+        var message = "message";
+        var innerException = new Exception();
 
         // Act
-        var httpStatusCode = exception.GetHttpCode();
+        var exception = new HttpException(httpStatusCode, message, innerException);
 
         // Assert
-        Assert.Equal(StatusCodes.Status414UriTooLong, httpStatusCode);
-    }
-
-    [Fact]
-    public void UnauthorizedCode()
-    {
-        // Arrange
-        var exception = new HttpException(string.Empty, new UnauthorizedAccessException());
-
-        // Act
-        var httpStatusCode = exception.GetHttpCode();
-
-        // Assert
-        Assert.Equal(StatusCodes.Status401Unauthorized, httpStatusCode);
+        Assert.Equal(message, exception.Message);
+        Assert.Equal((int)httpStatusCode, exception.GetHttpCode());
     }
 }

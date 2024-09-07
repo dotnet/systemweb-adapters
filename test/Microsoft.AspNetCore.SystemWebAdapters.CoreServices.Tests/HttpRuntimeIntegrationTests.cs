@@ -55,9 +55,7 @@ public class HttpRuntimeIntegrationTests : SelfHostedTestBase
         // Assert
         Assert.Equal(IIS_SITE_NAME, options.SiteName);
         Assert.Equal(IIS_APPLICATION_VIRTUAL_PATH, options.AppDomainAppVirtualPath);
-        Assert.Equal(IIS_APPLICATION_VIRTUAL_PATH, options.ApplicationVirtualPath);
         Assert.Equal(IIS_PHYSICAL_PATH, options.AppDomainAppPath);
-        Assert.Equal(IIS_PHYSICAL_PATH, options.ApplicationPhysicalPath);
         Assert.Equal(IIS_APPLICATION_ID, options.ApplicationID);
         Assert.True(options.IsHosted);
     }
@@ -87,9 +85,7 @@ public class HttpRuntimeIntegrationTests : SelfHostedTestBase
         // Assert
         Assert.Equal(IIS_SITE_NAME, options.SiteName);
         Assert.Equal(IIS_APPLICATION_VIRTUAL_PATH, options.AppDomainAppVirtualPath);
-        Assert.Equal(IIS_APPLICATION_VIRTUAL_PATH, options.ApplicationVirtualPath);
         Assert.Equal(IIS_PHYSICAL_PATH, options.AppDomainAppPath);
-        Assert.Equal(IIS_PHYSICAL_PATH, options.ApplicationPhysicalPath);
         Assert.Equal(IIS_APPLICATION_ID, options.ApplicationID);
         Assert.True(options.IsHosted);
     }

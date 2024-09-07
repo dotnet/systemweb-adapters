@@ -9,8 +9,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSystemWebAdapters()
     .AddRemoteAppClient(options =>
     {
-        options.RemoteAppUrl = new(builder.Configuration["ProxyTo"]!);
-        options.ApiKey = builder.Configuration["RemoteAppApiKey"]!;
+        options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
+        options.ApiKey = builder.Configuration["RemoteAppApiKey"];
     })
     .AddAuthenticationClient(true);
 
@@ -37,6 +37,6 @@ app.UseSystemWebAdapters();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapForwarder("/{**catch-all}", app.Configuration["ProxyTo"]!).WithOrder(int.MaxValue);
+app.MapReverseProxy();
 
 app.Run();
