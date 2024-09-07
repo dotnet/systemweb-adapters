@@ -6,9 +6,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Principal;
 using System.Web.Caching;
-using System.Web.Hosting;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
@@ -20,6 +20,8 @@ namespace System.Web;
 
 public class HttpContext : IServiceProvider
 {
+    private static readonly HttpContextAccessor _accessor = new();
+
     private HttpRequest? _request;
     private HttpResponse? _response;
     private HttpServerUtility? _server;
@@ -28,8 +30,8 @@ public class HttpContext : IServiceProvider
 
     public static HttpContext? Current
     {
-        get => HostingEnvironmentAccessor.HttpContextAccessor.HttpContext?.AsSystemWeb();
-        set => HostingEnvironmentAccessor.HttpContextAccessor.HttpContext = value?.AsAspNetCore();
+        get => _accessor.HttpContext?.AsSystemWeb();
+        set => _accessor.HttpContext = value?.AsAspNetCore();
     }
 
     internal HttpContext(HttpContextCore context)

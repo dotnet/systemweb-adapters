@@ -15,6 +15,4 @@ public abstract class HttpPostedFileBase
     public virtual int ContentLength => throw new NotImplementedException();
 
     public virtual Stream InputStream => throw new NotImplementedException();
-
-    public virtual void SaveAs(string filename) => throw new NotImplementedException(); 
 }

@@ -13,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 using Xunit;
-
 using SameSiteMode = System.Web.SameSiteMode;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests;
