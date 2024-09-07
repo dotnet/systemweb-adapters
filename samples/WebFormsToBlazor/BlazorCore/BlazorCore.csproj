@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.CustomElements" Version="7.0.3" />
-    <PackageReference Include="Yarp.ReverseProxy" Version="1.1.2" />
+    <PackageReference Include="Yarp.ReverseProxy" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>

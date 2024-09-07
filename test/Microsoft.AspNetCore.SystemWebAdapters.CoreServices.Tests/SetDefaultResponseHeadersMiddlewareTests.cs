@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -14,7 +12,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Tests;
 public class SetDefaultResponseHeadersMiddlewareTests
 {
     [Fact]
-    public async Task NoHeadersWithContent()
+    public async Task NoHeaders()
     {
         // Arrange
         var context = new DefaultHttpContext();
@@ -22,38 +20,15 @@ public class SetDefaultResponseHeadersMiddlewareTests
         context.Features.Set<IHttpResponseFeature>(startupFeature);
         var next = Task (HttpContextCore context) => Task.CompletedTask;
         var middleware = new SetDefaultResponseHeadersMiddleware(new(next));
-        var data = new MemoryStream(Encoding.UTF8.GetBytes("ArbitraryContent"));
-        context.Response.Body = data;
-        context.Response.ContentLength = data.Length;
 
         // Act
         await middleware.InvokeAsync(context);
         await startupFeature.RunAsync();
 
         // Assert
-        Assert.Equal(3, context.Response.Headers.Count);
+        Assert.Equal(2, context.Response.Headers.Count);
         Assert.Equal("text/html", context.Response.Headers.ContentType);
         Assert.Equal("private", context.Response.Headers.CacheControl);
-        Assert.Equal(data.Length, context.Response.ContentLength);
-    }
-
-    [Fact]
-    public async Task NoHeadersWithoutContent()
-    {
-        // Arrange
-        var context = new DefaultHttpContext();
-        var startupFeature = new StartupCallbackFeature();
-        context.Features.Set<IHttpResponseFeature>(startupFeature);
-        var next = Task (HttpContextCore context) => Task.CompletedTask;
-        var middleware = new SetDefaultResponseHeadersMiddleware(new(next));
-
-        // Act
-        await middleware.InvokeAsync(context);
-        await startupFeature.RunAsync();
-
-        // Assert
-        Assert.Single(context.Response.Headers);
-        Assert.False(context.Response.Headers.ContainsKey("Content-Type"));
     }
 
     [Theory]

@@ -81,7 +81,5 @@ namespace System.Web
         public override void RewritePath(string filePath, string pathInfo, string? queryString, bool setClientFilePath) => _context.RewritePath(filePath, pathInfo, queryString, setClientFilePath);
 
         public override void SetSessionStateBehavior(SessionStateBehavior sessionStateBehavior) => _context.SetSessionStateBehavior(sessionStateBehavior);
-
-        public override object? GetService(Type serviceType) => ((IServiceProvider)_context).GetService(serviceType);
     }
 }

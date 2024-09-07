@@ -33,7 +33,7 @@ public sealed class SessionAttribute : Attribute
         }
     }
 
-    public SessionStateBehavior SessionBehavior { get; set; } = SessionStateBehavior.Required;
+    public SessionStateBehavior SessionBehavior { get; set; }
 
     public bool IsPreLoad { get; set; } = true;
 

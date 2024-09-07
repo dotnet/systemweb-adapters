@@ -12,7 +12,6 @@ using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
 
@@ -153,8 +152,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             Assert.Same(context.Response, provider.GetService(typeof(HttpResponse)));
             Assert.Same(context.Server, provider.GetService(typeof(HttpServerUtility)));
             Assert.Same(context.Session, provider.GetService(typeof(HttpSessionState)));
+
             Assert.Null(provider.GetService(typeof(HttpContext)));
-            Assert.Null(provider.GetService<Cache>());
         }
 
         [Fact]
@@ -216,10 +215,6 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
 
             // Assert
             Assert.Same(cache, result);
-
-            var provider = (IServiceProvider)context;
-            Assert.NotNull(provider.GetService<Cache>());
-            Assert.Same(cache, provider.GetService<Cache>());
         }
 
         [Fact]
