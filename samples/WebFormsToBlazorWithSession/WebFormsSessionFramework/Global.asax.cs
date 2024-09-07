@@ -18,7 +18,6 @@ namespace WebFormsSessionFramework
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
-                .AddProxySupport(options => options.UseForwardedHeaders = true)
                 .AddJsonSessionSerializer(options =>
                 {
                     options.RegisterKey<string>("test-value");
