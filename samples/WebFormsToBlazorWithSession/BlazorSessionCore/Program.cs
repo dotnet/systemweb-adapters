@@ -5,8 +5,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add YARP
 builder.Services.AddHttpForwarder();
 
-// Add constraint to redirect .axd files to WebForms
-builder.Services.AddRouting(options => options.ConstraintMap.Add("isAxdFile", typeof(AxdContraint)));
 // Add System Web Adapters and setup session
 builder.Services.AddSystemWebAdapters()
     .AddJsonSessionSerializer(options =>
@@ -48,5 +46,4 @@ app.MapForwarder("/Scripts/{**catch-all}", app.Configuration["ProxyTo"]).Add(sta
 app.MapForwarder("/Content/{**catch-all}", app.Configuration["ProxyTo"]).Add(static builder => ((RouteEndpointBuilder)builder).Order = int.MaxValue);
 app.MapForwarder("/About", app.Configuration["ProxyTo"]).Add(static builder => ((RouteEndpointBuilder)builder).Order = int.MaxValue);
 app.MapForwarder("/Contact", app.Configuration["ProxyTo"]).Add(static builder => ((RouteEndpointBuilder)builder).Order = int.MaxValue);
-app.MapForwarder("/{route:isAxdFile}", app.Configuration["ProxyTo"]).Add(static builder => ((RouteEndpointBuilder)builder).Order = int.MaxValue);
 app.Run();

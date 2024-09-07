@@ -13,7 +13,7 @@ namespace WebFormsSessionFramework
         {
             if (!IsPostBack)
             {
-                SessionTextBox.Text = Session["test-value"]?.ToString() ?? string.Empty;
+                SessionTextBox.Text = string.Empty;
             }
         }
 
