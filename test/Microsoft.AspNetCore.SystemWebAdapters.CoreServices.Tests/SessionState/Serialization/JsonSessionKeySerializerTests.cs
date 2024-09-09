@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -297,21 +298,64 @@ public class JsonSessionKeySerializerTests
     public void CaseInsensitiveSessionKeys()
     {
         // Arrange
-        var key = _fixture.Create<string>();
+        var key1 = _fixture.Create<string>();
+        var key2 = _fixture.Create<string>();
+
+        var options = new JsonSessionSerializerOptions
+        {
+            KeyComparer = StringComparer.OrdinalIgnoreCase,
+            KnownKeys =
+            {
+                { key1, typeof(Type1) },
+                { key2, typeof(int) },
+            }
+        };
+
+        // Act
+        var result1 = options.KnownKeys.ContainsKey(key1.ToUpperInvariant());
+        var result2 = options.KnownKeys.ContainsKey(key2);
+
+        // Assert
+        Assert.True(result1);
+        Assert.True(result2);
+    }
+
+    [Fact]
+    public void ChangeSessionKeysComparer()
+    {
+        // Arrange
+        var key1 = _fixture.Create<string>();
+        var key2 = _fixture.Create<string>();
 
         var options = new JsonSessionSerializerOptions
         {
             KnownKeys =
             {
-                { key, typeof(Type1) },
+                { key1, typeof(Type1) },
+                { key2, typeof(int) },
             }
         };
 
         // Act
-        var result = options.KnownKeys.ContainsKey(key.ToUpperInvariant());
+        var result1 = options.KnownKeys.ContainsKey(key1);
+        var result2 = options.KnownKeys.ContainsKey(key2);
+        var result3 = options.KnownKeys.ContainsKey(key2.ToUpperInvariant());
 
         // Assert
-        Assert.True(result);
+        Assert.True(result1);
+        Assert.True(result2);
+        Assert.False(result3);
+
+        // Re-arrange
+        options.KeyComparer = StringComparer.OrdinalIgnoreCase;
+
+        // Act
+        result1 = options.KnownKeys.ContainsKey(key1);
+        result2 = options.KnownKeys.ContainsKey(key2.ToUpperInvariant());
+
+        // Assert
+        Assert.True(result1);
+        Assert.True(result2);
     }
 
     private sealed class Type1
