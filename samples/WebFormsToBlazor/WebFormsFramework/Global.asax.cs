@@ -1,4 +1,5 @@
 using System;
+using System.Configuration;
 using System.Web;
 using System.Web.Optimization;
 using System.Web.Routing;
@@ -11,7 +12,16 @@ namespace WebFormsFramework
         {
             SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
                 .AddVirtualizedContentDirectories()
-                .AddProxySupport(options => options.UseForwardedHeaders = true);
+                .AddProxySupport(options => options.UseForwardedHeaders = true)
+                .AddJsonSessionSerializer(options =>
+                             {
+                                 options.RegisterKey<string>("test-value");
+                             })
+                .AddRemoteAppServer(options =>
+                {
+                    options.ApiKey = ConfigurationManager.AppSettings["RemoteAppApiKey"];
+                })
+                .AddSessionServer();
 
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);

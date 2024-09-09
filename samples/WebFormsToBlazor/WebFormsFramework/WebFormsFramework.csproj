@@ -40,4 +40,8 @@
     <ProjectReference Include="..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.csproj" />
     <ProjectReference Include="..\..\FrameworkSampleUtilities\FrameworkSampleUtilities.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
 </Project>
