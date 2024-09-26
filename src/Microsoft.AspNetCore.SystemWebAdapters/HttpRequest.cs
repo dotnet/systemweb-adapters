@@ -196,26 +196,13 @@ namespace System.Web
 
         public string ApplicationPath => Request.HttpContext.RequestServices.GetRequiredService<IOptions<SystemWebAdaptersOptions>>().Value.AppDomainAppVirtualPath;
 
-        public Uri? UrlReferrer
+        // ASP.NET Framework would assume a relative referer is relative to the current app
+        public Uri? UrlReferrer => TypedHeaders.Referer switch
         {
-            get
-            {
-                var referer = TypedHeaders.Referer;
-
-                if (referer is null)
-                {
-                    return null;
-                }
-
-                if (referer.IsAbsoluteUri)
-                {
-                    return referer;
-                }
-
-                // ASP.NET Framework would assume a relative referer is relative to the current app
-                return new Uri(Url, referer);
-            }
-        }
+            { IsAbsoluteUri: true } abs => abs,
+            { } relative => new Uri(Url, relative),
+            null => null,
+        };
 
         public int TotalBytes => (int)InputStream.Length;
 
