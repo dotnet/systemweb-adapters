@@ -11,4 +11,11 @@
     <ProjectReference Include="..\ModulesLibrary\ModulesLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="$(SolutionRootDirectory)artifacts/bin/NativeModuleSample/x64/$(Configuration)/NativeModuleSample.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

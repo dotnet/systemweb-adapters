@@ -26,9 +26,17 @@
     <Using Include="Microsoft.AspNetCore.Http.HttpContext" Alias="HttpContextCore" />
     <Using Include="Microsoft.AspNetCore.Http.HttpResponse" Alias="HttpResponseCore" />
     <Using Include="Microsoft.AspNetCore.Http.HttpRequest" Alias="HttpRequestCore" />
+    <Using Include="System.Web.HttpApplication" Alias="HttpApplication" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj" />
     <ProjectReference Include="..\Microsoft.AspNetCore.SystemWebAdapters.Abstractions\Microsoft.AspNetCore.SystemWebAdapters.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="$(SolutionRootDirectory)artifacts/bin/Microsoft.AspNetCore.SystemWebAdapters.NativeModules/x64/$(Configuration)/Microsoft.AspNetCore.SystemWebAdapters.NativeModules.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 </Project>
