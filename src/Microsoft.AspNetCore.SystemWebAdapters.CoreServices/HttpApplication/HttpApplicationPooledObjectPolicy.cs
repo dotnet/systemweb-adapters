@@ -137,11 +137,17 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
 
         var eventInitializer = GetEventInitializer(options);
         var factory = ActivatorUtilities.CreateFactory(options.ApplicationType, Array.Empty<Type>());
-        var moduleFactories = options.Modules
-            .Select(m => (m.Key, ActivatorUtilities.CreateFactory(m.Value, Array.Empty<Type>())))
-            .ToList();
 
-        if (moduleFactories.Count == 0)
+        // TODO: probably should honor the ordering of registration
+        var moduleFactories = options.Modules
+            .Select(m => (m.Key, ActivatorUtilities.CreateFactory(m.Value, Array.Empty<Type>())));
+        var nativeModules = options.NativeModules.Select(m => (m, NativeFactory(m))).ToList();
+
+        static ObjectFactory NativeFactory(string dll) => (_, __) => new NativeModuleWrapper(dll);
+
+        var allFactories = moduleFactories.Concat(nativeModules).ToList();
+
+        if (allFactories.Count == 0)
         {
             return sp =>
             {
@@ -154,12 +160,12 @@ internal sealed partial class HttpApplicationPooledObjectPolicy : PooledObjectPo
         return sp =>
         {
             var app = (HttpApplication)factory(sp, null);
-            var modules = new (string, IHttpModule)[moduleFactories.Count];
+            var modules = new (string, IHttpModule)[allFactories.Count];
 
-            for (var i = 0; i < moduleFactories.Count; i++)
+            for (var i = 0; i < allFactories.Count; i++)
             {
-                var module = (IHttpModule)moduleFactories[i].Item2(sp, null);
-                modules[i] = (moduleFactories[i].Key, module);
+                var module = (IHttpModule)allFactories[i].Item2(sp, null);
+                modules[i] = (allFactories[i].Item1, module);
             }
 
             app.Initialize(new(modules), _state, eventInitializer);

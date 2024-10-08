@@ -48,6 +48,8 @@ public class HttpApplicationOptions
 
     public IDictionary<string, Type> Modules => ModuleCollection;
 
+    public ICollection<string> NativeModules { get; } = [];
+
     /// <summary>
     /// Gets or sets whether <see cref="HttpApplication.PreSendRequestHeaders"/> and <see cref="HttpApplication.PreSendRequestContent"/> is supported
     /// </summary>

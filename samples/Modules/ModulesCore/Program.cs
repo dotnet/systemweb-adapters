@@ -12,6 +12,8 @@ builder.Services.AddSystemWebAdapters()
 
         // Register a module by name
         options.RegisterModule<EventsModule>("Events");
+
+        options.NativeModules.Add("NativeModuleSample.dll");
     });
 
 builder.Services.AddOutputCache(options =>
