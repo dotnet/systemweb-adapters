@@ -15,9 +15,6 @@ internal partial class NativeModuleWrapper : IHttpModule
 {
     private const string ModuleLoader = "Microsoft.AspNetCore.SystemWebAdapters.NativeModules.dll";
 
-    private readonly nint _module;
-    private readonly string _dll;
-    private readonly List<RegistrationInfo> _registrations;
     private const uint RQ_BEGIN_REQUEST = 0x00000001;
     private const uint RQ_AUTHENTICATE_REQUEST = 0x00000002;
     private const uint RQ_AUTHORIZE_REQUEST = 0x00000004;
@@ -30,6 +27,10 @@ internal partial class NativeModuleWrapper : IHttpModule
     private const uint RQ_UPDATE_REQUEST_CACHE = 0x00000200;
     private const uint RQ_LOG_REQUEST = 0x00000400;
     private const uint RQ_END_REQUEST = 0x00000800;
+
+    private readonly nint _module;
+    private readonly string _dll;
+    private readonly List<RegistrationInfo> _registrations;
 
     public NativeModuleWrapper(string dll)
     {
@@ -68,10 +69,13 @@ internal partial class NativeModuleWrapper : IHttpModule
                     var context = ((HttpApplication)application).Context;
 
                     // TODO: probably want to cache this for the life of the request
-                    var c = CreateHttpContext((string name, string value) =>
+                    var c = CreateHttpContext(new()
                     {
-                        context.Request.ServerVariables[name] = value;
-                        return 0;
+                        setServerVariables = (string name, string value) =>
+                        {
+                            context.Request.ServerVariables[name] = value;
+                            return 0;
+                        }
                     });
 
                     // TODO: what should the result be?
@@ -94,6 +98,12 @@ internal partial class NativeModuleWrapper : IHttpModule
         public RegisterModuleCallback RegisterModule;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NativeHttpContextCallbacks
+    {
+        public SetServerVariableCallback setServerVariables;
+    }
+
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private delegate uint SetServerVariableCallback([MarshalAs(UnmanagedType.LPStr)] string name, [MarshalAs(UnmanagedType.LPWStr)] string value);
 
@@ -107,7 +117,7 @@ internal partial class NativeModuleWrapper : IHttpModule
     private static extern nint CreateModule(nint module, nint factory);
 
     [DllImport(ModuleLoader, CharSet = CharSet.Unicode)]
-    private static extern nint CreateHttpContext(SetServerVariableCallback setServer);
+    private static extern nint CreateHttpContext(in NativeHttpContextCallbacks callbacks);
 
     [DllImport(ModuleLoader, CharSet = CharSet.Unicode)]
     private static extern void DeleteHttpContext(nint contex);

@@ -150,13 +150,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CModuleHandler.h" />
+    <ClInclude Include="HttpContextWrapper.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="SysWebNativeModule.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CModuleHandler.cpp" />
+    <ClCompile Include="HttpContextWrapper.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="ModuleManager.cpp" />
     <ClCompile Include="pch.cpp">

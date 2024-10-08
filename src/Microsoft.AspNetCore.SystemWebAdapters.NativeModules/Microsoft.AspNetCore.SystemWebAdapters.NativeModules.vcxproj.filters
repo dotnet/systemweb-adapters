@@ -21,7 +21,7 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CModuleHandler.h">
+    <ClInclude Include="HttpContextWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SysWebNativeModule.h">
@@ -35,7 +35,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CModuleHandler.cpp">
+    <ClCompile Include="HttpContextWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SysWebNativeModule.cpp">
