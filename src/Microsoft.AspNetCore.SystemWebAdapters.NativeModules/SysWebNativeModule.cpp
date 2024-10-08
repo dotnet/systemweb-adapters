@@ -3,13 +3,58 @@
 
 typedef HRESULT(__stdcall* fRegisterModule)(DWORD, IHttpModuleRegistrationInfo*, IHttpServer*);
 
-class ModuleRegistrationImpl :public IHttpModuleRegistrationInfo {
+class SysWebNativeModule :public ISysWebNativeModule, IModuleAllocator, IHttpModuleRegistrationInfo 
+{
 private:
-    NativeModuleCallbacks _c;
+    const DWORD _emulatedVersion = 12;
+
+    HINSTANCE _module;
+    NativeModuleCallbacks _callbacks;
 public:
-    ModuleRegistrationImpl(NativeModuleCallbacks c) {
-        _c = c;
+    SysWebNativeModule(LPCWSTR moduleDll, NativeModuleCallbacks& callbacks) :_callbacks(callbacks) {
+        _module = LoadLibrary(moduleDll);
+
+        if (_module == nullptr) {
+            return;
+        }
+
+        auto registerModule = (fRegisterModule)GetProcAddress(_module, "RegisterModule");
+
+        if (registerModule == nullptr)
+        {
+            return;
+        }
+
+        registerModule(_emulatedVersion, this, nullptr);
     }
+
+    bool IsLoaded() const {
+        return _module != nullptr;
+    }
+
+    ~SysWebNativeModule() {
+        if (_module != nullptr) {
+            FreeLibrary(_module);
+            _module = nullptr;
+        }
+    }
+
+    IModuleAllocator* GetAllocator() {
+        return this;
+    }
+
+    HttpContextCallbacks& GetHttpContextCallbacks() {
+        return _callbacks.HttpContextCallbacks;
+    }
+
+    _Ret_opt_ _Post_writable_byte_size_(cbAllocation)
+        VOID*
+        AllocateMemory(
+            _In_ DWORD                  cbAllocation
+        ) {
+        return malloc(cbAllocation);
+    }
+
 
     PCWSTR GetName(VOID) const {
         return L"";
@@ -24,7 +69,7 @@ public:
         _In_ DWORD dwRequestNotifications,
         _In_ DWORD dwPostRequestNotifications
     ) {
-        return _c.SetRequestNotifications(pModuleFactory, dwRequestNotifications, dwPostRequestNotifications);
+        return _callbacks.SetRequestNotifications(pModuleFactory, dwRequestNotifications, dwPostRequestNotifications);
     }
 
     HRESULT SetGlobalNotifications(
@@ -49,65 +94,10 @@ public:
     }
 };
 
-class SysWebNativeModule :public ISysWebNativeModule, public IModuleAllocator 
-{
-private:
-    const DWORD _emulatedVersion = 12;
+ISysWebNativeModule* LoadNativeIISModule(LPCWSTR moduleDll, NativeModuleCallbacks& callbacks) {
+    auto m = new SysWebNativeModule(moduleDll, callbacks);
 
-    HINSTANCE _module;
-public:
-    SysWebNativeModule(LPCWSTR moduleDll) {
-        _module = LoadLibrary(moduleDll);
-    }
-
-    bool IsLoaded() const {
-        return _module != nullptr;
-    }
-
-    ~SysWebNativeModule() {
-        if (_module != nullptr) {
-            FreeLibrary(_module);
-            _module = nullptr;
-        }
-    }
-
-    HRESULT RegisterModule(NativeModuleCallbacks callbacks) const {
-        if (_module == nullptr) {
-            return E_FAIL;
-        }
-
-        auto registerModule = (fRegisterModule)GetProcAddress(_module, "RegisterModule");
-
-        if (registerModule == nullptr)
-        {
-            return E_FAIL;
-        }
-
-        auto c = ModuleRegistrationImpl(callbacks);
-        return registerModule(_emulatedVersion, &c, nullptr);
-    }
-
-    IModuleAllocator* GetAllocator() {
-        return this;
-    }
-
-    _Ret_opt_ _Post_writable_byte_size_(cbAllocation)
-        VOID*
-        AllocateMemory(
-            _In_ DWORD                  cbAllocation
-        ) {
-        return malloc(cbAllocation);
-    }
-};
-
-ISysWebNativeModule* LoadNativeIISModule(LPCWSTR moduleDll, NativeModuleCallbacks callbacks) {
-    auto m = new SysWebNativeModule(moduleDll);
-
-    if (!m->IsLoaded()) {
-        return nullptr;
-    }
-
-    if (m->RegisterModule(callbacks) == S_OK) {
+    if (m->IsLoaded()) {
         return m;
     }
 

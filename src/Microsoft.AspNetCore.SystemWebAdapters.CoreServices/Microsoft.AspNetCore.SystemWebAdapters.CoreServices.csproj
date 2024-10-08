@@ -5,6 +5,7 @@
     <EnablePackageValidation>true</EnablePackageValidation>
     <RootNamespace>Microsoft.AspNetCore.SystemWebAdapters</RootNamespace>
     <UseSharedServices>true</UseSharedServices>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Label="Package Information">
     <Description>A collection of services to provide support for enabling configuration for Microsoft.AspNetCore.SystemWebAdapters.</Description>

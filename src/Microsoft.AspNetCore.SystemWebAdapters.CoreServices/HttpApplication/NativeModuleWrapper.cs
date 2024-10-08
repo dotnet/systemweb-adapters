@@ -1,17 +1,20 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal partial class NativeModuleWrapper : IHttpModule
+internal unsafe partial class NativeModuleWrapper : IHttpModule
 {
     private const string ModuleLoader = "Microsoft.AspNetCore.SystemWebAdapters.NativeModules.dll";
 
@@ -28,9 +31,11 @@ internal partial class NativeModuleWrapper : IHttpModule
     private const uint RQ_LOG_REQUEST = 0x00000400;
     private const uint RQ_END_REQUEST = 0x00000800;
 
-    private readonly nint _module;
+    private readonly nint _moduleLibrary;
     private readonly string _dll;
     private readonly List<RegistrationInfo> _registrations;
+
+    private readonly NativeModuleCallbacks _callbacks;
 
     public NativeModuleWrapper(string dll)
     {
@@ -38,7 +43,28 @@ internal partial class NativeModuleWrapper : IHttpModule
 
         _registrations = new List<RegistrationInfo>();
         _dll = dll;
-        _module = LoadNativeIISModule(path, new() { RegisterModule = ModuleRegistration });
+
+        _callbacks = new()
+        {
+            RegisterModule = ModuleRegistration,
+            HttpContextCallbacks = new()
+            {
+                setServerVariables = (pContext, name, value) =>
+                {
+                    var handle = GCHandle.FromIntPtr(pContext);
+
+                    if (handle.Target is HttpContext context)
+                    {
+                        context.Request.ServerVariables[name] = value;
+                        return 0;
+                    }
+
+                    // TODO error
+                    return 1;
+                },
+            }
+        };
+        _moduleLibrary = LoadNativeIISModule(path, _callbacks);
 
         uint ModuleRegistration(IntPtr factory, uint moduleEvent, uint isPost)
         {
@@ -49,9 +75,9 @@ internal partial class NativeModuleWrapper : IHttpModule
 
     public void Dispose()
     {
-        if (_module is { } module)
+        if (_moduleLibrary is { } module)
         {
-            UnloadNativeIISModule(_module);
+            UnloadNativeIISModule(_moduleLibrary);
         }
     }
 
@@ -60,30 +86,21 @@ internal partial class NativeModuleWrapper : IHttpModule
         foreach (var (factory, moduleEvent, isPost) in _registrations)
         {
             // TODO: should use safehandles/etc to properly handle lifetimes
-            var module = CreateModule(_module, factory);
+            var module = CreateModule(_moduleLibrary, factory);
 
             if (moduleEvent == RQ_BEGIN_REQUEST && isPost == 0)
             {
-                application.BeginRequest += (s, o) =>
-                {
-                    var context = ((HttpApplication)application).Context;
-
-                    // TODO: probably want to cache this for the life of the request
-                    var c = CreateHttpContext(new()
-                    {
-                        setServerVariables = (string name, string value) =>
-                        {
-                            context.Request.ServerVariables[name] = value;
-                            return 0;
-                        }
-                    });
-
-                    // TODO: what should the result be?
-                    var result = CallEvent(module, c, moduleEvent, isPost);
-
-                    DeleteHttpContext(c);
-                };
+                application.BeginRequest += RegisterCallback;
             };
+
+            void RegisterCallback(object? sender, EventArgs args)
+            {
+                var context = ((HttpApplication)application).Context;
+
+                var h = GCHandle.Alloc(context);
+                var result = CallEvent(_moduleLibrary, module, GCHandle.ToIntPtr(h), moduleEvent, isPost);
+                h.Free();
+            }
         }
     }
 
@@ -96,6 +113,7 @@ internal partial class NativeModuleWrapper : IHttpModule
     private struct NativeModuleCallbacks
     {
         public RegisterModuleCallback RegisterModule;
+        public NativeHttpContextCallbacks HttpContextCallbacks;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -104,11 +122,10 @@ internal partial class NativeModuleWrapper : IHttpModule
         public SetServerVariableCallback setServerVariables;
     }
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-    private delegate uint SetServerVariableCallback([MarshalAs(UnmanagedType.LPStr)] string name, [MarshalAs(UnmanagedType.LPWStr)] string value);
+    private delegate uint SetServerVariableCallback(nint pContext, [MarshalAs(UnmanagedType.LPStr)] string name, [MarshalAs(UnmanagedType.LPWStr)] string value);
 
     [DllImport(ModuleLoader, CharSet = CharSet.Unicode)]
-    private static extern nint LoadNativeIISModule(string dll, NativeModuleCallbacks callbacks);
+    private static extern nint LoadNativeIISModule(string dll, in NativeModuleCallbacks callbacks);
 
     [DllImport(ModuleLoader, CharSet = CharSet.Unicode)]
     private static extern nint UnloadNativeIISModule(nint module);
@@ -117,11 +134,5 @@ internal partial class NativeModuleWrapper : IHttpModule
     private static extern nint CreateModule(nint module, nint factory);
 
     [DllImport(ModuleLoader, CharSet = CharSet.Unicode)]
-    private static extern nint CreateHttpContext(in NativeHttpContextCallbacks callbacks);
-
-    [DllImport(ModuleLoader, CharSet = CharSet.Unicode)]
-    private static extern void DeleteHttpContext(nint contex);
-
-    [DllImport(ModuleLoader, CharSet = CharSet.Unicode)]
-    private static extern int CallEvent(nint m, nint context, uint request, uint isPost);
+    private static extern int CallEvent(nint nativeModuleDll, nint m, nint context, uint request, uint isPost);
 }

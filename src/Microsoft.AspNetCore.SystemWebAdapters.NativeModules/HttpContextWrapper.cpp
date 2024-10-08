@@ -1,12 +1,13 @@
 #include "pch.h"
 #include "SysWebNativeModule.h"
-#include "HttpContextWrapper.h"
+#include <memory>
 
-class MyHttpContext :public IHttpContext {
+class SysWebNativeHttpContext :public IHttpContext, public IHttpEventProvider {
 private:
-    HttpContextCallbacks _callbacks;
+    HttpContextCallbacks& _callbacks;
+    void* _context;
 public:
-    MyHttpContext(HttpContextCallbacks callbacks) :_callbacks(callbacks) {
+    SysWebNativeHttpContext(HttpContextCallbacks& callbacks, void* context) :_callbacks(callbacks), _context(context) {
     }
 
     IHttpSite* GetSite(
@@ -128,7 +129,7 @@ public:
         PCSTR               pszVariableName,
         PCWSTR              pszVariableValue
     ) {
-        return _callbacks.setServerVariable(pszVariableName, pszVariableValue);
+        return _callbacks.setServerVariable(_context, pszVariableName, pszVariableValue);
     }
 
     _Ret_opt_ _Post_writable_byte_size_(cbAllocation) VOID* AllocateRequestMemory(
@@ -282,22 +283,22 @@ public:
     ) {
         return E_NOTIMPL;
     }
+
+    VOID SetErrorStatus(
+        _In_ HRESULT hrError
+    ) {
+        // TODO
+    }
 };
 
-IHttpContext* CreateHttpContext(HttpContextCallbacks& callbacks) {
-    return new MyHttpContext(callbacks);
-}
+REQUEST_NOTIFICATION_STATUS CallEvent(ISysWebNativeModule* module, CHttpModule* m, void* context, DWORD request, DWORD isPost)
+{
+    auto nativeContext = SysWebNativeHttpContext(module->GetHttpContextCallbacks(), context);
 
-void DeleteHttpContext(IHttpContext* context) {
-    if (context != nullptr) {
-        delete context;
-    }
-}
-
-REQUEST_NOTIFICATION_STATUS CallEvent(CHttpModule* m, IHttpContext* context, DWORD request, DWORD isPost) {
     if (request == RQ_BEGIN_REQUEST && isPost == false) {
-        return m->OnBeginRequest(context, nullptr);
+        return m->OnBeginRequest(&nativeContext, &nativeContext);
     }
+
     // TODO: handle unimplemented
     return RQ_NOTIFICATION_CONTINUE;
 }
