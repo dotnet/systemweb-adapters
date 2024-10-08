@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.Extensions.DependencyInjection;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
@@ -38,7 +37,7 @@ internal partial class NativeModuleWrapper : IHttpModule
 
         _registrations = new List<RegistrationInfo>();
         _dll = dll;
-        _module = RegisterModule(path, ModuleRegistration);
+        _module = LoadNativeIISModule(path, new() { RegisterModule = ModuleRegistration });
 
         uint ModuleRegistration(IntPtr factory, uint moduleEvent, uint isPost)
         {
@@ -51,7 +50,7 @@ internal partial class NativeModuleWrapper : IHttpModule
     {
         if (_module is { } module)
         {
-            UnregisterModule(module);
+            UnloadNativeIISModule(_module);
         }
     }
 
@@ -60,7 +59,7 @@ internal partial class NativeModuleWrapper : IHttpModule
         foreach (var (factory, moduleEvent, isPost) in _registrations)
         {
             // TODO: should use safehandles/etc to properly handle lifetimes
-            var module = CreateModule(factory);
+            var module = CreateModule(_module, factory);
 
             if (moduleEvent == RQ_BEGIN_REQUEST && isPost == 0)
             {
@@ -89,17 +88,23 @@ internal partial class NativeModuleWrapper : IHttpModule
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private delegate uint RegisterModuleCallback(IntPtr factory, uint moduleEvent, uint isPost);
 
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NativeModuleCallbacks
+    {
+        public RegisterModuleCallback RegisterModule;
+    }
+
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private delegate uint SetServerVariableCallback([MarshalAs(UnmanagedType.LPStr)] string name, [MarshalAs(UnmanagedType.LPWStr)] string value);
 
     [DllImport(ModuleLoader, CharSet = CharSet.Unicode)]
-    private static extern nint RegisterModule(string dll, RegisterModuleCallback registrationFunc);
+    private static extern nint LoadNativeIISModule(string dll, NativeModuleCallbacks callbacks);
 
     [DllImport(ModuleLoader, CharSet = CharSet.Unicode)]
-    private static extern nint UnregisterModule(nint module);
+    private static extern nint UnloadNativeIISModule(nint module);
 
     [DllImport(ModuleLoader, CharSet = CharSet.Unicode)]
-    private static extern nint CreateModule(nint factory);
+    private static extern nint CreateModule(nint module, nint factory);
 
     [DllImport(ModuleLoader, CharSet = CharSet.Unicode)]
     private static extern nint CreateHttpContext(SetServerVariableCallback setServer);

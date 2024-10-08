@@ -1,8 +1,6 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
 #include "pch.h"
-#include <windows.h>
 #include <sal.h>
-#include <httpserv.h>
 #include <memory>
 
 BOOL APIENTRY DllMain(HMODULE hModule,
@@ -21,129 +19,11 @@ BOOL APIENTRY DllMain(HMODULE hModule,
     return TRUE;
 }
 
-typedef HRESULT(__stdcall* fRegisterModule)(DWORD, IHttpModuleRegistrationInfo*, IHttpServer*);
-typedef HRESULT(__stdcall* fSetRequestNotification)(IHttpModuleFactory*, DWORD, DWORD);
 typedef HRESULT(__stdcall* fSetServerVariable)(PCSTR, PCWSTR);
 
-class ModuleRegistrationImpl :public IHttpModuleRegistrationInfo {
-private:
-    fSetRequestNotification _r;
-public:
-    ModuleRegistrationImpl(fSetRequestNotification r) {
-        _r = r;
-    }
-
-    PCWSTR GetName(VOID) const {
-        return L"";
-    }
-
-    HTTP_MODULE_ID GetId(VOID) const {
-        return 0;
-    }
-
-    HRESULT SetRequestNotifications(
-        _In_ IHttpModuleFactory* pModuleFactory,
-        _In_ DWORD dwRequestNotifications,
-        _In_ DWORD dwPostRequestNotifications
-    ) {
-        return _r(pModuleFactory, dwRequestNotifications, dwPostRequestNotifications);
-    }
-
-    HRESULT SetGlobalNotifications(
-        _In_ CGlobalModule* pGlobalModule,
-        _In_ DWORD dwGlobalNotifications
-    ) {
-        return E_NOTIMPL;
-    }
-
-    HRESULT SetPriorityForRequestNotification(
-        _In_ DWORD                dwRequestNotification,
-        _In_ PCWSTR               pszPriority
-    ) {
-        return E_NOTIMPL;
-    }
-
-    HRESULT SetPriorityForGlobalNotification(
-        _In_ DWORD                dwGlobalNotification,
-        _In_ PCWSTR               pszPriority
-    ) {
-        return E_NOTIMPL;
-    }
-};
-
-class ModuleHolder {
-private:
-    const DWORD _emulatedVersion = 12;
-
-    HINSTANCE _module;
-public:
-    ModuleHolder(LPCWSTR moduleDll) {
-        _module = LoadLibrary(moduleDll);
-    }
-
-    bool IsLoaded() const {
-        return _module != nullptr;
-    }
-
-    ~ModuleHolder() {
-        if (_module != nullptr) {
-            FreeLibrary(_module);
-            _module = nullptr;
-        }
-    }
-
-    HRESULT RegisterModule(fSetRequestNotification callback) const {
-        if (_module == nullptr) {
-            return E_FAIL;
-        }
-
-        auto registerModule = (fRegisterModule)GetProcAddress(_module, "RegisterModule");
-
-        if (registerModule == nullptr)
-        {
-            return E_FAIL;
-        }
-
-        auto c = ModuleRegistrationImpl(callback);
-        return registerModule(_emulatedVersion, &c, nullptr);
-    }
-};
-
-extern "C" _declspec(dllexport) void UnregisterModule(ModuleHolder* m);
-extern "C" _declspec(dllexport) ModuleHolder* RegisterModule(LPCWSTR moduleDll, fSetRequestNotification setRequest);
-extern "C" _declspec(dllexport) CHttpModule* CreateModule(IHttpModuleFactory* factory);
 extern "C" _declspec(dllexport) REQUEST_NOTIFICATION_STATUS CallEvent(CHttpModule* m, IHttpContext* context, DWORD request, DWORD isPost);
 extern "C" _declspec(dllexport) IHttpContext* CreateHttpContext(fSetServerVariable setServer);
 extern "C" _declspec(dllexport) void DeleteHttpContext(IHttpContext* context);
-
-ModuleHolder* RegisterModule(LPCWSTR moduleDll, fSetRequestNotification setRequest)
-{
-    auto library = new ModuleHolder(moduleDll);
-
-    if (!library->IsLoaded())
-    {
-        return nullptr;
-    }
-
-    library->RegisterModule(setRequest);
-    return library;
-}
-
-void UnregisterModule(ModuleHolder* m) {
-    if (m != nullptr)
-    {
-        delete m;
-    }
-}
-
-CHttpModule* CreateModule(IHttpModuleFactory* factory) {
-    CHttpModule* m;
-    if (factory->GetHttpModule(&m, nullptr) == S_OK) {
-        return m;
-    }
-
-    return nullptr;
-}
 
 class MyHttpContext :public IHttpContext {
 private:
@@ -441,7 +321,6 @@ REQUEST_NOTIFICATION_STATUS CallEvent(CHttpModule* m, IHttpContext* context, DWO
     if (request == RQ_BEGIN_REQUEST && isPost == false) {
         return m->OnBeginRequest(context, nullptr);
     }
-
     // TODO: handle unimplemented
     return RQ_NOTIFICATION_CONTINUE;
 }

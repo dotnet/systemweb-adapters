@@ -67,12 +67,12 @@ public:
     }
 };
 
-extern "C" _declspec(dllexport) HRESULT __stdcall RegisterModule(DWORD dwServerVersion, IHttpModuleRegistrationInfo* pModuleInfo, IHttpServer* pGlobalInfo);
+extern "C" _declspec(dllexport) HRESULT __stdcall LoadNativeIISModule(DWORD dwServerVersion, IHttpModuleRegistrationInfo* pModuleInfo, IHttpServer* pGlobalInfo);
 
 // Create the module's exported registration function.
 HRESULT
 __stdcall
-RegisterModule(
+LoadNativeIISModule(
     DWORD dwServerVersion,
     IHttpModuleRegistrationInfo* pModuleInfo,
     IHttpServer* pGlobalInfo
