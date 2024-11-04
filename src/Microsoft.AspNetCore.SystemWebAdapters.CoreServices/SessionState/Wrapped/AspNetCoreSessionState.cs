@@ -26,6 +26,7 @@ internal sealed partial class AspNetCoreSessionState : ISessionState
         _throwOnUnknown = throwOnUnknown;
         _logger = factory.CreateLogger<AspNetCoreSessionState>();
 
+        IsNewSession = !session.Keys.Any();
         IsReadOnly = isReadOnly;
     }
 
@@ -99,7 +100,7 @@ internal sealed partial class AspNetCoreSessionState : ISessionState
 
     public int Timeout { get; set; } = 20;
 
-    public bool IsNewSession => false;
+    public bool IsNewSession { get; }
 
     public int Count => _session.Keys.Count();
 

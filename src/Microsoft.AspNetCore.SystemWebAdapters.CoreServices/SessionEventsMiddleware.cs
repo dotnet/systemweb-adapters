@@ -19,19 +19,51 @@ internal sealed class SessionEventsMiddleware
 
     public async Task InvokeAsync(HttpContextCore context)
     {
-        var app = context.Features.GetRequiredFeature<IHttpApplicationFeature>();
-        var session = context.AsSystemWeb().Session;
-
-        if (session is { IsNewSession: true })
+        if (await RunEventAsync(context, ApplicationEvent.AcquireRequestState))
         {
-            await app.RaiseEventAsync(ApplicationEvent.SessionEnd);
+            return;
+        }
+
+        if (context.AsSystemWeb().Session is { IsNewSession: true })
+        {
+            if (await RunEventAsync(context, ApplicationEvent.SessionStart))
+            {
+                return;
+            }
+        }
+
+        if (await RunEventAsync(context, ApplicationEvent.PostAcquireRequestState))
+        {
+            return;
         }
 
         await _next(context);
 
-        if (session is { State.IsAbandoned: true })
+        if (context.Features.GetRequiredFeature<IHttpResponseEndFeature>().IsEnded)
         {
-            await app.RaiseEventAsync(ApplicationEvent.SessionEnd);
+            return;
         }
+
+        if (await RunEventAsync(context, ApplicationEvent.ReleaseRequestState))
+        {
+            return;
+        }
+
+        if (context.AsSystemWeb().Session is { State.IsAbandoned: true })
+        {
+            if (await RunEventAsync(context, ApplicationEvent.SessionEnd))
+            {
+                return;
+            }
+        }
+
+        await context.Features.GetRequiredFeature<IHttpApplicationFeature>().RaiseEventAsync(ApplicationEvent.PostReleaseRequestState);
+    }
+
+    private static async ValueTask<bool> RunEventAsync(HttpContextCore context, ApplicationEvent @event)
+    {
+        await context.Features.GetRequiredFeature<IHttpApplicationFeature>().RaiseEventAsync(@event);
+
+        return context.Features.GetRequiredFeature<IHttpResponseEndFeature>().IsEnded;
     }
 }
