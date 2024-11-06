@@ -5,6 +5,7 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -50,6 +51,84 @@ public class SessionIntegrationTests
     {
         var actual = await GetAsync(endpoint);
         Assert.Equal(expected, actual);
+    }
+
+    [InlineData(true)]
+    [InlineData(false)]
+    [Theory]
+    public async Task SessionStartEvent(bool abandon)
+    {
+        // Arrange
+        using var host = await new HostBuilder()
+           .ConfigureWebHost(webBuilder =>
+           {
+               webBuilder
+                   .UseTestServer(options =>
+                   {
+                       options.AllowSynchronousIO = true;
+                   })
+                   .ConfigureServices(services =>
+                   {
+                       services.AddRouting();
+                       services.AddControllers();
+                       services.AddSystemWebAdapters()
+                         .AddHttpApplication<SessionApplication>()
+                         .AddWrappedAspNetCoreSession();
+
+                       services.AddDistributedMemoryCache();
+                   })
+                   .Configure(app =>
+                   {
+                       app.UseRouting();
+                       app.UseSession();
+                       app.UseSystemWebAdapters();
+
+                       if (abandon)
+                       {
+                           app.Use((ctx, next) =>
+                           {
+                               ctx.AsSystemWeb().Session!.Abandon();
+                               return next(ctx);
+                           });
+                       }
+
+                       app.UseEndpoints(endpoints =>
+                       {
+                           endpoints.MapGet("/", ctx => Task.CompletedTask)
+                            .RequireSystemWebAdapterSession();
+                       });
+                   });
+           })
+           .StartAsync();
+
+        // Act
+        var result = await host.GetTestClient().GetStringAsync(new Uri("/", UriKind.Relative));
+
+        // Assert
+        if (abandon)
+        {
+            Assert.Equal("SessionStart::SessionEnd", result);
+        }
+        else
+        {
+
+            Assert.Equal("SessionStart::", result);
+        }
+
+        await host.StopAsync();
+    }
+
+    private sealed class SessionApplication : HttpApplication
+    {
+        private void Session_Start(Object sender, EventArgs e)
+        {
+            HttpContext.Current?.Response.Write("SessionStart::");
+        }
+
+        private void Session_End(Object sender, EventArgs e)
+        {
+            HttpContext.Current?.Response.Write("SessionEnd");
+        }
     }
 
     private static async Task<string> GetAsync(string endpoint)
