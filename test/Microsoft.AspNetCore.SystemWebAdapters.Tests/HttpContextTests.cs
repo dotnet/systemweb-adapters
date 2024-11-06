@@ -144,7 +144,6 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void GetServiceReturnsExpected()
         {
             var coreContext = new DefaultHttpContext();
-            coreContext.Features.Set(new HttpSessionState(new Mock<ISessionState>().Object));
 
             var context = new HttpContext(coreContext);
             var provider = (IServiceProvider)context;
