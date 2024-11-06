@@ -43,7 +43,7 @@ internal sealed class StoreSessionStateHandler : HttpTaskAsyncHandler
         }
         else
         {
-            using var content = context.Request.GetBufferlessInputStream();
+            using var content = context.Request.GetInputStream();
             var result = await _cache.SaveAsync(sessionId, content, context.Response.ClientDisconnectedToken);
 
             if (result is SessionSaveResult.Success)
