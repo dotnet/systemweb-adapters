@@ -89,7 +89,7 @@ However, if a module has many thousands of line of code and many events being us
 
 > For details on how this worked in .NET Framework, see the [official documentation](https://learn.microsoft.com/en-us/dotnet/api/system.web.httpapplication)
 
-The IIS event pipeline that is expected by `IHttpModule` and `HttpApplication` is emulated using middleware by the adapters. As part of this, it will add additional middleware that will invoke the events. This is done via a feature that is inserted early on in the adapter pipeline [IHttpApplicationFeature](../src/Microsoft.AspNetCore.SystemWebAdapters/Adapters/IHttpApplicationFeature.cs). This exposes the `HttpApplication` for the request, as well as the ability to raise events on it.
+The IIS event pipeline that is expected by `IHttpModule` and `HttpApplication` is emulated using middleware by the adapters. As part of this, it will add additional middleware that will invoke the events. This is done via a feature that is inserted early on in the adapter pipeline [IHttpApplicationFeature](../src/Microsoft.AspNetCore.SystemWebAdapters/Adapters/Features/IHttpApplicationFeature.cs). This exposes the `HttpApplication` for the request, as well as the ability to raise events on it.
 
 Events have a prescribed order which is replicated with these emulated events. However, because the rest of the ASP.NET Core pipeline is unaware of these events and so some of the state of the request may not be exactly replicated.
 
