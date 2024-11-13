@@ -807,6 +807,11 @@ namespace System.Web
         bool IsReusable { get; }
         void ProcessRequest(System.Web.HttpContext context);
     }
+    public partial interface IHttpHandlerFactory
+    {
+        System.Web.IHttpHandler GetHandler(System.Web.HttpContext context, string requestType, string url, string pathTranslated);
+        void ReleaseHandler(System.Web.IHttpHandler handler);
+    }
     public partial interface IHttpModule
     {
         void Dispose();
