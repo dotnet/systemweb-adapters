@@ -61,6 +61,7 @@
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.HttpUnhandledException))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.IHttpAsyncHandler))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.IHttpHandler))]
+[assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.IHttpHandlerFactory))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.IHttpModule))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.ISubscriptionToken))]
 [assembly:System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Web.ReadEntityBodyMode))]
