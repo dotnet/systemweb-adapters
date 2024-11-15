@@ -56,11 +56,12 @@ internal partial class SessionLoadMiddleware
         {
             await _next(context);
 
-            using var cts = new CancellationTokenSource(CommitTimeout);
-
             if (!details.IsReadOnly)
             {
-                await state.CommitAsync(cts.Token);
+                using var cts = new CancellationTokenSource(CommitTimeout);
+                using var linked = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, context.RequestAborted);
+
+                await state.CommitAsync(linked.Token);
             }
         }
         finally
