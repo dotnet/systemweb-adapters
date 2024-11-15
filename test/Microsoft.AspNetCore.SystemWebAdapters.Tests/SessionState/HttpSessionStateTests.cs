@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Web.SessionState;
 using AutoFixture;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Moq;
 using Xunit;
 
@@ -27,7 +28,7 @@ public class HttpSessionStateTests
         var session = new Mock<ISessionState>();
         session.Setup(s => s.SessionID).Returns(id);
 
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
 
         // Act
         var result = state.SessionID;
@@ -42,7 +43,7 @@ public class HttpSessionStateTests
         // Arrange
         var session = new Mock<ISessionState>();
 
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
 
         // Act
         var result = state.Mode;
@@ -60,7 +61,7 @@ public class HttpSessionStateTests
         var session = new Mock<ISessionState>();
         session.Setup(s => s.Count).Returns(count);
 
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
 
         // Act
         var result = state.Count;
@@ -78,7 +79,7 @@ public class HttpSessionStateTests
         var session = new Mock<ISessionState>();
         session.Setup(s => s.IsReadOnly).Returns(isReadOnly);
 
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
 
         // Act
         var result = state.IsReadOnly;
@@ -96,7 +97,7 @@ public class HttpSessionStateTests
         var session = new Mock<ISessionState>();
         session.Setup(s => s.IsNewSession).Returns(isNewSession);
 
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
 
         // Act
         var result = state.IsNewSession;
@@ -116,7 +117,7 @@ public class HttpSessionStateTests
         session.SetupProperty(s => s.Timeout);
         session.Object.Timeout = timeout1;
 
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
 
         // Act
         var result = state.Timeout;
@@ -136,7 +137,7 @@ public class HttpSessionStateTests
         var session = new Mock<ISessionState>();
         session.Setup(s => s.IsSynchronized).Returns(isSynchronized);
 
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
 
         // Act
         var result = state.IsSynchronized;
@@ -153,7 +154,7 @@ public class HttpSessionStateTests
         var session = new Mock<ISessionState>();
         session.Setup(s => s.SyncRoot).Returns(sync);
 
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
 
         // Act
         var result = state.SyncRoot;
@@ -169,7 +170,7 @@ public class HttpSessionStateTests
         var session = new Mock<ISessionState>();
         session.SetupProperty(s => s.IsAbandoned);
 
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
 
         // Act
         state.Abandon();
@@ -188,7 +189,7 @@ public class HttpSessionStateTests
         var session = new Mock<ISessionState>();
         session.Setup(s => s[key]).Returns(value);
 
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
 
         // Act
         var result = state[key];
@@ -206,7 +207,7 @@ public class HttpSessionStateTests
 
         var session = new Mock<ISessionState>();
 
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
 
         // Act
         state[key] = value;
@@ -223,7 +224,7 @@ public class HttpSessionStateTests
         var value = new object();
 
         var session = new Mock<ISessionState>();
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
 
         // Act
         state.Add(key, value);
@@ -239,7 +240,7 @@ public class HttpSessionStateTests
         var key = _fixture.Create<string>();
 
         var session = new Mock<ISessionState>();
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
 
         // Act
         state.Remove(key);
@@ -255,7 +256,7 @@ public class HttpSessionStateTests
         var key = _fixture.Create<string>();
 
         var session = new Mock<ISessionState>();
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
 
         // Act
         state.RemoveAll();
@@ -271,7 +272,7 @@ public class HttpSessionStateTests
         var key = _fixture.Create<string>();
 
         var session = new Mock<ISessionState>();
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
 
         // Act
         state.Clear();
@@ -289,7 +290,7 @@ public class HttpSessionStateTests
         var session = new Mock<ISessionState>();
         session.Setup(s => s.Keys).Returns(keys);
 
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
 
         // Act
         var result = state.GetEnumerator();
@@ -320,7 +321,7 @@ public class HttpSessionStateTests
         session.Setup(s => s[key1]).Returns(item1);
         session.Setup(s => s[key2]).Returns(item2);
 
-        var state = new HttpSessionState(session.Object);
+        var state = CreateSession(session.Object);
         var array = new object[3];
 
         // Act
@@ -331,5 +332,13 @@ public class HttpSessionStateTests
             item => Assert.Null(item),
             item => Assert.Equal(item1, item),
             item => Assert.Equal(item2, item)); ;
+    }
+
+    private static HttpSessionState CreateSession(ISessionState session)
+    {
+        var feature = new Mock<ISessionStateFeature>();
+        feature.Setup(f => f.State).Returns(session);
+
+        return new(feature.Object);
     }
 }
