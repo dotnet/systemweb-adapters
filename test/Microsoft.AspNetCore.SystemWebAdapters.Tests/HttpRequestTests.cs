@@ -12,6 +12,7 @@ using System.Text;
 using System.Web;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Internal;
@@ -535,8 +536,50 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Act
             var result = request.UrlReferrer;
 
-            // AssertexpectedResult
+            // Assert
             Assert.Equal(new Uri(referrer), result);
+        }
+
+        [Fact]
+        public void UrlRelativeReferrer()
+        {
+            // Arrange
+            var referrer = "/some-relative-url";
+            var headers = new HeaderDictionary
+            {
+                { HeaderNames.Referer, referrer },
+            };
+
+            var coreRequest = new Mock<HttpRequestCore>();
+            coreRequest.Setup(c => c.Scheme).Returns("https");
+            coreRequest.Setup(c => c.Host).Returns(new HostString("microsoft.com"));
+            coreRequest.Setup(c => c.Headers).Returns(headers);
+
+            var request = new HttpRequest(coreRequest.Object);
+
+            // Act
+            var result = request.UrlReferrer;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.IsAbsoluteUri);
+            Assert.Equal(new Uri("https://microsoft.com/some-relative-url"), result);
+        }
+
+        [Fact]
+        public void NoReferer()
+        {
+            // Arrange
+            var coreRequest = new Mock<HttpRequestCore>();
+            coreRequest.Setup(c => c.Headers).Returns(new HeaderDictionary());
+
+            var request = new HttpRequest(coreRequest.Object);
+
+            // Act
+            var result = request.UrlReferrer;
+
+            // Assert
+            Assert.Null(result);
         }
 
         [Fact]
