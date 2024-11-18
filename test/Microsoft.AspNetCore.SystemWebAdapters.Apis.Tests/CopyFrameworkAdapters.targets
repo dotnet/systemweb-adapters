@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472" PrivateAssets="All" GeneratePathProperty="true" />
     <Content Include="$(PkgMicrosoft_NETFramework_ReferenceAssemblies_net472)\build\.NETFramework\v4.7.2\**">
       <Visible>false</Visible>
       <Link>$(FrameworkAdapterDirectory)/%(RecursiveDir)%(Filename)%(Extension)</Link>
