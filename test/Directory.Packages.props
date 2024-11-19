@@ -3,6 +3,8 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <!-- NU1009: The packages Microsoft.NETFramework.ReferenceAssemblies are implicitly referenced. -->
+    <NoWarn>NU1009;$(NoWarn)</NoWarn>
   </PropertyGroup>
 
 <ItemGroup>
