@@ -3,11 +3,11 @@
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Autofac.Extras.Moq" Version="6.0.0" />
-    <PackageReference Include="AutoFixture" Version="4.15.0" />
-    <PackageReference Include="Moq" Version="4.16.1" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.13" />
-    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
+    <PackageReference Include="Autofac.Extras.Moq" />
+    <PackageReference Include="AutoFixture" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" />
+    <PackageReference Include="System.Collections.Immutable" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.CoreServices\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.csproj" />
