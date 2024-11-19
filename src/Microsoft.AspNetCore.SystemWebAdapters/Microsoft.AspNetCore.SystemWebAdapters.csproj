@@ -64,6 +64,7 @@
 
     <Compile Include="IHtmlString.cs" />
     <Compile Include="HtmlString.cs" />
+    <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
 
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies">
       <PrivateAssets>all</PrivateAssets>
