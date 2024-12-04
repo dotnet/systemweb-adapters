@@ -2,10 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.SessionState;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 
@@ -54,7 +56,17 @@ internal sealed class HttpSessionStateBaseWrapper : ISessionState
         }
     }
 
-    public IEnumerable<string> Keys => State.Keys.Cast<string>();
+    public IEnumerable<string> Keys
+    {
+        get
+        {
+            // If the underlying storage mechanism is SessionStateItemCollection then there can be issues around the enumerator causing side effects.
+            // There are precautions in the implementation to prevent this, but we have seen an exception around this in practice (see dotnet/systemweb-adapters#556).
+            // However, there is no simple way to check if this is the case, so we'll preemptively create a copy.
+            // See https://referencesource.microsoft.com/#System.Web/State/SessionStateItemCollection.cs,435 for the warnings in the implementation.
+            return [.. State.Keys.Cast<string>()];
+        }
+    }
 
     public void Clear() => State.Clear();
 
