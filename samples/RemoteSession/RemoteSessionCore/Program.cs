@@ -12,6 +12,8 @@ builder.Services.AddSystemWebAdapters()
     .AddSessionSerializer(options =>
     {
         options.ThrowOnUnknownSessionKey = false;
+
+        builder.Configuration.GetSection("RemoteSessionTest").Bind(options);
     })
     .AddJsonSessionSerializer(options =>
     {
