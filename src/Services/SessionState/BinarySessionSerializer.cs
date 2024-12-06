@@ -16,7 +16,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1510:Use ArgumentNullException throw helper", Justification = "Source shared with .NET Framework that does not have the method")]
 internal partial class BinarySessionSerializer : ISessionSerializer
 {
-    private const byte Version = 1;
+    private const byte ModeState = 1;
+    private const byte ModeDelta = 2;
 
     private readonly SessionSerializerOptions _options;
     private readonly ISessionKeySerializer _serializer;
@@ -37,52 +38,21 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 
     public void Write(ISessionState state, BinaryWriter writer)
     {
-        writer.Write(Version);
-        writer.Write(state.SessionID);
+        var unknownKeys = state is ISessionStateChangeset delta
+            ? new ChangesetWriter(_serializer).Write(delta, writer)
+            : new StateWriter(_serializer).Write(state, writer);
 
-        writer.Write(state.IsNewSession);
-        writer.Write(state.IsAbandoned);
-        writer.Write(state.IsReadOnly);
-
-        writer.Write7BitEncodedInt(state.Timeout);
-        writer.Write7BitEncodedInt(state.Count);
-
-        List<string>? unknownKeys = null;
-
-        foreach (var item in state.Keys)
+        if (unknownKeys is { })
         {
-            writer.Write(item);
-
-            if (_serializer.TrySerialize(item, state[item], out var result))
-                {
-                    writer.Write7BitEncodedInt(result.Length);
-                    writer.Write(result);
-                }
-                else
-                {
-                    (unknownKeys ??= new()).Add(item);
-                    writer.Write7BitEncodedInt(0);
-                }
-            }
-
-        if (unknownKeys is null)
-        {
-            writer.Write7BitEncodedInt(0);
-        }
-        else
-        {
-            writer.Write7BitEncodedInt(unknownKeys.Count);
-
             foreach (var key in unknownKeys)
             {
                 LogSerialization(key);
-                writer.Write(key);
             }
-        }
 
-        if (unknownKeys is not null && _options.ThrowOnUnknownSessionKey)
-        {
-            throw new UnknownSessionKeyException(unknownKeys);
+            if (_options.ThrowOnUnknownSessionKey)
+            {
+                throw new UnknownSessionKeyException(unknownKeys);
+            }
         }
     }
 
@@ -93,12 +63,14 @@ internal partial class BinarySessionSerializer : ISessionSerializer
             throw new ArgumentNullException(nameof(reader));
         }
 
-        if (reader.ReadByte() != Version)
-        {
-            throw new InvalidOperationException("Serialized session state has different version than expected");
-        }
+        var version = reader.ReadByte();
 
-        var state = new BinaryReaderSerializedSessionState(reader, _serializer);
+        var state = version switch
+        {
+            ModeState => new StateWriter(_serializer).Read(reader),
+            ModeDelta => new ChangesetWriter(_serializer).Read(reader),
+            _ => throw new InvalidOperationException("Serialized session state has unknown version.")
+        };
 
         if (state.UnknownKeys is { Count: > 0 } unknownKeys)
         {
@@ -116,6 +88,7 @@ internal partial class BinarySessionSerializer : ISessionSerializer
         return state;
     }
 
+
     public Task<ISessionState?> DeserializeAsync(Stream stream, CancellationToken token)
     {
         using var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
@@ -130,86 +103,5 @@ internal partial class BinarySessionSerializer : ISessionSerializer
         Write(state, writer);
 
         return Task.CompletedTask;
-    }
-
-    private class BinaryReaderSerializedSessionState : ISessionState
-    {
-        public BinaryReaderSerializedSessionState(BinaryReader reader, ISessionKeySerializer serializer)
-        {
-            SessionID = reader.ReadString();
-            IsNewSession = reader.ReadBoolean();
-            IsAbandoned = reader.ReadBoolean();
-            IsReadOnly = reader.ReadBoolean();
-            Timeout = reader.Read7BitEncodedInt();
-
-            var count = reader.Read7BitEncodedInt();
-
-            for (var index = count; index > 0; index--)
-            {
-                var key = reader.ReadString();
-                var length = reader.Read7BitEncodedInt();
-                var bytes = reader.ReadBytes(length);
-
-                if (serializer.TryDeserialize(key, bytes, out var result))
-                {
-                    if (result is not null)
-                    {
-                        this[key] = result;
-                    }
-                }
-                else
-                {
-                    (UnknownKeys ??= new()).Add(key);
-                }
-            }
-
-            var unknown = reader.Read7BitEncodedInt();
-
-            if (unknown > 0)
-            {
-                for (var index = unknown; index > 0; index--)
-                {
-                    (UnknownKeys ??= new()).Add(reader.ReadString());
-                }
-            }
-        }
-
-        private Dictionary<string, object?>? _items;
-
-        public object? this[string key]
-        {
-            get => _items?.TryGetValue(key, out var result) is true ? result : null;
-            set => (_items ??= new())[key] = value;
-        }
-
-        internal List<string>? UnknownKeys { get; private set; }
-
-        public string SessionID { get; set; } = null!;
-
-        public bool IsReadOnly { get; set; }
-
-        public int Timeout { get; set; }
-
-        public bool IsNewSession { get; set; }
-
-        public int Count => _items?.Count ?? 0;
-
-        public bool IsAbandoned { get; set; }
-
-        bool ISessionState.IsSynchronized => false;
-
-        object ISessionState.SyncRoot => this;
-
-        IEnumerable<string> ISessionState.Keys => _items?.Keys ?? Enumerable.Empty<string>();
-
-        void ISessionState.Clear() => _items?.Clear();
-
-        void ISessionState.Remove(string key) => _items?.Remove(key);
-
-        Task ISessionState.CommitAsync(CancellationToken token) => Task.CompletedTask;
-
-        void IDisposable.Dispose()
-        {
-        }
     }
 }
