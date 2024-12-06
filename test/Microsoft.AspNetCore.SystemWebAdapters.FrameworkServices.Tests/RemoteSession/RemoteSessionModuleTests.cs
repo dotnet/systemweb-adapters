@@ -35,7 +35,9 @@ public class RemoteSessionModuleTests
     [InlineData("PUT", null, 0, ApiKey1, ApiKey1, typeof(StoreSessionStateHandler))]
     [InlineData("PUT", "true", 0, ApiKey1, ApiKey1, typeof(StoreSessionStateHandler))]
     [InlineData("PUT", "false", 0, ApiKey1, ApiKey1, typeof(StoreSessionStateHandler))]
-    [InlineData("POST", null, 405, ApiKey1, ApiKey1, null)]
+    [InlineData("POST", null, 0, ApiKey1, ApiKey1, typeof(ReadWriteSessionHandler))]
+    [InlineData("Post", "true", 0, ApiKey1, ApiKey1, typeof(ReadWriteSessionHandler))]
+    [InlineData("Post", "false", 0, ApiKey1, ApiKey1, typeof(ReadWriteSessionHandler))]
     [Theory]
     public void VerifyCorrectHandler(string method, string? readOnlyHeaderValue, int statusCode, string expectedApiKey, string apiKey, Type? handlerType)
     {

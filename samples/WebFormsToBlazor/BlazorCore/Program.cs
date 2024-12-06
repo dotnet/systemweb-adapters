@@ -18,7 +18,7 @@ builder.Services.AddSystemWebAdapters()
     .AddRemoteAppClient(options =>
     {
         options.RemoteAppUrl = new(builder.Configuration["ProxyTo"]);
-        options.ApiKey = builder.Configuration["RemoteAppApiKey"];
+        options.ApiKey = builder.Configuration["RemoteAppApiKey"]!;
     })
     .AddSessionClient();
 
@@ -43,7 +43,7 @@ app.UseAntiforgery();
  * TLDR: We need to ensure that SystemWeb.Adapters is not used with Blazor SignalR
  */
 app.UseWhen(
-    (context) => HttpMethods.IsConnect(context.Request.Method) == false,
+    (context) => !HttpMethods.IsConnect(context.Request.Method),
     appBuilder => appBuilder.UseSystemWebAdapters());
 //app.UseWhen(
 //    (context) => context.Request.Path.ToString().Contains("/_blazor", StringComparison.OrdinalIgnoreCase) == false,
