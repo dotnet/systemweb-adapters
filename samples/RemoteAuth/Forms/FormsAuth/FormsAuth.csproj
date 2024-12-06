@@ -2,22 +2,21 @@
   <PropertyGroup>
     <TargetFramework>net481</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Antlr" Version="3.5.0.2" />
-    <PackageReference Include="AspNet.ScriptManager.bootstrap" Version="3.4.1" />
-    <PackageReference Include="AspNet.ScriptManager.jQuery.UI.Combined" Version="1.13.2" />
-    <PackageReference Include="AspNet.ScriptManager.jQuery" Version="3.7.1" />
-    <PackageReference Include="bootstrap" GeneratePathProperty="true" CopyContent="true" Version="3.4.1" />
-    <PackageReference Include="jQuery" CopyContent="true" Version="3.7.1" />
-    <PackageReference Include="Microsoft.AspNet.FriendlyUrls" Version="1.0.2" />
-    <PackageReference Include="Microsoft.AspNet.ScriptManager.MSAjax" GeneratePathProperty="true" CopyContent="true" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNet.ScriptManager.WebForms" GeneratePathProperty="true" CopyContent="true" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNet.Web.Optimization.WebForms" Version="1.1.3" NoWarn="NU1602" />
-    <PackageReference Include="Modernizr" Version="2.8.3" CopyContent="true" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="WebGrease" Version="1.6.0" />
-    <PackageReference Include="Microsoft.Web.Infrastructure" Version="2.0.1" />
+    <PackageReference Include="Antlr" />
+    <PackageReference Include="AspNet.ScriptManager.bootstrap" />
+    <PackageReference Include="AspNet.ScriptManager.jQuery.UI.Combined" />
+    <PackageReference Include="AspNet.ScriptManager.jQuery" />
+    <PackageReference Include="bootstrap" GeneratePathProperty="true" CopyContent="true" />
+    <PackageReference Include="jQuery" CopyContent="true" />
+    <PackageReference Include="Microsoft.AspNet.FriendlyUrls" />
+    <PackageReference Include="Microsoft.AspNet.ScriptManager.MSAjax" GeneratePathProperty="true" CopyContent="true" />
+    <PackageReference Include="Microsoft.AspNet.ScriptManager.WebForms" GeneratePathProperty="true" CopyContent="true" />
+    <PackageReference Include="Microsoft.AspNet.Web.Optimization.WebForms" NoWarn="NU1602" />
+    <PackageReference Include="Modernizr" CopyContent="true" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="WebGrease" />
+    <PackageReference Include="Microsoft.Web.Infrastructure" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.csproj" />

@@ -2,38 +2,17 @@
   <PropertyGroup>
     <TargetFramework>net481</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNet.WebApi">
-      <Version>5.2.7</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNet.WebApi.HelpPage">
-      <Version>5.2.7</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect">
-      <Version>6.19.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation">
-      <Version>6.19.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Owin.Host.SystemWeb">
-      <Version>4.2.2</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Owin.Security.ActiveDirectory">
-      <Version>4.2.2</Version>
-    </PackageReference>
-    <PackageReference Include="Modernizr">
-      <Version>2.8.3</Version>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>13.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt">
-      <Version>7.2.0</Version>
-    </PackageReference>
-    <PackageReference Include="WebGrease">
-      <Version>1.6.0</Version>
-    </PackageReference>
+    <PackageReference Include="Microsoft.AspNet.WebApi" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.HelpPage" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" />
+    <PackageReference Include="Microsoft.Owin.Host.SystemWeb" />
+    <PackageReference Include="Microsoft.Owin.Security.ActiveDirectory" />
+    <PackageReference Include="Modernizr" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+    <PackageReference Include="WebGrease" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.csproj" />
