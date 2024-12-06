@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 builder.Services.AddReverseProxy();
 
 builder.Services.AddSystemWebAdapters()

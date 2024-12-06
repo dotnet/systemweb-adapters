@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting" Version="8.1.0" />
+    <PackageReference Include="Microsoft.Web.Administration" Version="11.1.0" />
+    <None Update="*.props;*.targets" Pack="true" PackagePath="build\$(TargetFramework)\%(Filename)%(Extension)" Visible="true" />
+  </ItemGroup>
+
+</Project>
