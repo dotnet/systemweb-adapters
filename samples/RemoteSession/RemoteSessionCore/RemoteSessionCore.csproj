@@ -3,12 +3,12 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>0470f8a1-dd59-4e2c-a7e2-71c91e1a46d8</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Yarp.ReverseProxy" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters.CoreServices\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.csproj" />
-    <ProjectReference Include="..\..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj" />
+    <ProjectReference Include="..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters.CoreServices\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.csproj" />
   </ItemGroup>
 </Project>

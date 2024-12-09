@@ -15,6 +15,11 @@ public class RemoteAppSessionStateClientOptions
         set => Path = new(value);
     }
 
+    /// <summary>
+    /// Gets or sets whether a single connection should be used. If the framework deployment is the source of truth that doesn't support the single connection mode (such as it can't support HTTP2), set this to <c>false</c>.
+    /// </summary>
+    public bool UseSingleConnection { get; set; } = true;
+
     internal RelativePathString Path { get; private set; } = new(SessionConstants.SessionEndpointPath);
 
     /// <summary>

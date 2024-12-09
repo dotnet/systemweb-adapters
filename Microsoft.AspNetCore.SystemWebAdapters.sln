@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{9591
 	ProjectSection(SolutionItems) = preProject
 		samples\Directory.Build.props = samples\Directory.Build.props
 		samples\Directory.Build.targets = samples\Directory.Build.targets
+		samples\Directory.Packages.props = samples\Directory.Packages.props
 		samples\README.md = samples\README.md
 	EndProjectSection
 EndProject
@@ -104,6 +105,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrameworkSampleUtilities", "samples\FrameworkSampleUtilities\FrameworkSampleUtilities.csproj", "{7F09946A-3D08-4A34-9C6A-F1D6557E4FAD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsAuth", "samples\WindowsAuth\WindowsAuth.csproj", "{B5E840F8-2021-4175-BFBF-F9447506242E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RemoteSession", "RemoteSession", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteSessionCore", "samples\RemoteSession\RemoteSessionCore\RemoteSessionCore.csproj", "{291686C8-E398-CCDC-E25C-A3C550E091FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteSessionFramework", "samples\RemoteSession\RemoteSessionFramework\RemoteSessionFramework.csproj", "{6986975A-EC36-EB8F-65B9-CB64A16355B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -227,14 +234,22 @@ Global
 		{E4D9A131-DC4E-403F-A10F-65F5E5E42475}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4D9A131-DC4E-403F-A10F-65F5E5E42475}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4D9A131-DC4E-403F-A10F-65F5E5E42475}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B5E840F8-2021-4175-BFBF-F9447506242E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B5E840F8-2021-4175-BFBF-F9447506242E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B5E840F8-2021-4175-BFBF-F9447506242E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B5E840F8-2021-4175-BFBF-F9447506242E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7F09946A-3D08-4A34-9C6A-F1D6557E4FAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7F09946A-3D08-4A34-9C6A-F1D6557E4FAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F09946A-3D08-4A34-9C6A-F1D6557E4FAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F09946A-3D08-4A34-9C6A-F1D6557E4FAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5E840F8-2021-4175-BFBF-F9447506242E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5E840F8-2021-4175-BFBF-F9447506242E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5E840F8-2021-4175-BFBF-F9447506242E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5E840F8-2021-4175-BFBF-F9447506242E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{291686C8-E398-CCDC-E25C-A3C550E091FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{291686C8-E398-CCDC-E25C-A3C550E091FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{291686C8-E398-CCDC-E25C-A3C550E091FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{291686C8-E398-CCDC-E25C-A3C550E091FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6986975A-EC36-EB8F-65B9-CB64A16355B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6986975A-EC36-EB8F-65B9-CB64A16355B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6986975A-EC36-EB8F-65B9-CB64A16355B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6986975A-EC36-EB8F-65B9-CB64A16355B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -277,8 +292,11 @@ Global
 		{FA39AC22-0725-4532-A682-B054ADA5BDA2} = {03E4CEAB-D845-402A-9311-F7390B24BA2A}
 		{17055F45-E79A-41EF-825E-0B2211433729} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
 		{E4D9A131-DC4E-403F-A10F-65F5E5E42475} = {A1BDA50C-D70B-416C-97F1-74B0649797C5}
-		{B5E840F8-2021-4175-BFBF-F9447506242E} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 		{7F09946A-3D08-4A34-9C6A-F1D6557E4FAD} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
+		{B5E840F8-2021-4175-BFBF-F9447506242E} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
+		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
+		{291686C8-E398-CCDC-E25C-A3C550E091FE} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{6986975A-EC36-EB8F-65B9-CB64A16355B2} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DABA3C65-9D74-4EB6-9B1C-730328710EAD}
