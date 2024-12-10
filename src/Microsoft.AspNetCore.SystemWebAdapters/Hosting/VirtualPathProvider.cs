@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.IO;
 using System.Web.Caching;
 using System.Web.Util;
 
@@ -53,6 +54,12 @@ public abstract class VirtualPathProvider
 
     public virtual VirtualDirectory? GetDirectory(string virtualDir) => Previous?.GetDirectory(virtualDir);
 
+    public virtual string? GetCacheKey(string virtualPath)
+    {
+        // By default, return null, meaning use a key based on the virtual path
+        return null;
+    }
+
     public virtual string CombineVirtualPaths(string basePath, string relativePath)
     {
         if (string.IsNullOrEmpty(basePath))
@@ -64,5 +71,15 @@ public abstract class VirtualPathProvider
 
         // By default, just combine them normally
         return VirtualPathUtility.Combine(baseDir, relativePath);
+    }
+
+    /*
+     * Helper method to open a file from its virtual path
+     */
+    public static Stream? OpenFile(string virtualPath)
+    {
+        VirtualPathProvider? vpathProvider = HostingEnvironment.VirtualPathProvider;
+        VirtualFile? vfile = vpathProvider?.GetFileWithCheck(virtualPath);
+        return vfile?.Open();
     }
 }
