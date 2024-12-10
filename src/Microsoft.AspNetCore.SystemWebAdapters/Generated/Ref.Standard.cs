@@ -1004,10 +1004,12 @@ namespace System.Web.Hosting
         public virtual bool DirectoryExists(string virtualDir) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual bool FileExists(string virtualPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual System.Web.Caching.CacheDependency GetCacheDependency(string virtualPath, System.Collections.IEnumerable virtualPathDependencies, System.DateTime utcStart) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public virtual string GetCacheKey(string virtualPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual System.Web.Hosting.VirtualDirectory GetDirectory(string virtualDir) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual System.Web.Hosting.VirtualFile GetFile(string virtualPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual string GetFileHash(string virtualPath, System.Collections.IEnumerable virtualPathDependencies) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         protected virtual void Initialize() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
+        public static System.IO.Stream OpenFile(string virtualPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
     }
 }
 namespace System.Web.Security
