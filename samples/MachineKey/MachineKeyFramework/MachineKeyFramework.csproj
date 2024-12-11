@@ -2,11 +2,9 @@
   <PropertyGroup>
     <TargetFramework>net481</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.SystemWeb" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.SystemWeb" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\MachineKeyShared\MachineKeyShared.csproj" />
   </ItemGroup>
