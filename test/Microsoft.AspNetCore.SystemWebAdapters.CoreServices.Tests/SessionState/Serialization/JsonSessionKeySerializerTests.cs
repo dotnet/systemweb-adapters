@@ -358,6 +358,37 @@ public class JsonSessionKeySerializerTests
         Assert.True(result2);
     }
 
+    [Fact]
+    public void RegisterKey()
+    {
+        // Arrange
+        var options = new JsonSessionSerializerOptions();
+
+        // Act
+        options.RegisterKey<int>("key");
+
+        // Assert
+        var item = Assert.Single(options.KnownKeys);
+        Assert.Equal(typeof(int), item.Value);
+        Assert.Equal("key", item.Key);
+    }
+
+    [Fact]
+    public void RegisterKeySameName()
+    {
+        // Arrange
+        var options = new JsonSessionSerializerOptions();
+
+        // Act
+        options.RegisterKey<int>("key");
+        options.RegisterKey<int>("key");
+
+        // Assert
+        var item = Assert.Single(options.KnownKeys);
+        Assert.Equal(typeof(int), item.Value);
+        Assert.Equal("key", item.Key);
+    }
+
     private sealed class Type1
     {
     }
