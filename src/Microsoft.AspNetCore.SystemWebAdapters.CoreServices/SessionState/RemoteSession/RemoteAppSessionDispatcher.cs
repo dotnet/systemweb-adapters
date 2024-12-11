@@ -13,27 +13,55 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 /// <summary>
 /// This is used to dispatch to either <see cref="DoubleConnectionRemoteAppSessionManager"/> if in read-only mode or <see cref="SingleConnectionWriteableRemoteAppSessionStateManager"/> if not.
 /// </summary>
-internal sealed class RemoteAppSessionDispatcher(
-    IOptions<RemoteAppSessionStateClientOptions> options,
-    SingleConnectionWriteableRemoteAppSessionStateManager singleConnection,
-    DoubleConnectionRemoteAppSessionManager doubleConnection
-    ) : ISessionManager
+internal sealed class RemoteAppSessionDispatcher : ISessionManager
 {
+    private readonly IOptions<RemoteAppSessionStateClientOptions> _options;
+    private readonly ISessionManager _singleConnection;
+    private readonly ISessionManager _doubleConnection;
+
     private bool _singleConnectionSupported = true;
+
+    public static ISessionManager Create(
+        IOptions<RemoteAppSessionStateClientOptions> options,
+        ISessionManager singleConnection,
+        ISessionManager doubleConnection
+        )
+    {
+        return new RemoteAppSessionDispatcher(options, singleConnection, doubleConnection);
+    }
+
+    public RemoteAppSessionDispatcher(
+        IOptions<RemoteAppSessionStateClientOptions> options,
+        SingleConnectionWriteableRemoteAppSessionStateManager singleConnection,
+        DoubleConnectionRemoteAppSessionManager doubleConnection
+        )
+        : this(options, (ISessionManager)singleConnection, doubleConnection)
+    {
+    }
+
+    private RemoteAppSessionDispatcher(
+        IOptions<RemoteAppSessionStateClientOptions> options,
+        ISessionManager singleConnection,
+        ISessionManager doubleConnection)
+    {
+        _options = options;
+        _singleConnection = singleConnection;
+        _doubleConnection = doubleConnection;
+    }
 
     public async Task<ISessionState> CreateAsync(HttpContextCore context, SessionAttribute metadata)
     {
         if (metadata.IsReadOnly)
         {
             // In readonly mode it's a simple GET request
-            return await doubleConnection.GetReadOnlySessionStateAsync(context);
+            return await _doubleConnection.CreateAsync(context, metadata);
         }
 
-        if (_singleConnectionSupported && options.Value.UseSingleConnection)
+        if (_singleConnectionSupported && _options.Value.UseSingleConnection)
         {
             try
             {
-                return await singleConnection.CreateAsync(context, metadata);
+                return await _singleConnection.CreateAsync(context, metadata);
             }
 
             // We can attempt to discover if the server supports the single connection. If it doesn't,
@@ -45,7 +73,7 @@ internal sealed class RemoteAppSessionDispatcher(
             }
         }
 
-        return await doubleConnection.CreateAsync(context, metadata);
+        return await _doubleConnection.CreateAsync(context, metadata);
     }
 
     private static bool ServerDoesNotSupportSingleConnection(HttpRequestException ex)
