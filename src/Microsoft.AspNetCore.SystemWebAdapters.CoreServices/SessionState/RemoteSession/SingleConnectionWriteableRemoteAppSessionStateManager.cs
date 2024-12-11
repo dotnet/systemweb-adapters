@@ -78,15 +78,8 @@ internal sealed partial class SingleConnectionWriteableRemoteAppSessionStateMana
         return new RemoteSessionState(remoteSessionState, request, response, content, responseStream);
     }
 
-    private sealed class SessionPostResult
-    {
-        public bool Success { get; set; }
-
-        public string? Message { get; set; }
-    }
-
     [JsonSerializable(typeof(SessionPostResult))]
-    private sealed partial class ResultContext : JsonSerializerContext
+    private sealed partial class SessionPostResultContext : JsonSerializerContext
     {
     }
 
@@ -142,7 +135,7 @@ internal sealed partial class SingleConnectionWriteableRemoteAppSessionStateMana
         {
             content.Commit(State);
 
-            var result = await JsonSerializer.DeserializeAsync(stream, ResultContext.Default.SessionPostResult, token);
+            var result = await JsonSerializer.DeserializeAsync(stream, SessionPostResultContext.Default.SessionPostResult, token);
 
             if (result is not { Success: true })
             {

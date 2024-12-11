@@ -53,7 +53,10 @@ internal abstract partial class RemoteAppSessionStateManager : ISessionManager
     [LoggerMessage(EventId = 3, Level = LogLevel.Trace, Message = "Received {StatusCode} response committing remote session state")]
     protected partial void LogCommitResponse(HttpStatusCode statusCode);
 
-    public async Task<ISessionState> CreateAsync(HttpContextCore context, SessionAttribute metadata)
+    public Task<ISessionState> CreateAsync(HttpContextCore context, SessionAttribute metadata)
+        => CreateAsync(context, metadata.IsReadOnly);
+
+    protected async Task<ISessionState> CreateAsync(HttpContextCore context, bool isReadOnly)
     {
         // If an existing remote session ID is present in the request, use its session ID.
         // Otherwise, leave session ID null for now; it will be provided by the remote service
@@ -63,7 +66,7 @@ internal abstract partial class RemoteAppSessionStateManager : ISessionManager
         try
         {
             // Get or create session data
-            var response = await GetSessionDataAsync(sessionId, metadata.IsReadOnly, context, context.RequestAborted);
+            var response = await GetSessionDataAsync(sessionId, isReadOnly, context, context.RequestAborted);
 
             LogSessionLoad(response.Count, response.SessionID);
 

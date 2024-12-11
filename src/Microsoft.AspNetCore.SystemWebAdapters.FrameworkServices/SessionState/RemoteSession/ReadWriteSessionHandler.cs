@@ -23,12 +23,23 @@ internal sealed partial class ReadWriteSessionHandler : HttpTaskAsyncHandler, IR
         using var timeoutCts = new CancellationTokenSource(TimeSpan.FromMinutes(context.Session.Timeout));
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, context.Response.ClientDisconnectedToken);
 
-        await SendSessionAsync(new HttpContextWrapper(context), cts.Token).ConfigureAwait(false);
+        var contextWrapper = new HttpContextWrapper(context);
+
+        await SendSessionAsync(contextWrapper, cts.Token).ConfigureAwait(false);
+
+        if (await RetrieveUpdatedSessionAsync(contextWrapper, cts.Token))
+        {
+            await SendSessionWriteResultAsync(contextWrapper.Response, Results.Succeeded, cts.Token);
+        }
+        else
+        {
+            await SendSessionWriteResultAsync(contextWrapper.Response, Results.NoSessionData, cts.Token);
+        }
 
         context.ApplicationInstance.CompleteRequest();
     }
 
-    public async Task SendSessionAsync(HttpContextBase context, CancellationToken token)
+    private async Task SendSessionAsync(HttpContextBase context, CancellationToken token)
     {
         // Send the initial snapshot of session data
         context.Response.ContentType = "text/event-stream";
@@ -40,7 +51,10 @@ internal sealed partial class ReadWriteSessionHandler : HttpTaskAsyncHandler, IR
 
         // Ensure to call HttpResponse.FlushAsync to flush the request itself, and not context.Response.OutputStream.FlushAsync()
         await context.Response.FlushAsync();
+    }
 
+    private async Task<bool> RetrieveUpdatedSessionAsync(HttpContextBase context, CancellationToken token)
+    {
         // This will wait for data to be pushed for the session info to be committed
         using var stream = context.Request.GetBufferlessInputStream();
 
@@ -49,25 +63,27 @@ internal sealed partial class ReadWriteSessionHandler : HttpTaskAsyncHandler, IR
         if (deserialized is { })
         {
             deserialized.CopyTo(context.Session);
-
-            await JsonSerializer.SerializeAsync(context.Response.OutputStream, new SessionPostResult() { Success = true }, ResultContext.Default.SessionPostResult, token);
+            return true;
         }
         else
         {
-            await JsonSerializer.SerializeAsync(context.Response.OutputStream, new SessionPostResult() { Success = false, Message = "No session data was supplied for commit" }, ResultContext.Default.SessionPostResult, token);
+            return false;
         }
     }
 
-    private class SessionPostResult
-    {
-        public bool Success { get; set; }
-
-        public string? Message { get; set; }
-    }
+    private static Task SendSessionWriteResultAsync(HttpResponseBase response, SessionPostResult result, CancellationToken token)
+        => JsonSerializer.SerializeAsync(response.OutputStream, result, SessionPostResultContext.Default.SessionPostResult, token);
 
     [JsonSerializable(typeof(SessionPostResult))]
-    private partial class ResultContext : JsonSerializerContext
+    [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault)]
+    private partial class SessionPostResultContext : JsonSerializerContext
     {
     }
-}
 
+    private static class Results
+    {
+        public static SessionPostResult Succeeded { get; } = new() { Success = true };
+
+        public static SessionPostResult NoSessionData { get; } = new() { Success = false, Message = "No session data was supplied for commit" };
+    }
+}

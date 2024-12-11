@@ -32,6 +32,8 @@ internal sealed class DoubleConnectionRemoteAppSessionManager : RemoteAppSession
     {
     }
 
+    public Task<ISessionState> GetReadOnlySessionStateAsync(HttpContextCore context) => CreateAsync(context, isReadOnly: true);
+
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "They are either passed into another object or are manually disposed")]
     protected override async Task<ISessionState> GetSessionDataAsync(string? sessionId, bool readOnly, HttpContextCore callingContext, CancellationToken token)
     {

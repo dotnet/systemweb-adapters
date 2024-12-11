@@ -16,18 +16,18 @@ public static class RemoteAppSessionStateExtensions
 
         builder.Services.AddTransient<DoubleConnectionRemoteAppSessionManager>();
         builder.Services.AddTransient<SingleConnectionWriteableRemoteAppSessionStateManager>();
-        builder.Services.AddTransient<RemoteAppSessionDispatcher>();
-        builder.Services.AddSingleton<ISessionManager>(ctx =>
-        {
-            var options = ctx.GetRequiredService<IOptions<RemoteAppSessionStateClientOptions>>();
-
-            return options.Value.UseSingleConnection
-                ? ctx.GetRequiredService<RemoteAppSessionDispatcher>()
-                : ctx.GetRequiredService<DoubleConnectionRemoteAppSessionManager>();
-        });
+        builder.Services.AddTransient<ISessionManager, RemoteAppSessionDispatcher>();
 
         builder.Services.AddOptions<RemoteAppSessionStateClientOptions>()
             .Configure(configure ?? (_ => { }))
+            .PostConfigure<RemoteAppClientOptions>((options, remote) =>
+            {
+                // The single connection remote app session client requires https to work so if that's not the case, we'll disable it
+                if (string.Equals(remote.RemoteAppUrl.Scheme, "https", StringComparison.OrdinalIgnoreCase))
+                {
+                    options.UseSingleConnection = false;
+                }
+            })
             .ValidateDataAnnotations();
 
         return builder;
