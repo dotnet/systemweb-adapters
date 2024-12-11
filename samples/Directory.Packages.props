@@ -6,11 +6,11 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Antlr" Version="3.5.0.2" />
-    <PackageVersion Include="AspNet.ScriptManager.bootstrap" Version="3.4.1" />
-    <PackageVersion Include="AspNet.ScriptManager.jQuery" Version="3.7.1" />
+    <PackageVersion Include="AspNet.ScriptManager.bootstrap" Version="5.2.3" />
+    <PackageVersion Include="AspNet.ScriptManager.jQuery" Version="3.7.0" />
     <PackageVersion Include="AspNet.ScriptManager.jQuery.UI.Combined" Version="1.13.2" />
-    <PackageVersion Include="bootstrap" Version="3.4.1" />
-    <PackageVersion Include="jQuery" Version="3.7.1" />
+    <PackageVersion Include="bootstrap" Version="5.2.3" />
+    <PackageVersion Include="jQuery" Version="3.7.0" />
     <PackageVersion Include="jQuery.Validation" Version="1.19.5" />
     <PackageVersion Include="Microsoft.AspNet.FriendlyUrls" Version="1.0.2" />
     <PackageVersion Include="Microsoft.AspNet.Identity.EntityFramework" Version="2.2.3" />
