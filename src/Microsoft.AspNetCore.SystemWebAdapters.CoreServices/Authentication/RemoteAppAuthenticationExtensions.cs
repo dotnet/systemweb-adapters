@@ -67,6 +67,10 @@ public static class RemoteAppAuthenticationExtensions
     /// </summary>
     /// <param name="isDefaultScheme">Specifies whether the remote authentication scheme should be the default authentication scheme. If false, remote authentication will only be used for endpoints specifically requiring the remote authentication scheme.</param>
     /// <param name="configureOptions">Configuration options for the remote authentication handler.</param>
+    /// <remarks>
+    /// This API allows you to decide if the remote authentication is the default scheme. However, starting in .NET 7, if there is only a single scheme, it will automatically be the default. To see how to configure this, please read the documentation
+    /// <see href="https://learn.microsoft.com/en-us/dotnet/core/compatibility/aspnet-core/7.0/default-authentication-scheme">here</see>.
+    /// </remarks>
     public static ISystemWebAdapterRemoteClientAppBuilder AddAuthenticationClient(this ISystemWebAdapterRemoteClientAppBuilder builder, bool isDefaultScheme, Action<RemoteAppAuthenticationClientOptions>? configureOptions = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
