@@ -23,8 +23,12 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 /// This only supports non-readonly mode. For readonly mode, <see cref="DoubleConnectionRemoteAppSessionManager"/> should be used. An additional implementation
 /// of <see cref="ISessionManager"/> is available that handles the dispatching to the correct implementation. See <see cref="RemoteAppSessionDispatcher"/> for that.
 /// </remarks>
-internal sealed partial class SingleConnectionWriteableRemoteAppSessionStateManager(ISessionSerializer serializer, IOptions<RemoteAppSessionStateClientOptions> options, IOptions<RemoteAppClientOptions> remoteAppClientOptions, ILogger<SingleConnectionWriteableRemoteAppSessionStateManager> logger)
-    : RemoteAppSessionStateManager(serializer, options, remoteAppClientOptions, logger)
+internal sealed partial class SingleConnectionWriteableRemoteAppSessionStateManager(
+    ISessionSerializer serializer,
+    IOptions<RemoteAppSessionStateClientOptions> options,
+    IOptions<RemoteAppClientOptions> remoteAppClientOptions,
+    ILogger<SingleConnectionWriteableRemoteAppSessionStateManager> logger
+    ) : RemoteAppSessionStateManager(serializer, options, remoteAppClientOptions, logger)
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Dispose is handled in the returned ISessionState")]
     protected override async Task<ISessionState> GetSessionDataAsync(string? sessionId, bool readOnly, HttpContextCore callingContext, CancellationToken token)

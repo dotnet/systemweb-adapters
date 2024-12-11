@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -28,21 +29,36 @@ internal sealed class RemoteAppSessionDispatcher(
             return await doubleConnection.GetReadOnlySessionStateAsync(context);
         }
 
-        if (!_singleConnectionSupported || options.Value.UseSingleConnection)
+        if (_singleConnectionSupported && options.Value.UseSingleConnection)
         {
-            return await doubleConnection.CreateAsync(context, metadata);
+            try
+            {
+                return await singleConnection.CreateAsync(context, metadata);
+            }
+
+            // We can attempt to discover if the server supports the single connection. If it doesn't,
+            // future attempts will fallback to the double and require a restart of the ASP.NET Core applicatoin
+            // to start using the single request.
+            catch (HttpRequestException ex) when (ServerDoesNotSupportSingleConnection(ex))
+            {
+                _singleConnectionSupported = false;
+            }
         }
 
-        try
-        {
-            return await singleConnection.CreateAsync(context, metadata);
-        }
+        return await doubleConnection.CreateAsync(context, metadata);
+    }
 
-        // If 
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.MethodNotAllowed)
+    private static bool ServerDoesNotSupportSingleConnection(HttpRequestException ex)
+    {
+#if NET8_0_OR_GREATER
+        // This is thrown when HTTP2 cannot be initiated
+        if (ex.HttpRequestError == HttpRequestError.HttpProtocolError)
         {
-            _singleConnectionSupported = false;
-            return await doubleConnection.CreateAsync(context, metadata);
+            return true;
         }
+#endif
+
+        // This is thrown if the server does not know about the POST verb
+        return ex.StatusCode == HttpStatusCode.MethodNotAllowed;
     }
 }

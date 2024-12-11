@@ -25,13 +25,13 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 /// For the non-readonly mode, it is preferrable to use <see cref="SingleConnectionWriteableRemoteAppSessionStateManager"/> instead
 /// which will only use a single connection via HTTP2 streaming.
 /// </remarks>
-internal sealed class DoubleConnectionRemoteAppSessionManager : RemoteAppSessionStateManager
+internal sealed class DoubleConnectionRemoteAppSessionManager(
+    ISessionSerializer serializer,
+    IOptions<RemoteAppSessionStateClientOptions> options,
+    IOptions<RemoteAppClientOptions> remoteAppClientOptions,
+    ILogger<DoubleConnectionRemoteAppSessionManager> logger
+    ) : RemoteAppSessionStateManager(serializer, options, remoteAppClientOptions, logger)
 {
-    public DoubleConnectionRemoteAppSessionManager(ISessionSerializer serializer, IOptions<RemoteAppSessionStateClientOptions> options, IOptions<RemoteAppClientOptions> remoteAppClientOptions, ILogger<DoubleConnectionRemoteAppSessionManager> logger)
-        : base(serializer, options, remoteAppClientOptions, logger)
-    {
-    }
-
     public Task<ISessionState> GetReadOnlySessionStateAsync(HttpContextCore context) => CreateAsync(context, isReadOnly: true);
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "They are either passed into another object or are manually disposed")]

@@ -20,10 +20,10 @@ public static class RemoteAppSessionStateExtensions
 
         builder.Services.AddOptions<RemoteAppSessionStateClientOptions>()
             .Configure(configure ?? (_ => { }))
-            .PostConfigure<RemoteAppClientOptions>((options, remote) =>
+            .PostConfigure<IOptions<RemoteAppClientOptions>>((options, remote) =>
             {
                 // The single connection remote app session client requires https to work so if that's not the case, we'll disable it
-                if (string.Equals(remote.RemoteAppUrl.Scheme, "https", StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(remote.Value.RemoteAppUrl.Scheme, "https", StringComparison.OrdinalIgnoreCase))
                 {
                     options.UseSingleConnection = false;
                 }
