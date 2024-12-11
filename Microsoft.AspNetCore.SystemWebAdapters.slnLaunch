@@ -100,5 +100,18 @@
         "Action": "Start"
       }
     ]
+  },
+  {
+    "Name": "Sample: Remote Session",
+    "Projects": [
+      {
+        "Path": "samples\\RemoteSession\\RemoteSessionCore\\RemoteSessionCore.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "samples\\RemoteSession\\RemoteSessionFramework\\RemoteSessionFramework.csproj",
+        "Action": "Start"
+      }
+    ]
   }
 ]

@@ -4,6 +4,7 @@
 using System;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -13,10 +14,20 @@ public static class RemoteAppSessionStateExtensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.Services.AddTransient<ISessionManager, RemoteAppSessionStateManager>();
+        builder.Services.AddTransient<DoubleConnectionRemoteAppSessionManager>();
+        builder.Services.AddTransient<SingleConnectionWriteableRemoteAppSessionStateManager>();
+        builder.Services.AddTransient<ISessionManager, RemoteAppSessionDispatcher>();
 
         builder.Services.AddOptions<RemoteAppSessionStateClientOptions>()
             .Configure(configure ?? (_ => { }))
+            .PostConfigure<IOptions<RemoteAppClientOptions>>((options, remote) =>
+            {
+                // The single connection remote app session client requires https to work so if that's not the case, we'll disable it
+                if (!string.Equals(remote.Value.RemoteAppUrl.Scheme, "https", StringComparison.OrdinalIgnoreCase))
+                {
+                    options.UseSingleConnection = false;
+                }
+            })
             .ValidateDataAnnotations();
 
         return builder;

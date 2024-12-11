@@ -12,6 +12,7 @@ internal abstract class RemoteModule : IHttpModule
 
     private Func<HttpContextBase, IHttpHandler?>? _get;
     private Func<HttpContextBase, IHttpHandler?>? _put;
+    private Func<HttpContextBase, IHttpHandler?>? _post;
 
     protected RemoteModule(IOptions<RemoteAppServerOptions> options)
     {
@@ -25,6 +26,9 @@ internal abstract class RemoteModule : IHttpModule
 
     protected void MapPut(Func<HttpContextBase, IHttpHandler?> handler)
         => _put = handler;
+
+    protected void MapPost(Func<HttpContextBase, IHttpHandler?> handler)
+        => _post = handler;
 
     protected bool HasValidApiKey(HttpContextBase context)
     {
@@ -70,6 +74,20 @@ internal abstract class RemoteModule : IHttpModule
             {
                 context.ApplicationInstance.CompleteRequest();
             }
+
+            if (context.Handler is IRequireBufferlessStream)
+            {
+                if (context.Request.ReadEntityBodyMode is ReadEntityBodyMode.None or ReadEntityBodyMode.Bufferless)
+                {
+                    context.Request.GetBufferlessInputStream();
+                }
+                else
+                {
+                    context.Response.StatusCode = 400;
+                    context.Response.Write("Bufferless stream is required.");
+                    context.ApplicationInstance.CompleteRequest();
+                }
+            }
         };
     }
 
@@ -85,6 +103,10 @@ internal abstract class RemoteModule : IHttpModule
         else if (string.Equals("PUT", context.Request.HttpMethod, StringComparison.OrdinalIgnoreCase) && _put is { } put)
         {
             context.Handler = put(context);
+        }
+        else if (string.Equals("POST", context.Request.HttpMethod, StringComparison.OrdinalIgnoreCase) && _post is { } post)
+        {
+            context.Handler = post(context);
         }
         else
         {
