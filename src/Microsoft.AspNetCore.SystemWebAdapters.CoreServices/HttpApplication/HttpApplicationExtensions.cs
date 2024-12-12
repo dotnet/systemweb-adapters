@@ -61,6 +61,7 @@ public static class HttpApplicationExtensions
     }
 
     public static ISystemWebAdapterBuilder AddHttpApplication<TApp>(this ISystemWebAdapterBuilder builder)
+        where TApp : HttpApplication
     {
         ArgumentNullException.ThrowIfNull(builder);
 
