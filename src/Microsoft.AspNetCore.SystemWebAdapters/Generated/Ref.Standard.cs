@@ -973,8 +973,8 @@ namespace System.Web.Hosting
         public static bool IsHosted { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public static string SiteName { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public static System.Web.Hosting.VirtualPathProvider VirtualPathProvider { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
+        public static string MapPath(string virtualPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public static void RegisterVirtualPathProvider(System.Web.Hosting.VirtualPathProvider provider) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-        public static string MapPath(string virtualPath) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web"); }
     }
     public abstract partial class VirtualDirectory : System.Web.Hosting.VirtualFileBase
     {
