@@ -42,5 +42,5 @@ public class JsonSessionSerializerOptions
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="key"></param>
-    public void RegisterKey<T>(string key) => KnownKeys.Add(key, typeof(T));
+    public void RegisterKey<T>(string key) => KnownKeys[key] = typeof(T);
 }
