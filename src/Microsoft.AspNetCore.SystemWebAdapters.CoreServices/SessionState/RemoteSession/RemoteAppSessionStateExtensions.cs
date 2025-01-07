@@ -4,12 +4,16 @@
 using System;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-public static class RemoteAppSessionStateExtensions
+public static partial class RemoteAppSessionStateExtensions
 {
+    [LoggerMessage(0, LogLevel.Warning, "The remote app session client is configured to use a single connection, but the remote app URL is not HTTPS. Disabling single connection mode.")]
+    private static partial void LogSingleConnectionDisabled(ILogger logger);
+
     public static ISystemWebAdapterRemoteClientAppBuilder AddSessionClient(this ISystemWebAdapterRemoteClientAppBuilder builder, Action<RemoteAppSessionStateClientOptions>? configure = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
@@ -20,11 +24,12 @@ public static class RemoteAppSessionStateExtensions
 
         builder.Services.AddOptions<RemoteAppSessionStateClientOptions>()
             .Configure(configure ?? (_ => { }))
-            .PostConfigure<IOptions<RemoteAppClientOptions>>((options, remote) =>
+            .PostConfigure<IOptions<RemoteAppClientOptions>, ILogger<RemoteAppClientOptions>>((options, remote, logger) =>
             {
                 // The single connection remote app session client requires https to work so if that's not the case, we'll disable it
-                if (!string.Equals(remote.Value.RemoteAppUrl.Scheme, "https", StringComparison.OrdinalIgnoreCase))
+                if (options.UseSingleConnection && !string.Equals(remote.Value.RemoteAppUrl.Scheme, "https", StringComparison.OrdinalIgnoreCase))
                 {
+                    LogSingleConnectionDisabled(logger);
                     options.UseSingleConnection = false;
                 }
             })

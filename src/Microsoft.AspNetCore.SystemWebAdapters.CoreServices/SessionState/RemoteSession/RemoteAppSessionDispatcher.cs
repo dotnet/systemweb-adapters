@@ -21,6 +21,10 @@ internal sealed partial class RemoteAppSessionDispatcher : ISessionManager
     private readonly ISessionManager _doubleConnection;
     private readonly ILogger _logger;
 
+    /// <summary>
+    /// This method is used to test the behavior of this class since it can take any ISessionManage instances. Once we drop support for .NET 6, we should be able to use keyed services
+    /// in the DI container to achieve the same effect with just a constructor.
+    /// </summary>
     public static ISessionManager Create(
         IOptions<RemoteAppSessionStateClientOptions> options,
         ISessionManager singleConnection,
