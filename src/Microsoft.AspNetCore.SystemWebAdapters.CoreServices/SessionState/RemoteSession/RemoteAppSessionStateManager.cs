@@ -23,7 +23,7 @@ internal abstract partial class RemoteAppSessionStateManager : ISessionManager
 {
     private readonly ILogger _logger;
 
-    public RemoteAppSessionStateManager(
+    protected RemoteAppSessionStateManager(
         ISessionSerializer serializer,
         IOptions<RemoteAppSessionStateClientOptions> options,
         IOptions<RemoteAppClientOptions> remoteAppClientOptions,

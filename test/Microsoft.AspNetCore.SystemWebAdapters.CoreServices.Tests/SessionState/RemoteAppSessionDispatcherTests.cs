@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
@@ -45,7 +46,7 @@ public class RemoteAppSessionDispatcherTests
         var optionsProvider = new Mock<IOptions<RemoteAppSessionStateClientOptions>>();
         optionsProvider.Setup(o => o.Value).Returns(options);
 
-        var s = RemoteAppSessionDispatcher.Create(optionsProvider.Object, single.Object, @double.Object);
+        var s = RemoteAppSessionDispatcher.Create(optionsProvider.Object, single.Object, @double.Object, new Mock<ILogger>().Object);
         var expected = isSingleExpected ? singleState.Object : doubleState.Object;
 
         // Act
@@ -87,7 +88,7 @@ public class RemoteAppSessionDispatcherTests
         var optionsProvider = new Mock<IOptions<RemoteAppSessionStateClientOptions>>();
         optionsProvider.Setup(o => o.Value).Returns(options);
 
-        var s = RemoteAppSessionDispatcher.Create(optionsProvider.Object, single.Object, @double.Object);
+        var s = RemoteAppSessionDispatcher.Create(optionsProvider.Object, single.Object, @double.Object, new Mock<ILogger>().Object);
 
         // Act
         using var state = await s.CreateAsync(context, new SessionAttribute { SessionBehavior = SessionStateBehavior.Required });
