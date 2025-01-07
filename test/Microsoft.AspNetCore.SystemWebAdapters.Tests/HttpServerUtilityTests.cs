@@ -85,6 +85,10 @@ public class HttpServerUtilityTests
     [InlineData("/api/test/request/info", "/UploadedFiles", "UploadedFiles")]
     [InlineData("/api/test/request/info", "UploadedFiles", "api", "test", "request", "UploadedFiles")]
     [InlineData("/api/test/request/info", "~/MyUploadedFiles", "MyUploadedFiles")]
+    [InlineData("/api/test/request/info", "~/TrailingSlash/", "TrailingSlash\\")]
+    [InlineData("/api/test/request/info", "path/file", "api", "test", "request", "path", "file")]
+    [InlineData("/api/test/request/info", "~/", "\\")]
+    [InlineData("/api/test/request/info", "/", "\\")]
     [Theory]
     public void MapPath(string page, string? path, params string[] segments)
     {
@@ -101,8 +105,8 @@ public class HttpServerUtilityTests
         // Act
         var result = utility.MapPath(page, path);
 
-        var relative = System.IO.Path.Combine(segments);
-        var expected = System.IO.Path.Combine(options.AppDomainAppPath, relative);
+        var relative = System.IO.Path.Join(segments);
+        var expected = System.IO.Path.Join(options.AppDomainAppPath, relative);
 
         // Assert
         Assert.Equal(expected, result);
