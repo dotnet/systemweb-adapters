@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Web;
@@ -107,6 +108,9 @@ public class HttpServerUtilityTests
 
         var relative = System.IO.Path.Join(segments);
         var expected = System.IO.Path.Join(options.AppDomainAppPath, relative);
+
+        // for Linux/MacOS
+        expected = expected.Replace('\\', Path.DirectorySeparatorChar);
 
         // Assert
         Assert.Equal(expected, result);

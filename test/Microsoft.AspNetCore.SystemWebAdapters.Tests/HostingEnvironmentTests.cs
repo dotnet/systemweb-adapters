@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Web;
@@ -54,6 +55,9 @@ public class HostingEnvironmentTests
         }
 
         var expected = System.IO.Path.Join(options.AppDomainAppPath, expectedRelativePath);
+
+        // for Linux/MacOS
+        expected = expected.Replace('\\', Path.DirectorySeparatorChar);
 
         // Assert
         Assert.Equal(expected, result);
