@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -17,13 +18,13 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1510:Use ArgumentNullException throw helper", Justification = "Source shared with .NET Framework that does not have the method")]
 internal partial class BinarySessionSerializer : ISessionSerializer
 {
-    private readonly struct StateWriter(ISessionKeySerializer serializer)
+    private readonly struct StateWriter(ISessionKeySerializer serializer, byte mode)
     {
-        private const int FLAG_DIFF_REQUESTED = 100;
+        private const int FLAG_DIFF_SUPPORTED = 100;
 
-        public List<string>? Write(ISessionState state, BinaryWriter writer)
+        public void Write(ISessionState state, BinaryWriter writer)
         {
-            writer.Write(ModeState);
+            writer.Write(mode);
             writer.Write(state.SessionID);
 
             writer.Write(state.IsNewSession);
@@ -65,15 +66,14 @@ internal partial class BinarySessionSerializer : ISessionSerializer
                 }
             }
 
-            writer.WriteFlags(
-                [
-                    (FLAG_DIFF_REQUESTED, Array.Empty<byte>())
-                ]);
-
-
-            return unknownKeys;
+            if (mode == ModeStateV2)
+            {
+                writer.WriteFlags(
+                    [
+                        (FLAG_DIFF_SUPPORTED, Array.Empty<byte>())
+                    ]);
+            }
         }
-
 
         public SessionStateCollection Read(BinaryReader reader)
         {
@@ -93,7 +93,7 @@ internal partial class BinarySessionSerializer : ISessionSerializer
                 var length = reader.Read7BitEncodedInt();
                 var bytes = reader.ReadBytes(length);
 
-                state.SetItem(key, bytes);
+                state.SetData(key, bytes);
             }
 
             var unknown = reader.Read7BitEncodedInt();
@@ -102,12 +102,11 @@ internal partial class BinarySessionSerializer : ISessionSerializer
             {
                 for (var index = unknown; index > 0; index--)
                 {
-                    state.AddUnknownKey(reader.ReadString());
+                    state.SetUnknownKey(reader.ReadString());
                 }
             }
 
-            // Originally this was the end of the data. Now, we have an optional set of flags, but we can stop if there is no more data
-            if (reader.PeekChar() != -1)
+            if (mode == ModeStateV2)
             {
                 foreach (var (flag, payload) in reader.ReadFlags())
                 {
@@ -120,7 +119,7 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 
         private static void HandleFlag(ref SessionStateCollection state, int flag)
         {
-            if (flag == FLAG_DIFF_REQUESTED)
+            if (flag == FLAG_DIFF_SUPPORTED)
             {
                 state = state.WithTracking();
             }

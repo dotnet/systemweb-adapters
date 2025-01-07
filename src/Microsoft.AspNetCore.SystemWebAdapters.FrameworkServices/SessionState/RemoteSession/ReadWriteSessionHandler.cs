@@ -6,16 +6,19 @@ using System.Text.Json.Serialization;
 using System.Web;
 using System.Web.SessionState;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
 internal sealed partial class ReadWriteSessionHandler : HttpTaskAsyncHandler, IRequiresSessionState, IRequireBufferlessStream
 {
     private readonly ISessionSerializer _serializer;
+    private readonly ILogger _logger;
 
-    public ReadWriteSessionHandler(ISessionSerializer serializer)
+    public ReadWriteSessionHandler(ISessionSerializer serializer, ILogger logger)
     {
         _serializer = serializer;
+        _logger = logger;
     }
 
     public override async Task ProcessRequestAsync(HttpContext context)
@@ -50,6 +53,7 @@ internal sealed partial class ReadWriteSessionHandler : HttpTaskAsyncHandler, IR
         await _serializer.SerializeAsync(wrapper, context.Response.OutputStream, token);
 
         // Ensure to call HttpResponse.FlushAsync to flush the request itself, and not context.Response.OutputStream.FlushAsync()
+        await context.Response.OutputStream.FlushAsync(token);
         await context.Response.FlushAsync();
     }
 
@@ -62,7 +66,7 @@ internal sealed partial class ReadWriteSessionHandler : HttpTaskAsyncHandler, IR
 
         if (deserialized is { })
         {
-            deserialized.CopyTo(context.Session);
+            deserialized.CopyTo(_logger, context.Session);
             return true;
         }
         else

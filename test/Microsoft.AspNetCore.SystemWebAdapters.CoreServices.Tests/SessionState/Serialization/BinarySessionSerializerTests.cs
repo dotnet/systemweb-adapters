@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -18,11 +19,16 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization.Test
 
 public class BinarySessionSerializerTests
 {
-    [Fact]
-    public async Task SerializeEmpty()
+    private const byte ModeStateV1 = 1;
+    private const byte ModeStateV2 = 2;
+
+    [InlineData(true)]
+    [InlineData(false)]
+    [Theory]
+    public async Task SerializeEmpty(bool trackChanges)
     {
         // Arrange
-        var serializer = CreateSerializer();
+        var serializer = CreateSerializer(trackChanges);
         using var ms = new MemoryStream();
 
         var state = new Mock<ISessionState>();
@@ -32,17 +38,19 @@ public class BinarySessionSerializerTests
         await serializer.SerializeAsync(state.Object, ms, default);
 
         // Assert
-        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 0, 0, 1, 100, 0 });
+        Assert.Equal(ms.ToArray(), AddFlags([2, 105, 100, 0, 0, 0, 0, 0, 0], trackChanges));
     }
 
-    [Fact]
-    public async Task DeserializeEmpty()
+    [InlineData(true)]
+    [InlineData(false)]
+    [Theory]
+    public async Task DeserializeEmpty(bool trackChanges)
     {
         // Arrange
-        var data = new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 0, 0 };
+        var data = AddFlags([2, 105, 100, 0, 0, 0, 0, 0, 0], trackChanges);
         using var ms = new MemoryStream(data);
 
-        var serializer = CreateSerializer();
+        var serializer = CreateSerializer(trackChanges);
 
         // Act
         var result = await serializer.DeserializeAsync(ms, default);
@@ -57,11 +65,13 @@ public class BinarySessionSerializerTests
         Assert.Empty(result.Keys);
     }
 
-    [Fact]
-    public async Task SerializeIsNewSession()
+    [InlineData(true)]
+    [InlineData(false)]
+    [Theory]
+    public async Task SerializeIsNewSession(bool trackChanges)
     {
         // Arrange
-        var serializer = CreateSerializer();
+        var serializer = CreateSerializer(null, trackChanges);
         using var ms = new MemoryStream();
 
         var state = new Mock<ISessionState>();
@@ -72,14 +82,16 @@ public class BinarySessionSerializerTests
         await serializer.SerializeAsync(state.Object, ms, default);
 
         // Assert
-        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 1, 0, 0, 0, 0, 0, 1, 100, 0 });
+        Assert.Equal(ms.ToArray(), AddFlags([2, 105, 100, 1, 0, 0, 0, 0, 0], trackChanges));
     }
 
-    [Fact]
-    public async Task DeserializeIsNewSession()
+    [InlineData(true)]
+    [InlineData(false)]
+    [Theory]
+    public async Task DeserializeIsNewSession(bool trackChanges)
     {
         // Arrange
-        var data = new byte[] { 1, 2, 105, 100, 1, 0, 0, 0, 0, 0 };
+        var data = AddFlags([2, 105, 100, 1, 0, 0, 0, 0, 0], trackChanges);
         using var ms = new MemoryStream(data);
 
         var serializer = CreateSerializer();
@@ -97,11 +109,13 @@ public class BinarySessionSerializerTests
         Assert.Empty(result.Keys);
     }
 
-    [Fact]
-    public async Task SerializeIsAbandoned()
+    [InlineData(true)]
+    [InlineData(false)]
+    [Theory]
+    public async Task SerializeIsAbandoned(bool trackChanges)
     {
         // Arrange
-        var serializer = CreateSerializer();
+        var serializer = CreateSerializer(trackChanges);
         using var ms = new MemoryStream();
 
         var state = new Mock<ISessionState>();
@@ -112,14 +126,16 @@ public class BinarySessionSerializerTests
         await serializer.SerializeAsync(state.Object, ms, default);
 
         // Assert
-        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 1, 0, 0, 0, 0, 1, 100, 0 });
+        Assert.Equal(ms.ToArray(), AddFlags([2, 105, 100, 0, 1, 0, 0, 0, 0], trackChanges));
     }
 
-    [Fact]
-    public async Task DeserializeIsAbandoned()
+    [InlineData(true)]
+    [InlineData(false)]
+    [Theory]
+    public async Task DeserializeIsAbandoned(bool trackChanges)
     {
         // Arrange
-        var data = new byte[] { 1, 2, 105, 100, 0, 1, 0, 0, 0, 0 };
+        var data = AddFlags([2, 105, 100, 0, 1, 0, 0, 0, 0], trackChanges);
         using var ms = new MemoryStream(data);
 
         var serializer = CreateSerializer();
@@ -137,11 +153,13 @@ public class BinarySessionSerializerTests
         Assert.Empty(result.Keys);
     }
 
-    [Fact]
-    public async Task SerializeIsReadOnly()
+    [InlineData(true)]
+    [InlineData(false)]
+    [Theory]
+    public async Task SerializeIsReadOnly(bool trackChanges)
     {
         // Arrange
-        var serializer = CreateSerializer();
+        var serializer = CreateSerializer(trackChanges);
         using var ms = new MemoryStream();
 
         var state = new Mock<ISessionState>();
@@ -152,7 +170,7 @@ public class BinarySessionSerializerTests
         await serializer.SerializeAsync(state.Object, ms, default);
 
         // Assert
-        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 1, 0, 0, 0, 1, 100, 0 });
+        Assert.Equal(ms.ToArray(), AddFlags([2, 105, 100, 0, 0, 1, 0, 0, 0], trackChanges));
     }
 
     [InlineData(FlagOptions.None)]
@@ -162,7 +180,7 @@ public class BinarySessionSerializerTests
     public async Task DeserializeIsReadOnly(FlagOptions options)
     {
         // Arrange
-        var data = AddFlags([1, 2, 105, 100, 0, 0, 1, 0, 0, 0], options);
+        var data = AddFlags([2, 105, 100, 0, 0, 1, 0, 0, 0], options);
 
         using var ms = new MemoryStream(data);
 
@@ -198,7 +216,7 @@ public class BinarySessionSerializerTests
     {
         // Arrange
 
-        var data = AddFlags([1, 2, 105, 100, 0, 0, 1, 0, 0, 0], options);
+        var data = AddFlags([2, 105, 100, 0, 0, 1, 0, 0, 0], options);
         using var ms = new MemoryStream(data);
 
         var serializer = CreateSerializer();
@@ -225,11 +243,13 @@ public class BinarySessionSerializerTests
         }
     }
 
-    [Fact]
-    public async Task SerializeTimeout()
+    [InlineData(true)]
+    [InlineData(false)]
+    [Theory]
+    public async Task SerializeTimeout(bool trackChanges)
     {
         // Arrange
-        var serializer = CreateSerializer();
+        var serializer = CreateSerializer(keySerializer: null, trackChanges: trackChanges);
         using var ms = new MemoryStream();
 
         var state = new Mock<ISessionState>();
@@ -240,7 +260,7 @@ public class BinarySessionSerializerTests
         await serializer.SerializeAsync(state.Object, ms, default);
 
         // Assert
-        Assert.Equal(new byte[] { 1, 2, 105, 100, 0, 0, 0, 20, 0, 0, 1, 100, 0 }, ms.ToArray());
+        Assert.Equal(AddFlags([2, 105, 100, 0, 0, 0, 20, 0, 0], trackChanges), ms.ToArray());
     }
 
     [InlineData(FlagOptions.None)]
@@ -250,7 +270,7 @@ public class BinarySessionSerializerTests
     public async Task DeserializeTimeout(FlagOptions options)
     {
         // Arrange
-        var data = AddFlags([1, 2, 105, 100, 0, 0, 0, 20, 0, 0], options);
+        var data = AddFlags([2, 105, 100, 0, 0, 0, 20, 0, 0], options);
         using var ms = new MemoryStream(data);
 
         var serializer = CreateSerializer();
@@ -277,8 +297,10 @@ public class BinarySessionSerializerTests
         }
     }
 
-    [Fact]
-    public async Task Serialize1Key()
+    [InlineData(true)]
+    [InlineData(false)]
+    [Theory]
+    public async Task Serialize1Key(bool trackChanges)
     {
         // Arrange
         var obj = new object();
@@ -292,18 +314,20 @@ public class BinarySessionSerializerTests
         var bytes = new byte[] { 42 };
         keySerializer.Setup(k => k.TrySerialize("key1", obj, out bytes)).Returns(true);
 
-        var serializer = CreateSerializer(keySerializer.Object);
+        var serializer = CreateSerializer(keySerializer.Object, trackChanges);
         using var ms = new MemoryStream();
 
         // Act
         await serializer.SerializeAsync(state.Object, ms, default);
 
         // Assert
-        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 42, 0, 1, 100, 0 });
+        Assert.Equal(ms.ToArray(), AddFlags([2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 42, 0], trackChanges));
     }
 
-    [Fact]
-    public async Task Serialize1KeyNull()
+    [InlineData(true)]
+    [InlineData(false)]
+    [Theory]
+    public async Task Serialize1KeyNull(bool trackChanges)
     {
         // Arrange
         var obj = default(object);
@@ -317,14 +341,14 @@ public class BinarySessionSerializerTests
         var bytes = new byte[] { 0 };
         keySerializer.Setup(k => k.TrySerialize("key1", obj, out bytes)).Returns(true);
 
-        var serializer = CreateSerializer(keySerializer.Object);
+        var serializer = CreateSerializer(keySerializer.Object, trackChanges);
         using var ms = new MemoryStream();
 
         // Act
         await serializer.SerializeAsync(state.Object, ms, default);
 
         // Assert
-        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0, 1, 100, 0 });
+        Assert.Equal(ms.ToArray(), AddFlags([2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0], trackChanges));
     }
 
     [InlineData(FlagOptions.None)]
@@ -334,7 +358,7 @@ public class BinarySessionSerializerTests
     public async Task Deserialize1KeyNull(FlagOptions options)
     {
         // Arrange
-        var data = AddFlags([1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0], options);
+        var data = AddFlags([2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0], options);
         var obj = new object();
         var value = new byte[] { 0 };
 
@@ -377,7 +401,7 @@ public class BinarySessionSerializerTests
         var keySerializer = new Mock<ISessionKeySerializer>();
         keySerializer.Setup(k => k.TryDeserialize("key1", Array.Empty<byte>(), out obj)).Returns(true);
 
-        var data = AddFlags([1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 0, 0], options);
+        var data = AddFlags([2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 0, 0], options);
         using var ms = new MemoryStream(data);
 
         var serializer = CreateSerializer(keySerializer.Object);
@@ -405,8 +429,10 @@ public class BinarySessionSerializerTests
         }
     }
 
-    [Fact]
-    public async Task Serialize1KeyNullable()
+    [InlineData(true)]
+    [InlineData(false)]
+    [Theory]
+    public async Task Serialize1KeyNullable(bool trackChanges)
     {
         // Arrange
         var obj = (int?)5;
@@ -420,14 +446,14 @@ public class BinarySessionSerializerTests
         var bytes = new byte[] { 0 };
         keySerializer.Setup(k => k.TrySerialize("key1", obj, out bytes)).Returns(true);
 
-        var serializer = CreateSerializer(keySerializer.Object);
+        var serializer = CreateSerializer(keySerializer.Object, trackChanges);
         using var ms = new MemoryStream();
 
         // Act
         await serializer.SerializeAsync(state.Object, ms, default);
 
         // Assert
-        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0, 1, 100, 0 });
+        Assert.Equal(ms.ToArray(), AddFlags([2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0], trackChanges));
     }
 
     [InlineData(FlagOptions.None)]
@@ -442,7 +468,7 @@ public class BinarySessionSerializerTests
         var keySerializer = new Mock<ISessionKeySerializer>();
         keySerializer.Setup(k => k.TryDeserialize("key1", bytes, out obj)).Returns(true);
 
-        var data = AddFlags([1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 42, 0], options);
+        var data = AddFlags([2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 42, 0], options);
         using var ms = new MemoryStream(data);
 
         var serializer = CreateSerializer(keySerializer.Object);
@@ -526,7 +552,18 @@ public class BinarySessionSerializerTests
         keySerializer.Setup(k => k.TrySerialize(name, obj, out data)).Returns(true);
     }
 
-    private static BinarySessionSerializer CreateSerializer(ISessionKeySerializer? keySerializer = null, Action<SessionSerializerOptions>? optionsConfigure = null)
+    private static BinarySessionSerializer CreateSerializer() => CreateSerializer(null);
+
+    private static BinarySessionSerializer CreateSerializer(bool trackChanges)
+        => CreateSerializer(null, trackChanges);
+
+    private static BinarySessionSerializer CreateSerializer(ISessionKeySerializer? keySerializer)
+        => CreateSerializer(keySerializer, _ => { });
+
+    private static BinarySessionSerializer CreateSerializer(ISessionKeySerializer? keySerializer, bool trackChanges)
+        => CreateSerializer(keySerializer, options => options.EnableChangeTracking = trackChanges);
+
+    private static BinarySessionSerializer CreateSerializer(ISessionKeySerializer? keySerializer, Action<SessionSerializerOptions> optionsConfigure)
     {
         keySerializer ??= new Mock<ISessionKeySerializer>().Object;
         var logger = new Mock<ILogger<BinarySessionSerializer>>();
@@ -546,11 +583,14 @@ public class BinarySessionSerializerTests
         Changes = 2,
     }
 
+    private static byte[] AddFlags(byte[] data, bool trackChanges)
+        => AddFlags(data, trackChanges ? FlagOptions.Changes : FlagOptions.None);
+
     private static byte[] AddFlags(byte[] data, FlagOptions options) => options switch
     {
-        FlagOptions.None => data,
-        FlagOptions.Changes => [.. data, 1, 100, 0],
-        FlagOptions.NoChanges => [.. data, 0],
+        FlagOptions.None => [ModeStateV1, .. data],
+        FlagOptions.Changes => [ModeStateV2, .. data, 1, 100, 0],
+        FlagOptions.NoChanges => [ModeStateV2, .. data, 0],
         _ => throw new ArgumentOutOfRangeException(nameof(options)),
     };
 

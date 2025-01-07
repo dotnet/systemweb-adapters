@@ -4,12 +4,16 @@
 using System;
 using System.Web;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
-internal static class SessionStateExtensions
+internal static partial class SessionStateExtensions
 {
-    public static void CopyTo(this ISessionState result, HttpSessionStateBase state)
+    [LoggerMessage(0, LogLevel.Warning, "Unknown session key '{KeyName}' was received.")]
+    private static partial void LogUnknownSessionKey(ILogger logger, string keyName);
+
+    public static void CopyTo(this ISessionState result, ILogger logger, HttpSessionStateBase state)
     {
         if (!string.Equals(state.SessionID, result.SessionID, StringComparison.Ordinal))
         {
@@ -26,7 +30,7 @@ internal static class SessionStateExtensions
 
         if (result is ISessionStateChangeset changes)
         {
-            UpdateFromChanges(changes, state);
+            UpdateFromChanges(changes, logger, state);
         }
         else
         {
@@ -34,7 +38,7 @@ internal static class SessionStateExtensions
         }
     }
 
-    private static void UpdateFromChanges(ISessionStateChangeset from, HttpSessionStateBase state)
+    private static void UpdateFromChanges(ISessionStateChangeset from, ILogger logger, HttpSessionStateBase state)
     {
         foreach (var change in from.Changes)
         {
@@ -48,7 +52,7 @@ internal static class SessionStateExtensions
             }
             else if (change.State is SessionItemChangeState.Unknown)
             {
-
+                LogUnknownSessionKey(logger, change.Key);
             }
         }
     }

@@ -18,7 +18,7 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 {
     private readonly struct ChangesetWriter(ISessionKeySerializer serializer)
     {
-        public List<string>? Write(ISessionStateChangeset state, BinaryWriter writer)
+        public void Write(ISessionStateChangeset state, BinaryWriter writer)
         {
             writer.Write(ModeDelta);
             writer.Write(state.SessionID);
@@ -29,8 +29,6 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 
             writer.Write7BitEncodedInt(state.Timeout);
             writer.Write7BitEncodedInt(state.Count);
-
-            List<string>? unknownKeys = null;
 
             foreach (var item in state.Changes)
             {
@@ -49,14 +47,11 @@ internal partial class BinarySessionSerializer : ISessionSerializer
                 }
                 else
                 {
-                    (unknownKeys ??= []).Add(item.Key);
                     writer.Write7BitEncodedInt((int)SessionItemChangeState.Unknown);
                 }
             }
 
             writer.WriteFlags([]);
-
-            return unknownKeys;
         }
 
         public SessionStateCollection Read(BinaryReader reader)
@@ -86,7 +81,7 @@ internal partial class BinarySessionSerializer : ISessionSerializer
                 }
                 else if (changeState is SessionItemChangeState.Unknown)
                 {
-                    state.AddUnknownKey(key);
+                    state.SetUnknownKey(key);
                 }
                 else if (changeState is SessionItemChangeState.New or SessionItemChangeState.Changed)
                 {
@@ -102,7 +97,7 @@ internal partial class BinarySessionSerializer : ISessionSerializer
                     }
                     else
                     {
-                        state.AddUnknownKey(key);
+                        state.SetUnknownKey(key);
                     }
                 }
             }

@@ -16,43 +16,30 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1510:Use ArgumentNullException throw helper", Justification = "Source shared with .NET Framework that does not have the method")]
 internal partial class BinarySessionSerializer : ISessionSerializer
 {
-    private const byte ModeState = 1;
-    private const byte ModeDelta = 2;
+    private const byte ModeStateV1 = 1;
+    private const byte ModeStateV2 = 2;
+    private const byte ModeDelta = 3;
 
-    private readonly SessionSerializerOptions _options;
+    private readonly IOptions<SessionSerializerOptions> _options;
     private readonly ISessionKeySerializer _serializer;
     private readonly ILogger<BinarySessionSerializer> _logger;
 
     public BinarySessionSerializer(ICompositeSessionKeySerializer serializer, IOptions<SessionSerializerOptions> options, ILogger<BinarySessionSerializer> logger)
     {
         _serializer = serializer;
-        _options = options.Value;
+        _options = options;
         _logger = logger;
     }
 
-    [LoggerMessage(EventId = 0, Level = LogLevel.Warning, Message = "Could not serialize unknown session key '{Key}'")]
-    partial void LogSerialization(string key);
-
-    [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Could not deserialize unknown session key '{Key}'")]
-    partial void LogDeserialization(string key);
-
     public void Write(ISessionState state, BinaryWriter writer)
     {
-        var unknownKeys = state is ISessionStateChangeset delta
-            ? new ChangesetWriter(_serializer).Write(delta, writer)
-            : new StateWriter(_serializer).Write(state, writer);
-
-        if (unknownKeys is { })
+        if (state is ISessionStateChangeset delta)
         {
-            foreach (var key in unknownKeys)
-            {
-                LogSerialization(key);
-            }
-
-            if (_options.ThrowOnUnknownSessionKey)
-            {
-                throw new UnknownSessionKeyException(unknownKeys);
-            }
+            new ChangesetWriter(_serializer).Write(delta, writer);
+        }
+        else
+        {
+            new StateWriter(_serializer, _options.Value.EnableChangeTracking ? ModeStateV2 : ModeStateV1).Write(state, writer);
         }
     }
 
@@ -65,27 +52,13 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 
         var version = reader.ReadByte();
 
-        var state = version switch
+        return version switch
         {
-            ModeState => new StateWriter(_serializer).Read(reader),
+            ModeStateV1 => new StateWriter(_serializer, ModeStateV1).Read(reader),
+            ModeStateV2 => new StateWriter(_serializer, ModeStateV2).Read(reader),
             ModeDelta => new ChangesetWriter(_serializer).Read(reader),
             _ => throw new InvalidOperationException("Serialized session state has unknown version.")
         };
-
-        if (state.UnknownKeys is { Count: > 0 } unknownKeys)
-        {
-            foreach (var unknown in unknownKeys)
-            {
-                LogDeserialization(unknown);
-            }
-
-            if (_options.ThrowOnUnknownSessionKey)
-            {
-                throw new UnknownSessionKeyException(unknownKeys);
-            }
-        }
-
-        return state;
     }
 
 

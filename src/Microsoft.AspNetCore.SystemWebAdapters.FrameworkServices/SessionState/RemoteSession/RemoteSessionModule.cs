@@ -3,13 +3,14 @@
 
 using System.Web;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
 internal sealed class RemoteSessionModule : RemoteModule
 {
-    public RemoteSessionModule(IOptions<RemoteAppSessionStateServerOptions> sessionOptions, IOptions<RemoteAppServerOptions> remoteAppOptions, ILockedSessionCache cache, ISessionSerializer serializer)
+    public RemoteSessionModule(IOptions<RemoteAppSessionStateServerOptions> sessionOptions, IOptions<RemoteAppServerOptions> remoteAppOptions, ILoggerFactory loggerFactory, ILockedSessionCache cache, ISessionSerializer serializer)
         : base(remoteAppOptions)
     {
         if (sessionOptions is null)
@@ -23,7 +24,7 @@ internal sealed class RemoteSessionModule : RemoteModule
 
         var readonlyHandler = new ReadOnlySessionHandler(serializer);
         var writeableHandler = new GetWriteableSessionHandler(serializer, cache);
-        var persistHandler = new ReadWriteSessionHandler(serializer);
+        var persistHandler = new ReadWriteSessionHandler(serializer, loggerFactory.CreateLogger<ReadWriteSessionHandler>());
         var saveHandler = new StoreSessionStateHandler(cache, options.CookieName);
 
         MapGet(context => GetIsReadonly(context.Request) ? readonlyHandler : writeableHandler);

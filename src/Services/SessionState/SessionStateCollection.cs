@@ -44,16 +44,17 @@ internal class SessionStateCollection : ISessionState
 
     public ISessionKeySerializer Serializer { get; }
 
-    public void AddUnknownKey(string key)
+    public void SetUnknownKey(string key)
     {
         (UnknownKeys ??= new()).Add(key);
+        _items.Remove(key);
     }
 
-    public void MarkUnchanged(string key) => _items[key] = new([]);
+    public void MarkUnchanged(string key) => _items[key] = ItemHolder.Unchanged();
 
-    public void MarkRemoved(string key) => _items[key] = new((object?)null);
+    public void MarkRemoved(string key) => _items[key] = ItemHolder.Removed();
 
-    public void SetItem(string key, byte[] data) => _items[key] = new(data);
+    public void SetData(string key, byte[] data) => _items[key] = ItemHolder.FromData(data);
 
     public object? this[string key]
     {
@@ -64,9 +65,9 @@ internal class SessionStateCollection : ISessionState
             {
                 existing.SetValue(value);
             }
-            else
+            else if (value is { })
             {
-                _items[key] = new(value);
+                _items[key] = ItemHolder.NewValue(value);
             }
         }
     }
@@ -100,9 +101,9 @@ internal class SessionStateCollection : ISessionState
 
     object ISessionState.SyncRoot => this;
 
-    IEnumerable<string> ISessionState.Keys => _items?.Keys ?? Enumerable.Empty<string>();
+    public IEnumerable<string> Keys => _items?.Keys ?? Enumerable.Empty<string>();
 
-    void ISessionState.Clear()
+    public void Clear()
     {
         List<string>? newKeys = null;
 
@@ -127,7 +128,7 @@ internal class SessionStateCollection : ISessionState
         }
     }
 
-    void ISessionState.Remove(string key)
+    public void Remove(string key)
     {
         if (_items.TryGetValue(key, out var existing))
         {
@@ -153,15 +154,9 @@ internal class SessionStateCollection : ISessionState
         private byte[]? _data;
         private object? _value;
 
-        public ItemHolder(object? value)
+        private ItemHolder(bool isNew = false)
         {
-            _value = value;
-            IsNew = true;
-        }
-
-        public ItemHolder(byte[] data)
-        {
-            _data = data;
+            IsNew = isNew;
         }
 
         public bool IsNew { get; }
@@ -185,19 +180,27 @@ internal class SessionStateCollection : ISessionState
             if (_data is { } data && serializer.TryDeserialize(key, data, out var obj))
             {
                 _value = obj;
+                _data = null;
             }
-
-            _data = null;
 
             return _value;
         }
 
-        public void SetValue(object? value)
-
+        internal void SetValue(object? value)
         {
             _value = value;
             _data = null;
         }
+
+        public static ItemHolder Removed() => new();
+
+        public static ItemHolder FromData(byte[] bytes) => new() { _data = bytes };
+
+        public static ItemHolder FromValue(object? value) => new() { _value = value };
+
+        public static ItemHolder NewValue(object value) => new(isNew: true) { _value = value };
+
+        public static ItemHolder Unchanged() => new() { _data = [] };
     }
 
     private sealed class SessionStateChangeset : SessionStateCollection, ISessionStateChangeset
