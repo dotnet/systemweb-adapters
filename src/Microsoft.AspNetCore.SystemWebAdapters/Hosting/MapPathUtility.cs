@@ -28,7 +28,7 @@ internal sealed class MapPathUtility : IMapPathUtility
             return rootPath;
         }
 
-        var hasTrailingSlash = !string.IsNullOrEmpty(path) && (path.EndsWith("/") || path.EndsWith("\\"));
+        var hasTrailingSlash = !string.IsNullOrEmpty(path) && (path.EndsWith('/') || path.EndsWith('\\'));
 
         var combined = Path.Combine(
             rootPath,
