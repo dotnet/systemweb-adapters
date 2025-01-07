@@ -29,7 +29,7 @@ public class HostingEnvironmentTests
     [InlineData("/", "\\")]
     [InlineData("~/", "\\")]
     [Theory]
-    public void MapPath(string virtualPath, string expectedRelativePath)
+    public void MapPath(string? virtualPath, string expectedRelativePath)
     {
         // Arrange
         var options = new SystemWebAdaptersOptions

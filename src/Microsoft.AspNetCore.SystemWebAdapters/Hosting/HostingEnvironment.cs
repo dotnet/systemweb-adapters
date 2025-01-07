@@ -28,8 +28,13 @@ public static class HostingEnvironment
         HostingEnvironmentAccessor.Current.Options.VirtualPathProvider = provider;
     }
 
-    public static string MapPath(string virtualPath)
+    public static string MapPath(string? virtualPath)
     {
+        if (string.IsNullOrEmpty(virtualPath))
+        {
+            throw new ArgumentNullException(nameof(virtualPath));
+        }
+
         // original implementation disallows paths that are not virtual or do not begin with a forward slash, e.g. file.txt.
         if (!VirtualPathUtilityImpl.IsAppRelative(virtualPath) && UrlPath.FixVirtualPathSlashes(virtualPath)[0] != '/')
         {
