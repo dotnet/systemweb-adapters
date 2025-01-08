@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Web;
@@ -85,6 +86,10 @@ public class HttpServerUtilityTests
     [InlineData("/api/test/request/info", "/UploadedFiles", "UploadedFiles")]
     [InlineData("/api/test/request/info", "UploadedFiles", "api", "test", "request", "UploadedFiles")]
     [InlineData("/api/test/request/info", "~/MyUploadedFiles", "MyUploadedFiles")]
+    [InlineData("/api/test/request/info", "~/", "\\")]
+    [InlineData("/api/test/request/info", "/", "\\")]
+    [InlineData("/api/test/request/info", "~/TrailingSlash/", "TrailingSlash\\")]
+    [InlineData("/api/test/request/info", "path/file", "api", "test", "request", "path", "file")]
     [Theory]
     public void MapPath(string page, string? path, params string[] segments)
     {
@@ -101,8 +106,12 @@ public class HttpServerUtilityTests
         // Act
         var result = utility.MapPath(page, path);
 
-        var relative = System.IO.Path.Combine(segments);
-        var expected = System.IO.Path.Combine(options.AppDomainAppPath, relative);
+        var relative = Path.Join(segments);
+
+        // for Linux/MacOS
+        relative = relative.Replace('\\', Path.DirectorySeparatorChar);
+
+        var expected = Path.Join(options.AppDomainAppPath, relative);
 
         // Assert
         Assert.Equal(expected, result);

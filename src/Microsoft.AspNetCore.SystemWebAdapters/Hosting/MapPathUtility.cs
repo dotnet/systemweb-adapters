@@ -28,10 +28,19 @@ internal sealed class MapPathUtility : IMapPathUtility
             return rootPath;
         }
 
-        return Path.Combine(
+        var hasTrailingSlash = !string.IsNullOrEmpty(path) && (path.EndsWith('/') || path.EndsWith('\\'));
+
+        var combined = Path.Combine(
             rootPath,
             appPath[1..]
-            .Replace('/', Path.DirectorySeparatorChar))
-            .TrimEnd(Path.DirectorySeparatorChar);
+            .Replace('/', Path.DirectorySeparatorChar));
+
+        // mirror the input to include or exclude a trailing slash.
+        if (hasTrailingSlash && !combined.EndsWith(Path.DirectorySeparatorChar))
+            combined += Path.DirectorySeparatorChar;
+        else if (!hasTrailingSlash && combined.EndsWith(Path.DirectorySeparatorChar))
+            combined = combined.TrimEnd(Path.DirectorySeparatorChar);
+
+        return combined;
     }
 }
