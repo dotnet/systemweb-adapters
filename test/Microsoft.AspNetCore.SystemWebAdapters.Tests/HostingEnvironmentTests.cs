@@ -27,6 +27,8 @@ public class HostingEnvironmentTests
     [InlineData("\\TrailingSlash2\\", "TrailingSlash2\\")]
     [InlineData("\\\\SomeServer\\Share\\Path", "SomeServer\\Share\\Path")]
     [InlineData("//SomeServer/Share/Path", "SomeServer\\Share\\Path")]
+    [InlineData("~/", "\\")]
+    [InlineData("/", "\\")]
     [Theory]
     public void MapPath(string? virtualPath, string expectedRelativePath)
     {
@@ -52,10 +54,10 @@ public class HostingEnvironmentTests
             result = HostingEnvironment.MapPath(virtualPath);
         }
 
-        var expected = Path.Combine(options.AppDomainAppPath, expectedRelativePath);
-
         // for Linux/MacOS
-        expected = expected.Replace('\\', Path.DirectorySeparatorChar);
+        expectedRelativePath = (expectedRelativePath ?? string.Empty).Replace('\\', Path.DirectorySeparatorChar);
+
+        var expected = Path.Join(options.AppDomainAppPath, expectedRelativePath);
 
         // Assert
         Assert.Equal(expected, result);

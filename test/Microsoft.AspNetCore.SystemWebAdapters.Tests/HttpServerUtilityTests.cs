@@ -86,6 +86,8 @@ public class HttpServerUtilityTests
     [InlineData("/api/test/request/info", "/UploadedFiles", "UploadedFiles")]
     [InlineData("/api/test/request/info", "UploadedFiles", "api", "test", "request", "UploadedFiles")]
     [InlineData("/api/test/request/info", "~/MyUploadedFiles", "MyUploadedFiles")]
+    [InlineData("/api/test/request/info", "~/", "\\")]
+    [InlineData("/api/test/request/info", "/", "\\")]
     [InlineData("/api/test/request/info", "~/TrailingSlash/", "TrailingSlash\\")]
     [InlineData("/api/test/request/info", "path/file", "api", "test", "request", "path", "file")]
     [Theory]
@@ -104,11 +106,12 @@ public class HttpServerUtilityTests
         // Act
         var result = utility.MapPath(page, path);
 
-        var relative = Path.Combine(segments);
-        var expected = Path.Combine(options.AppDomainAppPath, relative);
+        var relative = Path.Join(segments);
 
         // for Linux/MacOS
-        expected = expected.Replace('\\', Path.DirectorySeparatorChar);
+        relative = relative.Replace('\\', Path.DirectorySeparatorChar);
+
+        var expected = Path.Join(options.AppDomainAppPath, relative);
 
         // Assert
         Assert.Equal(expected, result);
