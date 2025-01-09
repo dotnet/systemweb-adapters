@@ -16,44 +16,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 /// </summary>
 internal static class BinaryWriterReaderExtensions
 {
-    internal static void WriteFlags(this BinaryWriter writer, ReadOnlySpan<FlagEntry> flagEntries)
-    {
-        writer.Write7BitEncodedInt(flagEntries.Length);
-
-        foreach (var (flag, payload) in flagEntries)
-        {
-            writer.Write7BitEncodedInt(flag);
-            writer.Write7BitEncodedInt(payload.Length);
-            writer.Write(payload.Span);
-        }
-    }
-
-    internal static IEnumerable<FlagEntry> ReadFlags(this BinaryReader reader)
-    {
-        var length = reader.Read7BitEncodedInt();
-
-        while (length > 0)
-        {
-            var flag = reader.Read7BitEncodedInt();
-            var payloadLength = reader.Read7BitEncodedInt();
-            var payload = reader.ReadBytes(payloadLength);
-
-            yield return new(flag, payload);
-
-            length--;
-        }
-    }
 
 #if NETFRAMEWORK
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Write(this BinaryWriter writer, ReadOnlySpan<byte> bytes)
-    {
-        var array = ArrayPool<byte>.Shared.Rent(bytes.Length);
-        bytes.CopyTo(array);
-        writer.Write(array, 0, bytes.Length);
-        ArrayPool<byte>.Shared.Return(array);
-    }
-
     /// <see href="https://source.dot.net/#System.Private.CoreLib/BinaryWriter.cs,2daa1d14ff1877bd"/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Write7BitEncodedInt(this BinaryWriter writer, int value)

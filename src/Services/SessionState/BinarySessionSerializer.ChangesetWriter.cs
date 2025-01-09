@@ -18,9 +18,20 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 {
     private readonly struct ChangesetWriter(ISessionKeySerializer serializer)
     {
-        public void Write(ISessionStateChangeset state, BinaryWriter writer)
+        private static class PayloadKind
         {
-            writer.Write(ModeDelta);
+            // V2
+            public const byte Value = 1;
+            public const byte Removed = 2;
+            public const byte SupportedVersion = 0XFE;
+
+            // Used to mark the end of the payload
+            public const byte EndSentinel = 0xFF;
+        }
+
+        public void Write(ISessionState state, BinaryWriter writer)
+        {
+            writer.Write(Version2);
             writer.Write(state.SessionID);
 
             writer.Write(state.IsNewSession);
@@ -28,30 +39,59 @@ internal partial class BinarySessionSerializer : ISessionSerializer
             writer.Write(state.IsReadOnly);
 
             writer.Write7BitEncodedInt(state.Timeout);
-            writer.Write7BitEncodedInt(state.Count);
 
-            foreach (var item in state.Changes)
+            foreach (var key in state.Keys)
             {
-                writer.Write(item.Key);
-
-                // New with V2 serializer
-                if (item.State is SessionItemChangeState.NoChange or SessionItemChangeState.Removed)
+                if (serializer.TrySerialize(key, state[key], out var result))
                 {
-                    writer.Write7BitEncodedInt((int)item.State);
-                }
-                else if (serializer.TrySerialize(item.Key, state[item.Key], out var result))
-                {
-                    writer.Write7BitEncodedInt((int)item.State);
+                    writer.Write(PayloadKind.Value);
+                    writer.Write(key);
                     writer.Write7BitEncodedInt(result.Length);
                     writer.Write(result);
                 }
-                else
+            }
+
+            writer.Write(PayloadKind.SupportedVersion);
+            writer.Write(Version2);
+
+            writer.Write(PayloadKind.EndSentinel);
+        }
+
+        public void Write(ISessionStateChangeset state, BinaryWriter writer)
+        {
+            writer.Write(Version2);
+            writer.Write(state.SessionID);
+
+            writer.Write(state.IsNewSession);
+            writer.Write(state.IsAbandoned);
+            writer.Write(state.IsReadOnly);
+
+            writer.Write7BitEncodedInt(state.Timeout);
+
+            foreach (var item in state.Changes)
+            {
+                if (item.State is SessionItemChangeState.NoChange)
                 {
-                    writer.Write7BitEncodedInt((int)SessionItemChangeState.Unknown);
+                    continue;
+                }
+                else if (item.State is SessionItemChangeState.Removed)
+                {
+                    writer.Write(PayloadKind.Removed);
+                    writer.Write(item.Key);
+                }
+                else if (item.State is SessionItemChangeState.New or SessionItemChangeState.Changed && serializer.TrySerialize(item.Key, state[item.Key], out var result))
+                {
+                    writer.Write(PayloadKind.Value);
+                    writer.Write(item.Key);
+                    writer.Write7BitEncodedInt(result.Length);
+                    writer.Write(result);
                 }
             }
 
-            writer.WriteFlags([]);
+            writer.Write(PayloadKind.SupportedVersion);
+            writer.Write(Version2);
+
+            writer.Write(PayloadKind.EndSentinel);
         }
 
         public SessionStateCollection Read(BinaryReader reader)
@@ -64,27 +104,23 @@ internal partial class BinarySessionSerializer : ISessionSerializer
             state.IsReadOnly = reader.ReadBoolean();
             state.Timeout = reader.Read7BitEncodedInt();
 
-            var count = reader.Read7BitEncodedInt();
-
-            for (var index = count; index > 0; index--)
+            while (true)
             {
-                var key = reader.ReadString();
-                var changeState = (SessionItemChangeState)reader.Read7BitEncodedInt();
+                var kind = reader.ReadByte();
 
-                if (changeState is SessionItemChangeState.NoChange)
+                if (kind == PayloadKind.EndSentinel)
                 {
-                    state.MarkUnchanged(key);
+                    break;
                 }
-                else if (changeState is SessionItemChangeState.Removed)
+
+                if (kind is PayloadKind.Removed)
                 {
+                    var key = reader.ReadString();
                     state.MarkRemoved(key);
                 }
-                else if (changeState is SessionItemChangeState.Unknown)
+                else if (kind is PayloadKind.Value)
                 {
-                    state.SetUnknownKey(key);
-                }
-                else if (changeState is SessionItemChangeState.New or SessionItemChangeState.Changed)
-                {
+                    var key = reader.ReadString();
                     var length = reader.Read7BitEncodedInt();
                     var bytes = reader.ReadBytes(length);
 
@@ -97,14 +133,13 @@ internal partial class BinarySessionSerializer : ISessionSerializer
                     }
                     else
                     {
-                        state.SetUnknownKey(key);
+                        throw new InvalidOperationException($"Unknown session serialization kind '{kind}'");
                     }
                 }
-            }
-
-            foreach (var (flag, payload) in reader.ReadFlags())
-            {
-                // No flags are currently read
+                else if (kind is PayloadKind.SupportedVersion)
+                {
+                    var version = reader.ReadByte();
+                }
             }
 
             return state;

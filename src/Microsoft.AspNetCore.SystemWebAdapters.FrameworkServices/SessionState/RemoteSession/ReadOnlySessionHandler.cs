@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
-internal sealed class ReadOnlySessionHandler : HttpTaskAsyncHandler, IReadOnlySessionState
+internal sealed class ReadOnlySessionHandler : VersionedSessionHandler, IReadOnlySessionState
 {
     private readonly ISessionSerializer _serializer;
 
@@ -19,19 +19,13 @@ internal sealed class ReadOnlySessionHandler : HttpTaskAsyncHandler, IReadOnlySe
         _serializer = serializer;
     }
 
-    public override async Task ProcessRequestAsync(HttpContext context)
-    {
-        await ProcessRequestAsync(new HttpContextWrapper(context));
-        context.ApplicationInstance.CompleteRequest();
-    }
-
-    public async Task ProcessRequestAsync(HttpContextBase context)
+    public override async Task ProcessRequestAsync(HttpContextBase context, SessionSerializerContext sessionContext, CancellationToken token)
     {
         context.Response.ContentType = "application/json; charset=utf-8";
         context.Response.StatusCode = 200;
 
         using var wrapper = new HttpSessionStateBaseWrapper(context.Session);
 
-        await _serializer.SerializeAsync(wrapper, context.Response.OutputStream, context.Response.ClientDisconnectedToken);
+        await _serializer.SerializeAsync(wrapper, sessionContext, context.Response.OutputStream, context.Response.ClientDisconnectedToken);
     }
 }

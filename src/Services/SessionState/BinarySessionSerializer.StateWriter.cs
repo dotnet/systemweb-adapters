@@ -18,13 +18,13 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1510:Use ArgumentNullException throw helper", Justification = "Source shared with .NET Framework that does not have the method")]
 internal partial class BinarySessionSerializer : ISessionSerializer
 {
-    private readonly struct StateWriter(ISessionKeySerializer serializer, byte mode)
+    private readonly struct StateWriter(ISessionKeySerializer serializer)
     {
         private const int FLAG_DIFF_SUPPORTED = 100;
 
         public void Write(ISessionState state, BinaryWriter writer)
         {
-            writer.Write(mode);
+            writer.Write(Version1);
             writer.Write(state.SessionID);
 
             writer.Write(state.IsNewSession);
@@ -65,14 +65,6 @@ internal partial class BinarySessionSerializer : ISessionSerializer
                     writer.Write(key);
                 }
             }
-
-            if (mode == ModeStateV2)
-            {
-                writer.WriteFlags(
-                    [
-                        (FLAG_DIFF_SUPPORTED, Array.Empty<byte>())
-                    ]);
-            }
         }
 
         public SessionStateCollection Read(BinaryReader reader)
@@ -103,14 +95,6 @@ internal partial class BinarySessionSerializer : ISessionSerializer
                 for (var index = unknown; index > 0; index--)
                 {
                     state.SetUnknownKey(reader.ReadString());
-                }
-            }
-
-            if (mode == ModeStateV2)
-            {
-                foreach (var (flag, payload) in reader.ReadFlags())
-                {
-                    HandleFlag(ref state, flag);
                 }
             }
 

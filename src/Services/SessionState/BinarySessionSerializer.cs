@@ -16,31 +16,24 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1510:Use ArgumentNullException throw helper", Justification = "Source shared with .NET Framework that does not have the method")]
 internal partial class BinarySessionSerializer : ISessionSerializer
 {
-    private const byte ModeStateV1 = 1;
-    private const byte ModeStateV2 = 2;
-    private const byte ModeDelta = 3;
+    private const byte Version1 = 1;
+    private const byte Version2 = 2;
 
     private readonly IOptions<SessionSerializerOptions> _options;
     private readonly ISessionKeySerializer _serializer;
     private readonly ILogger<BinarySessionSerializer> _logger;
+
+    private readonly StateWriter V1Serializer;
+    private readonly ChangesetWriter V2Serializer;
 
     public BinarySessionSerializer(ICompositeSessionKeySerializer serializer, IOptions<SessionSerializerOptions> options, ILogger<BinarySessionSerializer> logger)
     {
         _serializer = serializer;
         _options = options;
         _logger = logger;
-    }
 
-    public void Write(ISessionState state, BinaryWriter writer)
-    {
-        if (state is ISessionStateChangeset delta)
-        {
-            new ChangesetWriter(_serializer).Write(delta, writer);
-        }
-        else
-        {
-            new StateWriter(_serializer, _options.Value.EnableChangeTracking ? ModeStateV2 : ModeStateV1).Write(state, writer);
-        }
+        V1Serializer = new StateWriter(serializer);
+        V2Serializer = new ChangesetWriter(serializer);
     }
 
     public ISessionState Read(BinaryReader reader)
@@ -54,9 +47,8 @@ internal partial class BinarySessionSerializer : ISessionSerializer
 
         return version switch
         {
-            ModeStateV1 => new StateWriter(_serializer, ModeStateV1).Read(reader),
-            ModeStateV2 => new StateWriter(_serializer, ModeStateV2).Read(reader),
-            ModeDelta => new ChangesetWriter(_serializer).Read(reader),
+            Version1 => V1Serializer.Read(reader),
+            Version2 => V2Serializer.Read(reader),
             _ => throw new InvalidOperationException("Serialized session state has unknown version.")
         };
     }
@@ -69,11 +61,31 @@ internal partial class BinarySessionSerializer : ISessionSerializer
         return Task.FromResult<ISessionState?>(Read(reader));
     }
 
-    public Task SerializeAsync(ISessionState state, Stream stream, CancellationToken token)
+    public Task SerializeAsync(ISessionState state, SessionSerializerContext context, Stream stream, CancellationToken token)
     {
         using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
 
-        Write(state, writer);
+        var version = context.SupportedVersion == 0 ? Version2 : context.SupportedVersion;
+
+        if (version == 1)
+        {
+            V1Serializer.Write(state, writer);
+        }
+        else if (version == 2)
+        {
+            if (state is ISessionStateChangeset changes)
+            {
+                V2Serializer.Write(changes, writer);
+            }
+            else
+            {
+                V2Serializer.Write(state, writer);
+            }
+        }
+        else
+        {
+            throw new InvalidOperationException($"Unsupported serialization version '{version}");
+        }
 
         return Task.CompletedTask;
     }

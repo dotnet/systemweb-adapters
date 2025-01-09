@@ -4,6 +4,8 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
@@ -19,11 +21,33 @@ internal interface ISessionSerializer
 
     /// <summary>
     /// Serializes the session state. If the <paramref name="state"/> implements <see cref="ISessionStateChangeset"/> it will serialize it
-    /// in a mode that only tracks the changes that have occurred.
+    /// in a mode that tracks the changes that have occurred.
     /// </summary>
     /// <param name="state"></param>
     /// <param name="stream"></param>
     /// <param name="token"></param>
     /// <returns></returns>
-    Task SerializeAsync(ISessionState state, Stream stream, CancellationToken token);
+    Task SerializeAsync(ISessionState state, SessionSerializerContext context, Stream stream, CancellationToken token);
+}
+
+internal sealed class SessionSerializerContext(byte supportedVersion)
+{
+    public static SessionSerializerContext V1 { get; } = new(1);
+
+    public static SessionSerializerContext V2 { get; } = new(2);
+
+    public static SessionSerializerContext Latest => V2;
+
+    public static SessionSerializerContext Default => V1;
+
+    public byte SupportedVersion => supportedVersion;
+
+    public static SessionSerializerContext Parse(IEnumerable<string> all) => all.Select(Parse).Max() ?? V1;
+
+    public static SessionSerializerContext Parse(string? supportedVersionString) => supportedVersionString switch
+    {
+        "1" => V1,
+        "2" => V2,
+        _ => V1,
+    };
 }

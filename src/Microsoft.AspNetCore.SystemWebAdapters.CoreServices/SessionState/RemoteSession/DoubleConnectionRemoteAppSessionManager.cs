@@ -41,7 +41,7 @@ internal sealed class DoubleConnectionRemoteAppSessionManager(
         var request = new HttpRequestMessage(HttpMethod.Get, Options.Path.Relative);
 
         AddSessionCookieToHeader(request, sessionId);
-        AddReadOnlyHeader(request, readOnly);
+        AddRemoteSessionHeaders(request, readOnly);
 
         var response = await BackchannelClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
 
@@ -71,31 +71,15 @@ internal sealed class DoubleConnectionRemoteAppSessionManager(
         return new RemoteSessionState(remoteSessionState, request, response, this);
     }
 
-    private sealed class SerializedSessionHttpContent : HttpContent
+    private sealed class SerializedSessionHttpContent(ISessionSerializer serializer, ISessionState state, SessionSerializerContext context) : RemoteSessionHttpContent
     {
-        private readonly ISessionSerializer _serializer;
-        private readonly ISessionState _state;
-
-        public SerializedSessionHttpContent(ISessionSerializer serializer, ISessionState state)
+        protected override Task SerializeToStreamAsync(Stream stream, TransportContext? _, CancellationToken cancellationToken)
         {
-            _serializer = serializer;
-            _state = state;
-        }
-
-        protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context)
-            => SerializeToStreamAsync(stream, context, default);
-
-        protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
-            => _serializer.SerializeAsync(_state, stream, cancellationToken);
-
-        protected override bool TryComputeLength(out long length)
-        {
-            length = 0;
-            return false;
+            return serializer.SerializeAsync(state, context, stream, cancellationToken);
         }
     }
 
-    private sealed class RemoteSessionState(ISessionState other, HttpRequestMessage request, HttpResponseMessage response, DoubleConnectionRemoteAppSessionManager manager) : DelegatingSessionState
+    private sealed class RemoteSessionState(ISessionState other, HttpRequestMessage request, HttpResponseMessage responseMessage, DoubleConnectionRemoteAppSessionManager manager) : DelegatingSessionState
     {
         protected override ISessionState State => other;
 
@@ -106,15 +90,16 @@ internal sealed class DoubleConnectionRemoteAppSessionManager(
             if (disposing)
             {
                 request.Dispose();
-                response.Dispose();
+                responseMessage.Dispose();
             }
         }
 
         public override async Task CommitAsync(CancellationToken token)
         {
+            var sessionContext = manager.GetSupportedSerializerContext(responseMessage);
             using var request = new HttpRequestMessage(HttpMethod.Put, manager.Options.Path.Relative)
             {
-                Content = new SerializedSessionHttpContent(manager.Serializer, State)
+                Content = new SerializedSessionHttpContent(manager.Serializer, State, sessionContext)
             };
 
             manager.AddSessionCookieToHeader(request, State.SessionID);

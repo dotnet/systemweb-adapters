@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
-internal sealed partial class ReadWriteSessionHandler : HttpTaskAsyncHandler, IRequiresSessionState, IRequireBufferlessStream
+internal sealed partial class ReadWriteSessionHandler : VersionedSessionHandler, IRequiresSessionState, IRequireBufferlessStream
 {
     private readonly ISessionSerializer _serializer;
     private readonly ILogger _logger;
@@ -21,28 +21,21 @@ internal sealed partial class ReadWriteSessionHandler : HttpTaskAsyncHandler, IR
         _logger = logger;
     }
 
-    public override async Task ProcessRequestAsync(HttpContext context)
+    public override async Task ProcessRequestAsync(HttpContextBase context, SessionSerializerContext sessionContext, CancellationToken token)
     {
-        using var timeoutCts = new CancellationTokenSource(TimeSpan.FromMinutes(context.Session.Timeout));
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, context.Response.ClientDisconnectedToken);
+        await SendSessionAsync(context, sessionContext, token).ConfigureAwait(false);
 
-        var contextWrapper = new HttpContextWrapper(context);
-
-        await SendSessionAsync(contextWrapper, cts.Token).ConfigureAwait(false);
-
-        if (await RetrieveUpdatedSessionAsync(contextWrapper, cts.Token))
+        if (await RetrieveUpdatedSessionAsync(context, token))
         {
-            await SendSessionWriteResultAsync(contextWrapper.Response, Results.Succeeded, cts.Token);
+            await SendSessionWriteResultAsync(context.Response, Results.Succeeded, token);
         }
         else
         {
-            await SendSessionWriteResultAsync(contextWrapper.Response, Results.NoSessionData, cts.Token);
+            await SendSessionWriteResultAsync(context.Response, Results.NoSessionData, token);
         }
-
-        context.ApplicationInstance.CompleteRequest();
     }
 
-    private async Task SendSessionAsync(HttpContextBase context, CancellationToken token)
+    private async Task SendSessionAsync(HttpContextBase context, SessionSerializerContext sessionContext, CancellationToken token)
     {
         // Send the initial snapshot of session data
         context.Response.ContentType = "text/event-stream";
@@ -50,7 +43,7 @@ internal sealed partial class ReadWriteSessionHandler : HttpTaskAsyncHandler, IR
 
         using var wrapper = new HttpSessionStateBaseWrapper(context.Session);
 
-        await _serializer.SerializeAsync(wrapper, context.Response.OutputStream, token);
+        await _serializer.SerializeAsync(wrapper, sessionContext, context.Response.OutputStream, token);
 
         // Ensure to call HttpResponse.FlushAsync to flush the request itself, and not context.Response.OutputStream.FlushAsync()
         await context.Response.OutputStream.FlushAsync(token);

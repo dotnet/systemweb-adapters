@@ -2,6 +2,9 @@
 
 Session serialization is provided through the `ISessionSerializer` type. There are two modes that are available:
 
+> [!NOTE]
+> The bit offsets are general guidelines here to show the layout. The diagram tool does not have an option to turn it off at the moment. See the descriptions for details on bit-length
+
 ## Common structure
 
 ```mermaid
@@ -11,21 +14,21 @@ packet-beta
 11: "N"
 12: "A"
 13: "R"
-14: "T"
-15: "C"
-16-24: "Key 1 Blob"
-25-33: "Key 2 Blob"
-34-42: "..."
-43-50: "Flags (variable)"
+14-17: "T"
+18-21: "C"
+22-31: "Key 1 Blob"
+32-39: "Key 2 Blob"
+40-48: "..."
+49-59: "Flags (variable)"
 ```
 
 Where:
-- *M*: Mode
-- *N*: New session
-- *A*: Abandoned
-- *R*: Readonly
-- *T*: Timeout
-- *C*: Key count
+- `M`: Mode `byte`
+- `N`: New session `bool`
+- `A`: Abandoned `bool`
+- `R`: Readonly `bool`
+- `T`: Timeout `7-bit encoded int`
+- `C`: Key count `7-bit encoded int`
 
 ## Flags
 
@@ -46,9 +49,10 @@ packet-beta
 ```
 
 Where:
-- *Fn*: Flag `n`
-
-Where `C` is the count of flags, and each `Fn` is a flag identifier an int with 7bit encoding. Each f
+- `Fn`: Flag `n`
+- `C`: Flag count `7-bit encoded int`
+- `Fn`: Custom identifier `7-bit encoded int`
+- `FnL`: Flag payload (type determined by `Fn`)
 
 An example is the flag section used to indicate that there is support for diffing a session state on the server:
 
@@ -58,6 +62,23 @@ packet-beta
 1: "100"
 2: "0" 
 ```
+
+## Unknown keys
+
+If the unknown keys array is included, it has the following pattern:
+
+```mermaid
+packet-beta
+0: "C"
+1-11: "Key1"
+12-20: "Key2"
+21-23: "..."
+24-31: "KeyN"
+```
+
+Where:
+
+- `C` is the count *(Note: 7-bit encoded int)*
 
 ## Full Copy (Mode = 1)
 

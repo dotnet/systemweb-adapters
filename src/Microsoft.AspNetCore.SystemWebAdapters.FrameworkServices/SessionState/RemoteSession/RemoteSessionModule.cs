@@ -28,8 +28,9 @@ internal sealed class RemoteSessionModule : RemoteModule
         var saveHandler = new StoreSessionStateHandler(cache, options.CookieName);
 
         MapGet(context => GetIsReadonly(context.Request) ? readonlyHandler : writeableHandler);
+
         MapPut(context => saveHandler);
-        MapPost(_ => persistHandler);
+        MapPost(context => persistHandler);
 
         static bool GetIsReadonly(HttpRequestBase request)
             => bool.TryParse(request.Headers.Get(SessionConstants.ReadOnlyHeaderName), out var result) && result;

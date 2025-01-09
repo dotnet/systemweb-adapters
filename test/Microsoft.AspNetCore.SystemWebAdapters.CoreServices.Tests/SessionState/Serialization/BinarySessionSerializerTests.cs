@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
@@ -497,7 +498,7 @@ public class BinarySessionSerializerTests
     }
 
     [Fact]
-    public async Task RoundtripDoesntOverwrite()
+    public async Task RoundtripDoesNotOverwrite()
     {
         // Arrange
         var obj1 = new object();

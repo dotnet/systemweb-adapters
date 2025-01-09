@@ -3,6 +3,7 @@
 
 using System;
 using System.Buffers;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -53,6 +54,9 @@ internal abstract partial class RemoteAppSessionStateManager : ISessionManager
     [LoggerMessage(EventId = 3, Level = LogLevel.Trace, Message = "Received {StatusCode} response committing remote session state")]
     protected partial void LogCommitResponse(HttpStatusCode statusCode);
 
+    [LoggerMessage(EventId = 4, Level = LogLevel.Trace, Message = "Server supports version {Version} for serializing")]
+    protected partial void LogServerVersionSupport(byte version);
+
     public Task<ISessionState> CreateAsync(HttpContextCore context, SessionAttribute metadata)
         => CreateAsync(context, metadata.IsReadOnly);
 
@@ -97,6 +101,36 @@ internal abstract partial class RemoteAppSessionStateManager : ISessionManager
         }
     }
 
-    protected static void AddReadOnlyHeader(HttpRequestMessage req, bool readOnly)
-        => req.Headers.Add(SessionConstants.ReadOnlyHeaderName, readOnly.ToString());
+    protected static void AddRemoteSessionHeaders(HttpRequestMessage req, bool readOnly)
+    {
+        if (readOnly)
+        {
+            req.Headers.Add(SessionConstants.ReadOnlyHeaderName, readOnly.ToString());
+        }
+
+        req.Headers.Add(SessionConstants.SupportedVersion, SessionSerializerContext.Latest.SupportedVersion.ToString(CultureInfo.InvariantCulture));
+    }
+
+    protected SessionSerializerContext GetSupportedSerializerContext(HttpResponseMessage message)
+    {
+        var context = message.Headers.TryGetValues(SessionConstants.SupportedVersion, out var versions)
+            ? SessionSerializerContext.Parse(versions)
+            : SessionSerializerContext.Default;
+
+        LogServerVersionSupport(context.SupportedVersion);
+
+        return context;
+    }
+
+    protected abstract class RemoteSessionHttpContent : HttpContent
+    {
+        protected sealed override bool TryComputeLength(out long length)
+        {
+            length = 0;
+            return false;
+        }
+
+        protected sealed override Task SerializeToStreamAsync(Stream stream, TransportContext? context)
+            => SerializeToStreamAsync(stream, context, default);
+    }
 }
