@@ -32,9 +32,9 @@ internal interface ISessionSerializer
 
 internal sealed class SessionSerializerContext(byte supportedVersion)
 {
-    public static SessionSerializerContext V1 { get; } = new(1);
+    public static SessionSerializerContext V1 { get; } = new(BinarySessionSerializer.Version1);
 
-    public static SessionSerializerContext V2 { get; } = new(2);
+    public static SessionSerializerContext V2 { get; } = new(BinarySessionSerializer.Version2);
 
     public static SessionSerializerContext Latest => V2;
 

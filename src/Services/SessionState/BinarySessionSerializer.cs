@@ -16,15 +16,15 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1510:Use ArgumentNullException throw helper", Justification = "Source shared with .NET Framework that does not have the method")]
 internal partial class BinarySessionSerializer : ISessionSerializer
 {
-    private const byte Version1 = 1;
-    private const byte Version2 = 2;
+    internal const byte Version1 = 1;
+    internal const byte Version2 = 2;
 
     private readonly IOptions<SessionSerializerOptions> _options;
     private readonly ISessionKeySerializer _serializer;
     private readonly ILogger<BinarySessionSerializer> _logger;
 
-    private readonly StateWriter V1Serializer;
-    private readonly ChangesetWriter V2Serializer;
+    private readonly BinarySessionStateSerializer V1Serializer;
+    private readonly BinarySessionChangesetSerializer V2Serializer;
 
     public BinarySessionSerializer(ICompositeSessionKeySerializer serializer, IOptions<SessionSerializerOptions> options, ILogger<BinarySessionSerializer> logger)
     {
@@ -32,8 +32,8 @@ internal partial class BinarySessionSerializer : ISessionSerializer
         _options = options;
         _logger = logger;
 
-        V1Serializer = new StateWriter(serializer);
-        V2Serializer = new ChangesetWriter(serializer);
+        V1Serializer = new BinarySessionStateSerializer(serializer);
+        V2Serializer = new BinarySessionChangesetSerializer(serializer);
     }
 
     public ISessionState Read(BinaryReader reader)
@@ -65,13 +65,11 @@ internal partial class BinarySessionSerializer : ISessionSerializer
     {
         using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
 
-        var version = context.SupportedVersion == 0 ? Version2 : context.SupportedVersion;
-
-        if (version == 1)
+        if (context.SupportedVersion == 1)
         {
             V1Serializer.Write(state, writer);
         }
-        else if (version == 2)
+        else if (context.SupportedVersion == 2)
         {
             if (state is ISessionStateChangeset changes)
             {
@@ -84,7 +82,7 @@ internal partial class BinarySessionSerializer : ISessionSerializer
         }
         else
         {
-            throw new InvalidOperationException($"Unsupported serialization version '{version}");
+            throw new InvalidOperationException($"Unsupported serialization version '{context.SupportedVersion}");
         }
 
         return Task.CompletedTask;
