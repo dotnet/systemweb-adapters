@@ -1,13 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#if NETFRAMEWORK
+
 using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
-
-using FlagEntry = (int Flag, System.ReadOnlyMemory<byte> Payload);
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
@@ -16,8 +16,6 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 /// </summary>
 internal static class BinaryWriterReaderExtensions
 {
-
-#if NETFRAMEWORK
     /// <see href="https://source.dot.net/#System.Private.CoreLib/BinaryWriter.cs,2daa1d14ff1877bd"/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Write7BitEncodedInt(this BinaryWriter writer, int value)
@@ -84,6 +82,5 @@ internal static class BinaryWriterReaderExtensions
         result |= (uint)byteReadJustNow << (MaxBytesWithoutOverflow * 7);
         return (int)result;
     }
-#endif
 }
-
+#endif
