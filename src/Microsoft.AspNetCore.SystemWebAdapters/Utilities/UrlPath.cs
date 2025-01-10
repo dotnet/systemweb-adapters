@@ -107,7 +107,7 @@ internal sealed class UrlPath
     private static bool IsDirectorySeparatorChar(char ch) => ch == '\\' || ch == '/';
 
     // e.g \\server\share\foo or //server/share/foo
-    private static bool IsUncSharePath(string path) => path.Length > 2 && IsDirectorySeparatorChar(path[0]) && IsDirectorySeparatorChar(path[1]);
+    internal static bool IsUncSharePath(string path) => path.Length > 2 && IsDirectorySeparatorChar(path[0]) && IsDirectorySeparatorChar(path[1]);
 
     private static bool IsAbsolutePhysicalPath(string path)
     {
