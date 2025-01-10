@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
-public interface ISessionSerializer
+internal interface ISessionSerializer
 {
     Task<ISessionState?> DeserializeAsync(Stream stream, CancellationToken token);
 
