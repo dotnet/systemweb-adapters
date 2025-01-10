@@ -87,7 +87,7 @@ internal sealed partial class SingleConnectionWriteableRemoteAppSessionStateMana
     {
     }
 
-    private sealed class CommittingSessionHttpContent : RemoteSessionHttpContent
+    private sealed class CommittingSessionHttpContent : HttpContent
     {
         private readonly TaskCompletionSource<(ISessionState, SessionSerializerContext)> _state;
 
@@ -101,6 +101,9 @@ internal sealed partial class SingleConnectionWriteableRemoteAppSessionStateMana
 
         public void Commit(SessionSerializerContext context, ISessionState state) => _state.SetResult((state, context));
 
+        protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context)
+            => SerializeToStreamAsync(stream, context, default);
+
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
         {
             await stream.FlushAsync(cancellationToken);
@@ -108,10 +111,23 @@ internal sealed partial class SingleConnectionWriteableRemoteAppSessionStateMana
 
             await Serializer.SerializeAsync(state, sessionContext, stream, cancellationToken);
         }
+
+        protected override bool TryComputeLength(out long length)
+        {
+            length = 0;
+            return false;
+        }
     }
 
 
-    private sealed class RemoteSessionState(ISessionState other, HttpRequestMessage request, HttpResponseMessage response, SessionSerializerContext sessionContext, CommittingSessionHttpContent content, Stream stream) : DelegatingSessionState
+    private sealed class RemoteSessionState(
+        ISessionState other,
+        HttpRequestMessage request,
+        HttpResponseMessage response,
+        SessionSerializerContext sessionContext,
+        CommittingSessionHttpContent content,
+        Stream stream
+        ) : DelegatingSessionState
     {
         protected override ISessionState State => other;
 

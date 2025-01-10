@@ -121,16 +121,4 @@ internal abstract partial class RemoteAppSessionStateManager : ISessionManager
 
         return context;
     }
-
-    protected abstract class RemoteSessionHttpContent : HttpContent
-    {
-        protected sealed override bool TryComputeLength(out long length)
-        {
-            length = 0;
-            return false;
-        }
-
-        protected sealed override Task SerializeToStreamAsync(Stream stream, TransportContext? context)
-            => SerializeToStreamAsync(stream, context, default);
-    }
 }
