@@ -13,8 +13,10 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization.Test
 
 public class BinarySessionSerializerTests
 {
-    [Fact]
-    public async Task SerializeEmpty()
+    [InlineData(new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 0, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 0, 0, 0, 0, 0xFF })]
+    [Theory]
+    public async Task SerializeEmpty(byte[] data)
     {
         // Arrange
         var serializer = CreateSerializer();
@@ -24,17 +26,18 @@ public class BinarySessionSerializerTests
         state.Setup(s => s.SessionID).Returns("id");
 
         // Act
-        await serializer.SerializeAsync(state.Object, SessionSerializerContext.V1, ms, default);
+        await serializer.SerializeAsync(state.Object, SessionSerializerContext.Get(data[0]), ms, default);
 
         // Assert
-        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 0, 0 });
+        Assert.Equal(ms.ToArray(), data);
     }
 
-    [Fact]
-    public async Task DeserializeEmpty()
+    [InlineData(new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 0, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 0, 0, 0, 0, 0xFF })]
+    [Theory]
+    public async Task DeserializeEmpty(byte[] data)
     {
         // Arrange
-        var data = new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 0, 0 };
         using var ms = new MemoryStream(data);
 
         var serializer = CreateSerializer();
@@ -52,8 +55,10 @@ public class BinarySessionSerializerTests
         Assert.Empty(result.Keys);
     }
 
-    [Fact]
-    public async Task SerializeIsNewSession()
+    [InlineData(new byte[] { 1, 2, 105, 100, 1, 0, 0, 0, 0, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 1, 0, 0, 0, 0xFF })]
+    [Theory]
+    public async Task SerializeIsNewSession(byte[] data)
     {
         // Arrange
         var serializer = CreateSerializer();
@@ -64,17 +69,18 @@ public class BinarySessionSerializerTests
         state.Setup(s => s.IsNewSession).Returns(true);
 
         // Act
-        await serializer.SerializeAsync(state.Object, SessionSerializerContext.V1, ms, default);
+        await serializer.SerializeAsync(state.Object, SessionSerializerContext.Get(data[0]), ms, default);
 
         // Assert
-        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 1, 0, 0, 0, 0, 0 });
+        Assert.Equal(ms.ToArray(), data);
     }
 
-    [Fact]
-    public async Task DeserializeIsNewSession()
+    [InlineData(new byte[] { 1, 2, 105, 100, 1, 0, 0, 0, 0, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 1, 0, 0, 0, 0XFF })]
+    [Theory]
+    public async Task DeserializeIsNewSession(byte[] data)
     {
         // Arrange
-        var data = new byte[] { 1, 2, 105, 100, 1, 0, 0, 0, 0, 0 };
         using var ms = new MemoryStream(data);
 
         var serializer = CreateSerializer();
