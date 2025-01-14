@@ -11,6 +11,7 @@ using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization.Tests;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "Test arguments")]
 public class BinarySessionSerializerTests
 {
     [InlineData(new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 0, 0 })]
@@ -98,8 +99,10 @@ public class BinarySessionSerializerTests
         Assert.Empty(result.Keys);
     }
 
-    [Fact]
-    public async Task SerializeIsAbandoned()
+    [InlineData(new byte[] { 1, 2, 105, 100, 0, 1, 0, 0, 0, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 0, 1, 0, 0, 0xFF })]
+    [Theory]
+    public async Task SerializeIsAbandoned(byte[] data)
     {
         // Arrange
         var serializer = CreateSerializer();
@@ -110,17 +113,18 @@ public class BinarySessionSerializerTests
         state.Setup(s => s.IsAbandoned).Returns(true);
 
         // Act
-        await serializer.SerializeAsync(state.Object, SessionSerializerContext.V1, ms, default);
+        await serializer.SerializeAsync(state.Object, SessionSerializerContext.Get(data[0]), ms, default);
 
         // Assert
-        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 1, 0, 0, 0, 0 });
+        Assert.Equal(ms.ToArray(), data);
     }
 
-    [Fact]
-    public async Task DeserializeIsAbandoned()
+    [InlineData(new byte[] { 1, 2, 105, 100, 0, 1, 0, 0, 0, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 0, 1, 0, 0, 0xFF })]
+    [Theory]
+    public async Task DeserializeIsAbandoned(byte[] data)
     {
         // Arrange
-        var data = new byte[] { 1, 2, 105, 100, 0, 1, 0, 0, 0, 0 };
         using var ms = new MemoryStream(data);
 
         var serializer = CreateSerializer();
@@ -138,8 +142,10 @@ public class BinarySessionSerializerTests
         Assert.Empty(result.Keys);
     }
 
-    [Fact]
-    public async Task SerializeIsReadOnly()
+    [InlineData(new byte[] { 1, 2, 105, 100, 0, 0, 1, 0, 0, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 0, 0, 1, 0, 0xFF })]
+    [Theory]
+    public async Task SerializeIsReadOnly(byte[] data)
     {
         // Arrange
         var serializer = CreateSerializer();
@@ -150,17 +156,18 @@ public class BinarySessionSerializerTests
         state.Setup(s => s.IsReadOnly).Returns(true);
 
         // Act
-        await serializer.SerializeAsync(state.Object, SessionSerializerContext.V1, ms, default);
+        await serializer.SerializeAsync(state.Object, SessionSerializerContext.Get(data[0]), ms, default);
 
         // Assert
-        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 1, 0, 0, 0 });
+        Assert.Equal(ms.ToArray(), data);
     }
 
-    [Fact]
-    public async Task DeserializeIsReadOnly()
+    [InlineData(new byte[] { 1, 2, 105, 100, 0, 0, 1, 0, 0, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 0, 0, 1, 0, 0xFF })]
+    [Theory]
+    public async Task DeserializeIsReadOnly(byte[] data)
     {
         // Arrange
-        var data = new byte[] { 1, 2, 105, 100, 0, 0, 1, 0, 0, 0 };
         using var ms = new MemoryStream(data);
 
         var serializer = CreateSerializer();
@@ -178,11 +185,12 @@ public class BinarySessionSerializerTests
         Assert.Empty(result.Keys);
     }
 
-    [Fact]
-    public async Task DeserializeIsReadOnlyEmptyNull()
+    [InlineData(new byte[] { 1, 2, 105, 100, 0, 0, 1, 0, 0, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 0, 0, 1, 0, 0xFF })]
+    [Theory]
+    public async Task DeserializeIsReadOnlyEmptyNull(byte[] data)
     {
         // Arrange
-        var data = new byte[] { 1, 2, 105, 100, 0, 0, 1, 0, 0, 0 };
         using var ms = new MemoryStream(data);
 
         var serializer = CreateSerializer();
@@ -200,8 +208,10 @@ public class BinarySessionSerializerTests
         Assert.Empty(result.Keys);
     }
 
-    [Fact]
-    public async Task SerializeTimeout()
+    [InlineData(new byte[] { 1, 2, 105, 100, 0, 0, 0, 20, 0, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 0, 0, 0, 20, 0xFF })]
+    [Theory]
+    public async Task SerializeTimeout(byte[] data)
     {
         // Arrange
         var serializer = CreateSerializer();
@@ -212,17 +222,18 @@ public class BinarySessionSerializerTests
         state.Setup(s => s.Timeout).Returns(20);
 
         // Act
-        await serializer.SerializeAsync(state.Object, SessionSerializerContext.V1, ms, default);
+        await serializer.SerializeAsync(state.Object, SessionSerializerContext.Get(data[0]), ms, default);
 
         // Assert
-        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 20, 0, 0 });
+        Assert.Equal(ms.ToArray(), data);
     }
 
-    [Fact]
-    public async Task DeserializeTimeout()
+    [InlineData(new byte[] { 1, 2, 105, 100, 0, 0, 0, 20, 0, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 0, 0, 0, 20, 0xFF })]
+    [Theory]
+    public async Task DeserializeTimeout(byte[] data)
     {
         // Arrange
-        var data = new byte[] { 1, 2, 105, 100, 0, 0, 0, 20, 0, 0 };
         using var ms = new MemoryStream(data);
 
         var serializer = CreateSerializer();
@@ -240,8 +251,10 @@ public class BinarySessionSerializerTests
         Assert.Empty(result.Keys);
     }
 
-    [Fact]
-    public async Task Serialize1Key()
+    [InlineData(new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 42, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 42, 0xFF })]
+    [Theory]
+    public async Task Serialize1Key(byte[] data)
     {
         // Arrange
         var obj = new object();
@@ -259,14 +272,16 @@ public class BinarySessionSerializerTests
         using var ms = new MemoryStream();
 
         // Act
-        await serializer.SerializeAsync(state.Object, SessionSerializerContext.V1, ms, default);
+        await serializer.SerializeAsync(state.Object, SessionSerializerContext.Get(data[0]), ms, default);
 
         // Assert
-        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 42, 0 });
+        Assert.Equal(ms.ToArray(), data);
     }
 
-    [Fact]
-    public async Task Serialize1KeyNull()
+    [InlineData(new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0xFF })]
+    [Theory]
+    public async Task Serialize1KeyNull(byte[] data)
     {
         // Arrange
         var obj = default(object);
@@ -284,17 +299,18 @@ public class BinarySessionSerializerTests
         using var ms = new MemoryStream();
 
         // Act
-        await serializer.SerializeAsync(state.Object, SessionSerializerContext.V1, ms, default);
+        await serializer.SerializeAsync(state.Object, SessionSerializerContext.Get(data[0]), ms, default);
 
         // Assert
-        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0 });
+        Assert.Equal(ms.ToArray(), data);
     }
 
-    [Fact]
-    public async Task Deserialize1KeyNull()
+    [InlineData(new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0xFF })]
+    [Theory]
+    public async Task Deserialize1KeyNull(byte[] data)
     {
         // Arrange
-        var data = new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0 };
         var obj = new object();
         var value = new byte[] { 0 };
 
@@ -317,15 +333,16 @@ public class BinarySessionSerializerTests
         Assert.Collection(result.Keys, k => Assert.Equal("key1", k));
     }
 
-    [Fact]
-    public async Task Deserialize1KeyV1()
+    [InlineData(new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 0, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 0, 0xFF })]
+    [Theory]
+    public async Task Deserialize1KeyV1(byte[] data)
     {
         // Arrange
         var obj = new object();
         var keySerializer = new Mock<ISessionKeySerializer>();
         keySerializer.Setup(k => k.TryDeserialize("key1", Array.Empty<byte>(), out obj)).Returns(true);
 
-        var data = new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 0, 0 };
         using var ms = new MemoryStream(data);
 
         var serializer = CreateSerializer(keySerializer.Object);
@@ -344,8 +361,10 @@ public class BinarySessionSerializerTests
         Assert.Equal(obj, result["key1"]);
     }
 
-    [Fact]
-    public async Task Serialize1KeyNullable()
+    [InlineData(new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0xFF })]
+    [Theory]
+    public async Task Serialize1KeyNullable(byte[] data)
     {
         // Arrange
         var obj = (int?)5;
@@ -363,14 +382,16 @@ public class BinarySessionSerializerTests
         using var ms = new MemoryStream();
 
         // Act
-        await serializer.SerializeAsync(state.Object, SessionSerializerContext.V1, ms, default);
+        await serializer.SerializeAsync(state.Object, SessionSerializerContext.Get(data[0]), ms, default);
 
         // Assert
-        Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0 });
+        Assert.Equal(ms.ToArray(), data);
     }
 
-    [Fact]
-    public async Task Deserialize1Key()
+    [InlineData(new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 42, 0 })]
+    [InlineData(new byte[] { 2, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 42, 0xFF })]
+    [Theory]
+    public async Task Deserialize1Key(byte[] data)
     {
         // Arrange
         var obj = new object();
@@ -378,7 +399,6 @@ public class BinarySessionSerializerTests
         var keySerializer = new Mock<ISessionKeySerializer>();
         keySerializer.Setup(k => k.TryDeserialize("key1", bytes, out obj)).Returns(true);
 
-        var data = new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 42, 0 };
         using var ms = new MemoryStream(data);
 
         var serializer = CreateSerializer(keySerializer.Object);
