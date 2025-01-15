@@ -12,7 +12,9 @@
     <GeneratedBindingRedirectsAction>Overwrite</GeneratedBindingRedirectsAction>
   </PropertyGroup>
 
+  
   <PropertyGroup>
+    <NoWarn>$(NoWarn);NU1507;NU1902</NoWarn>
     <NoWarn>
       $(NoWarn);
       CA1024;
