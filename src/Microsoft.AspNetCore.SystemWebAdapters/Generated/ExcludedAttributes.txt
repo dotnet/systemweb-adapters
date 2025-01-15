@@ -1,1 +1,3 @@
 T:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute
+T:System.Runtime.CompilerServices.NullableAttribute
+T:System.Runtime.CompilerServices.NullableContextAttribute

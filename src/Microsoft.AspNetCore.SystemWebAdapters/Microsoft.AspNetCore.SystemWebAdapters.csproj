@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net8.0;netstandard2.0;net45;net472</TargetFrameworks>
+    <TargetFrameworks>net8.0;netstandard2.0;net45;net472</TargetFrameworks>
     <IsPackable>true</IsPackable>
 
     <!-- This will validate that the package will unify correctly with System.Web.dll -->
@@ -33,17 +33,6 @@
     <Compile Include="HtmlString.cs" />
 
     <PackageReference Include="System.Security.Principal.Windows" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-
-    <PackageReference Include="System.Runtime.Caching" />
-
-    <Using Include="Microsoft.AspNetCore.Http.HttpContext" Alias="HttpContextCore" />
-    <Using Include="Microsoft.AspNetCore.Http.HttpResponse" Alias="HttpResponseCore" />
-    <Using Include="Microsoft.AspNetCore.Http.HttpRequest" Alias="HttpRequestCore" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
@@ -78,6 +67,6 @@
     <None Include="Build\*" Pack="true" PackagePath="Build\" />
   </ItemGroup>
 
-  <Import Condition=" '$(TargetFramework)' == 'net6.0' " Project="Generated/GenerateApis.targets" />
+  <Import Condition=" '$(TargetFramework)' == 'net8.0' " Project="Generated/GenerateApis.targets" />
 
 </Project>

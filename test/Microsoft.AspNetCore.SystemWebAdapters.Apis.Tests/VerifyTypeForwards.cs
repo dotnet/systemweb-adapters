@@ -29,8 +29,9 @@ public class VerifyTypeForwards
 
         var systemWeb = frameworkContext.LoadFromAssemblyName("System.Web");
 
-        var exportedTypes = typeof(HttpContextBase).Assembly
-            .GetExportedTypes()
+        var adapterTypes = typeof(HttpContextBase).Assembly.GetExportedTypes()
+            .Concat(typeof(HttpContextBase).Assembly.GetForwardedTypes());
+        var exportedTypes = adapterTypes
             .Select(t => t.FullName!)
             .Where(t => systemWeb.GetType(t) is not null)
             .ToHashSet();

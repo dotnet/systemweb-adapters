@@ -4,8 +4,8 @@ param($config = "release")
 
 $project = "src\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj"
 
-dotnet build --no-incremental $project -c $config -f net6.0 /p:GenerateStandard=true
-dotnet build --no-incremental $project -c $config -f net6.0 /p:GenerateTypeForwards=true
+dotnet build --no-incremental $project -c $config -f net8.0 /p:GenerateStandard=true
+dotnet build --no-incremental $project -c $config -f net8.0 /p:GenerateTypeForwards=true
 
 # Script will have an error if there are git changes
 if(git status --porcelain){
