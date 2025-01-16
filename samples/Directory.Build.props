@@ -3,6 +3,7 @@
 
   <PropertyGroup>
     <VSToolsPath>$(MSBuildThisFileDirectory)targets</VSToolsPath>
+    <MvcBuildViews>false</MvcBuildViews>
   </PropertyGroup>
 
   <!-- When consuming the NuGet package, this is automatically added, but we must add it manually -->
