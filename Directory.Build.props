@@ -46,5 +46,8 @@
       Suppress warning for internal experimental APIs
     -->
     <NoWarn>$(NoWarn);SYSWEB1001</NoWarn>
+
+    <!-- We want to run pack on the solution so this allows us to do that -->
+    <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
   </PropertyGroup>
 </Project>
