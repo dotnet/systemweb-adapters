@@ -6,6 +6,7 @@
   <ItemGroup>
     <Compile Include="..\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests\SessionState\Serialization\BinarySessionSerializerTests.cs" Link="SessionState\BinarySessionSerializerTests.cs" />
     <Compile Include="..\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests\SessionState\Serialization\JsonSessionKeySerializerTests.cs" Link="SessionState\JsonSessionKeySerializerTests.cs" />
+    <Compile Include="..\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests\SessionState\Serialization\SessionStateCollectionTests.cs" Link="SessionState\SessionStateCollectionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac.Extras.Moq" />

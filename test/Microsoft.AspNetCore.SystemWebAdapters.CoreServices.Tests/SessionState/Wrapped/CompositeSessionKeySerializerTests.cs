@@ -1,8 +1,9 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -23,10 +24,10 @@ public class CompositeSessionKeySerializerTests
         serializer1.Setup(s => s.TryDeserialize("key1", bytes1, out obj1)).Returns(true);
         var serializer2 = new Mock<ISessionKeySerializer>();
         serializer2.Setup(s => s.TryDeserialize("key2", bytes2, out obj2)).Returns(true);
-        var loggerFactory = new Mock<ILoggerFactory>();
+        var logger = new Mock<ILogger<CompositeSessionKeySerializer>>();
 
         // Act
-        var combined = new CompositeSessionKeySerializer(new[] { serializer1.Object, serializer2.Object });
+        var combined = new CompositeSessionKeySerializer(new[] { serializer1.Object, serializer2.Object }, Options.Create(new SessionSerializerOptions()), logger.Object);
 
         // Assert
         Assert.True(combined.TryDeserialize("key1", bytes1, out var result1));
@@ -48,10 +49,10 @@ public class CompositeSessionKeySerializerTests
         serializer1.Setup(s => s.TrySerialize("key1", obj1, out bytes1)).Returns(true);
         var serializer2 = new Mock<ISessionKeySerializer>();
         serializer2.Setup(s => s.TrySerialize("key2", obj2, out bytes2)).Returns(true);
-        var loggerFactory = new Mock<ILoggerFactory>();
+        var logger = new Mock<ILogger<CompositeSessionKeySerializer>>();
 
         // Act
-        var combined = new CompositeSessionKeySerializer(new[] { serializer1.Object, serializer2.Object });
+        var combined = new CompositeSessionKeySerializer(new[] { serializer1.Object, serializer2.Object }, Options.Create(new SessionSerializerOptions()), logger.Object); ;
 
         // Assert
         Assert.True(combined.TrySerialize("key1", obj1, out var result1));

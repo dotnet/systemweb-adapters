@@ -1,6 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#if NETFRAMEWORK
+
+using System;
+using System.Buffers;
+using System.Collections.Generic;
+using System.IO;
 using System.Runtime.CompilerServices;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
@@ -77,4 +83,4 @@ internal static class BinaryWriterReaderExtensions
         return (int)result;
     }
 }
-
+#endif

@@ -49,7 +49,7 @@ internal sealed partial class SingleConnectionWriteableRemoteAppSessionStateMana
         };
 
         AddSessionCookieToHeader(request, sessionId);
-        AddReadOnlyHeader(request, readOnly);
+        AddRemoteSessionHeaders(request, readOnly);
 
         var response = await BackchannelClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
 
@@ -79,7 +79,7 @@ internal sealed partial class SingleConnectionWriteableRemoteAppSessionStateMana
         // session expired.
         PropagateHeaders(response, callingContext, HeaderNames.SetCookie);
 
-        return new RemoteSessionState(remoteSessionState, request, response, content, responseStream);
+        return new RemoteSessionState(remoteSessionState, request, response, GetSupportedSerializerContext(response), content, responseStream);
     }
 
     [JsonSerializable(typeof(SessionPostResult))]
@@ -89,7 +89,7 @@ internal sealed partial class SingleConnectionWriteableRemoteAppSessionStateMana
 
     private sealed class CommittingSessionHttpContent : HttpContent
     {
-        private readonly TaskCompletionSource<ISessionState> _state;
+        private readonly TaskCompletionSource<(ISessionState, SessionSerializerContext)> _state;
 
         public CommittingSessionHttpContent(ISessionSerializer serializer)
         {
@@ -99,7 +99,7 @@ internal sealed partial class SingleConnectionWriteableRemoteAppSessionStateMana
 
         public ISessionSerializer Serializer { get; }
 
-        public void Commit(ISessionState state) => _state.SetResult(state);
+        public void Commit(SessionSerializerContext context, ISessionState state) => _state.SetResult((state, context));
 
         protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context)
             => SerializeToStreamAsync(stream, context, default);
@@ -107,8 +107,9 @@ internal sealed partial class SingleConnectionWriteableRemoteAppSessionStateMana
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
         {
             await stream.FlushAsync(cancellationToken);
-            var state = await _state.Task;
-            await Serializer.SerializeAsync(state, stream, cancellationToken);
+            var (state, sessionContext) = await _state.Task;
+
+            await Serializer.SerializeAsync(state, sessionContext, stream, cancellationToken);
         }
 
         protected override bool TryComputeLength(out long length)
@@ -118,7 +119,15 @@ internal sealed partial class SingleConnectionWriteableRemoteAppSessionStateMana
         }
     }
 
-    private sealed class RemoteSessionState(ISessionState other, HttpRequestMessage request, HttpResponseMessage response, CommittingSessionHttpContent content, Stream stream) : DelegatingSessionState
+
+    private sealed class RemoteSessionState(
+        ISessionState other,
+        HttpRequestMessage request,
+        HttpResponseMessage response,
+        SessionSerializerContext sessionContext,
+        CommittingSessionHttpContent content,
+        Stream stream
+        ) : DelegatingSessionState
     {
         protected override ISessionState State => other;
 
@@ -137,7 +146,7 @@ internal sealed partial class SingleConnectionWriteableRemoteAppSessionStateMana
 
         public override async Task CommitAsync(CancellationToken token)
         {
-            content.Commit(State);
+            content.Commit(sessionContext, State);
 
             var result = await JsonSerializer.DeserializeAsync(stream, SessionPostResultContext.Default.SessionPostResult, token);
 
