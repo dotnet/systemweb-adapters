@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.Web;
 using AutoFixture;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
@@ -47,8 +48,9 @@ public class RemoteSessionModuleTests
 
         var sessions = new Mock<ILockedSessionCache>();
         var serializer = new Mock<ISessionSerializer>();
+        var factory = new Mock<ILoggerFactory>();
 
-        var module = new RemoteSessionModule(sessionOptions, remoteAppOptions, sessions.Object, serializer.Object);
+        var module = new RemoteSessionModule(sessionOptions, remoteAppOptions, factory.Object, sessions.Object, serializer.Object);
 
         var headers = new NameValueCollection
         {

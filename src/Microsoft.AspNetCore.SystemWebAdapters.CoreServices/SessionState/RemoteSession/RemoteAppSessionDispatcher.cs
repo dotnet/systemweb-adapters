@@ -76,7 +76,7 @@ internal sealed partial class RemoteAppSessionDispatcher : ISessionManager
             // future attempts will fallback to the double until the option value is reset.
             catch (HttpRequestException ex) when (ServerDoesNotSupportSingleConnection(ex))
             {
-                LogServerDoesNotSupportSingleConnection(ex);
+                LogServerDoesNotSupportSingleConnection();
                 _options.Value.UseSingleConnection = false;
             }
             catch (Exception ex)
@@ -104,7 +104,7 @@ internal sealed partial class RemoteAppSessionDispatcher : ISessionManager
     }
 
     [LoggerMessage(0, LogLevel.Warning, "The server does not support the single connection mode for remote session. Falling back to double connection mode. This must be manually reset to try again.")]
-    private partial void LogServerDoesNotSupportSingleConnection(HttpRequestException ex);
+    private partial void LogServerDoesNotSupportSingleConnection();
 
     [LoggerMessage(1, LogLevel.Error, "Failed to connect to server with an unknown reason")]
     private partial void LogServerFailedSingelConnection(Exception ex);

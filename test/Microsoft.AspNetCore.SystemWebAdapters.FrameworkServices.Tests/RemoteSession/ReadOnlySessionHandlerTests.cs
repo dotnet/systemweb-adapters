@@ -44,13 +44,15 @@ public class ReadOnlySessionHandlerTests
         context.Setup(c => c.Response).Returns(response.Object);
         context.Setup(c => c.Session).Returns(session.Object);
 
+        var serializationContext = SessionSerializerContext.Default;
+
         // Act
-        await handler.ProcessRequestAsync(context.Object);
+        await handler.ProcessRequestAsync(context.Object, serializationContext, default);
 
         // Assert
         Assert.Equal(200, response.Object.StatusCode);
         Assert.Equal("application/json; charset=utf-8", response.Object.ContentType);
 
-        serializer.Verify(s => s.SerializeAsync(It.Is<HttpSessionStateBaseWrapper>(t => t.State == session.Object), output.Object, default), Times.Once);
+        serializer.Verify(s => s.SerializeAsync(It.Is<HttpSessionStateBaseWrapper>(t => t.State == session.Object), serializationContext, output.Object, default), Times.Once);
     }
 }
