@@ -63,13 +63,15 @@ public class GetWriteableSessionHandlerTests
         context.Setup(c => c.Response).Returns(response.Object);
         context.Setup(c => c.Session).Returns(session.Object);
 
-        serializer.Setup(s => s.SerializeAsync(It.Is<HttpSessionStateBaseWrapper>(t => t.State == session.Object), stream, It.IsAny<CancellationToken>())).Callback(() =>
+        var serializationContext = SessionSerializerContext.Default;
+
+        serializer.Setup(s => s.SerializeAsync(It.Is<HttpSessionStateBaseWrapper>(t => t.State == session.Object), serializationContext, stream, It.IsAny<CancellationToken>())).Callback(() =>
         {
             stream.WriteByte(expectedByte);
         });
 
         // Act
-        var task = handler.ProcessRequestAsync(context.Object, default);
+        var task = handler.ProcessRequestAsync(context.Object, serializationContext, default);
 
         Assert.False(task.IsCompleted);
         lockDisposable.Verify(d => d.Dispose(), Times.Never);
@@ -122,13 +124,15 @@ public class GetWriteableSessionHandlerTests
         context.Setup(c => c.Response).Returns(response.Object);
         context.Setup(c => c.Session).Returns(session.Object);
 
-        serializer.Setup(s => s.SerializeAsync(It.Is<HttpSessionStateBaseWrapper>(t => t.State == session.Object), stream, It.IsAny<CancellationToken>())).Callback(() =>
+        var serializationContext = SessionSerializerContext.Default;
+
+        serializer.Setup(s => s.SerializeAsync(It.Is<HttpSessionStateBaseWrapper>(t => t.State == session.Object), serializationContext, stream, It.IsAny<CancellationToken>())).Callback(() =>
         {
             stream.WriteByte(expectedByte);
         });
 
         // Act
-        var task = handler.ProcessRequestAsync(context.Object, cts.Token);
+        var task = handler.ProcessRequestAsync(context.Object, serializationContext, cts.Token);
 
         Assert.False(task.IsCompleted);
         lockDisposable.Verify(d => d.Dispose(), Times.Never);
