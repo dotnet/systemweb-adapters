@@ -10,8 +10,6 @@ using Microsoft.Net.Http.Headers;
 
 namespace System.Web;
 
-public delegate void HttpCacheValidateHandler(HttpContext context, object data, ref HttpValidationStatus validationStatus);
-
 internal sealed record HttpResponseHeader(string HeaderName, string Value);
 
 [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1024:Use properties where appropriate", Justification = Constants.ApiFromAspNet)]
@@ -54,8 +52,6 @@ public sealed class HttpCachePolicy
     private bool _generateEtagFromFiles;
     private int _omitVaryStar;
 
-    private List<ValidationCallbackInfo>? _validationCallbackInfo;
-
     private bool _useCachedHeaders;
     private HttpResponseHeader? _headerCacheControl;
     private HttpResponseHeader? _headerPragma;
@@ -71,7 +67,7 @@ public sealed class HttpCachePolicy
         VaryByContentEncodings = new HttpCacheVaryByContentEncodings();
         VaryByHeaders = new HttpCacheVaryByHeaders();
         VaryByParams = new HttpCacheVaryByParams();
-    
+
         _isModified = false;
         _noServerCaching = false;
         _cacheExtension = null;
@@ -101,7 +97,6 @@ public sealed class HttpCachePolicy
 
         _generateLastModifiedFromFiles = false;
         _generateEtagFromFiles = false;
-        _validationCallbackInfo = null;
 
         _useCachedHeaders = false;
         _headerCacheControl = default;
@@ -390,26 +385,6 @@ public sealed class HttpCachePolicy
     }
 
     private static string FormatHttpDateTimeUtc(DateTime dt) => dt.ToString("R", DateTimeFormatInfo.InvariantInfo);
-
-    internal bool VerifyCallbacks(HttpContext context)
-    {
-        if (_validationCallbackInfo is { } callbacks)
-        {
-            var status = HttpValidationStatus.Valid;
-
-            foreach (var callback in callbacks)
-            {
-                callback.handler(context, callback.data, ref status);
-
-                if (status is not HttpValidationStatus.Valid)
-                {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
 
     internal void AddHeaders(IHeaderDictionary headers, DateTime timestamp)
     {
@@ -818,17 +793,6 @@ public sealed class HttpCachePolicy
     }
 
     public int GetOmitVaryStar() => _omitVaryStar;
-
-    public void AddValidationCallback(
-            HttpCacheValidateHandler handler, object data)
-    {
-        ArgumentNullException.ThrowIfNull(handler);
-
-        Dirtied();
-
-        _validationCallbackInfo ??= new();
-        _validationCallbackInfo.Add(new ValidationCallbackInfo(handler, data));
-    }
 
     public DateTime UtcTimestampCreated { get; set; }
 

@@ -52,6 +52,4 @@ public class HttpCachePolicyBase
     public virtual void SetLastModifiedFromFileDependencies() => throw new NotImplementedException();
 
     public virtual void SetETagFromFileDependencies() => throw new NotImplementedException();
-
-    public virtual void AddValidationCallback(HttpCacheValidateHandler handler, object data) => throw new NotImplementedException();
 }

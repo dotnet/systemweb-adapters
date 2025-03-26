@@ -38,7 +38,7 @@ public class HttpCacheVaryByContentEncodingsTests
     }
     
     [Fact]
-    public void SetContentEncodingsNull_ResetsState()
+    public void SetContentEncodingsNullResetsState()
     {
         // Arrange
         var encodings = new HttpCacheVaryByContentEncodings();
@@ -53,7 +53,7 @@ public class HttpCacheVaryByContentEncodingsTests
     }
     
     [Fact]
-    public void SetContentEncodingsWithValues_SetsEncodingsAndIsModified()
+    public void SetContentEncodingsWithValuesSetsEncodingsAndIsModified()
     {
         // Arrange
         var encodings = new HttpCacheVaryByContentEncodings();
@@ -68,7 +68,7 @@ public class HttpCacheVaryByContentEncodingsTests
     }
     
     [Fact]
-    public void GetContentEncodings_ReturnsDeepCopy()
+    public void GetContentEncodingsReturnsDeepCopy()
     {
         // Arrange
         var encodings = new HttpCacheVaryByContentEncodings();
@@ -85,7 +85,7 @@ public class HttpCacheVaryByContentEncodingsTests
     }
     
     [Fact]
-    public void Indexer_ThrowsIfNullOrWhitespaceContentEncoding()
+    public void IndexerThrowsIfNullOrWhitespaceContentEncoding()
     {
         // Arrange
         var encodings = new HttpCacheVaryByContentEncodings();
@@ -98,7 +98,7 @@ public class HttpCacheVaryByContentEncodingsTests
     }
     
     [Fact]
-    public void Indexer_GetReturnsFalseByDefault()
+    public void IndexerGetReturnsFalseByDefault()
     {
         // Arrange
         var encodings = new HttpCacheVaryByContentEncodings();
@@ -108,7 +108,7 @@ public class HttpCacheVaryByContentEncodingsTests
     }
     
     [Fact]
-    public void Indexer_SetTrueAddsEncoding()
+    public void IndexerSetTrueAddsEncoding()
     {
         // Arrange
         var encodings = new HttpCacheVaryByContentEncodings();
@@ -123,7 +123,7 @@ public class HttpCacheVaryByContentEncodingsTests
     }
     
     [Fact]
-    public void Indexer_SetFalseDoesNothing()
+    public void IndexerSetFalseDoesNothing()
     {
         // Arrange
         var encodings = new HttpCacheVaryByContentEncodings();
@@ -140,7 +140,7 @@ public class HttpCacheVaryByContentEncodingsTests
     }
     
     [Fact]
-    public void Indexer_SetMultipleEncodingsAppendsThem()
+    public void IndexerSetMultipleEncodingsAppendsThem()
     {
         // Arrange
         var encodings = new HttpCacheVaryByContentEncodings();
@@ -164,7 +164,7 @@ public class HttpCacheVaryByContentEncodingsTests
     [InlineData(null, true)]  // No Content-Encoding header is cacheable
     [InlineData("unknown", false)]  // Unknown encoding is not cacheable
     [InlineData("gzip", true)]  // Listed encoding is cacheable
-    public void IsCacheableEncoding_ChecksContentEncodings(string? contentEncoding, bool expected)
+    public void IsCacheableEncodingChecksContentEncodings(string? contentEncoding, bool expected)
     {
         // Arrange
         var encodings = new HttpCacheVaryByContentEncodings();
@@ -178,7 +178,7 @@ public class HttpCacheVaryByContentEncodingsTests
     }
     
     [Fact]
-    public void IsCacheableEncoding_AlwaysTrueWhenNoEncodingsSpecified()
+    public void IsCacheableEncodingAlwaysTrueWhenNoEncodingsSpecified()
     {
         // Arrange
         var encodings = new HttpCacheVaryByContentEncodings();

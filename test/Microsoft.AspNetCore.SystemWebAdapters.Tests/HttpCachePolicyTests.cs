@@ -449,39 +449,6 @@ public class HttpCachePolicyTests
         Assert.True(policy.IsModified());
     }
 
-    [InlineData(HttpValidationStatus.Valid)]
-    [InlineData(HttpValidationStatus.Invalid)]
-    [InlineData(HttpValidationStatus.IgnoreThisRequest)]
-    [Theory]
-    public void AddValidationCallbackAddsCallback(HttpValidationStatus validationStatus)
-    {
-        // Arrange
-        var expected = validationStatus is HttpValidationStatus.Valid;
-        var policy = new HttpCachePolicy();
-        HttpCacheValidateHandler handler = (HttpContext context, object data, ref HttpValidationStatus status) => status = validationStatus;
-        object data = new object();
-
-        // Act
-        policy.AddValidationCallback(handler, data);
-
-        var result = policy.VerifyCallbacks(new DefaultHttpContext());
-
-        // Assert
-        Assert.Equal(expected, result);
-        Assert.True(policy.IsModified());
-    }
-
-    [Fact]
-    public void AddValidationCallbackThrowsForNullHandler()
-    {
-        // Arrange
-        var policy = new HttpCachePolicy();
-        object data = new object();
-
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => policy.AddValidationCallback(null!, data));
-    }
-
     [Fact]
     public void AddHeadersDefaultPolicyAddsPrivateHeader()
     {

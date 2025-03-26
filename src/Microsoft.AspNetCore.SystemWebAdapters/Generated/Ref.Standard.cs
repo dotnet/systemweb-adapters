@@ -172,7 +172,6 @@ namespace System.Web
         public System.Web.HttpCacheVaryByContentEncodings VaryByContentEncodings { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Web.HttpCacheVaryByHeaders VaryByHeaders { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public System.Web.HttpCacheVaryByParams VaryByParams { [System.Runtime.CompilerServices.CompilerGeneratedAttribute]get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public void AddValidationCallback(System.Web.HttpCacheValidateHandler handler, object data) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public void AppendCacheExtension(string extension) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public System.Web.HttpCacheability GetCacheability() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public string GetCacheExtensions() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
@@ -218,7 +217,6 @@ namespace System.Web
         public virtual System.Web.HttpCacheVaryByContentEncodings VaryByContentEncodings { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Web.HttpCacheVaryByHeaders VaryByHeaders { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public virtual System.Web.HttpCacheVaryByParams VaryByParams { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public virtual void AddValidationCallback(System.Web.HttpCacheValidateHandler handler, object data) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual void AppendCacheExtension(string extension) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual void SetAllowResponseInBrowserHistory(bool allow) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public virtual void SetCacheability(System.Web.HttpCacheability cacheability) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
@@ -245,7 +243,6 @@ namespace System.Web
         public override System.Web.HttpCacheVaryByContentEncodings VaryByContentEncodings { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Web.HttpCacheVaryByHeaders VaryByHeaders { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
         public override System.Web.HttpCacheVaryByParams VaryByParams { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");} }
-        public override void AddValidationCallback(System.Web.HttpCacheValidateHandler handler, object data) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override void AppendCacheExtension(string extension) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override void SetAllowResponseInBrowserHistory(bool allow) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public override void SetCacheability(System.Web.HttpCacheability cacheability) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
@@ -272,7 +269,6 @@ namespace System.Web
         None = 3,
         ProxyCaches = 2,
     }
-    public delegate void HttpCacheValidateHandler(System.Web.HttpContext context, object data, ref System.Web.HttpValidationStatus validationStatus);
     public sealed partial class HttpCacheVaryByContentEncodings
     {
         public HttpCacheVaryByContentEncodings() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
@@ -893,12 +889,6 @@ namespace System.Web
         public HttpUnhandledException() { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public HttpUnhandledException(string message) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
         public HttpUnhandledException(string message, System.Exception innerException) { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web");}
-    }
-    public enum HttpValidationStatus
-    {
-        IgnoreThisRequest = 2,
-        Invalid = 1,
-        Valid = 3,
     }
     public partial interface IHttpAsyncHandler : System.Web.IHttpHandler
     {

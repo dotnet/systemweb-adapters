@@ -57,6 +57,4 @@ public class HttpCachePolicyWrapper : HttpCachePolicyBase
     public override void SetLastModifiedFromFileDependencies() => _httpCachePolicy.SetLastModifiedFromFileDependencies();
 
     public override void SetETagFromFileDependencies() => _httpCachePolicy.SetETagFromFileDependencies();
-
-    public override void AddValidationCallback(HttpCacheValidateHandler handler, object data) => _httpCachePolicy.AddValidationCallback(handler, data);
 }

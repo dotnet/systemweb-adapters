@@ -16,12 +16,8 @@ internal sealed class CachePolicyMiddleware(RequestDelegate next)
 
             WriteDefaultContentType(context);
 
-            var cachePolicy = context.Response.AsSystemWeb().Cache;
-
-            if (cachePolicy.VerifyCallbacks(context))
-            {
-                cachePolicy.AddHeaders(context.Response.Headers, context.AsSystemWeb().Timestamp);
-            }
+            context.Response.AsSystemWeb().Cache
+                .AddHeaders(context.Response.Headers, context.AsSystemWeb().Timestamp);
 
             return Task.CompletedTask;
         }, context);
