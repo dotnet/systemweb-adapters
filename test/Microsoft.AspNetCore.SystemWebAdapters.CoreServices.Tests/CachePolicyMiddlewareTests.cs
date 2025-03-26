@@ -7,11 +7,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Tests;
 
-public class SetDefaultResponseHeadersMiddlewareTests
+public class CachePolicyMiddlewareTests
 {
     [Fact]
     public async Task NoHeadersWithContent()
@@ -20,8 +21,9 @@ public class SetDefaultResponseHeadersMiddlewareTests
         var context = new DefaultHttpContext();
         var startupFeature = new StartupCallbackFeature();
         context.Features.Set<IHttpResponseFeature>(startupFeature);
+        context.Features.Set<ITimestampFeature>(startupFeature);
         var next = Task (HttpContextCore context) => Task.CompletedTask;
-        var middleware = new SetDefaultResponseHeadersMiddleware(new(next));
+        var middleware = new CachePolicyMiddleware(new(next));
         var data = new MemoryStream(Encoding.UTF8.GetBytes("ArbitraryContent"));
         context.Response.Body = data;
         context.Response.ContentLength = data.Length;
@@ -44,8 +46,9 @@ public class SetDefaultResponseHeadersMiddlewareTests
         var context = new DefaultHttpContext();
         var startupFeature = new StartupCallbackFeature();
         context.Features.Set<IHttpResponseFeature>(startupFeature);
+        context.Features.Set<ITimestampFeature>(startupFeature);
         var next = Task (HttpContextCore context) => Task.CompletedTask;
-        var middleware = new SetDefaultResponseHeadersMiddleware(new(next));
+        var middleware = new CachePolicyMiddleware(new(next));
 
         // Act
         await middleware.InvokeAsync(context);
@@ -58,18 +61,18 @@ public class SetDefaultResponseHeadersMiddlewareTests
 
     [Theory]
     [InlineData("Content-Type", "some-content-type")]
-    [InlineData("Cache-Control", "cache-value")]
     public async Task Existing(string name, string value)
     {
         // Arrange
         var context = new DefaultHttpContext();
         var startupFeature = new StartupCallbackFeature();
         context.Features.Set<IHttpResponseFeature>(startupFeature);
+        context.Features.Set<ITimestampFeature>(startupFeature);
 
         context.Response.Headers[name] = value;
 
         var next = Task (HttpContextCore context) => Task.CompletedTask;
-        var middleware = new SetDefaultResponseHeadersMiddleware(new(next));
+        var middleware = new CachePolicyMiddleware(new(next));
 
         // Act
         await middleware.InvokeAsync(context);
@@ -87,6 +90,7 @@ public class SetDefaultResponseHeadersMiddlewareTests
         var context = new DefaultHttpContext();
         var startupFeature = new StartupCallbackFeature();
         context.Features.Set<IHttpResponseFeature>(startupFeature);
+        context.Features.Set<ITimestampFeature>(startupFeature);
 
         var next = Task (HttpContextCore context) =>
         {
@@ -95,7 +99,7 @@ public class SetDefaultResponseHeadersMiddlewareTests
 
             return Task.CompletedTask;
         };
-        var middleware = new SetDefaultResponseHeadersMiddleware(new(next));
+        var middleware = new CachePolicyMiddleware(new(next));
 
         // Act
         await middleware.InvokeAsync(context);
@@ -106,9 +110,13 @@ public class SetDefaultResponseHeadersMiddlewareTests
     }
 
     // The default feature does not include a functional `OnStarting` method
-    private sealed class StartupCallbackFeature : HttpResponseFeature
+    private sealed class StartupCallbackFeature : HttpResponseFeature, ITimestampFeature
     {
         private Func<Task>? _callback;
+
+        public static DateTimeOffset DefaultTimestamp { get; } = DateTimeOffset.UtcNow;
+
+        public DateTimeOffset Timestamp => DefaultTimestamp;
 
         public override void OnStarting(Func<object, Task> callback, object state)
         {

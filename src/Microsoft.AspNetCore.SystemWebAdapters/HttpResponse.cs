@@ -242,7 +242,13 @@ namespace System.Web
             }
         }
 
-        public HttpCachePolicy Cache => _cache ??= new(Response.HttpContext);
+        internal bool TryGetCachePolicy([MaybeNullWhen(false)] out HttpCachePolicy policy)
+        {
+            policy = _cache;
+            return policy != null;
+        }
+
+        public HttpCachePolicy Cache => _cache ??= new();
 
         private string ResolvePath(string url)
         {
