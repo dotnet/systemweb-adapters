@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 
 namespace System.Web
 {
@@ -242,7 +243,21 @@ namespace System.Web
             }
         }
 
-        public HttpCachePolicy Cache => _cache ??= new(Response.HttpContext);
+        internal void ApplyCachePolicy()
+        {
+            if (_cache is { } cachePolicy)
+            {
+                cachePolicy.AddHeaders(Response.Headers, Response.HttpContext.AsSystemWeb().Timestamp);
+            }
+
+            // If no cache control has been set manually, apply a default policy similar to what ASP.NET Framework did
+            else if (Response.Headers.CacheControl.Count == 0)
+            {
+                Response.Headers.CacheControl = "private";
+            }
+        }
+
+        public HttpCachePolicy Cache => _cache ??= new();
 
         private string ResolvePath(string url)
         {

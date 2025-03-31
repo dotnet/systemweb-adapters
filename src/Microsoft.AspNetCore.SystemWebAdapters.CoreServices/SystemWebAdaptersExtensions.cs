@@ -71,7 +71,7 @@ public static class SystemWebAdaptersExtensions
 
         app.UseMiddleware<PreBufferRequestStreamMiddleware>();
         app.UseMiddleware<BufferResponseStreamMiddleware>();
-        app.UseMiddleware<SetDefaultResponseHeadersMiddleware>();
+        app.UseMiddleware<CachePolicyMiddleware>();
         app.UseMiddleware<SingleThreadedRequestMiddleware>();
         app.UseMiddleware<CurrentPrincipalMiddleware>();
 

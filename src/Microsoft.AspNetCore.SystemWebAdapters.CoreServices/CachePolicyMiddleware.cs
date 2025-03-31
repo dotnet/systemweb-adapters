@@ -6,15 +6,8 @@ using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-/// <summary>
-/// System.Web would set some response headers by default. This adds those early in the pipeline so they can still be overridden. If they exist, they will not be replaced.
-/// </summary>
-internal class SetDefaultResponseHeadersMiddleware
+internal sealed class CachePolicyMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public SetDefaultResponseHeadersMiddleware(RequestDelegate next) => _next = next;
-
     public Task InvokeAsync(HttpContext context)
     {
         context.Response.OnStarting(static state =>
@@ -22,14 +15,18 @@ internal class SetDefaultResponseHeadersMiddleware
             var context = (HttpContext)state;
 
             WriteDefaultContentType(context);
-            context.Response.AsSystemWeb().Cache.UpdateHeaders();
+
+            context.Response.AsSystemWeb().ApplyCachePolicy();
 
             return Task.CompletedTask;
         }, context);
 
-        return _next(context);
+        return next(context);
     }
 
+    /// <summary>
+    /// System.Web would set some response headers by default. This adds those early in the pipeline so they can still be overridden. If they exist, they will not be replaced.
+    /// </summary>
     private static void WriteDefaultContentType(HttpContext context)
     {
         if (context.Response.ContentLength.HasValue && context.Response.Headers.ContentType.Count == 0)
