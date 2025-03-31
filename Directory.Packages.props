@@ -72,7 +72,7 @@
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="7.2.0" />
     <PackageVersion Include="System.Net.Http" Version="4.3.4" />
     <PackageVersion Include="System.Reflection.MetadataLoadContext" Version="6.0.0" />
-    <PackageVersion Include="System.Runtime.Caching" Version="8.0.0" />
+    <PackageVersion Include="System.Runtime.Caching" Version="8.0.1" />
     <PackageVersion Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
     <PackageVersion Include="System.Security.AccessControl" Version="6.0.0" />
     <PackageVersion Include="System.Security.Principal.Windows" Version="5.0.0" />
