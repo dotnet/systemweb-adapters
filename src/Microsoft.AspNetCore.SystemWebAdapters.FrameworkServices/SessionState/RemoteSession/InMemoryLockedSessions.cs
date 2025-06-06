@@ -8,17 +8,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
 internal class InMemoryLockedSessions : ILockedSessionCache
 {
+    private readonly ILogger _logger;
     private readonly ISessionSerializer _serializer;
     private readonly ConcurrentDictionary<string, SessionContainer> _cache = new();
 
-    public InMemoryLockedSessions(ISessionSerializer serializer)
+    public InMemoryLockedSessions(ISessionSerializer serializer, ILogger<InMemoryLockedSessions> logger)
     {
         _serializer = serializer;
+        _logger = logger;
     }
 
     public IDisposable Register(HttpSessionStateBase session, Action callback)
@@ -48,7 +51,7 @@ internal class InMemoryLockedSessions : ILockedSessionCache
                     return SessionSaveResult.DeserializationError;
                 }
 
-                result.CopyTo(session);
+                result.CopyTo(_logger, session);
 
                 return SessionSaveResult.Success;
             }

@@ -6,6 +6,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 internal static class SessionConstants
 {
     public const string ReadOnlyHeaderName = "X-SystemWebAdapter-RemoteAppSession-ReadOnly";
+    public const string SupportedVersion = "X-SystemWebAdapter-RemoteAppSession-Version";
 
     public const string SessionEndpointPath = "/systemweb-adapters/session";
 

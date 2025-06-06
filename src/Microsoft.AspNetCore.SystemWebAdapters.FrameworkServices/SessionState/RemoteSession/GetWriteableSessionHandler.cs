@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession;
 
-internal sealed class GetWriteableSessionHandler : HttpTaskAsyncHandler, IRequiresSessionState
+internal sealed class GetWriteableSessionHandler : VersionedSessionHandler, IRequiresSessionState
 {
     private const byte EndOfFrame = (byte)'\n';
 
@@ -24,17 +24,7 @@ internal sealed class GetWriteableSessionHandler : HttpTaskAsyncHandler, IRequir
         _cache = cache;
     }
 
-    public override async Task ProcessRequestAsync(HttpContext context)
-    {
-        using var timeoutCts = new CancellationTokenSource(TimeSpan.FromMinutes(context.Session.Timeout));
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, context.Response.ClientDisconnectedToken);
-
-        await ProcessRequestAsync(new HttpContextWrapper(context), cts.Token).ConfigureAwait(false);
-
-        context.ApplicationInstance.CompleteRequest();
-    }
-
-    public async Task ProcessRequestAsync(HttpContextBase context, CancellationToken token)
+    public override async Task ProcessRequestAsync(HttpContextBase context, SessionSerializerContext sessionContext, CancellationToken token)
     {
         // If session data is retrieved exclusively, then it needs sent to the client and
         // this request needs to remain open while waiting for the client to either send updates
@@ -50,7 +40,7 @@ internal sealed class GetWriteableSessionHandler : HttpTaskAsyncHandler, IRequir
 
         using var wrapper = new HttpSessionStateBaseWrapper(context.Session);
 
-        await _serializer.SerializeAsync(wrapper, context.Response.OutputStream, token);
+        await _serializer.SerializeAsync(wrapper, sessionContext, context.Response.OutputStream, token);
 
         // Delimit the json body with a new line to mark the end of content
         context.Response.OutputStream.WriteByte(EndOfFrame);
