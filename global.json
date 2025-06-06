@@ -6,19 +6,16 @@
     "dotnet": "10.0.100-preview.5.25265.106",
     "runtimes": {
       "dotnet": [
-        "6.0.4",
-        "7.0.12",
-        "8.0.1"
+        "8.0.16"
       ],
       "aspnetcore": [
-        "6.0.4",
-        "7.0.12",
-        "8.0.1"
+        "8.0.16"
       ]
     }
   },
   "msbuild-sdks": {
-    "MSBuild.SDK.SystemWeb": "4.0.88",
+    "MSBuild.SDK.SystemWeb": "4.0.104",
+    "Aspire.AppHost.Sdk": "9.3.0",
     "Microsoft.DotNet.Arcade.Sdk": "10.0.0-beta.25279.3"
   }
 }

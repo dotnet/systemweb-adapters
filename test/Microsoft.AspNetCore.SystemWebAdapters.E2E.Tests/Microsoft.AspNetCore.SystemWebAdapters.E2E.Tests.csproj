@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Testing" />
+    <PackageReference Include="Microsoft.Playwright.Xunit" />
+    <PackageReference Include="NUnit.Analyzers" />
+    <PackageReference Include="coverlet.collector" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\samples\AuthRemoteFormsAuth\AuthRemoteFormsAuthAppHost\AuthRemoteFormsAuthAppHost.csproj" />
+    <ProjectReference Include="..\..\samples\AuthRemoteIdentity\AuthRemoteIdentityAppHost\AuthRemoteIdentityAppHost.csproj" />
+    <ProjectReference Include="..\..\samples\MachineKey\MachineKeyAppHost\MachineKeyAppHost.csproj" />
+    <ProjectReference Include="..\..\samples\Modules\ModulesAppHost\ModulesAppHost.csproj" />
+    <ProjectReference Include="..\..\samples\SessionRemote\SessionRemoteAppHost\SessionRemoteAppHost.csproj" />
+    <ProjectReference Include="..\..\samples\WebFormsToBlazor\WebFormsToBlazorAppHost\WebFormsToBlazorAppHost.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="System.Net" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Aspire.Hosting.ApplicationModel" />
+    <Using Include="Aspire.Hosting.Testing" />
+  </ItemGroup>
+
+</Project>

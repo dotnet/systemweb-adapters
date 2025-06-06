@@ -1,0 +1,28 @@
+{
+  "version": "3.0",
+  "defaultProvider": "jsdelivr",
+  "libraries": [
+    {
+      "library": "jquery@3.7.1",
+      "destination": "Scripts/jquery/",
+      "files": [
+        "dist/jquery.min.js"
+      ]
+    },
+    {
+      "library": "modernizr@3.13.1",
+      "destination": "Scripts/modernizr/",
+      "files": [
+        "src/Modernizr.min.js"
+      ]
+    },
+    {
+      "library": "bootstrap@4.5.3",
+      "destination": "Scripts/bootstrap/",
+      "files": [
+        "dist/css/bootstrap.min.css",
+        "dist/js/bootstrap.min.js"
+      ]
+    }
+  ]
+}

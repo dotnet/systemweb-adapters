@@ -1,4 +1,5 @@
 using System.Web;
+using MachineKeyExample;
 
 namespace MachineKeyFramework
 {
@@ -8,7 +9,7 @@ namespace MachineKeyFramework
 
         public void ProcessRequest(HttpContext context)
         {
-            MachineKeyExample.MachineKeyTest.Run(context);
+            context.ProcessMachineKeyRequest();
         }
     }
 }
