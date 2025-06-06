@@ -112,6 +112,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SessionRemoteCore", "sample
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SessionRemoteAppHost", "samples\SessionRemote\SessionRemoteAppHost\SessionRemoteAppHost.csproj", "{6C3B0EEA-CDD2-D218-9767-4A5E923F295A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AuthWindows", "AuthWindows", "{AC29CA1D-A850-4C29-B27D-C23BAF3D664C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthWindowsCore", "samples\AuthWindows\AuthWindowsCore\AuthWindowsCore.csproj", "{64B09008-C9CB-BAEC-2AE1-616E6BE9880B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -246,6 +250,10 @@ Global
 		{6C3B0EEA-CDD2-D218-9767-4A5E923F295A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C3B0EEA-CDD2-D218-9767-4A5E923F295A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C3B0EEA-CDD2-D218-9767-4A5E923F295A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64B09008-C9CB-BAEC-2AE1-616E6BE9880B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64B09008-C9CB-BAEC-2AE1-616E6BE9880B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64B09008-C9CB-BAEC-2AE1-616E6BE9880B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64B09008-C9CB-BAEC-2AE1-616E6BE9880B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -290,6 +298,8 @@ Global
 		{40CD644D-3035-EC55-1DC4-D27A21AF979E} = {87516E0D-8F1C-4788-AEBD-65A98775CF8F}
 		{F44780F7-551C-E783-2931-EE3C3B5B380D} = {87516E0D-8F1C-4788-AEBD-65A98775CF8F}
 		{6C3B0EEA-CDD2-D218-9767-4A5E923F295A} = {87516E0D-8F1C-4788-AEBD-65A98775CF8F}
+		{AC29CA1D-A850-4C29-B27D-C23BAF3D664C} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
+		{64B09008-C9CB-BAEC-2AE1-616E6BE9880B} = {AC29CA1D-A850-4C29-B27D-C23BAF3D664C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DABA3C65-9D74-4EB6-9B1C-730328710EAD}

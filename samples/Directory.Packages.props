@@ -23,7 +23,7 @@
     <PackageVersion Include="Microsoft.AspNet.Web.Optimization" Version="1.1.3" />
     <PackageVersion Include="Microsoft.AspNet.Web.Optimization.WebForms" Version="1.1.3" />
     <PackageVersion Include="Microsoft.AspNet.WebApi" Version="5.2.7" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="8.0.7" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="9.0.5" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.CustomElements" Version="9.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.DataProtection.SystemWeb" Version="2.3.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.3.0" />

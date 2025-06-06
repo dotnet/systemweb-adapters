@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.SystemWebAdapters;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSystemWebAdapters();
 builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
     .AddNegotiate();
 
 var app = builder.Build();
 
 app.UseAuthentication();
+app.UseSystemWebAdapters();
 
 app.MapGet("/", (HttpContext context) =>
 {
