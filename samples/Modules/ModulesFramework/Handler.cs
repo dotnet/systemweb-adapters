@@ -8,11 +8,7 @@ namespace ModulesFramework
 
         public void ProcessRequest(HttpContext context)
         {
-            context.Response.Write($"State: {context.CurrentNotification}\n");
-            context.Response.Flush();
-            context.Response.Write($"State: {context.CurrentNotification}\n");
-            context.Response.Flush();
-            context.Response.Write($"State: {context.CurrentNotification}\n");
+            context.Response.Write("Hello World!\n");
         }
     }
 }

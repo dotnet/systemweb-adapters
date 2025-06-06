@@ -1,6 +1,10 @@
 <Project>
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
+  <PropertyGroup>
+    <MvcBuildViews>false</MvcBuildViews>
+  </PropertyGroup>
+
   <!-- When consuming the NuGet package, this is automatically added, but we must add it manually -->
   <Import Project="$(MSBuildThisFileDirectory)../src/Microsoft.AspNetCore.SystemWebAdapters/Build/Microsoft.AspNetCore.SystemWebAdapters.props"/>
 
@@ -12,6 +16,10 @@
     <GeneratedBindingRedirectsAction>Overwrite</GeneratedBindingRedirectsAction>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- The framework projects trigger this warning -->
+    <NoWarn>ASPIRE004;$(NoWarn)</NoWarn>
+  </PropertyGroup>
   
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1507;NU1902</NoWarn>

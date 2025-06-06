@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Yarp.ReverseProxy" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.Core\Samples.ServiceDefaults.Core.csproj" />
+  </ItemGroup>
+</Project>

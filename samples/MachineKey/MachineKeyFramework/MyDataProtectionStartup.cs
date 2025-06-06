@@ -11,8 +11,8 @@ namespace MachineKeyFramework
         public override void ConfigureServices(IServiceCollection services)
         {
             services.AddDataProtection()
-                .SetApplicationName(MachineKeyTest.AppName)
-                .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Path.GetTempPath(), "sharedkeys", MachineKeyTest.AppName)));
+                .SetApplicationName(MachineKeyExtensions.AppName)
+                .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Path.GetTempPath(), "sharedkeys", MachineKeyExtensions.AppName)));
         }
     }
 }

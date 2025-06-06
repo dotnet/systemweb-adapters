@@ -1,12 +1,13 @@
 using MachineKeyExample;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.SystemWebAdapters;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDataProtection()
-    .SetApplicationName(MachineKeyTest.AppName)
-    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Path.GetTempPath(), "sharedkeys", MachineKeyTest.AppName)));
+    .SetApplicationName(MachineKeyExtensions.AppName)
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Path.GetTempPath(), "sharedkeys", MachineKeyExtensions.AppName)));
 
 builder.Services.AddSystemWebAdapters();
 
@@ -17,7 +18,7 @@ app.UseSystemWebAdapters();
 app.Map("/", (HttpContext context) =>
 {
     context.Features.GetRequiredFeature<IHttpBodyControlFeature>().AllowSynchronousIO = true;
-    MachineKeyTest.Run(context);
+    context.AsSystemWeb().ProcessMachineKeyRequest();
 });
 
 app.Run();
