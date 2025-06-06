@@ -40,7 +40,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Configure the the reverse proxy to forward all unhandled requests to the remote app
+// Configure the reverse proxy to forward all unhandled requests to the remote app
 app.MapForwarder("/{**catch-all}", app.Configuration["RemoteApp:Url"]!)
 
     // If there is a route locally, we want to ensure that is used by default, but otherwise we'll forward
