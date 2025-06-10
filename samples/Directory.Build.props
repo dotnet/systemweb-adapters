@@ -16,10 +16,14 @@
     <GeneratedBindingRedirectsAction>Overwrite</GeneratedBindingRedirectsAction>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <!-- The framework projects trigger this warning -->
-    <NoWarn>ASPIRE004;$(NoWarn)</NoWarn>
-  </PropertyGroup>
+  <!-- Ensure target exists for non net projects -->
+  <Target Name="GetTargetFrameworksWithPlatformForSingleTargetFramework" />
+  <!-- Suppress APIRE004 warning by setting _IsExecutable to true in MSBuild.SDK.SystemWeb based projects -->
+  <Target Name="SupressApire004" BeforeTargets="GetTargetFrameworksWithPlatformForSingleTargetFramework">
+    <PropertyGroup Condition="'$(UsingMSBuildSDKSystemWeb)' == 'true'">
+      <_IsExecutable>true</_IsExecutable>
+    </PropertyGroup>
+  </Target>
   
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1507;NU1902</NoWarn>
