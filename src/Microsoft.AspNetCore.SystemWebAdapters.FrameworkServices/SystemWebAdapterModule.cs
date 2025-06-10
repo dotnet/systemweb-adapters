@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Web;
+using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
@@ -24,7 +25,10 @@ internal sealed class SystemWebAdapterModule : IHttpModule
             throw new ArgumentNullException(nameof(context));
         }
 
-        var serviceProvider = context.Application.GetServiceProvider();
+        context.Application.EnsureSystemWebAdapterBuilderBuilt();
+
+        var serviceProvider = HttpApplicationHost.Current.Services;
+
         if (serviceProvider is not null)
         {
             _scope = serviceProvider.CreateScope();

@@ -2,14 +2,18 @@ using System;
 using System.Configuration;
 using System.Web;
 using System.Web.Routing;
+using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace RemoteSessionFramework
 {
-    public class SessionApplication : HttpApplication
+    public class SessionApplication : HostedHttpApplication
     {
-        protected void Application_Start()
+        protected override void ConfigureHost(HttpApplicationHostBuilder builder)
         {
-            SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
+            builder.AddServiceDefaults();
+            builder.Services.AddSystemAdapters()
                 .AddProxySupport(options => options.UseForwardedHeaders = true)
                 .AddSessionSerializer(options =>
                 {
