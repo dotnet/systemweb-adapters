@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics;
+using System.Web;
 using System.Web.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,9 +33,26 @@ public sealed class HttpApplicationHostBuilder : IHostApplicationBuilder
 
     public IServiceCollection Services => _other.Services;
 
-    internal HttpApplicationHost Build()
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates", Justification = "<Pending>")]
+    internal void Initialize()
     {
-        return new(_other.Build());
+        var host = new HttpApplicationHost(_other.Build());
+
+        HostingEnvironment.QueueBackgroundWorkItem(async cancellationToken =>
+        {
+            try
+            {
+                await host.StartAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception and rethrow it to ensure the application fails to start
+                var logger = host.Services.GetRequiredService<ILogger<HttpApplicationHost>>();
+                logger.LogError(ex, "An error occurred while starting the application.");
+                throw;
+            }
+        });
     }
 
     public static HttpApplicationHostBuilder Create()

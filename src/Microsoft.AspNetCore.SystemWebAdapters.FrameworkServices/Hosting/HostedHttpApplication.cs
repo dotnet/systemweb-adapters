@@ -18,9 +18,7 @@ public abstract class HostedHttpApplication : HttpApplication
     {
         var builder = HttpApplicationHostBuilder.Create();
         ConfigureHost(builder);
-        var host = builder.Build();
-
-        host.Start();
+        builder.Initialize();
     }
 
     protected virtual void ConfigureHost(HttpApplicationHostBuilder builder)
