@@ -37,5 +37,6 @@ public sealed class HttpApplicationHost : IHost
     void IDisposable.Dispose()
     {
         _host.Dispose();
+        _current = null;
     }
 }
