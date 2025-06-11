@@ -4,6 +4,7 @@ using System.Web;
 using System.Web.Optimization;
 using System.Web.Routing;
 using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
 namespace WebFormsFramework
@@ -21,10 +22,7 @@ namespace WebFormsFramework
                 {
                     options.RegisterKey<string>("test-value");
                 })
-                .AddRemoteAppServer(options =>
-                {
-                    options.ApiKey = ConfigurationManager.AppSettings["RemoteApp__ApiKey"];
-                })
+                .AddRemoteAppServer(builder.Configuration.GetSection("RemoteApp").Bind)
                 .AddSessionServer();
         }
 

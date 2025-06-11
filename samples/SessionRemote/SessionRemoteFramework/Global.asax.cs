@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Web;
 using System.Web.Routing;
 using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -22,10 +23,8 @@ namespace RemoteSessionFramework
                 {
                     options.RegisterKey<int>("CoreCount");
                 })
-                .AddRemoteAppServer(options => options.ApiKey = ConfigurationManager.AppSettings["RemoteApp__ApiKey"])
-                .AddSessionServer(options =>
-                {
-                });
+                .AddRemoteAppServer(builder.Configuration.GetSection("RemoteApp").Bind)
+                .AddSessionServer();
         }
 
         protected void Application_PostAcquireRequestState(object sender, EventArgs e)
