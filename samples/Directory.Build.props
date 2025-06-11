@@ -19,7 +19,7 @@
   <!-- Ensure target exists for non net projects -->
   <Target Name="GetTargetFrameworksWithPlatformForSingleTargetFramework" />
   <!-- Suppress APIRE004 warning by setting _IsExecutable to true in MSBuild.SDK.SystemWeb based projects -->
-  <Target Name="SupressApire004" BeforeTargets="GetTargetFrameworksWithPlatformForSingleTargetFramework">
+  <Target Name="SuppressAspire004" BeforeTargets="GetTargetFrameworksWithPlatformForSingleTargetFramework">
     <PropertyGroup Condition="'$(UsingMSBuildSDKSystemWeb)' == 'true'">
       <_IsExecutable>true</_IsExecutable>
     </PropertyGroup>
