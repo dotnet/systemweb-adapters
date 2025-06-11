@@ -82,7 +82,7 @@ public static class SystemWebAdapterConfiguration
         {
             if (Build(state) is { } builder)
             {
-                builder.Initialize();
+                builder.InitializeHost();
             }
         }
     }

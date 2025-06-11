@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics;
-using System.Web;
 using System.Web.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,26 +32,17 @@ public sealed class HttpApplicationHostBuilder : IHostApplicationBuilder
 
     public IServiceCollection Services => _other.Services;
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>")]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates", Justification = "<Pending>")]
-    internal void Initialize()
+    public void ConfigureContainer<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory, Action<TContainerBuilder>? configure = null) where TContainerBuilder : notnull
+    {
+        _other.ConfigureContainer(factory, configure);
+    }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Managed in the RunAsync method")]
+    internal void InitializeHost()
     {
         var host = new HttpApplicationHost(_other.Build());
 
-        HostingEnvironment.QueueBackgroundWorkItem(async cancellationToken =>
-        {
-            try
-            {
-                await host.StartAsync(cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                // Log the exception and rethrow it to ensure the application fails to start
-                var logger = host.Services.GetRequiredService<ILogger<HttpApplicationHost>>();
-                logger.LogError(ex, "An error occurred while starting the application.");
-                throw;
-            }
-        });
+        HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => host.RunAsync(cancellationToken));
     }
 
     public static HttpApplicationHostBuilder Create()
@@ -75,25 +65,6 @@ public sealed class HttpApplicationHostBuilder : IHostApplicationBuilder
             return string.Equals(currentProcess.ProcessName, "iisexpress", StringComparison.Ordinal);
         }
     }
-
-    public void ConfigureContainer<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory, Action<TContainerBuilder>? configure = null) where TContainerBuilder : notnull
-    {
-        _other.ConfigureContainer(factory, configure);
-    }
-
-    internal static IHost? Host { get; set; }
-
-    private sealed class HttpApplicationLifetime : IHostLifetime
-    {
-        Task IHostLifetime.StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-
-        Task IHostLifetime.WaitForStartAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-    }
 }
+
 

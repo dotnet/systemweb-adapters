@@ -1,11 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Runtime.InteropServices;
 using System.Web;
-using Microsoft.AspNetCore.SystemWebAdapters;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Hosting;
 
@@ -18,7 +14,7 @@ public abstract class HostedHttpApplication : HttpApplication
     {
         var builder = HttpApplicationHostBuilder.Create();
         ConfigureHost(builder);
-        builder.Initialize();
+        builder.InitializeHost();
     }
 
     protected virtual void ConfigureHost(HttpApplicationHostBuilder builder)

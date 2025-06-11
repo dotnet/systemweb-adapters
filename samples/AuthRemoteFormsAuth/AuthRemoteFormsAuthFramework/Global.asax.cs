@@ -14,7 +14,7 @@ namespace FormsAuth
         protected override void ConfigureHost(HttpApplicationHostBuilder builder)
         {
             builder.AddServiceDefaults();
-            builder.ConfigureHttpApplication(options => options.RegisterWebObjectActivator = true);
+            builder.RegisterWebJobActivator();
 
             builder.Services.AddSystemAdapters()
                 .AddVirtualizedContentDirectories()
