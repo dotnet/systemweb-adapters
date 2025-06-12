@@ -7,10 +7,11 @@ using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace System.Web;
 
-public static class SystemWebAdapterExtensions
+public static partial class SystemWebAdapterExtensions
 {
     public static HttpApplicationHostBuilder RegisterWebObjectActivator(this HttpApplicationHostBuilder builder)
     {
@@ -27,8 +28,10 @@ public static class SystemWebAdapterExtensions
     public static ISystemWebAdapterBuilder AddSystemAdapters(this IServiceCollection services)
        => new SystemWebAdapterBuilder(services);
 
-    private sealed class WebObjectActivatorHostServices : IServiceProvider, IHostedService
+    private sealed partial class WebObjectActivatorHostServices : IServiceProvider, IHostedService
     {
+        private const string ErrorMessage = "WebObjectActivator is already set and will not be overridden";
+
         private readonly IServiceProvider _services;
 
         public WebObjectActivatorHostServices(IServiceProvider services)
@@ -74,6 +77,12 @@ public static class SystemWebAdapterExtensions
 
         Task IHostedService.StartAsync(CancellationToken cancellationToken)
         {
+            if (HttpRuntime.WebObjectActivator is { })
+            {
+                LogAlreadySet(_services.GetRequiredService<ILogger<WebObjectActivatorHostServices>>());
+                throw new InvalidOperationException(ErrorMessage);
+            }
+
             HttpRuntime.WebObjectActivator = this;
             return Task.CompletedTask;
         }
@@ -83,5 +92,9 @@ public static class SystemWebAdapterExtensions
             HttpRuntime.WebObjectActivator = null;
             return Task.CompletedTask;
         }
+
+        [LoggerMessage(LogLevel.Critical, ErrorMessage)]
+        private static partial void LogAlreadySet(ILogger logger);
     }
 }
+
