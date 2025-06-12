@@ -5,8 +5,12 @@ using System.Reflection;
 using System.Web;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+using static Microsoft.AspNetCore.SystemWebAdapters.AspireConstants;
 
 namespace System.Web;
 
@@ -22,6 +26,40 @@ public static class SystemWebAdapterExtensions
         builder.Services.AddHostedService<WebObjectActivatorHostServices>();
 
         return builder;
+    }
+
+    public static ISystemWebAdapterBuilder AddSystemWebAdapters(this HttpApplicationHostBuilder builder)
+    {
+        if (builder is null)
+        {
+            throw new ArgumentNullException(nameof(builder));
+        }
+
+        var config = builder.Configuration;
+
+        var adapters = builder.Services.AddSystemAdapters();
+
+        if (config.GetValue<bool>(ProxyKey + IsEnabled))
+        {
+            adapters.AddProxySupport(config.GetSection(ProxyKey).Bind);
+        }
+
+        if (config.GetValue<bool>(RemoteKey + IsEnabled))
+        {
+            var remoteConfig = adapters.AddRemoteAppServer(config.GetSection(RemoteKey).Bind);
+
+            if (config.GetValue<bool>(RemoteSessionKey + IsEnabled))
+            {
+                remoteConfig.AddSessionServer(config.GetSection(RemoteSessionKey).Bind);
+            }
+
+            if (config.GetValue<bool>(RemoteAuthKey + IsEnabled))
+            {
+                remoteConfig.AddAuthenticationServer(config.GetSection(RemoteAuthKey).Bind);
+            }
+        }
+
+        return adapters;
     }
 
     public static ISystemWebAdapterBuilder AddSystemAdapters(this IServiceCollection services)
@@ -72,8 +110,14 @@ public static class SystemWebAdapterExtensions
                 null);
         }
 
+        [Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates", Justification = "<Pending>")]
         Task IHostedService.StartAsync(CancellationToken cancellationToken)
         {
+            if (HttpRuntime.WebObjectActivator is { })
+            {
+                logger.LogCritical("WebObjectActivator is already set and will not be overriden");
+            }
+
             HttpRuntime.WebObjectActivator = this;
             return Task.CompletedTask;
         }
