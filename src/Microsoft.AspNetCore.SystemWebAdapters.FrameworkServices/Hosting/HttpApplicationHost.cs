@@ -5,7 +5,6 @@ using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Hosting;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates", Justification = "Simple status messages")]
 public sealed class HttpApplicationHost : IHost
 {
     private static HttpApplicationHost? _current;
@@ -45,7 +44,7 @@ public sealed class HttpApplicationHost : IHost
     public Task StopAsync(CancellationToken cancellationToken)
         => _host.StopAsync(cancellationToken);
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "Disposed of by IIS lifetime management")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "Disposed of by IIS lifetime management and this is a sealed class")]
     void IDisposable.Dispose()
     {
         _host.Dispose();
