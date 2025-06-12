@@ -34,7 +34,7 @@ internal static class ConfigurationManagerConfigExtensions
             }
         }
 
-        builder.Sources.Insert(0, new MemoryConfigurationSource() { InitialData = initialData });
+        builder.AddInMemoryCollection(initialData);
 
         return builder;
     }
