@@ -16,17 +16,11 @@ namespace RemoteSessionFramework
             HttpApplicationHost.RegisterHost(builder =>
             {
                 builder.AddServiceDefaults();
-                builder.Services.AddSystemAdapters()
-                    .AddProxySupport(options => options.UseForwardedHeaders = true)
-                    .AddSessionSerializer(options =>
-                    {
-                    })
+                builder.AddSystemWebAdapters()
                     .AddJsonSessionSerializer(options =>
                     {
                         options.RegisterKey<int>("CoreCount");
-                    })
-                    .AddRemoteAppServer(builder.Configuration.GetSection("RemoteApp").Bind)
-                    .AddSessionServer();
+                    });
             });
         }
 

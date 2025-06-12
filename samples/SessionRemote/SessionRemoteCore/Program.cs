@@ -8,7 +8,7 @@ builder.AddServiceDefaults();
 
 builder.Services.AddReverseProxy();
 
-builder.Services.AddSystemWebAdapters()
+builder.AddSystemWebAdapters()
     .AddSessionSerializer(options =>
     {
         options.ThrowOnUnknownSessionKey = false;
@@ -16,13 +16,7 @@ builder.Services.AddSystemWebAdapters()
     .AddJsonSessionSerializer(options =>
     {
         options.RegisterKey<int>("CoreCount");
-    })
-    .AddRemoteAppClient(options =>
-    {
-        options.ApiKey = builder.Configuration["RemoteApp:ApiKey"]!;
-        options.RemoteAppUrl = new(builder.Configuration["RemoteApp:Url"]);
-    })
-    .AddSessionClient();
+    });
 
 var app = builder.Build();
 

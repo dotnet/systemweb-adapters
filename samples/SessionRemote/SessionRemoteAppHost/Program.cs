@@ -1,18 +1,18 @@
-var builder = DistributedApplication.CreateBuilder(args);
+using Microsoft.AspNetCore.SystemWebAdapters.Aspire;
 
-var remoteApiKey = builder.AddParameter("apiKey", Guid.NewGuid().ToString(), secret: true);
+var builder = DistributedApplication.CreateBuilder(args);
 
 var frameworkApp = builder.AddIISExpress("iis")
     .AddSiteProject<Projects.SessionRemoteFramework>("framework")
     .WithDefaultIISExpressEndpoints()
     .WithOtlpExporter()
-    .WithEnvironment("RemoteApp__ApiKey", remoteApiKey)
     .WithHttpHealthCheck(path: "/framework");
 
 var coreApp = builder.AddProject<Projects.SessionRemoteCore>("core")
-    .WithEnvironment("RemoteApp__ApiKey", remoteApiKey)
-    .WithEnvironment("RemoteApp__Url", frameworkApp.GetEndpoint("https"))
     .WithHttpHealthCheck()
     .WaitFor(frameworkApp);
+
+var incremental = builder.AddIncrementalMigration("incremental", coreApp, frameworkApp)
+    .WithRemoteSession();
 
 builder.Build().Run();
