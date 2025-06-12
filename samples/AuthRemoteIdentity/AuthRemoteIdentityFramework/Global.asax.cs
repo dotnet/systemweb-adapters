@@ -17,7 +17,7 @@ namespace MvcApp
             HttpApplicationHost.RegisterHost(builder =>
             {
                 builder.AddServiceDefaults();
-                builder.RegisterWebJobActivator();
+                builder.RegisterWebObjectActivator();
 
                 builder.Services.AddSystemAdapters()
                     .AddVirtualizedContentDirectories()

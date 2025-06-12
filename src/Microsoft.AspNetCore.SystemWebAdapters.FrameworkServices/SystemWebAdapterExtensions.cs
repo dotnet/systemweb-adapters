@@ -16,14 +16,14 @@ namespace System.Web;
 
 public static class SystemWebAdapterExtensions
 {
-    public static HttpApplicationHostBuilder RegisterWebJobActivator(this HttpApplicationHostBuilder builder)
+    public static HttpApplicationHostBuilder RegisterWebObjectActivator(this HttpApplicationHostBuilder builder)
     {
         if (builder is null)
         {
             throw new ArgumentNullException(nameof(builder));
         }
 
-        builder.Services.AddHostedService<RegisteredHostServices>();
+        builder.Services.AddHostedService<WebObjectActivatorHostServices>();
 
         return builder;
     }
@@ -65,21 +65,40 @@ public static class SystemWebAdapterExtensions
     public static ISystemWebAdapterBuilder AddSystemAdapters(this IServiceCollection services)
        => new SystemWebAdapterBuilder(services);
 
-    private sealed class RegisteredHostServices(IServiceProvider services, ILogger<RegisteredHostServices> logger) : IServiceProvider, IHostedService
+    private sealed class WebObjectActivatorHostServices : IServiceProvider, IHostedService
     {
+        private readonly IServiceProvider _services;
+
+        public WebObjectActivatorHostServices(IServiceProvider services)
+        {
+            if (HttpRuntime.WebObjectActivator is { })
+            {
+                throw new InvalidOperationException("HttpRuntime.WebObjectActivator is already configured");
+            }
+
+            _services = services;
+        }
+
         public object? GetService(Type serviceType)
         {
-            if (services.GetService(serviceType) is { } known)
+            if (serviceType == typeof(IServiceProvider))
+            {
+                return _services;
+            }
+            else if (serviceType == typeof(IKeyedServiceProvider) && _services is IKeyedServiceProvider keyed)
+            {
+                return keyed;
+            }
+            else if (_services.GetService(serviceType) is { } known)
             {
                 return known;
             }
-
-            if (!serviceType.IsAbstract)
+            else if (serviceType.IsAbstract)
             {
-                return CreateNonPublicInstance(serviceType);
+                return null;
             }
 
-            return null;
+            return CreateNonPublicInstance(serviceType);
 
             // The implementation of dependency injection in System.Web expects to be able to create instances
             // of non-public and unregistered types.
