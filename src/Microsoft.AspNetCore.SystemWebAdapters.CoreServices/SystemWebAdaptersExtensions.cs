@@ -38,7 +38,7 @@ public static class SystemWebAdaptersExtensions
 
             if (config.GetValue<bool>(RemoteAuthKey + IsEnabled))
             {
-                remoteConfig.AddAuthenticationClient(config.GetValue<bool>(RemoteAuthDefaultScheme), config.GetSection(RemoteAuthKey).Bind);
+                remoteConfig.AddAuthenticationClient(config.GetValue<bool>(RemoteAuthIsDefaultScheme), config.GetSection(RemoteAuthKey).Bind);
             }
         }
 

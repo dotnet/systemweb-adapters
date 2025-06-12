@@ -62,13 +62,6 @@ public static class SystemWebAdapterExtensions
         return adapters;
     }
 
-    private sealed class RegistrationOptions
-    {
-        public ProxyOptions? Proxy { get; set; }
-
-        public RemoteAppServerOptions? Server { get; set; }
-    }
-
     public static ISystemWebAdapterBuilder AddSystemAdapters(this IServiceCollection services)
        => new SystemWebAdapterBuilder(services);
 

@@ -15,6 +15,6 @@ internal static partial class AspireConstants
     public const string RemoteUrl = RemoteKey + Separator + "RemoteAppUrl";
     public const string RemoteSessionKey = RemoteKey + Separator + "Session";
     public const string RemoteAuthKey = RemoteKey + Separator + "Authentication";
-    public const string RemoteAuthDefaultScheme = RemoteAuthKey + Separator + "IsDefaultScheme";
+    public const string RemoteAuthIsDefaultScheme = RemoteAuthKey + Separator + "IsDefaultScheme";
     public const string IsEnabled = Separator + "IsEnabled";
 }
