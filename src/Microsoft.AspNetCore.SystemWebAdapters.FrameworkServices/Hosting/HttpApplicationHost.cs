@@ -63,7 +63,7 @@ public sealed class HttpApplicationHost : IHost
 
         var builder = CreateBuilder();
         configure(builder);
-        builder.InitializeHost();
+        builder.BuildAndRunInBackground();
     }
 
     public IServiceProvider Services => _host.Services;

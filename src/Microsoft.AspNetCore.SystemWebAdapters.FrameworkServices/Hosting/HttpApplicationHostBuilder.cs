@@ -36,12 +36,14 @@ public sealed class HttpApplicationHostBuilder : IHostApplicationBuilder
         _other.ConfigureContainer(factory, configure);
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Managed in the RunAsync method")]
-    internal void InitializeHost()
-    {
-        var host = new HttpApplicationHost(_other.Build());
+    internal HttpApplicationHost Build() => new(_other.Build());
 
-        HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => host.RunAsync(cancellationToken));
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Managed in the RunAsync method")]
+    internal void BuildAndRunInBackground()
+    {
+        var host = Build();
+
+        HostingEnvironment.QueueBackgroundWorkItem(host.RunAsync);
     }
 }
 
