@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics;
 using System.Web.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +14,7 @@ public sealed class HttpApplicationHostBuilder : IHostApplicationBuilder
 {
     private readonly HostApplicationBuilder _other;
 
-    private HttpApplicationHostBuilder(HostApplicationBuilder other)
+    internal HttpApplicationHostBuilder(HostApplicationBuilder other)
     {
         _other = other;
     }
@@ -43,27 +42,6 @@ public sealed class HttpApplicationHostBuilder : IHostApplicationBuilder
         var host = new HttpApplicationHost(_other.Build());
 
         HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => host.RunAsync(cancellationToken));
-    }
-
-    public static HttpApplicationHostBuilder Create()
-    {
-        var builder = new HostApplicationBuilder(new HostApplicationBuilderSettings()
-        {
-            ApplicationName = HostingEnvironment.SiteName,
-            ContentRootPath = HostingEnvironment.ApplicationPhysicalPath,
-            EnvironmentName = HostingEnvironment.IsDevelopmentEnvironment || IsIISExpress() ? Environments.Development : Environments.Production
-        });
-
-        builder.Services.AddSingleton<IHostLifetime, HttpApplicationLifetime>();
-
-        return new(builder);
-
-        static bool IsIISExpress()
-        {
-            using var currentProcess = Process.GetCurrentProcess();
-
-            return string.Equals(currentProcess.ProcessName, "iisexpress", StringComparison.Ordinal);
-        }
     }
 }
 

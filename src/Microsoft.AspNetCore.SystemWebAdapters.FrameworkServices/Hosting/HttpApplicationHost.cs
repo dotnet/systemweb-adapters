@@ -1,6 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics;
+using System.Web.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Hosting;
@@ -24,6 +28,32 @@ public sealed class HttpApplicationHost : IHost
         _current = this;
     }
 
+    public static HttpApplicationHostBuilder CreateBuilder()
+    {
+        var config = new ConfigurationManager();
+
+        config.AddConfigurationManager();
+
+        var builder = new HostApplicationBuilder(new HostApplicationBuilderSettings()
+        {
+            Configuration = config,
+            ApplicationName = HostingEnvironment.SiteName,
+            ContentRootPath = HostingEnvironment.ApplicationPhysicalPath,
+            EnvironmentName = HostingEnvironment.IsDevelopmentEnvironment || IsIISExpress() ? Environments.Development : Environments.Production
+        });
+
+        builder.Services.AddSingleton<IHostLifetime, HttpApplicationLifetime>();
+
+        return new(builder);
+
+        static bool IsIISExpress()
+        {
+            using var currentProcess = Process.GetCurrentProcess();
+
+            return string.Equals(currentProcess.ProcessName, "iisexpress", StringComparison.Ordinal);
+        }
+    }
+
     public static void RegisterHost(Action<HttpApplicationHostBuilder> configure)
     {
         if (configure is null)
@@ -31,7 +61,7 @@ public sealed class HttpApplicationHost : IHost
             throw new ArgumentNullException(nameof(configure));
         }
 
-        var builder = HttpApplicationHostBuilder.Create();
+        var builder = CreateBuilder();
         configure(builder);
         builder.InitializeHost();
     }

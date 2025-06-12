@@ -26,7 +26,7 @@ public static class SystemWebAdapterConfiguration
         {
             if (application.Application[Key] is null)
             {
-                var builder = HttpApplicationHostBuilder.Create();
+                var builder = HttpApplicationHost.CreateBuilder();
 
                 application.Application[Key] = builder;
 
