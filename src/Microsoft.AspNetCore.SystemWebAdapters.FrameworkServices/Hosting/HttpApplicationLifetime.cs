@@ -8,12 +8,23 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Hosting;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates", Justification = "<Pending>")]
-internal sealed class HttpApplicationLifetime : IHostLifetime, IRegisteredObject, IDisposable
+internal sealed partial class HttpApplicationLifetime : IHostLifetime, IRegisteredObject, IDisposable
 {
     private readonly IHostApplicationLifetime _applicationLifetime;
     private readonly ILogger<HttpApplicationLifetime> _logger;
     private readonly IHostEnvironment _environment;
+
+    [LoggerMessage(LogLevel.Information, "Shutting down application for {Reason}")]
+    private partial void LogShutdown(ApplicationShutdownReason reason);
+
+    [LoggerMessage(LogLevel.Information, "Application started. Hosting environment: {EnvName}; Content root path: {ContentRoot}")]
+    private partial void LogStarted(string envName, string contentRoot);
+
+    [LoggerMessage(LogLevel.Information, "Application is shutting down...")]
+    private partial void LogStopping();
+
+    [LoggerMessage(LogLevel.Information, "Application has stopped.")]
+    private partial void LogStopped();
 
     public HttpApplicationLifetime(
         IHostEnvironment environment,
@@ -37,7 +48,7 @@ internal sealed class HttpApplicationLifetime : IHostLifetime, IRegisteredObject
     public Task StopAsync(CancellationToken cancellationToken)
     {
         HostingEnvironment.UnregisterObject(this);
-        _logger.LogInformation("Shutting down application for {Reason}", HostingEnvironment.ShutdownReason);
+        LogShutdown(HostingEnvironment.ShutdownReason);
 
         return Task.CompletedTask;
     }
@@ -46,16 +57,15 @@ internal sealed class HttpApplicationLifetime : IHostLifetime, IRegisteredObject
     {
         _applicationLifetime.ApplicationStarted.Register(() =>
         {
-            _logger.LogInformation("Application started. Hosting environment: {EnvName}; Content root path: {ContentRoot}",
-                _environment.EnvironmentName, _environment.ContentRootPath);
+            LogStarted(_environment.EnvironmentName, _environment.ContentRootPath);
         });
         _applicationLifetime.ApplicationStopping.Register(() =>
         {
-            _logger.LogInformation("Application is shutting down...");
+            LogStopping();
         });
         _applicationLifetime.ApplicationStopped.Register(() =>
         {
-            _logger.LogInformation("Application has stopped.");
+            LogStopped();
 
             HostingEnvironment.InitiateShutdown();
         });
