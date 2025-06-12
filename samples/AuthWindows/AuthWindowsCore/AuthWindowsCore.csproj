@@ -8,6 +8,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.Core\Samples.ServiceDefaults.Core.csproj" />
+    <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.csproj" />
   </ItemGroup>
 </Project>

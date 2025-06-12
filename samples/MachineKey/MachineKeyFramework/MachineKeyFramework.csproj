@@ -7,5 +7,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MachineKeyShared\MachineKeyShared.csproj" />
+    <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.csproj" />
   </ItemGroup>
 </Project>

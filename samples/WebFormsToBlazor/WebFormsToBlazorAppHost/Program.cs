@@ -5,6 +5,7 @@ var remoteApiKey = builder.AddParameter("apiKey", Guid.NewGuid().ToString(), sec
 var frameworkApp = builder.AddIISExpress("iis")
     .AddSiteProject<Projects.WebFormsToBlazorFramework>("framework")
     .WithDefaultIISExpressEndpoints()
+    .WithOtlpExporter()
     .WithEnvironment("RemoteApp__ApiKey", remoteApiKey)
     .WithHttpHealthCheck();
 

@@ -1,3 +1,6 @@
+using System.Security.Policy;
+using Microsoft.Extensions.Configuration;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 var remoteApiKey = builder.AddParameter("apiKey", Guid.NewGuid().ToString(), secret: true);
@@ -12,6 +15,7 @@ var frameworkApp = iisExpress.AddSiteProject<Projects.AuthRemoteIdentityFramewor
     .WithDefaultIISExpressEndpoints()
     .WithEnvironment("RemoteApp__ApiKey", remoteApiKey)
     .WithReference(db, connectionName: "DefaultConnection")
+    .WithOtlpExporter()
     .WaitFor(db)
     .WithHttpHealthCheck();
 
