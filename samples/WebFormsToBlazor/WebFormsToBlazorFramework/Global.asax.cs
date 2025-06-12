@@ -9,26 +9,24 @@ using Microsoft.Extensions.Hosting;
 
 namespace WebFormsFramework
 {
-    public class Global : HostedHttpApplication
+    public class Global : HttpApplication
     {
-        protected override void ConfigureHost(HttpApplicationHostBuilder builder)
+        protected void Application_Start()
         {
-            builder.AddServiceDefaults();
+            HttpApplicationHost.RegisterHost(builder =>
+            {
+                builder.AddServiceDefaults();
 
-            builder.Services.AddSystemAdapters()
-                .AddVirtualizedContentDirectories()
-                .AddProxySupport(options => options.UseForwardedHeaders = true)
-                .AddJsonSessionSerializer(options =>
-                {
-                    options.RegisterKey<string>("test-value");
-                })
-                .AddRemoteAppServer(builder.Configuration.GetSection("RemoteApp").Bind)
-                .AddSessionServer();
-        }
-
-        protected override void Application_Start()
-        {
-            base.Application_Start();
+                builder.Services.AddSystemAdapters()
+                    .AddVirtualizedContentDirectories()
+                    .AddProxySupport(options => options.UseForwardedHeaders = true)
+                    .AddJsonSessionSerializer(options =>
+                    {
+                        options.RegisterKey<string>("test-value");
+                    })
+                    .AddRemoteAppServer(builder.Configuration.GetSection("RemoteApp").Bind)
+                    .AddSessionServer();
+            });
 
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);

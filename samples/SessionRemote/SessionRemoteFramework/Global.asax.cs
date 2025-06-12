@@ -9,22 +9,25 @@ using Microsoft.Extensions.Hosting;
 
 namespace RemoteSessionFramework
 {
-    public class SessionApplication : HostedHttpApplication
+    public class SessionApplication : HttpApplication
     {
-        protected override void ConfigureHost(HttpApplicationHostBuilder builder)
+        protected void Application_Start()
         {
-            builder.AddServiceDefaults();
-            builder.Services.AddSystemAdapters()
-                .AddProxySupport(options => options.UseForwardedHeaders = true)
-                .AddSessionSerializer(options =>
-                {
-                })
-                .AddJsonSessionSerializer(options =>
-                {
-                    options.RegisterKey<int>("CoreCount");
-                })
-                .AddRemoteAppServer(builder.Configuration.GetSection("RemoteApp").Bind)
-                .AddSessionServer();
+            HttpApplicationHost.RegisterHost(builder =>
+            {
+                builder.AddServiceDefaults();
+                builder.Services.AddSystemAdapters()
+                    .AddProxySupport(options => options.UseForwardedHeaders = true)
+                    .AddSessionSerializer(options =>
+                    {
+                    })
+                    .AddJsonSessionSerializer(options =>
+                    {
+                        options.RegisterKey<int>("CoreCount");
+                    })
+                    .AddRemoteAppServer(builder.Configuration.GetSection("RemoteApp").Bind)
+                    .AddSessionServer();
+            });
         }
 
         protected void Application_PostAcquireRequestState(object sender, EventArgs e)

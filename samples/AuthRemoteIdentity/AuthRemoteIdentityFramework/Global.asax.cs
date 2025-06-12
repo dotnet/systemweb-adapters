@@ -10,23 +10,21 @@ using Microsoft.Extensions.Hosting;
 
 namespace MvcApp
 {
-    public class MvcApplication : HostedHttpApplication
+    public class MvcApplication : HttpApplication
     {
-        protected override void ConfigureHost(HttpApplicationHostBuilder builder)
+        protected void Application_Start()
         {
-            builder.AddServiceDefaults();
-            builder.RegisterWebJobActivator();
+            HttpApplicationHost.RegisterHost(builder =>
+            {
+                builder.AddServiceDefaults();
+                builder.RegisterWebJobActivator();
 
-            builder.Services.AddSystemAdapters()
-                .AddVirtualizedContentDirectories()
-                .AddProxySupport(options => options.UseForwardedHeaders = true)
-                .AddRemoteAppServer(builder.Configuration.GetSection("RemoteApp").Bind)
-                .AddAuthenticationServer();
-        }
-
-        protected override void Application_Start()
-        {
-            base.Application_Start();
+                builder.Services.AddSystemAdapters()
+                    .AddVirtualizedContentDirectories()
+                    .AddProxySupport(options => options.UseForwardedHeaders = true)
+                    .AddRemoteAppServer(builder.Configuration.GetSection("RemoteApp").Bind)
+                    .AddAuthenticationServer();
+            });
 
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);

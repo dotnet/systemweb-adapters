@@ -12,7 +12,7 @@ public sealed class HttpApplicationHost : IHost
 
     private readonly IHost _host;
 
-    internal static HttpApplicationHost Current => _current ?? throw new InvalidOperationException("Host is not initialized");
+    public static HttpApplicationHost Current => _current ?? throw new InvalidOperationException("Host is not initialized");
 
     internal HttpApplicationHost(IHost host)
     {
@@ -23,6 +23,18 @@ public sealed class HttpApplicationHost : IHost
 
         _host = host;
         _current = this;
+    }
+
+    public static void RegisterHost(Action<HttpApplicationHostBuilder> configure)
+    {
+        if (configure is null)
+        {
+            throw new ArgumentNullException(nameof(configure));
+        }
+
+        var builder = HttpApplicationHostBuilder.Create();
+        configure(builder);
+        builder.InitializeHost();
     }
 
     public IServiceProvider Services => _host.Services;
