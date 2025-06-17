@@ -11,8 +11,7 @@ public static class IncrementalMigrationResourceExtensions
     public static IResourceBuilder<TCore> WithIncrementalMigrationFallback<TCore, TFramework>(
         this IResourceBuilder<TCore> coreApp,
         IResourceBuilder<TFramework> frameworkApp,
-        RemoteAuthentication remoteAuthentication = RemoteAuthentication.Disabled,
-        RemoteSession remoteSession = RemoteSession.Disabled,
+        Action<IncrementalMigrationOptions> configureOptions,
         IResourceBuilder<ParameterResource>? apiKey = null
         )
         where TCore : IResourceWithEnvironment
@@ -23,23 +22,26 @@ public static class IncrementalMigrationResourceExtensions
 
         apiKey ??= coreApp.ApplicationBuilder.AddParameter($"{coreApp.Resource.Name}-{frameworkApp.Resource.Name}-remoteapp-apiKey", () => Guid.NewGuid().ToString(), secret: true);
 
+        var options = new IncrementalMigrationOptions();
+        configureOptions?.Invoke(options);
+
         coreApp.WithReferenceRelationship(frameworkApp.Resource);
 
         coreApp.WithEnvironment(ctx =>
         {
-            ctx.EnvironmentVariables[RemoteUrl] = frameworkApp.Resource.GetEndpoint("https");
+            ctx.EnvironmentVariables[RemoteUrl] = frameworkApp.Resource.GetEndpoint(options.RemoteAppEndpointName);
             ctx.EnvironmentVariables[RemoteApiKey] = apiKey;
 
-            if (remoteSession == RemoteSession.Enabled)
+            if (options.RemoteSession == RemoteSession.Enabled)
             {
                 ctx.EnvironmentVariables[RemoteSessionKey + IsEnabled] = true;
             }
 
-            if (remoteAuthentication != RemoteAuthentication.Disabled)
+            if (options.RemoteAuthentication != RemoteAuthentication.Disabled)
             {
                 ctx.EnvironmentVariables[RemoteAuthKey + IsEnabled] = true;
 
-                if (remoteAuthentication == RemoteAuthentication.DefaultScheme)
+                if (options.RemoteAuthentication == RemoteAuthentication.DefaultScheme)
                 {
                     ctx.EnvironmentVariables[RemoteAuthIsDefaultScheme] = true;
                 }
@@ -52,12 +54,12 @@ public static class IncrementalMigrationResourceExtensions
 
             ctx.EnvironmentVariables[ProxyKeyIsEnabled] = true;
 
-            if (remoteSession == RemoteSession.Enabled)
+            if (options.RemoteSession == RemoteSession.Enabled)
             {
                 ctx.EnvironmentVariables[RemoteSessionKey + IsEnabled] = true;
             }
 
-            if (remoteAuthentication != RemoteAuthentication.Disabled)
+            if (options.RemoteAuthentication != RemoteAuthentication.Disabled)
             {
                 ctx.EnvironmentVariables[RemoteAuthKey + IsEnabled] = true;
             }

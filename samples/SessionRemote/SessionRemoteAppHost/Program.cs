@@ -11,6 +11,6 @@ var frameworkApp = builder.AddIISExpress("iis")
 var coreApp = builder.AddProject<Projects.SessionRemoteCore>("core")
     .WithHttpHealthCheck()
     .WaitFor(frameworkApp)
-    .WithIncrementalMigrationFallback(frameworkApp, remoteSession: RemoteSession.Enabled);
+    .WithIncrementalMigrationFallback(frameworkApp, options => options.RemoteSession = RemoteSession.Enabled);
 
 builder.Build().Run();

@@ -19,6 +19,6 @@ var frameworkApp = builder.AddIISExpress("iis")
 var coreApp = builder.AddProject<Projects.AuthRemoteIdentityCore>("core")
     .WithHttpHealthCheck()
     .WaitFor(frameworkApp)
-    .WithIncrementalMigrationFallback(frameworkApp, remoteAuthentication: RemoteAuthentication.DefaultScheme);
+    .WithIncrementalMigrationFallback(frameworkApp, options => options.RemoteAuthentication = RemoteAuthentication.DefaultScheme);
 
 builder.Build().Run();
