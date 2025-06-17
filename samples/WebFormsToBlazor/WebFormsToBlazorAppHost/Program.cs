@@ -1,18 +1,16 @@
-var builder = DistributedApplication.CreateBuilder(args);
+using Microsoft.AspNetCore.SystemWebAdapters.Aspire;
 
-var remoteApiKey = builder.AddParameter("apiKey", Guid.NewGuid().ToString(), secret: true);
+var builder = DistributedApplication.CreateBuilder(args);
 
 var frameworkApp = builder.AddIISExpress("iis")
     .AddSiteProject<Projects.WebFormsToBlazorFramework>("framework")
     .WithDefaultIISExpressEndpoints()
     .WithOtlpExporter()
-    .WithEnvironment("RemoteApp__ApiKey", remoteApiKey)
     .WithHttpHealthCheck();
 
 var coreApp = builder.AddProject<Projects.WebFormsToBlazorCore>("core")
-    .WithEnvironment("RemoteApp__ApiKey", remoteApiKey)
-    .WithEnvironment("RemoteApp__Url", frameworkApp.GetEndpoint("https"))
     .WithHttpHealthCheck()
-    .WaitFor(frameworkApp);
+    .WaitFor(frameworkApp)
+    .WithIncrementalMigrationFallback(frameworkApp, remoteSession: RemoteSession.Enabled);
 
 builder.Build().Run();

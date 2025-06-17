@@ -9,14 +9,42 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
+using static Microsoft.AspNetCore.SystemWebAdapters.AspireConstants;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static class SystemWebAdaptersExtensions
 {
+    public static ISystemWebAdapterBuilder AddSystemWebAdapters(this WebApplicationBuilder builder)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+
+        var config = builder.Configuration;
+        var adapters = builder.Services.AddSystemWebAdapters();
+
+        if (config.GetValue<string>(RemoteApiKey) is { })
+        {
+            var remoteConfig = adapters.AddRemoteAppClient(config.GetSection(RemoteKey).Bind);
+
+            if (config.GetValue<bool>(RemoteSessionKey + IsEnabled))
+            {
+                remoteConfig.AddSessionClient(config.GetSection(RemoteSessionKey).Bind);
+            }
+
+            if (config.GetValue<bool>(RemoteAuthKey + IsEnabled))
+            {
+                remoteConfig.AddAuthenticationClient(config.GetValue<bool>(RemoteAuthIsDefaultScheme), config.GetSection(RemoteAuthKey).Bind);
+            }
+        }
+
+        return adapters;
+    }
+
     public static ISystemWebAdapterBuilder AddSystemWebAdapters(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();

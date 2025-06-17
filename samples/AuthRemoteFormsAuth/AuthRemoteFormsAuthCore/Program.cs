@@ -1,20 +1,11 @@
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+builder.AddSystemWebAdapters();
 
 builder.Services.AddReverseProxy();
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
-
-// Add System.Web adapter services, including registering remote app authentication
-builder.Services.AddSystemWebAdapters()
-    .AddRemoteAppClient(options =>
-    {
-        options.RemoteAppUrl = new(builder.Configuration["RemoteApp:Url"]!);
-        options.ApiKey = builder.Configuration["RemoteApp:ApiKey"]!;
-    })
-    .AddAuthenticationClient(true);
 
 var app = builder.Build();
 
@@ -40,13 +31,8 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Configure the reverse proxy to forward all unhandled requests to the remote app
-app.MapForwarder("/{**catch-all}", app.Configuration["RemoteApp:Url"]!)
+app.MapDefaultEndpoints();
 
-    // If there is a route locally, we want to ensure that is used by default, but otherwise we'll forward
-    .WithOrder(int.MaxValue)
-
-    // If we're going to forward the request, there is no need to run any of the middleware after routing
-    .ShortCircuit();
+app.MapRemoteAppFallback();
 
 app.Run();

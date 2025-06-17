@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters.Aspire\Microsoft.AspNetCore.SystemWebAdapters.Aspire.csproj" IsAspireProjectResource="false" />
     <ProjectReference Include="..\AuthRemoteIdentityCore\AuthRemoteIdentityCore.csproj" />
     <ProjectReference Include="..\AuthRemoteIdentityFramework\AuthRemoteIdentityFramework.csproj" />
   </ItemGroup>

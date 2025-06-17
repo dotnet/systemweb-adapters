@@ -21,6 +21,7 @@
 
     <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+    <PackageReference Include="Yarp.ReverseProxy" />
 
     <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.CoreServices\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.csproj" />
 

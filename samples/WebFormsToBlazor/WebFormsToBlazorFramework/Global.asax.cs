@@ -17,15 +17,12 @@ namespace WebFormsFramework
             {
                 builder.AddServiceDefaults();
 
-                builder.Services.AddSystemAdapters()
+                builder.AddSystemWebAdapters()
                     .AddVirtualizedContentDirectories()
-                    .AddProxySupport(options => options.UseForwardedHeaders = true)
                     .AddJsonSessionSerializer(options =>
                     {
                         options.RegisterKey<string>("test-value");
-                    })
-                    .AddRemoteAppServer(builder.Configuration.GetSection("RemoteApp").Bind)
-                    .AddSessionServer();
+                    });
             });
 
             // Code that runs on application startup
