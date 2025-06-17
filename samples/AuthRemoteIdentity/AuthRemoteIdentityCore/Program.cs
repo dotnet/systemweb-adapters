@@ -17,6 +17,7 @@ using Yarp.ReverseProxy.Transforms;
 var builder = WebApplication.CreateBuilder();
 
 builder.AddServiceDefaults();
+builder.AddSystemWebAdapters();
 
 // These must match the data protection settings in MvcApp Startup.Auth.cs for cookie sharing to work
 var sharedApplicationName = "CommonMvcAppName";
@@ -27,11 +28,8 @@ builder.Services.AddDataProtection()
 builder.Services.AddAuthentication()
     .AddCookie("SharedCookie", options => options.Cookie.Name = ".AspNet.ApplicationCookie");
 
-builder.Services.AddReverseProxy();
-
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.AddSystemWebAdapters();
 
 var app = builder.Build();
 

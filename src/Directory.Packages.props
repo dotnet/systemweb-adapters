@@ -15,5 +15,6 @@
     <PackageVersion Include="System.Runtime.Caching" Version="8.0.0" />
     <PackageVersion Include="System.Security.Principal.Windows" Version="5.0.0" />
     <PackageVersion Include="System.Text.Json" Version="8.0.5" />
+    <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
   </ItemGroup>
 </Project>

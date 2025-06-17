@@ -3,8 +3,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 builder.AddSystemWebAdapters();
 
-builder.Services.AddReverseProxy();
-
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

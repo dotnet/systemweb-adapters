@@ -1,4 +1,4 @@
-namespace Microsoft.AspNetCore.SystemWebAdapters.Aspire;
+namespace Aspire.Hosting;
 
 public class IncrementalMigrationOptions
 {

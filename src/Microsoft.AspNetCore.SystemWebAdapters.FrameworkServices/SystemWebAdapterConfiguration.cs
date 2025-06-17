@@ -56,6 +56,9 @@ public static class SystemWebAdapterConfiguration
         }
     }
 
+    public static ISystemWebAdapterBuilder AddSystemWebAdapters(this IServiceCollection services)
+       => new SystemWebAdapterBuilder(services);
+
     public static ISystemWebAdapterBuilder AddProxySupport(this ISystemWebAdapterBuilder builder, Action<ProxyOptions> configure)
     {
         if (builder is null)

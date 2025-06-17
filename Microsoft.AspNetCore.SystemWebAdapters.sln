@@ -112,7 +112,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthWindowsCore", "samples\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.ServiceDefaults", "samples\ServiceDefaults\Samples.ServiceDefaults.csproj", "{D08809BC-D4C3-F7C8-1C00-151CA8C6E504}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.SystemWebAdapters.Aspire", "src\Microsoft.AspNetCore.SystemWebAdapters.Aspire\Microsoft.AspNetCore.SystemWebAdapters.Aspire.csproj", "{65A176C7-1BF6-4653-925B-13C09F282ABA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspire.Hosting.IncrementalMigration", "src\Aspire.Hosting.IncrementalMigration\Aspire.Hosting.IncrementalMigration.csproj", "{0D10989D-058E-5684-7828-C5A12A0DC0C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspire.Microsoft.AspNetCore.SystemWebAdapters", "src\Aspire.Microsoft.AspNetCore.SystemWebAdapters\Aspire.Microsoft.AspNetCore.SystemWebAdapters.csproj", "{B955861A-DDDE-0D3F-B0AC-3D6CAA95A0A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -248,14 +250,14 @@ Global
 		{D08809BC-D4C3-F7C8-1C00-151CA8C6E504}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D08809BC-D4C3-F7C8-1C00-151CA8C6E504}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D08809BC-D4C3-F7C8-1C00-151CA8C6E504}.Release|Any CPU.Build.0 = Release|Any CPU
-		{65A176C7-1BF6-4653-925B-13C09F282ABA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{65A176C7-1BF6-4653-925B-13C09F282ABA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{65A176C7-1BF6-4653-925B-13C09F282ABA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{65A176C7-1BF6-4653-925B-13C09F282ABA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D08809BC-D4C3-F7C8-1C00-151CA8C6E504}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D08809BC-D4C3-F7C8-1C00-151CA8C6E504}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D08809BC-D4C3-F7C8-1C00-151CA8C6E504}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D08809BC-D4C3-F7C8-1C00-151CA8C6E504}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D10989D-058E-5684-7828-C5A12A0DC0C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D10989D-058E-5684-7828-C5A12A0DC0C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D10989D-058E-5684-7828-C5A12A0DC0C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D10989D-058E-5684-7828-C5A12A0DC0C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B955861A-DDDE-0D3F-B0AC-3D6CAA95A0A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B955861A-DDDE-0D3F-B0AC-3D6CAA95A0A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B955861A-DDDE-0D3F-B0AC-3D6CAA95A0A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B955861A-DDDE-0D3F-B0AC-3D6CAA95A0A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -300,8 +302,8 @@ Global
 		{AC29CA1D-A850-4C29-B27D-C23BAF3D664C} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
 		{64B09008-C9CB-BAEC-2AE1-616E6BE9880B} = {AC29CA1D-A850-4C29-B27D-C23BAF3D664C}
 		{D08809BC-D4C3-F7C8-1C00-151CA8C6E504} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
-		{65A176C7-1BF6-4653-925B-13C09F282ABA} = {F9DB9323-C919-49E8-8F96-B923D2F42E60}
-		{D08809BC-D4C3-F7C8-1C00-151CA8C6E504} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
+		{0D10989D-058E-5684-7828-C5A12A0DC0C2} = {F9DB9323-C919-49E8-8F96-B923D2F42E60}
+		{B955861A-DDDE-0D3F-B0AC-3D6CAA95A0A5} = {F9DB9323-C919-49E8-8F96-B923D2F42E60}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DABA3C65-9D74-4EB6-9B1C-730328710EAD}

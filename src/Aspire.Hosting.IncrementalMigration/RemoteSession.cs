@@ -1,4 +1,4 @@
-namespace Microsoft.AspNetCore.SystemWebAdapters.Aspire;
+namespace Aspire.Hosting;
 
 public enum RemoteSession
 {

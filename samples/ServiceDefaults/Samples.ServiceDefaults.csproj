@@ -21,9 +21,6 @@
 
     <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
-    <PackageReference Include="Yarp.ReverseProxy" />
-
-    <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.CoreServices\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.csproj" />
 
     <Compile Remove="Framework/**/*" />
   </ItemGroup>
@@ -34,7 +31,10 @@
     <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Composite" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" />
-    <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Aspire.Microsoft.AspNetCore.SystemWebAdapters\Aspire.Microsoft.AspNetCore.SystemWebAdapters.csproj" />
   </ItemGroup>
 
 </Project>

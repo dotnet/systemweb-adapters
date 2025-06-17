@@ -4,7 +4,7 @@ using Aspire.Hosting.ApplicationModel;
 
 using static Microsoft.AspNetCore.SystemWebAdapters.AspireConstants;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters.Aspire;
+namespace Aspire.Hosting;
 
 public static class IncrementalMigrationResourceExtensions
 {

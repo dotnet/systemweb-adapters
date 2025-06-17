@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.SystemWebAdapters.Aspire;
-
 var builder = DistributedApplication.CreateBuilder(args);
 
 var frameworkApp = builder.AddIISExpress("iis")
