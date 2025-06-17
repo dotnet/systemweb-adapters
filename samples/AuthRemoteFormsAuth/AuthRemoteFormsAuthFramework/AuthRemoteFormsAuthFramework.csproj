@@ -14,7 +14,7 @@
     <PackageReference Include="Microsoft.Web.Infrastructure" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.Framework\Samples.ServiceDefaults.Framework.csproj" />
+    <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />

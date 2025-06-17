@@ -2,9 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Web;
 using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace System.Web;
 
@@ -12,6 +13,7 @@ public static class SystemWebAdapterConfiguration
 {
     private const string Key = "system-web-adapter";
 
+    [Obsolete("Prefer using HostedHttpApplication instead")]
     public static ISystemWebAdapterBuilder AddSystemWebAdapters(this HttpApplication application)
     {
         if (application is null)
@@ -24,11 +26,9 @@ public static class SystemWebAdapterConfiguration
         {
             if (application.Application[Key] is null)
             {
-                var services = new ServiceCollection();
+                var builder = HttpApplicationHost.CreateBuilder();
 
-                services.AddLogging();
-
-                application.Application[Key] = new SystemWebAdapterBuilder(services);
+                application.Application[Key] = builder;
 
                 // If a service provider has been created, ensure it's disposed at
                 // application shutdown.
@@ -41,9 +41,9 @@ public static class SystemWebAdapterConfiguration
                 };
             }
 
-            if (application.Application[Key] is ISystemWebAdapterBuilder builder)
+            if (application.Application[Key] is HttpApplicationHostBuilder existing)
             {
-                return builder;
+                return existing.Services.AddSystemAdapters();
             }
             else
             {
@@ -75,29 +75,36 @@ public static class SystemWebAdapterConfiguration
         return builder;
     }
 
-    internal static IServiceProvider? GetServiceProvider(this HttpApplicationState state)
+    [Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Lifetime managed with IIS lifecycle")]
+    internal static void EnsureSystemWebAdapterBuilderBuilt(this HttpApplicationState state)
     {
-        if (state[Key] is ISystemWebAdapterBuilder)
+        if (state[Key] is HttpApplicationHostBuilder)
         {
-            Build(state);
+            if (Build(state) is { } builder)
+            {
+                builder.BuildAndRunInBackground();
+            }
         }
-
-        return state[Key] as IServiceProvider;
     }
 
-    private static void Build(HttpApplicationState state)
+    private static HttpApplicationHostBuilder? Build(HttpApplicationState state)
     {
         state.Lock();
         try
         {
-            if (state[Key] is ISystemWebAdapterBuilder builder)
+            if (state[Key] is HttpApplicationHostBuilder builder)
             {
-                state[Key] = builder.Services.BuildServiceProvider();
+                // Set it as a random object so it can be tracked that it was already built
+                state[Key] = new object();
+
+                return builder;
             }
         }
         finally
         {
             state.UnLock();
         }
+
+        return null;
     }
 }

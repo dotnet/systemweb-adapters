@@ -15,6 +15,10 @@ public sealed class AspireFixture<TEntryPoint> : IDisposable, IAsyncDisposable
             var builder = await DistributedApplicationTestingBuilder
                 .CreateAsync<TEntryPoint>();
 
+            // Must set the HTTP endpoint
+            builder.Configuration["ASPIRE_DASHBOARD_OTLP_HTTP_ENDPOINT_URL"] = "https://localhost:21002";
+            builder.Configuration["ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL"] = null;
+
             var app = await builder.BuildAsync();
 
             await app.StartAsync();

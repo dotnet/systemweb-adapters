@@ -16,9 +16,9 @@
     <PackageReference Include="WebGrease" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.Framework\Samples.ServiceDefaults.Framework.csproj" />
+    <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.Configuration" />
+    <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.csproj" />
   </ItemGroup>
 </Project>
