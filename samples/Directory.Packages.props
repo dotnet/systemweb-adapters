@@ -6,7 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Antlr" Version="3.5.0.2" />
-    <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.3.0" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.3.1" />
     <PackageVersion Include="Aspire.Hosting.SqlServer" Version="9.3.0" />
     <PackageVersion Include="AspNet.ScriptManager.bootstrap" Version="5.2.3" />
     <PackageVersion Include="AspNet.ScriptManager.jQuery" Version="3.7.1" />
@@ -61,6 +61,5 @@
     <PackageVersion Include="System.Security.AccessControl" Version="6.0.1" />
     <PackageVersion Include="System.Text.Encodings.Web" Version="8.0.0" />
     <PackageVersion Include="WebGrease" Version="1.6.0" />
-    <PackageVersion Include="Yarp.ReverseProxy" Version="2.2.0" />
   </ItemGroup>
 </Project>

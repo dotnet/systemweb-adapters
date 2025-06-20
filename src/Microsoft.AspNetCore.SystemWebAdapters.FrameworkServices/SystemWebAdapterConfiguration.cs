@@ -13,7 +13,7 @@ public static class SystemWebAdapterConfiguration
 {
     private const string Key = "system-web-adapter";
 
-    [Obsolete("Prefer using HostedHttpApplication instead")]
+    [Obsolete("Prefer using HttpApplicationHost.RegisterHost(...) instead")]
     public static ISystemWebAdapterBuilder AddSystemWebAdapters(this HttpApplication application)
     {
         if (application is null)
@@ -43,7 +43,7 @@ public static class SystemWebAdapterConfiguration
 
             if (application.Application[Key] is HttpApplicationHostBuilder existing)
             {
-                return existing.Services.AddSystemAdapters();
+                return existing.Services.AddSystemWebAdapters();
             }
             else
             {
@@ -55,6 +55,9 @@ public static class SystemWebAdapterConfiguration
             application.Application.UnLock();
         }
     }
+
+    public static ISystemWebAdapterBuilder AddSystemWebAdapters(this IServiceCollection services)
+       => new SystemWebAdapterBuilder(services);
 
     public static ISystemWebAdapterBuilder AddProxySupport(this ISystemWebAdapterBuilder builder, Action<ProxyOptions> configure)
     {

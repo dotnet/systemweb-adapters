@@ -19,11 +19,8 @@ namespace MvcApp
                 builder.AddServiceDefaults();
                 builder.RegisterWebObjectActivator();
 
-                builder.Services.AddSystemAdapters()
-                    .AddVirtualizedContentDirectories()
-                    .AddProxySupport(options => options.UseForwardedHeaders = true)
-                    .AddRemoteAppServer(builder.Configuration.GetSection("RemoteApp").Bind)
-                    .AddAuthenticationServer();
+                builder.AddSystemWebAdapters()
+                    .AddVirtualizedContentDirectories();
             });
 
             AreaRegistration.RegisterAllAreas();

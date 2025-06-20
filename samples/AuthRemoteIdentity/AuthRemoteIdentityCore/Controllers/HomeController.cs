@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 using MvcCoreApp.Models;
 using System.Diagnostics;
 
@@ -24,7 +26,7 @@ namespace MvcCoreApp.Controllers
             return View();
         }
 
-        [Authorize(AuthenticationSchemes = "Remote")]
+        [Authorize(AuthenticationSchemes = RemoteAppAuthenticationDefaults.AuthenticationScheme)]
         public IActionResult UserInfo()
         {
             return View();

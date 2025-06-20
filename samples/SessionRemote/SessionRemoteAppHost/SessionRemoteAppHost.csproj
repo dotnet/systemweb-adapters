@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Aspire.Hosting.IncrementalMigration\Aspire.Hosting.IncrementalMigration.csproj" IsAspireProjectResource="false" />
     <ProjectReference Include="..\SessionRemoteCore\SessionRemoteCore.csproj" />
     <ProjectReference Include="..\SessionRemoteFramework\SessionRemoteFramework.csproj" />
   </ItemGroup>
