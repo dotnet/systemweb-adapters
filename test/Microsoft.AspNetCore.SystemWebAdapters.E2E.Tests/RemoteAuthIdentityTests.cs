@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Aspire.Hosting;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Playwright.Xunit;
@@ -58,15 +59,35 @@ public class RemoteAuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> as
 
     private async Task RegisterUser(string email)
     {
-        const string Password = "1qaz!QAZ";
+        var password = CreatePassword();
 
         // Create the user
         await Page.Locator("text=Register").ClickAsync();
         await Page.Locator("input[name=Email]").FillAsync(email);
-        await Page.Locator("input[name=Password]").FillAsync(Password);
-        await Page.Locator("input[name=ConfirmPassword]").FillAsync(Password);
+        await Page.Locator("input[name=Password]").FillAsync(password);
+        await Page.Locator("input[name=ConfirmPassword]").FillAsync(password);
         await Page.Locator(@"input:has-text(""Register"")").ClickAsync();
         await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync();
+
+        // Passwords must have at least 8 characters with lower, upper, numbers, and symbols
+        static string CreatePassword()
+        {
+            var lower = "abcdefghijklmnopqrstuvwxyz";
+            var upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            var numbers = "0123456789";
+            var symbols = "!@#$%^&*()";
+
+            Span<char> str = stackalloc char[8];
+
+            RandomNumberGenerator.GetItems(lower, str.Slice(0, 2));
+            RandomNumberGenerator.GetItems(upper, str.Slice(2, 2));
+            RandomNumberGenerator.GetItems(numbers, str.Slice(4, 2));
+            RandomNumberGenerator.GetItems(symbols, str.Slice(6, 2));
+
+            RandomNumberGenerator.Shuffle(str);
+
+            return new string(str);
+        }
     }
 
     private async ValueTask<string> GetAspNetCoreEndpoint()
