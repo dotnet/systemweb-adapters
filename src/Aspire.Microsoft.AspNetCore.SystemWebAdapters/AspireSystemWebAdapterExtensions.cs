@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-
 #if NET
 using Microsoft.AspNetCore.Builder;
 #else
