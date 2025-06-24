@@ -49,11 +49,15 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .RequireSystemWebAdapterSession();
 
-app.MapRemoteAppFallback("/Scripts/{**catch-all}");
-app.MapRemoteAppFallback("/Content/{**catch-all}");
-app.MapRemoteAppFallback("/bundles/{**catch-all}");
-app.MapRemoteAppFallback("/About");
-app.MapRemoteAppFallback("/Contact");
-app.MapRemoteAppFallback("/{route:isAxdFile}");
+var fallback = app.MapGroup("");
+
+fallback.ShortCircuit();
+
+fallback.MapRemoteAppFallback("/Scripts/{**catch-all}");
+fallback.MapRemoteAppFallback("/Content/{**catch-all}");
+fallback.MapRemoteAppFallback("/bundles/{**catch-all}");
+fallback.MapRemoteAppFallback("/About");
+fallback.MapRemoteAppFallback("/Contact");
+fallback.MapRemoteAppFallback("/{route:isAxdFile}");
 
 app.Run();

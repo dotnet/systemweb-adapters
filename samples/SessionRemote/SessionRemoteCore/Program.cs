@@ -35,6 +35,7 @@ app.Map("/", (HttpContext context) =>
     return session.Cast<string>().Select(key => new { Key = key, Value = session[key] });
 }).RequireSystemWebAdapterSession();
 
-app.MapRemoteAppFallback();
+app.MapRemoteAppFallback()
+    .ShortCircuit();
 
 app.Run();

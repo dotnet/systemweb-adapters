@@ -53,6 +53,7 @@ app.UseSystemWebAdapters();
 
 app.MapDefaultControllerRoute();
 
-app.MapRemoteAppFallback();
+app.MapRemoteAppFallback()
+    .ShortCircuit();
 
 app.Run();

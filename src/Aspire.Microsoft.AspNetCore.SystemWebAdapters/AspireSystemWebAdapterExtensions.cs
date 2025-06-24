@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+
 
 #if NET
 using Microsoft.AspNetCore.Builder;
@@ -75,22 +74,5 @@ public static class AspireSystemWebAdaptersExtensions
 
         return adapters;
     }
-
-#if NET
-    public static IEndpointConventionBuilder MapRemoteAppFallback(this WebApplication app, [StringSyntax("Route")] string? pattern = "/{**catch-all}")
-    {
-        ArgumentNullException.ThrowIfNull(app);
-        ArgumentNullException.ThrowIfNull(pattern);
-
-        var url = app.Services.GetRequiredService<IOptions<RemoteAppClientOptions>>().Value.RemoteAppUrl.OriginalString;
-
-        return app.MapForwarder(pattern, url)
-
-            // If there is a route locally, we want to ensure that is used by default, but otherwise we'll forward
-            .WithOrder(int.MaxValue)
-
-            // If we're going to forward the request, there is no need to run any of the middleware after routing
-            .ShortCircuit();
-    }
-#endif
 }
+

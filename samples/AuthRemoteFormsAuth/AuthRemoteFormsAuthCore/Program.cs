@@ -31,6 +31,7 @@ app.MapControllerRoute(
 
 app.MapDefaultEndpoints();
 
-app.MapRemoteAppFallback();
+app.MapRemoteAppFallback()
+    .ShortCircuit();
 
 app.Run();

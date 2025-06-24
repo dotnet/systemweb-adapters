@@ -11,7 +11,7 @@ public static class IncrementalMigrationResourceExtensions
     public static IResourceBuilder<TCore> WithIncrementalMigrationFallback<TCore, TFramework>(
         this IResourceBuilder<TCore> coreApp,
         IResourceBuilder<TFramework> frameworkApp,
-        Action<IncrementalMigrationOptions> configureOptions,
+        Action<IncrementalMigrationOptions>? configureOptions = null,
         IResourceBuilder<ParameterResource>? apiKey = null
         )
         where TCore : IResourceWithEnvironment
