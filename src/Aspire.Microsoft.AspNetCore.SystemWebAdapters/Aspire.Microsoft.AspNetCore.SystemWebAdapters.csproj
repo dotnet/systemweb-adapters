@@ -4,6 +4,8 @@
     <TargetFrameworks>net8.0;net472</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
   
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0'">
