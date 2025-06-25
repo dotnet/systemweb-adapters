@@ -7,6 +7,10 @@ using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Options;
+
+
 
 #if NET
 using Microsoft.AspNetCore.Builder;
@@ -126,13 +130,13 @@ public static class SampleServiceExtensions
         if (app.Environment.IsDevelopment())
         {
             // All health checks must pass for app to be considered ready to accept traffic after starting
-            app.MapHealthChecks("/health");
+            app.MapHealthChecks("/health").ShortCircuit();
 
             // Only health checks tagged with the "live" tag must pass for app to be considered alive
             app.MapHealthChecks("/alive", new HealthCheckOptions
             {
                 Predicate = r => r.Tags.Contains("live")
-            });
+            }).ShortCircuit();
         }
 
         return app;

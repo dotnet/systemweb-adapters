@@ -17,6 +17,7 @@ using Yarp.ReverseProxy.Transforms;
 var builder = WebApplication.CreateBuilder();
 
 builder.AddServiceDefaults();
+builder.AddSystemWebAdapters();
 
 // These must match the data protection settings in MvcApp Startup.Auth.cs for cookie sharing to work
 var sharedApplicationName = "CommonMvcAppName";
@@ -27,17 +28,8 @@ builder.Services.AddDataProtection()
 builder.Services.AddAuthentication()
     .AddCookie("SharedCookie", options => options.Cookie.Name = ".AspNet.ApplicationCookie");
 
-builder.Services.AddReverseProxy();
-
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddSystemWebAdapters()
-    .AddRemoteAppClient(options =>
-    {
-        options.RemoteAppUrl = new(builder.Configuration["RemoteApp:Url"]!);
-        options.ApiKey = builder.Configuration["RemoteApp:ApiKey"]!;
-    })
-    .AddAuthenticationClient(true);
 
 var app = builder.Build();
 
@@ -61,13 +53,7 @@ app.UseSystemWebAdapters();
 
 app.MapDefaultControllerRoute();
 
-// Configure the the reverse proxy to forward all unhandled requests to the remote app
-app.MapForwarder("/{**catch-all}", app.Configuration["RemoteApp:Url"]!)
-
-    // If there is a route locally, we want to ensure that is used by default, but otherwise we'll forward
-    .WithOrder(int.MaxValue)
-
-    // If we're going to forward the request, there is no need to run any of the middleware after routing
+app.MapRemoteAppFallback()
     .ShortCircuit();
 
 app.Run();

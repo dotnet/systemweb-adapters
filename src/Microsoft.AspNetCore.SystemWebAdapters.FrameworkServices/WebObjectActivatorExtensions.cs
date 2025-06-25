@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Reflection;
-using System.Web;
-using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace System.Web;
 
-public static partial class SystemWebAdapterExtensions
+public static partial class WebObjectActivatorExtensions
 {
     public static HttpApplicationHostBuilder RegisterWebObjectActivator(this HttpApplicationHostBuilder builder)
     {
@@ -25,9 +23,6 @@ public static partial class SystemWebAdapterExtensions
         return builder;
     }
 
-    public static ISystemWebAdapterBuilder AddSystemAdapters(this IServiceCollection services)
-       => new SystemWebAdapterBuilder(services);
-
     private sealed partial class WebObjectActivatorHostServices : IServiceProvider, IHostedService
     {
         private const string ErrorMessage = "WebObjectActivator is already set and will not be overridden";
@@ -36,11 +31,6 @@ public static partial class SystemWebAdapterExtensions
 
         public WebObjectActivatorHostServices(IServiceProvider services)
         {
-            if (HttpRuntime.WebObjectActivator is { })
-            {
-                throw new InvalidOperationException("HttpRuntime.WebObjectActivator is already configured");
-            }
-
             _services = services;
         }
 

@@ -5,10 +5,7 @@ using Microsoft.AspNetCore.SystemWebAdapters.Features;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
-
-builder.Services.AddReverseProxy();
-
-builder.Services.AddSystemWebAdapters()
+builder.AddSystemWebAdapters()
     .AddSessionSerializer(options =>
     {
         options.ThrowOnUnknownSessionKey = false;
@@ -16,13 +13,7 @@ builder.Services.AddSystemWebAdapters()
     .AddJsonSessionSerializer(options =>
     {
         options.RegisterKey<int>("CoreCount");
-    })
-    .AddRemoteAppClient(options =>
-    {
-        options.ApiKey = builder.Configuration["RemoteApp:ApiKey"]!;
-        options.RemoteAppUrl = new(builder.Configuration["RemoteApp:Url"]);
-    })
-    .AddSessionClient();
+    });
 
 var app = builder.Build();
 
@@ -44,13 +35,7 @@ app.Map("/", (HttpContext context) =>
     return session.Cast<string>().Select(key => new { Key = key, Value = session[key] });
 }).RequireSystemWebAdapterSession();
 
-// Configure the the reverse proxy to forward all unhandled requests to the remote app
-app.MapForwarder("/{**catch-all}", app.Configuration["RemoteApp:Url"]!)
-
-    // If there is a route locally, we want to ensure that is used by default, but otherwise we'll forward
-    .WithOrder(int.MaxValue)
-
-    // If we're going to forward the request, there is no need to run any of the middleware after routing
+app.MapRemoteAppFallback()
     .ShortCircuit();
 
 app.Run();
