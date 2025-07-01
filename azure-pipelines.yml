@@ -128,88 +128,90 @@ extends:
                 artifactName: Logs_$(Agent.Os)_$(Agent.JobName)
                 path: '$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)'
 
-          - job: macOS
-            pool:
-              name: Azure Pipelines
-              image: macOS-latest
-              os: macOS
-            strategy:
-              matrix:
-                release:
-                  _BuildConfig: Release
-            variables:
-            - name: _HelixBuildConfig
-              value: $(_BuildConfig)
-            steps:
-            - script: eng/common/cibuild.sh
-                --configuration $(_BuildConfig)
-                --prepareMachine
-              name: Build
-              displayName: Build
-              condition: succeeded()
-            - task: PowerShell@2
-              inputs:
-                filePath: update_apis.ps1
-                argument: -c $(_BuildConfig)
-              name: VerifyTypeForwardsRef
-              displayName: Verify TypeForwards/Reference assembly
-              condition: succeeded()
-            - task: PublishTestResults@2
-              displayName: Publish xUnit Test Results
-              condition: always()
-              continueOnError: true
-              inputs:
-                testRunner: xunit
-                testResultsFiles: 'artifacts/TestResults/$(_BuildConfig)/*.xml'
-            - task: 1ES.PublishPipelineArtifact@1
-              displayName: Publish Logs
-              condition: always()
-              continueOnError: true
-              inputs:
-                artifactName: Logs_$(Agent.Os)_$(Agent.JobName)
-                path: '$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)'
+          - ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+            - job: macOS
+              pool:
+                name: Azure Pipelines
+                image: macOS-latest
+                os: macOS
+              strategy:
+                matrix:
+                  release:
+                    _BuildConfig: Release
+              variables:
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              steps:
+              - script: eng/common/cibuild.sh
+                  --configuration $(_BuildConfig)
+                  --prepareMachine
+                name: Build
+                displayName: Build
+                condition: succeeded()
+              - task: PowerShell@2
+                inputs:
+                  filePath: update_apis.ps1
+                  argument: -c $(_BuildConfig)
+                name: VerifyTypeForwardsRef
+                displayName: Verify TypeForwards/Reference assembly
+                condition: succeeded()
+              - task: PublishTestResults@2
+                displayName: Publish xUnit Test Results
+                condition: always()
+                continueOnError: true
+                inputs:
+                  testRunner: xunit
+                  testResultsFiles: 'artifacts/TestResults/$(_BuildConfig)/*.xml'
+              - task: 1ES.PublishPipelineArtifact@1
+                displayName: Publish Logs
+                condition: always()
+                continueOnError: true
+                inputs:
+                  artifactName: Logs_$(Agent.Os)_$(Agent.JobName)
+                  path: '$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)'
 
-          - job: Linux
-            pool:
-              name: NetCore1ESPool-Internal
-              image: 1es-mariner-2
-              container: LinuxContainer
-              os: linux
-            strategy:
-              matrix:
-                release:
-                  _BuildConfig: Release
-            variables:
-            - name: _HelixBuildConfig
-              value: $(_BuildConfig)
-            steps:
-            - script: eng/common/cibuild.sh
-                --configuration $(_BuildConfig)
-                --prepareMachine
-              name: Build
-              displayName: Build
-              condition: succeeded()
-            - task: PowerShell@2
-              inputs:
-                filePath: update_apis.ps1
-                argument: -c $(_BuildConfig)
-              name: VerifyTypeForwardsRef
-              displayName: Verify TypeForwards/Reference assembly
-              condition: succeeded()
-            - task: PublishTestResults@2
-              displayName: Publish xUnit Test Results
-              condition: always()
-              continueOnError: true
-              inputs:
-                testRunner: xunit
-                testResultsFiles: 'artifacts/TestResults/$(_BuildConfig)/*.xml'
-            - task: 1ES.PublishPipelineArtifact@1
-              displayName: Publish Logs
-              condition: always()
-              continueOnError: true
-              inputs:
-                artifactName: Logs_$(Agent.Os)_$(Agent.JobName)
-                path: '$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)'
+          - ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+            - job: Linux
+              pool:
+                name: NetCore1ESPool-Internal
+                image: 1es-mariner-2
+                container: LinuxContainer
+                os: linux
+              strategy:
+                matrix:
+                  release:
+                    _BuildConfig: Release
+              variables:
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              steps:
+              - script: eng/common/cibuild.sh
+                  --configuration $(_BuildConfig)
+                  --prepareMachine
+                name: Build
+                displayName: Build
+                condition: succeeded()
+              - task: PowerShell@2
+                inputs:
+                  filePath: update_apis.ps1
+                  argument: -c $(_BuildConfig)
+                name: VerifyTypeForwardsRef
+                displayName: Verify TypeForwards/Reference assembly
+                condition: succeeded()
+              - task: PublishTestResults@2
+                displayName: Publish xUnit Test Results
+                condition: always()
+                continueOnError: true
+                inputs:
+                  testRunner: xunit
+                  testResultsFiles: 'artifacts/TestResults/$(_BuildConfig)/*.xml'
+              - task: 1ES.PublishPipelineArtifact@1
+                displayName: Publish Logs
+                condition: always()
+                continueOnError: true
+                inputs:
+                  artifactName: Logs_$(Agent.Os)_$(Agent.JobName)
+                  path: '$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)'
 
     - ${{ if notin(variables['Build.Reason'], 'PullRequest') }}:
       - template: eng\common\templates-official\post-build\post-build.yml@self
