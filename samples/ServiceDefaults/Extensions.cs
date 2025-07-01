@@ -1,12 +1,22 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+
+using System.Net.Http;
+using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.ServiceDiscovery;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Options;
+
+
+
+#if NET
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.ServiceDiscovery;
+#endif
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -21,15 +31,19 @@ public static class SampleServiceExtensions
 
         builder.AddDefaultHealthChecks();
 
+#if NET
         builder.Services.AddServiceDiscovery();
+#endif
 
         builder.Services.ConfigureHttpClientDefaults(http =>
         {
             // Turn on resilience by default
             http.AddStandardResilienceHandler();
 
+#if NET
             // Turn on service discovery by default
             http.AddServiceDiscovery();
+#endif
         });
 
         // Uncomment the following to restrict the allowed schemes for service discovery.
@@ -52,16 +66,25 @@ public static class SampleServiceExtensions
         builder.Services.AddOpenTelemetry()
             .WithMetrics(metrics =>
             {
-                metrics.AddAspNetCoreInstrumentation()
+                metrics
+#if NET
+                    .AddAspNetCoreInstrumentation()
+#else
+                    .AddAspNetInstrumentation()
+#endif
+                    .AddSqlClientInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation();
             })
             .WithTracing(tracing =>
             {
                 tracing.AddSource(builder.Environment.ApplicationName)
+#if NET
                     .AddAspNetCoreInstrumentation()
-                    // Uncomment the following line to enable gRPC instrumentation (requires the OpenTelemetry.Instrumentation.GrpcNetClient package)
-                    //.AddGrpcClientInstrumentation()
+#else
+                    .AddAspNetInstrumentation()
+#endif
+                    .AddSqlClientInstrumentation()
                     .AddHttpClientInstrumentation();
             });
 
@@ -72,7 +95,8 @@ public static class SampleServiceExtensions
 
     private static TBuilder AddOpenTelemetryExporters<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
-        var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+        var otlpEndpoint = builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
+        var useOtlpExporter = !string.IsNullOrWhiteSpace(otlpEndpoint);
 
         if (useOtlpExporter)
         {
@@ -98,6 +122,7 @@ public static class SampleServiceExtensions
         return builder;
     }
 
+#if NET
     public static WebApplication MapDefaultEndpoints(this WebApplication app)
     {
         // Adding health checks endpoints to applications in non-development environments has security implications.
@@ -105,15 +130,16 @@ public static class SampleServiceExtensions
         if (app.Environment.IsDevelopment())
         {
             // All health checks must pass for app to be considered ready to accept traffic after starting
-            app.MapHealthChecks("/health");
+            app.MapHealthChecks("/health").ShortCircuit();
 
             // Only health checks tagged with the "live" tag must pass for app to be considered alive
             app.MapHealthChecks("/alive", new HealthCheckOptions
             {
                 Predicate = r => r.Tags.Contains("live")
-            });
+            }).ShortCircuit();
         }
 
         return app;
     }
+#endif
 }

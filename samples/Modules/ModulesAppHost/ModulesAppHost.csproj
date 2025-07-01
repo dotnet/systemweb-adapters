@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Aspire.Hosting.IncrementalMigration\Aspire.Hosting.IncrementalMigration.csproj" IsAspireProjectResource="false" />
     <ProjectReference Include="../ModulesCore/ModulesCore.csproj" />
     <ProjectReference Include="../ModulesFramework/ModulesFramework.csproj" />
   </ItemGroup>

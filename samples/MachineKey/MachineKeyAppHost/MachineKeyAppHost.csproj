@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Aspire.Hosting.IncrementalMigration\Aspire.Hosting.IncrementalMigration.csproj" IsAspireProjectResource="false" />
     <ProjectReference Include="../MachineKeyCore/MachineKeyCore.csproj" />
     <ProjectReference Include="../MachineKeyFramework/MachineKeyFramework.csproj" />
   </ItemGroup>

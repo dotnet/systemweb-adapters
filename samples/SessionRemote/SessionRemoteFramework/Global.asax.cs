@@ -2,6 +2,10 @@ using System;
 using System.Configuration;
 using System.Web;
 using System.Web.Routing;
+using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace RemoteSessionFramework
 {
@@ -9,19 +13,15 @@ namespace RemoteSessionFramework
     {
         protected void Application_Start()
         {
-            SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
-                .AddProxySupport(options => options.UseForwardedHeaders = true)
-                .AddSessionSerializer(options =>
-                {
-                })
-                .AddJsonSessionSerializer(options =>
-                {
-                    options.RegisterKey<int>("CoreCount");
-                })
-                .AddRemoteAppServer(options => options.ApiKey = ConfigurationManager.AppSettings["RemoteApp__ApiKey"])
-                .AddSessionServer(options =>
-                {
-                });
+            HttpApplicationHost.RegisterHost(builder =>
+            {
+                builder.AddServiceDefaults();
+                builder.AddSystemWebAdapters()
+                    .AddJsonSessionSerializer(options =>
+                    {
+                        options.RegisterKey<int>("CoreCount");
+                    });
+            });
         }
 
         protected void Application_PostAcquireRequestState(object sender, EventArgs e)
