@@ -6,6 +6,8 @@
       "src\\Microsoft.AspNetCore.SystemWebAdapters.CoreServices\\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.csproj",
       "src\\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices\\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.csproj",
       "src\\Microsoft.AspNetCore.SystemWebAdapters\\Microsoft.AspNetCore.SystemWebAdapters.csproj",
+      "src\\Aspire.Hosting.IncrementalMigration\\Aspire.Hosting.IncrementalMigration.csproj",
+      "src\\Aspire.Microsoft.AspNetCore.SystemWebAdapters\\Aspire.Microsoft.AspNetCore.SystemWebAdapters.csproj",
       "test\\Microsoft.AspNetCore.SystemWebAdapters.Apis.Tests\\Microsoft.AspNetCore.SystemWebAdapters.Apis.Tests.csproj",
       "test\\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests\\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests.csproj",
       "test\\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.Tests\\Microsoft.AspNetCore.SystemWebAdapters.FrameworkServices.Tests.csproj",
