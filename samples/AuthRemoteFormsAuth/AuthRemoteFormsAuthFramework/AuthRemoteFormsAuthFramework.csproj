@@ -1,6 +1,6 @@
 <Project Sdk="MSBuild.SDK.SystemWeb">
   <PropertyGroup>
-    <TargetFramework>net481</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Antlr" />

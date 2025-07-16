@@ -8,63 +8,106 @@ namespace Aspire.Hosting;
 
 public static class IncrementalMigrationResourceExtensions
 {
-    public static IResourceBuilder<TCore> WithIncrementalMigrationFallback<TCore, TFramework>(
-        this IResourceBuilder<TCore> coreApp,
+    public static IResourceBuilder<IncrementalMigration> AddIncrementalMigrationFallback<TCore, TFramework>(
+        this IDistributedApplicationBuilder builder,
+        IResourceBuilder<TCore> coreApp,
         IResourceBuilder<TFramework> frameworkApp,
-        Action<IncrementalMigrationOptions>? configureOptions = null,
+        IResourceBuilder<ParameterResource>? apiKey = null
+        )
+        where TCore : IResourceWithEnvironment
+        where TFramework : IResourceWithEnvironment, IResourceWithEndpoints
+        => builder.AddIncrementalMigrationFallback(DefaultIncrementalServiceName, coreApp, frameworkApp, apiKey);
+
+    public static IResourceBuilder<IncrementalMigration> AddIncrementalMigrationFallback<TCore, TFramework>(
+        this IDistributedApplicationBuilder builder,
+        string name,
+        IResourceBuilder<TCore> coreApp,
+        IResourceBuilder<TFramework> frameworkApp,
         IResourceBuilder<ParameterResource>? apiKey = null
         )
         where TCore : IResourceWithEnvironment
         where TFramework : IResourceWithEnvironment, IResourceWithEndpoints
     {
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentNullException.ThrowIfNull(coreApp);
         ArgumentNullException.ThrowIfNull(frameworkApp);
 
-        apiKey ??= coreApp.ApplicationBuilder.AddParameter($"{coreApp.Resource.Name}-{frameworkApp.Resource.Name}-remoteapp-apiKey", () => Guid.NewGuid().ToString(), secret: true);
+        var incrementalMigration = new IncrementalMigration(name);
 
-        var options = new IncrementalMigrationOptions();
-        configureOptions?.Invoke(options);
+        apiKey ??= coreApp.ApplicationBuilder.AddParameter($"{name}-IncrementalMigration-ApiKey", () => Guid.NewGuid().ToString(), secret: true);
 
         coreApp.WithReferenceRelationship(frameworkApp.Resource);
 
         coreApp.WithEnvironment(ctx =>
         {
-            ctx.EnvironmentVariables[RemoteUrl] = frameworkApp.Resource.GetEndpoint(options.RemoteAppEndpointName);
-            ctx.EnvironmentVariables[RemoteApiKey] = apiKey;
+            ctx.EnvironmentVariables[GetKey(name, RemoteUrl)] = frameworkApp.Resource.GetEndpoint(incrementalMigration.RemoteAppEndpointName);
+            ctx.EnvironmentVariables[GetKey(name, RemoteApiKey)] = apiKey;
 
-            if (options.RemoteSession == RemoteSession.Enabled)
+            if (incrementalMigration.RemoteSession == RemoteSession.Enabled)
             {
-                ctx.EnvironmentVariables[RemoteSessionKey + IsEnabled] = true;
+                ctx.EnvironmentVariables[GetKey(name, RemoteSessionKey + IsEnabled)] = true;
             }
 
-            if (options.RemoteAuthentication != RemoteAuthentication.Disabled)
+            if (incrementalMigration.RemoteAuthentication != RemoteAuthentication.Disabled)
             {
-                ctx.EnvironmentVariables[RemoteAuthKey + IsEnabled] = true;
+                ctx.EnvironmentVariables[GetKey(name, RemoteAuthKey + IsEnabled)] = true;
 
-                if (options.RemoteAuthentication == RemoteAuthentication.DefaultScheme)
+                if (incrementalMigration.RemoteAuthentication == RemoteAuthentication.DefaultScheme)
                 {
-                    ctx.EnvironmentVariables[RemoteAuthIsDefaultScheme] = true;
+                    ctx.EnvironmentVariables[GetKey(name, RemoteAuthIsDefaultScheme)] = true;
                 }
             }
         });
 
         frameworkApp.WithEnvironment(ctx =>
         {
-            ctx.EnvironmentVariables[RemoteApiKey] = apiKey;
+            ctx.EnvironmentVariables[GetKey(name, RemoteApiKey)] = apiKey;
 
-            ctx.EnvironmentVariables[ProxyKeyIsEnabled] = true;
+            ctx.EnvironmentVariables[GetKey(name, ProxyKeyIsEnabled)] = true;
 
-            if (options.RemoteSession == RemoteSession.Enabled)
+            if (incrementalMigration.RemoteSession == RemoteSession.Enabled)
             {
-                ctx.EnvironmentVariables[RemoteSessionKey + IsEnabled] = true;
+                ctx.EnvironmentVariables[GetKey(name, RemoteSessionKey + IsEnabled)] = true;
             }
 
-            if (options.RemoteAuthentication != RemoteAuthentication.Disabled)
+            if (incrementalMigration.RemoteAuthentication != RemoteAuthentication.Disabled)
             {
-                ctx.EnvironmentVariables[RemoteAuthKey + IsEnabled] = true;
+                ctx.EnvironmentVariables[GetKey(name, RemoteAuthKey + IsEnabled)] = true;
             }
         });
 
-        return coreApp;
+        return builder.AddResource(incrementalMigration)
+            .WithInitialState(new()
+            {
+                Properties = [],
+                ResourceType = "IncrementalMigration",
+                IsHidden = true,
+            });
+    }
+
+    public static IResourceBuilder<IncrementalMigration> WithSession(this IResourceBuilder<IncrementalMigration> incrementalMigration, RemoteSession mode = RemoteSession.Enabled)
+    {
+        ArgumentNullException.ThrowIfNull(incrementalMigration);
+        incrementalMigration.Resource.RemoteSession = mode;
+        return incrementalMigration;
+    }
+
+    public static IResourceBuilder<IncrementalMigration> WithAuthentication(
+        this IResourceBuilder<IncrementalMigration> incrementalMigration,
+        RemoteAuthentication mode = RemoteAuthentication.Enabled)
+    {
+        ArgumentNullException.ThrowIfNull(incrementalMigration);
+        incrementalMigration.Resource.RemoteAuthentication = mode;
+        return incrementalMigration;
+    }
+
+    public static IResourceBuilder<IncrementalMigration> WithEndpointName(
+        this IResourceBuilder<IncrementalMigration> incrementalMigration,
+        string endpointName)
+    {
+        ArgumentNullException.ThrowIfNull(incrementalMigration);
+        incrementalMigration.Resource.RemoteAppEndpointName = endpointName;
+        return incrementalMigration;
     }
 }

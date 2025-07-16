@@ -8,7 +8,9 @@ var frameworkApp = builder.AddIISExpress("iis")
 
 var coreApp = builder.AddProject<Projects.WebFormsToBlazorCore>("core")
     .WithHttpHealthCheck()
-    .WaitFor(frameworkApp)
-    .WithIncrementalMigrationFallback(frameworkApp, options => options.RemoteSession = RemoteSession.Enabled);
+    .WaitFor(frameworkApp);
+
+var incremental = builder.AddIncrementalMigrationFallback(coreApp, frameworkApp)
+    .WithSession();
 
 builder.Build().Run();

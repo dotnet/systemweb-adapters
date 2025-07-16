@@ -2,13 +2,63 @@ using System.Security.Cryptography;
 using Aspire.Hosting;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Playwright.Xunit;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Projects;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
-public class RemoteAuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire) : DebugPageTest, IClassFixture<AspireFixture<AuthRemoteIdentityAppHost>>
+public class RemoteAuthIdentityTests(ITestOutputHelper output, AspireFixture<AuthRemoteIdentityAppHost> aspire) : DebugPageTest, IClassFixture<AspireFixture<AuthRemoteIdentityAppHost>>
 {
+    [Fact]
+    public async Task EnvironmentVariablesSet()
+    {
+        // Arrange
+        var coreEnvVariables = await aspire.GetIncrementalMigrationEnvironmentVariableValuesAsync("core", output);
+        var frameworkEnvVariables = await aspire.GetIncrementalMigrationEnvironmentVariableValuesAsync("framework", output);
+
+        // Act
+        Assert.Collection(coreEnvVariables,
+            kvp =>
+            {
+                Assert.Equal("IncrementalMigration__Default__Remote__ApiKey", kvp.Key);
+                Assert.Equal("{Default-IncrementalMigration-ApiKey.value}", kvp.Value);
+            },
+            kvp =>
+            {
+                Assert.Equal("IncrementalMigration__Default__Remote__Authentication__IsDefaultScheme", kvp.Key);
+                Assert.Equal("True", kvp.Value);
+            },
+            kvp =>
+            {
+                Assert.Equal("IncrementalMigration__Default__Remote__Authentication__IsEnabled", kvp.Key);
+                Assert.Equal("True", kvp.Value);
+            },
+            kvp =>
+            {
+                Assert.Equal("IncrementalMigration__Default__Remote__RemoteAppUrl", kvp.Key);
+                Assert.Equal("{framework.bindings.https.url}", kvp.Value);
+            });
+
+        Assert.Collection(frameworkEnvVariables,
+            kvp =>
+            {
+                Assert.Equal("IncrementalMigration__Default__Proxy__UseForwardedHeaders", kvp.Key);
+                Assert.Equal("True", kvp.Value);
+            },
+            kvp =>
+            {
+                Assert.Equal("IncrementalMigration__Default__Remote__ApiKey", kvp.Key);
+                Assert.Equal("{Default-IncrementalMigration-ApiKey.value}", kvp.Value);
+            },
+            kvp =>
+            {
+                Assert.Equal("IncrementalMigration__Default__Remote__Authentication__IsEnabled", kvp.Key);
+                Assert.Equal("True", kvp.Value);
+            });
+    }
+
     [Fact]
     public async Task MVCCoreAppCanLogoutBothApps()
     {
