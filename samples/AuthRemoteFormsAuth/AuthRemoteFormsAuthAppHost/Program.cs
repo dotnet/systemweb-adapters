@@ -8,7 +8,9 @@ var frameworkApp = builder.AddIISExpress("iis")
 
 var coreApp = builder.AddProject<Projects.AuthRemoteFormsAuthCore>("core")
     .WithHttpHealthCheck()
-    .WaitFor(frameworkApp)
-    .WithIncrementalMigrationFallback(frameworkApp, options => options.RemoteAuthentication = RemoteAuthentication.DefaultScheme);
+    .WaitFor(frameworkApp);
+
+var incremental = builder.AddIncrementalMigrationFallback(coreApp, frameworkApp)
+    .WithAuthentication(RemoteAuthentication.DefaultScheme);
 
 builder.Build().Run();

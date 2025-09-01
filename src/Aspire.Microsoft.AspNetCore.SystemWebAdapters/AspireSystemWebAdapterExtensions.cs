@@ -19,7 +19,7 @@ namespace Microsoft.Extensions.Hosting;
 
 public static class AspireSystemWebAdaptersExtensions
 {
-    public static ISystemWebAdapterBuilder AddSystemWebAdapters(this IHostApplicationBuilder builder)
+    public static ISystemWebAdapterBuilder AddSystemWebAdapters(this IHostApplicationBuilder builder, string? serviceName = null)
     {
 #if NET
         ArgumentNullException.ThrowIfNull(builder);
@@ -30,7 +30,8 @@ public static class AspireSystemWebAdaptersExtensions
         }
 #endif
 
-        var config = builder.Configuration;
+        serviceName ??= DefaultIncrementalServiceName;
+        var config = builder.Configuration.GetSection(GetConfigSection(serviceName));
         var adapters = builder.Services.AddSystemWebAdapters();
 
 #if NET
@@ -61,6 +62,7 @@ public static class AspireSystemWebAdaptersExtensions
 
             if (config.GetValue<bool>(RemoteSessionKey + IsEnabled))
             {
+                adapters.AddSessionSerializer();
                 remoteConfig.AddSessionServer(config.GetSection(RemoteSessionKey).Bind);
             }
 
