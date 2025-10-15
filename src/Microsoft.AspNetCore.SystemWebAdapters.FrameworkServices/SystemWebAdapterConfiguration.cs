@@ -5,6 +5,7 @@ using System;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace System.Web;
@@ -57,7 +58,11 @@ public static class SystemWebAdapterConfiguration
     }
 
     public static ISystemWebAdapterBuilder AddSystemWebAdapters(this IServiceCollection services)
-       => new SystemWebAdapterBuilder(services);
+    {
+        services.AddConfigurationAccessor();
+
+        return new SystemWebAdapterBuilder(services);
+    }
 
     public static ISystemWebAdapterBuilder AddProxySupport(this ISystemWebAdapterBuilder builder, Action<ProxyOptions> configure)
     {

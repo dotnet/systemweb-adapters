@@ -25,6 +25,7 @@ public static class SystemWebAdaptersExtensions
         services.TryAddSingleton<IBrowserCapabilitiesFactory, BrowserCapabilitiesFactory>();
         services.TryAddEnumerable(ServiceDescriptor.Transient<IStartupFilter, HttpContextStartupFilter>());
         services.AddHostingRuntime();
+        services.AddConfigurationAccessor();
 
         return new SystemWebAdapterBuilder(services)
             .AddMvc();

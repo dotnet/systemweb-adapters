@@ -43,6 +43,7 @@ public sealed class HttpApplicationHost : IHost
         });
 
         builder.Services.AddSingleton<IHostLifetime, HttpApplicationLifetime>();
+        builder.Services.AddConfigurationAccessor();
 
         return new(builder);
 

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Web;
 using System.Web.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,7 +44,19 @@ public sealed class HttpApplicationHostBuilder : IHostApplicationBuilder
     {
         var host = Build();
 
+        var lifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
+        var tcs = new TaskCompletionSource<bool>();
+
+        lifetime.ApplicationStarted.Register(() =>
+        {
+            tcs.SetResult(true);
+        });
+
         HostingEnvironment.QueueBackgroundWorkItem(host.RunAsync);
+
+        // We should wait for the application to start before returning - otherwise some things may not be available if
+        // the caller tries to use them immediately after calling this method, such as HttpRuntime.WebObjectFactory
+        tcs.Task.GetAwaiter().GetResult();
     }
 }
 

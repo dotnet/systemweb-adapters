@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 
@@ -18,19 +19,19 @@ internal static class ConfigurationManagerConfigExtensions
 
         var initialData = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var connStr in System.Configuration.ConfigurationManager.ConnectionStrings.OfType<IDictionaryEnumerator>())
+        foreach (ConnectionStringSettings connStr in System.Configuration.ConfigurationManager.ConnectionStrings)
         {
-            if (connStr is { Key: string key, Value: string value })
+            if (connStr is { Name: string key, ConnectionString: string value })
             {
                 initialData.Add("ConnectionStrings:" + key, value);
             }
         }
 
-        foreach (var appSetting in System.Configuration.ConfigurationManager.AppSettings.OfType<IDictionaryEnumerator>())
+        foreach (string appSettingKey in System.Configuration.ConfigurationManager.AppSettings.Keys)
         {
-            if (appSetting is { Key: string key, Value: string value })
+            if (System.Configuration.ConfigurationManager.AppSettings[appSettingKey] is string value)
             {
-                initialData.Add(key, value);
+                initialData.Add(appSettingKey, value);
             }
         }
 
