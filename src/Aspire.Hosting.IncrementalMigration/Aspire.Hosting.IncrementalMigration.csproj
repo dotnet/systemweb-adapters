@@ -6,6 +6,9 @@
     <Nullable>enable</Nullable>
     <IsPackable>true</IsPackable>
     <EnablePackageValidation>true</EnablePackageValidation>
+    <!-- This package won't produce a stable version -->
+    <SuppressFinalPackageVersion>true</SuppressFinalPackageVersion>
+    <PreReleaseVersionLabel>preview.1</PreReleaseVersionLabel>
   </PropertyGroup>
 
   <ItemGroup>
