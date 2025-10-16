@@ -9,3 +9,8 @@ public enum SameSiteMode
     Lax = 1,
     Strict = 2,
 }
+
+public sealed partial class HttpRuntime
+{
+    public static System.IServiceProvider WebObjectActivator { get { throw new System.PlatformNotSupportedException("Only supported when running on ASP.NET Core or System.Web"); } }
+}

@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\samples\AppConfig\AppConfigAppHost\AppConfigAppHost.csproj" />
     <ProjectReference Include="..\..\samples\AuthRemoteFormsAuth\AuthRemoteFormsAuthAppHost\AuthRemoteFormsAuthAppHost.csproj" />
     <ProjectReference Include="..\..\samples\AuthRemoteIdentity\AuthRemoteIdentityAppHost\AuthRemoteIdentityAppHost.csproj" />
     <ProjectReference Include="..\..\samples\MachineKey\MachineKeyAppHost\MachineKeyAppHost.csproj" />
