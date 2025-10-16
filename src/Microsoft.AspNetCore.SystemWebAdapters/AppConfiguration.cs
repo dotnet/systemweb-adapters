@@ -18,7 +18,7 @@ public static class AppConfiguration
     /// <summary>
     /// Gets a configuration setting by key. This is intended to help migrate from System.Configuration.ConfigurationManager.AppSettings to IConfiguration.
     /// </summary>
-    /// <param name="key">The key of the settings.</param>
+    /// <param name="key">The key of the setting.</param>
     /// <returns>The setting if available, otherwise <c>null</c>.</returns>
     public static string? GetSetting(string key) => Configuration?.GetSetting(key);
 
