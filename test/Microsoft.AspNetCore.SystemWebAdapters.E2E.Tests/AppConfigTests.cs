@@ -7,10 +7,24 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 public class AppConfigTests(AspireFixture<AppConfigAppHost> aspire) : IClassFixture<AspireFixture<AppConfigAppHost>>
 {
     [Fact]
-    public async Task ConfigurationIsConfigured()
+    public async Task CoreConfigurationIsConfigured()
     {
         var app = await aspire.GetApplicationAsync();
-        using var client = app.CreateHttpClient("config");
+        using var client = app.CreateHttpClient("core");
+        var response = await client.GetFromJsonAsync<ConfigResult>("/");
+
+        Assert.NotNull(response);
+        Assert.Equal("appsettings.json", response.Setting1);
+        Assert.Null(response.Setting2);
+        Assert.Equal("appsettings.json", response.ConnStr1);
+        Assert.Null(response.ConnStr2);
+    }
+
+    [Fact]
+    public async Task FrameworkConfigurationIsConfigured()
+    {
+        var app = await aspire.GetApplicationAsync();
+        using var client = app.CreateHttpClient("framework");
         var response = await client.GetFromJsonAsync<ConfigResult>("/");
 
         Assert.NotNull(response);

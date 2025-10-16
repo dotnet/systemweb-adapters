@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Sdk Name="Aspire.AppHost.Sdk" />
 
@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Aspire.Hosting.IncrementalMigration\Aspire.Hosting.IncrementalMigration.csproj" IsAspireProjectResource="false" />
+    <ProjectReference Include="..\AppConfigCore\AppConfigCore.csproj" />
     <ProjectReference Include="..\AppConfigFramework\AppConfigFramework.csproj" />
   </ItemGroup>
 
