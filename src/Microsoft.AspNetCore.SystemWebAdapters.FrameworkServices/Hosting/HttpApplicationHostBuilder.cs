@@ -45,7 +45,10 @@ public sealed class HttpApplicationHostBuilder : IHostApplicationBuilder
         var host = Build();
 
         var lifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
-        var tcs = new TaskCompletionSource<bool>();
+        var tcs = new HostShutdownTaskCompletionSource();
+
+        // We register this before starting the host so that if it stops while we're starting we still get notified
+        HostingEnvironment.RegisterObject(tcs);
 
         lifetime.ApplicationStarted.Register(() =>
         {
@@ -57,6 +60,16 @@ public sealed class HttpApplicationHostBuilder : IHostApplicationBuilder
         // We should wait for the application to start before returning - otherwise some things may not be available if
         // the caller tries to use them immediately after calling this method, such as HttpRuntime.WebObjectFactory
         tcs.Task.GetAwaiter().GetResult();
+
+        HostingEnvironment.UnregisterObject(tcs);
+    }
+
+    private sealed class HostShutdownTaskCompletionSource : TaskCompletionSource<bool>, IRegisteredObject
+    {
+        void IRegisteredObject.Stop(bool immediate)
+        {
+            SetCanceled();
+        }
     }
 }
 

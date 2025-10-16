@@ -1,5 +1,6 @@
 using System.Web;
 using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace AppConfigFramework
 {

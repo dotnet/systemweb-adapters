@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Web;
 using System.Web.SessionState;
+using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace AppConfigFramework;
 
