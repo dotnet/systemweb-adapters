@@ -18,6 +18,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <WebApplicationsTargetPath>$(MSBuildThisFileDirectory)\WebApplication.targets</WebApplicationsTargetPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <!-- The framework projects trigger this warning -->
     <NoWarn>ASPIRE004;$(NoWarn)</NoWarn>
   </PropertyGroup>
