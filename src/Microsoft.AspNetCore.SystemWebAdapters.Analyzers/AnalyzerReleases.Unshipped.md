@@ -5,4 +5,4 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-SYSWEB2001 | Error | Error | HttpContextDependencyAnalyzer
+SYSWEB2001 | Usage | Error | HttpContextDependencyAnalyzer

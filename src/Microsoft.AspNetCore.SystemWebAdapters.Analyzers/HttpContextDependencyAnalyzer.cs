@@ -13,7 +13,7 @@ public class HttpContextDependencyAnalyzer : DiagnosticAnalyzer
         id: "SYSWEB2001",
         title: "Do not cast HttpContext or HttpContextBase to IServiceProvider",
         messageFormat: "{0} is implicitly convertable to IServiceProvider but does not return any useful services. Prefer the {0}.GetRequestServices() extension method instead.",
-        category: "Error",
+        category: "Usage",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
