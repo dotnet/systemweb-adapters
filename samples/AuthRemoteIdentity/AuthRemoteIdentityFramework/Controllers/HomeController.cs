@@ -7,8 +7,6 @@ namespace MvcApp.Controllers
     {
         public ActionResult Index()
         {
-            HttpContext.GetRequiredService<IServiceScopeFactory>();
-            System.Web.HttpContext.Current.GetRequiredService<IServiceScopeFactory>();
             Session.Add("test-value", 5);
             return View();
         }
