@@ -1,11 +1,9 @@
-using System.Configuration;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
 namespace MvcApp
@@ -17,7 +15,7 @@ namespace MvcApp
             HttpApplicationHost.RegisterHost(builder =>
             {
                 builder.AddServiceDefaults();
-                builder.RegisterWebObjectActivator();
+                builder.AddSystemWebDependencyInjection();
 
                 builder.AddSystemWebAdapters()
                     .AddVirtualizedContentDirectories();
@@ -31,3 +29,4 @@ namespace MvcApp
         }
     }
 }
+

@@ -21,7 +21,7 @@
     <!-- The framework projects trigger this warning -->
     <NoWarn>ASPIRE004;$(NoWarn)</NoWarn>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1507;NU1902</NoWarn>
     <NoWarn>
@@ -61,4 +61,18 @@
       IDE1006;
     </NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference
+      Include="$(MSBuildThisFileDirectory)..\src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false"
+      SetTargetFramework="TargetFramework=netstandard2.0" />
+    <ProjectReference
+      Include="$(MSBuildThisFileDirectory)..\src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CSharp\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CSharp.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false"
+      SetTargetFramework="TargetFramework=netstandard2.0" />
+  </ItemGroup>
+
 </Project>

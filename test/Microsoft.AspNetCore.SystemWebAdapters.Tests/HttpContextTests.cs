@@ -157,6 +157,29 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         }
 
         [Fact]
+        public void GetRequestServiceExtensions()
+        {
+            var coreContext = new DefaultHttpContext();
+
+            var requestServices = coreContext.AsSystemWeb().GetRequestServices();
+
+            Assert.Equal(coreContext.RequestServices, requestServices);
+        }
+
+        [Fact]
+        public void GetRequestServiceExtensionsBase()
+        {
+            var coreContext = new DefaultHttpContext();
+            var sp = new Mock<IServiceProvider>();
+            sp.Setup(s => s.GetService(typeof(IServiceProvider))).Returns(sp.Object);
+            coreContext.RequestServices = sp.Object;
+
+            var requestServices = new HttpContextWrapper(coreContext.AsSystemWeb()).GetRequestServices();
+
+            Assert.Equal(coreContext.RequestServices, requestServices);
+        }
+
+        [Fact]
         public void DefaultItemsContains()
         {
             // Arrange

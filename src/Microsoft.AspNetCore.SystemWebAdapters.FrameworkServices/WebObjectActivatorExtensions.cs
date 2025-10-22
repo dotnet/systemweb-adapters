@@ -1,9 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel;
 using System.Reflection;
 using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -11,30 +13,59 @@ namespace System.Web;
 
 public static partial class WebObjectActivatorExtensions
 {
+    [Obsolete("Use AddWebObjectActivator instead or use .AddSystemWebDependencyInjection() to configure all containers in your application.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static HttpApplicationHostBuilder RegisterWebObjectActivator(this HttpApplicationHostBuilder builder)
+        => builder.AddWebObjectActivator();
+
+    public static HttpApplicationHostBuilder AddWebObjectActivator(this HttpApplicationHostBuilder builder)
     {
         if (builder is null)
         {
             throw new ArgumentNullException(nameof(builder));
         }
 
-        builder.Services.AddHostedService<WebObjectActivatorHostServices>();
+        builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IDependencyRegistrar, WebObjectRegistrar>());
+        builder.Services.TryAddSingleton<IServiceScopeFactoryProxy, ScopedServiceProviderFactory>();
+        builder.Services.AddHostedService<DependencyRegistrarActivator>();
 
         return builder;
     }
 
-    private sealed partial class WebObjectActivatorHostServices : IServiceProvider, IHostedService
+    private sealed partial class WebObjectRegistrar : IDependencyRegistrar, IServiceProvider
     {
-        private const string ErrorMessage = "WebObjectActivator is already set and will not be overridden";
-
         private readonly IServiceProvider _services;
 
-        public WebObjectActivatorHostServices(IServiceProvider services)
+        public WebObjectRegistrar(IServiceProvider _services)
         {
-            _services = services;
+            this._services = _services;
+
         }
 
-        public object? GetService(Type serviceType)
+        public string Name => nameof(HttpRuntime.WebObjectActivator);
+
+        public bool IsActive => ReferenceEquals(HttpRuntime.WebObjectActivator, this);
+
+        public void Dispose()
+        {
+            if (IsActive)
+            {
+                HttpRuntime.WebObjectActivator = null;
+            }
+        }
+
+        public bool Enable(bool force)
+        {
+            if (force || !IsActive)
+            {
+                HttpRuntime.WebObjectActivator = this;
+                return true;
+            }
+
+            return false;
+        }
+
+        object? IServiceProvider.GetService(Type serviceType)
         {
             if (serviceType == typeof(IServiceProvider))
             {
@@ -64,27 +95,51 @@ public static partial class WebObjectActivatorExtensions
                 null,
                 null);
         }
+    }
+
+    private sealed class ScopedServiceProviderFactory(IServiceProvider services) : IServiceScopeFactoryProxy
+    {
+        [Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Handled by caller")]
+        public IServiceScopeProxy CreateScope() => new ScopedServiceProvider(services.CreateScope());
+
+        private sealed class ScopedServiceProvider(IServiceScope scope) : IServiceScopeProxy
+        {
+            public IServiceProvider ServiceProvider => scope.ServiceProvider;
+
+            public void Dispose() => scope.Dispose();
+        }
+    }
+
+    private sealed partial class DependencyRegistrarActivator(ILogger<DependencyRegistrarActivator> logger, IEnumerable<IDependencyRegistrar> registrars) : IHostedService
+    {
+        [LoggerMessage(LogLevel.Critical, "{Resolver} was not configured. Most likely it had already been set.")]
+        private static partial void LogResolverNotConfigured(ILogger logger, string resolver);
+
+        [LoggerMessage(LogLevel.Trace, "{Resolver} was configured for dependency injection.")]
+        private static partial void LogResolverConfigured(ILogger logger, string resolver);
 
         Task IHostedService.StartAsync(CancellationToken cancellationToken)
         {
-            if (HttpRuntime.WebObjectActivator is { })
+            foreach (var registrar in registrars)
             {
-                LogAlreadySet(_services.GetRequiredService<ILogger<WebObjectActivatorHostServices>>());
-                throw new InvalidOperationException(ErrorMessage);
-            }
+                registrar.Enable(force: false);
 
-            HttpRuntime.WebObjectActivator = this;
+                if (registrar.IsActive)
+                {
+                    LogResolverConfigured(logger, registrar.Name);
+                }
+                else
+                {
+                    LogResolverNotConfigured(logger, registrar.Name);
+                }
+            }
             return Task.CompletedTask;
         }
 
         Task IHostedService.StopAsync(CancellationToken cancellationToken)
         {
-            HttpRuntime.WebObjectActivator = null;
             return Task.CompletedTask;
         }
-
-        [LoggerMessage(LogLevel.Critical, ErrorMessage)]
-        private static partial void LogAlreadySet(ILogger logger);
     }
 }
 
