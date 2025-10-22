@@ -12,6 +12,9 @@ namespace System.Web
 {
     internal static partial class SystemWebFrameworksDependencyInjectionServiceCollectionExtensions
     {
+        /// <summary>
+        /// Adds the WebApi dependency resolver so that WebApi components can resolve services from <see cref="HttpApplicationHost.Services"/>.
+        /// </summary>
         public static void AddWebApiDependencyInjection(this HttpApplicationHostBuilder builder)
         {
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IDependencyRegistrar, WebApiAdapterDependencyResolver>());
@@ -26,7 +29,7 @@ namespace System.Web
                 _services = services;
             }
 
-            public string Name => "GlobalConfiguration.Configuration.DependencyResolver";
+            public string Name => "System.Web.Http.GlobalConfiguration.Configuration.DependencyResolver";
 
             public bool IsActive => ReferenceEquals(GlobalConfiguration.Configuration.DependencyResolver, this);
 
@@ -41,20 +44,11 @@ namespace System.Web
                 return false;
             }
 
-            public IDependencyScope BeginScope()
-            {
-                return new Scope(_services.CreateScope());
-            }
+            public IDependencyScope BeginScope() => new Scope(_services.CreateScope());
 
-            public object GetService(Type serviceType)
-            {
-                return _services.GetService(serviceType);
-            }
+            public object GetService(Type serviceType) => _services.GetService(serviceType);
 
-            public IEnumerable<object> GetServices(Type serviceType)
-            {
-                return _services.GetServices(serviceType);
-            }
+            public IEnumerable<object> GetServices(Type serviceType) => _services.GetServices(serviceType);
 
             void IDisposable.Dispose()
             {
@@ -70,20 +64,11 @@ namespace System.Web
                     _scope = scope;
                 }
 
-                void IDisposable.Dispose()
-                {
-                    _scope.Dispose();
-                }
+                void IDisposable.Dispose() => _scope.Dispose();
 
-                object IDependencyScope.GetService(Type serviceType)
-                {
-                    return _scope.ServiceProvider.GetService(serviceType);
-                }
+                object IDependencyScope.GetService(Type serviceType) => _scope.ServiceProvider.GetService(serviceType);
 
-                IEnumerable<object> IDependencyScope.GetServices(Type serviceType)
-                {
-                    return _scope.ServiceProvider.GetServices(serviceType);
-                }
+                IEnumerable<object> IDependencyScope.GetServices(Type serviceType) => _scope.ServiceProvider.GetServices(serviceType);
             }
         }
     }

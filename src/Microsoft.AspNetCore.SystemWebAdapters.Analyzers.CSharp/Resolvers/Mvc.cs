@@ -6,18 +6,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
 using System.Web.Mvc;
+using System.Web.Routing;
 
 namespace System.Web
 {
     internal static partial class SystemWebFrameworksDependencyInjectionServiceCollectionExtensions
     {
+        /// <summary>
+        /// Adds the MVC dependency resolver so that MVC components can resolve services from <see cref="HttpApplicationHost.Services"/>.
+        /// </summary>
         public static void AddMvcDependencyInjection(this HttpApplicationHostBuilder builder)
         {
-            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IDependencyRegistrar, MvcAdapterDependencyResolver>());
-            builder.Services.TryAddSingleton<IViewPageActivator, MvcAdapterDependencyResolver>();
+            builder.Services.TryAddSingleton<MvcAdapterDependencyResolver>();
+            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IDependencyRegistrar>(sp => sp.GetRequiredService<MvcAdapterDependencyResolver>()));
+            builder.Services.TryAddSingleton<IViewPageActivator>(sp => sp.GetRequiredService<MvcAdapterDependencyResolver>());
+            builder.Services.TryAddSingleton<IControllerActivator>(sp => sp.GetRequiredService<MvcAdapterDependencyResolver>());
         }
 
-        private sealed class MvcAdapterDependencyResolver : IDependencyRegistrar, IDependencyResolver, IViewPageActivator, IDisposable
+        private sealed class MvcAdapterDependencyResolver : IDependencyRegistrar, IDependencyResolver, IViewPageActivator, IControllerActivator, IDisposable
         {
             private readonly IServiceProvider _serviceProvider;
 
@@ -41,10 +47,7 @@ namespace System.Web
                 return false;
             }
 
-            object IDependencyResolver.GetService(Type serviceType)
-            {
-                return GetInternalService(_serviceProvider, serviceType);
-            }
+            object IDependencyResolver.GetService(Type serviceType) => GetInternalService(_serviceProvider, serviceType);
 
             IEnumerable<object> IDependencyResolver.GetServices(Type serviceType)
             {
@@ -55,8 +58,13 @@ namespace System.Web
             object IViewPageActivator.Create(ControllerContext controllerContext, Type type)
             {
                 var services = controllerContext.HttpContext.GetRequestServices();
-
                 return GetInternalService(services, type);
+            }
+
+            IController IControllerActivator.Create(RequestContext requestContext, Type controllerType)
+            {
+                var services = requestContext.HttpContext.GetRequestServices();
+                return GetInternalService(services, controllerType) as IController;
             }
 
             private object GetInternalService(IServiceProvider provider, Type serviceType)

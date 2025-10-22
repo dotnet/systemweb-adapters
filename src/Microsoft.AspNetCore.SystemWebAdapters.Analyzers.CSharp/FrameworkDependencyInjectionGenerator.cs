@@ -44,21 +44,22 @@ public class FrameworkDependencyInjectionGenerator : IIncrementalGenerator
                 return;
             }
 
-            var source = CreateSource(frameworks.GetRegistrars());
+            var registrars = frameworks.GetRegistrars().ToList();
+            var source = CreateSource(registrars);
             context.AddSource("DependencyInjectionServiceCollectionExtensions.g.cs", source);
 
-            foreach (var registrarSource in frameworks.GetRegistrars())
+            foreach (var registrarSource in registrars)
             {
                 using var stream = typeof(FrameworkDependencyInjectionGenerator).Assembly
-                    .GetManifestResourceStream($"Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CSharp.Resolvers.{registrarSource}.cs");
+                    .GetManifestResourceStream($"Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CSharp.Resolvers.{registrarSource.Name}.cs");
 
                 if (stream is null)
                 {
-                    context.AddSource($"{registrarSource}.g.cs", $"// Could not find resource for {registrarSource}");
+                    context.AddSource($"{registrarSource.Name}.g.cs", $"// Could not find resource for {registrarSource.Name}");
                 }
                 else
                 {
-                    context.AddSource($"{registrarSource}.g.cs", SourceText.From(stream, canBeEmbedded: true));
+                    context.AddSource($"{registrarSource.Name}.g.cs", SourceText.From(stream, canBeEmbedded: true));
                 }
             }
         });
@@ -73,20 +74,21 @@ public class FrameworkDependencyInjectionGenerator : IIncrementalGenerator
 
         public bool WebApi { get; init; }
 
-        public IEnumerable<string> GetRegistrars()
+        public IEnumerable<DependencyRegistrar> GetRegistrars()
         {
             if (Mvc)
             {
-                yield return "Mvc";
+                yield return new("Mvc", "System.Web.Mvc.DependencyResolver");
             }
 
             if (WebApi)
             {
-                yield return "WebApi";
+                yield return new("WebApi", "System.Web.Http.GlobalConfiguration.Configuration.DependencyResolver");
             }
         }
     }
-    private static string CreateSource(IEnumerable<string> registrars)
+
+    private static string CreateSource(IReadOnlyCollection<DependencyRegistrar> registrars)
     {
         using var writer = new StringWriter();
         using var indentedWriter = new IndentedTextWriter(writer);
@@ -107,13 +109,27 @@ public class FrameworkDependencyInjectionGenerator : IIncrementalGenerator
         indentedWriter.WriteLine("{");
         indentedWriter.Indent++;
 
+        indentedWriter.WriteLine("/// <summary>");
+        indentedWriter.WriteLine("/// Adds dependency injection support for ASP.NET Framework components including:");
+
+        indentedWriter.WriteLine(@"/// <list type=""bullet"">");
+        indentedWriter.Indent++;
+        indentedWriter.WriteLine(@"/// <item>ASP.NET Framework Core Components: <see cref=""System.Web.HttpRuntime.WebObjectActivator"" /></item>");
+        foreach (var registrar in registrars)
+        {
+            indentedWriter.WriteLine($@"/// <item>{registrar.Name}: <see cref=""{registrar.Api}"" /></item>");
+        }
+        indentedWriter.Indent--;
+        indentedWriter.WriteLine("/// </list>");
+        indentedWriter.WriteLine("/// </summary>");
+
         indentedWriter.WriteLine("public static void AddSystemWebDependencyInjection(this HttpApplicationHostBuilder builder)");
         indentedWriter.WriteLine("{");
         indentedWriter.Indent++;
         indentedWriter.WriteLine("builder.AddWebObjectActivator();");
         foreach (var registrar in registrars)
         {
-            indentedWriter.WriteLine($"builder.Add{registrar}DependencyInjection();");
+            indentedWriter.WriteLine($"builder.Add{registrar.Name}DependencyInjection();");
         }
         indentedWriter.Indent--;
         indentedWriter.WriteLine("}");
@@ -125,4 +141,6 @@ public class FrameworkDependencyInjectionGenerator : IIncrementalGenerator
 
         return writer.ToString();
     }
+
+    private sealed record DependencyRegistrar(string Name, string Api);
 }
