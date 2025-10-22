@@ -10,9 +10,9 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers;
 public class HttpContextDependencyAnalyzer : DiagnosticAnalyzer
 {
     private static DiagnosticDescriptor s_Rule = new DiagnosticDescriptor(
-        id: "SYSWEB001",
-        title: "Don't use System.Web.HttpContext.GetServices",
-        messageFormat: "System.Web.HttpContext.GetServices is not extensible. Prefer System.Web.HttpContext.GetRequestServices() instead.",
+        id: "SYSWEB1001",
+        title: "Do not cast HttpContext or HttpContextBase to IServiceProvider",
+        messageFormat: "{0} is implicitly convertable to IServiceProvider but does not return any useful services. Prefer the {0}.GetRequestServices() extension method instead.",
         category: "Error",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
@@ -48,7 +48,7 @@ public class HttpContextDependencyAnalyzer : DiagnosticAnalyzer
 
             if (context.Compilation.IsType(operand, "System.Web.HttpContext") || context.Compilation.IsType(operand, "System.Web.HttpContextBase"))
             {
-                context.ReportDiagnostic(Diagnostic.Create(s_Rule, context.Operation.Syntax.GetLocation()));
+                context.ReportDiagnostic(Diagnostic.Create(s_Rule, context.Operation.Syntax.GetLocation(), operand.Name));
             }
         }, OperationKind.Conversion);
     }
