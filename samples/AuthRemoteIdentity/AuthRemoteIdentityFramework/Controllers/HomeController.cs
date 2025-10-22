@@ -1,5 +1,4 @@
 using System.Web.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace MvcApp.Controllers
 {
