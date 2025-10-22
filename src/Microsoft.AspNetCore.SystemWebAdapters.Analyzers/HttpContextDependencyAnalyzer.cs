@@ -6,13 +6,13 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Analyzers;
 
-[DiagnosticAnalyzer(LanguageNames.CSharp)]
+[DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
 public class HttpContextDependencyAnalyzer : DiagnosticAnalyzer
 {
     private static DiagnosticDescriptor s_Rule = new DiagnosticDescriptor(
         id: "SYSWEB001",
         title: "Don't use System.Web.HttpContext.GetServices",
-        messageFormat: "System.Web.HttpContext.GetServices is not extensible. Prefer System.Web.HttpContext.GetRequestServices() instead",
+        messageFormat: "System.Web.HttpContext.GetServices is not extensible. Prefer System.Web.HttpContext.GetRequestServices() instead.",
         category: "Error",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
