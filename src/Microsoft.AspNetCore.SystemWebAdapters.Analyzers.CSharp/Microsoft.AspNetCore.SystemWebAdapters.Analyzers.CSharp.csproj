@@ -13,7 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Resolvers/*.cs"/>
-    <EmbeddedResource Include="Resolvers/*.cs" />
+    <Compile Remove="Templates/*.cs" />
+    <EmbeddedResource Include="Templates/*.cs" />
   </ItemGroup>
+
 </Project>

@@ -51,7 +51,7 @@ public class FrameworkDependencyInjectionGenerator : IIncrementalGenerator
             foreach (var registrarSource in registrars)
             {
                 using var stream = typeof(FrameworkDependencyInjectionGenerator).Assembly
-                    .GetManifestResourceStream($"Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CSharp.Resolvers.{registrarSource.Name}.cs");
+                    .GetManifestResourceStream($"Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CSharp.Templates.{registrarSource.Name}.cs");
 
                 if (stream is null)
                 {
