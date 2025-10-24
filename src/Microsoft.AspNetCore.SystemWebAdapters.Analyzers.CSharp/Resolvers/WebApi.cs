@@ -5,8 +5,11 @@ using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
+using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Controllers;
 using System.Web.Http.Dependencies;
+using System.Web.Http.Dispatcher;
 
 namespace System.Web
 {
@@ -66,7 +69,7 @@ namespace System.Web
 
                 void IDisposable.Dispose() => _scope.Dispose();
 
-                object IDependencyScope.GetService(Type serviceType) => _scope.ServiceProvider.GetService(serviceType);
+                object IDependencyScope.GetService(Type serviceType) => ActivatorUtilities.GetServiceOrCreateInstance(_scope.ServiceProvider, serviceType);
 
                 IEnumerable<object> IDependencyScope.GetServices(Type serviceType) => _scope.ServiceProvider.GetServices(serviceType);
             }

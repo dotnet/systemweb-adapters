@@ -83,8 +83,14 @@ public static partial class WebObjectActivatorExtensions
             {
                 return null;
             }
-
-            return CreateNonPublicInstance(serviceType);
+            else if (serviceType.IsPublic && serviceType.GetConstructors(BindingFlags.Instance | BindingFlags.Public).Length > 0)
+            {
+                return ActivatorUtilities.CreateInstance(_services, serviceType);
+            }
+            else
+            {
+                return CreateNonPublicInstance(serviceType);
+            }
 
             // The implementation of dependency injection in System.Web expects to be able to create instances
             // of non-public and unregistered types.

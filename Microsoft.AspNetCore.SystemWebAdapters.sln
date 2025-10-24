@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.1.32127.271
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11122.13 main
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.SystemWebAdapters", "src\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj", "{55C1BBE0-B922-46B0-8F2C-8472BC9A5F33}"
 EndProject
@@ -127,6 +127,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.SystemWebAdapters.Analyzers", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.csproj", "{7A244BE9-B12E-424F-A1F1-E386C43BF0A9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CSharp", "src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CSharp\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CSharp.csproj", "{904FF6F2-0322-9B85-7FBA-C512196D72C2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DependencyInjection", "DependencyInjection", "{BCEFA0EE-4AC7-417E-A861-368DB3D661B1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyInjectionAppHost", "samples\DependencyInjection\DependencyInjectionAppHost\DependencyInjectionAppHost.csproj", "{B447F0F6-B232-D326-334B-0095BA74F988}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyInjectionFramework", "samples\DependencyInjection\DependencyInjectionFramework\DependencyInjectionFramework.csproj", "{4A2022AB-1ECE-E630-FD48-DD045DB4DD9F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -290,6 +296,14 @@ Global
 		{904FF6F2-0322-9B85-7FBA-C512196D72C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{904FF6F2-0322-9B85-7FBA-C512196D72C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{904FF6F2-0322-9B85-7FBA-C512196D72C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B447F0F6-B232-D326-334B-0095BA74F988}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B447F0F6-B232-D326-334B-0095BA74F988}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B447F0F6-B232-D326-334B-0095BA74F988}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B447F0F6-B232-D326-334B-0095BA74F988}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A2022AB-1ECE-E630-FD48-DD045DB4DD9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A2022AB-1ECE-E630-FD48-DD045DB4DD9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A2022AB-1ECE-E630-FD48-DD045DB4DD9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A2022AB-1ECE-E630-FD48-DD045DB4DD9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -342,6 +356,9 @@ Global
 		{6ECA1F1C-214B-BB97-27D7-319C7F1AD90F} = {012BEA62-0FF1-472E-AD5F-0D2029336701}
 		{7A244BE9-B12E-424F-A1F1-E386C43BF0A9} = {F9DB9323-C919-49E8-8F96-B923D2F42E60}
 		{904FF6F2-0322-9B85-7FBA-C512196D72C2} = {F9DB9323-C919-49E8-8F96-B923D2F42E60}
+		{BCEFA0EE-4AC7-417E-A861-368DB3D661B1} = {95915611-30BF-4AFF-AE41-5CDC6F57DCF7}
+		{B447F0F6-B232-D326-334B-0095BA74F988} = {BCEFA0EE-4AC7-417E-A861-368DB3D661B1}
+		{4A2022AB-1ECE-E630-FD48-DD045DB4DD9F} = {BCEFA0EE-4AC7-417E-A861-368DB3D661B1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DABA3C65-9D74-4EB6-9B1C-730328710EAD}

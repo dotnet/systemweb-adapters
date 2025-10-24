@@ -17,10 +17,9 @@ namespace System.Web
         /// </summary>
         public static void AddMvcDependencyInjection(this HttpApplicationHostBuilder builder)
         {
-            builder.Services.TryAddSingleton<MvcAdapterDependencyResolver>();
-            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IDependencyRegistrar>(sp => sp.GetRequiredService<MvcAdapterDependencyResolver>()));
-            builder.Services.TryAddSingleton<IViewPageActivator>(sp => sp.GetRequiredService<MvcAdapterDependencyResolver>());
-            builder.Services.TryAddSingleton<IControllerActivator>(sp => sp.GetRequiredService<MvcAdapterDependencyResolver>());
+            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IDependencyRegistrar, MvcAdapterDependencyResolver>());
+            builder.Services.TryAddSingleton<IViewPageActivator, MvcAdapterDependencyResolver>();
+            builder.Services.TryAddSingleton<IControllerActivator, MvcAdapterDependencyResolver>();
         }
 
         private sealed class MvcAdapterDependencyResolver : IDependencyRegistrar, IDependencyResolver, IViewPageActivator, IControllerActivator, IDisposable
