@@ -8,17 +8,11 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Antlr" />
-    <PackageReference Include="Microsoft.Configuration.ConfigurationBuilders.Environment" />
-    <PackageReference Include="Microsoft.AspNet.Identity.EntityFramework" />
-    <PackageReference Include="Microsoft.AspNet.Identity.Owin" />
     <PackageReference Include="Microsoft.AspNet.Mvc" />
     <PackageReference Include="Microsoft.AspNet.Web.Optimization" />
     <PackageReference Include="Microsoft.AspNet.WebApi" />
     <PackageReference Include="Microsoft.jQuery.Unobtrusive.Validation" />
     <PackageReference Include="Microsoft.Owin.Host.SystemWeb" />
-    <PackageReference Include="Microsoft.Owin.Security.Cookies" />
-    <PackageReference Include="Microsoft.Owin.Security.Interop" />
-    <PackageReference Include="Microsoft.Owin.Security.OAuth" />
     <PackageReference Include="Microsoft.Web.Infrastructure" />
     <PackageReference Include="Microsoft.Win32.Registry" />
     <PackageReference Include="Newtonsoft.Json" />
@@ -30,19 +24,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Scripts/**/*" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Content\Site.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Scripts\" />
   </ItemGroup>
 </Project>

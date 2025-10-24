@@ -11,7 +11,7 @@ namespace AppConfigFramework
             HttpApplicationHost.RegisterHost(builder =>
             {
                 builder.AddServiceDefaults();
-                builder.RegisterWebObjectActivator();
+                builder.AddSystemWebDependencyInjection();
             });
         }
     }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net8.0;netstandard2.0;net45;net472</TargetFrameworks>
@@ -34,6 +34,7 @@
     <Compile Include="HtmlString.cs" />
     <Compile Include="AppConfiguration.cs" />
     <Compile Include="Adapters/IConfigurationAccessor.cs" />
+    <Compile Include="HttpContextRequestServicesExtensions.cs" />
 
     <PackageReference Include="System.Security.Principal.Windows" />
   </ItemGroup>
@@ -56,6 +57,8 @@
 
     <Compile Include="IHtmlString.cs" />
     <Compile Include="HtmlString.cs" />
+    
+    <Compile Condition=" '$(TargetFramework)' != 'net45' " Include="HttpContextRequestServicesExtensions.cs" />
 
     <Compile Include="AppConfiguration.cs" />
     <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
@@ -72,6 +75,7 @@
     <None Include="Build\*" Pack="true" PackagePath="Build\" />
   </ItemGroup>
 
+  <Import Project="Analyzers.targets" />
   <Import Condition=" '$(TargetFramework)' == 'net8.0' " Project="Generated/GenerateApis.targets" />
 
 </Project>

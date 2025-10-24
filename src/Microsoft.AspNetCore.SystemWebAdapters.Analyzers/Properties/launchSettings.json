@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AuthRemoteIdentityFramework": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\..\\samples\\AuthRemoteIdentity\\AuthRemoteIdentityFramework\\AuthRemoteIdentityFramework.csproj"
+    }
+  }
+}
