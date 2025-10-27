@@ -1,0 +1,25 @@
+<Project>
+  <PropertyGroup>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+
+  <!-- We condition it on netstandard2.0 so we only include them once -->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <ProjectReference Include="..\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CSharp\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CSharp.csproj"
+      ReferenceOutputAssembly="false"
+      OutputItemType="_Analyzer_SystemWeb_CSharp"
+      SetTargetFramework="TargetFramework=netstandard2.0" />
+    <ProjectReference Include="..\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.csproj"
+      ReferenceOutputAssembly="false"
+      OutputItemType="_Analyzer_SystemWeb"
+      SetTargetFramework="TargetFramework=netstandard2.0" />
+  </ItemGroup>
+
+  <Target Name="_AddAnalyzersToOutput">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="@(_Analyzer_SystemWeb)" PackagePath="analyzers/dotnet/vb" />
+      <TfmSpecificPackageFile Include="@(_Analyzer_SystemWeb)" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="@(_Analyzer_SystemWeb_CSharp)" PackagePath="analyzers/dotnet/cs" />
+    </ItemGroup>
+  </Target>
+</Project>

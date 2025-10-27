@@ -17,7 +17,7 @@ namespace FormsAuth
             HttpApplicationHost.RegisterHost(builder =>
             {
                 builder.AddServiceDefaults();
-                builder.RegisterWebObjectActivator();
+                builder.AddSystemWebDependencyInjection();
 
                 builder.AddSystemWebAdapters()
                     .AddVirtualizedContentDirectories();

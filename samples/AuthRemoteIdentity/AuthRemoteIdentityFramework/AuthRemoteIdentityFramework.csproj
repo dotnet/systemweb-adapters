@@ -1,6 +1,10 @@
 ﻿<Project Sdk="MSBuild.SDK.SystemWeb">
   <PropertyGroup>
     <TargetFramework>net481</TargetFramework>
+
+    <!-- To validate that the code generation for DI will be compatible with the latest supported version  -->
+    <LangVersion>7.3</LangVersion>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Antlr" />
