@@ -25,4 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
 </Project>
