@@ -8,6 +8,7 @@ public class DependencyInjectionTests(AspireFixture<DependencyInjectionAppHost> 
     [InlineData("/handler")]
     [InlineData("/mvc")]
     [InlineData("/api")]
+    [InlineData("/webforms.aspx")]
     [Theory]
     public async Task CheckFrameworkDI(string path)
     {
