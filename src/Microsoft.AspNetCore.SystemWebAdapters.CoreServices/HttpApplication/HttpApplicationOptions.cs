@@ -5,7 +5,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using System.Web;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using static System.FormattableString;
 
@@ -20,6 +22,8 @@ public class HttpApplicationOptions
         get => _modules ?? throw new InvalidOperationException("HttpApplicationOptions must be initialized with a module collection");
         set => _modules = value;
     }
+
+    internal Dictionary<ApplicationEvent, List<RequestDelegate>>? EventHandlers { get; private set; }
 
     /// <summary>
     /// Used to track if the services were added or if the options was just automatically created.
@@ -47,6 +51,17 @@ public class HttpApplicationOptions
     }
 
     public IDictionary<string, Type> Modules => ModuleCollection;
+
+    public void RegisterEvent(ApplicationEvent @event, RequestDelegate func)
+    {
+        EventHandlers ??= new();
+        if (!EventHandlers.TryGetValue(@event, out var handlers))
+        {
+            handlers = new List<RequestDelegate>();
+            EventHandlers[@event] = handlers;
+        }
+        handlers.Add(func);
+    }
 
     /// <summary>
     /// Gets or sets whether <see cref="HttpApplication.PreSendRequestHeaders"/> and <see cref="HttpApplication.PreSendRequestContent"/> is supported

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.ObjectPool;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
@@ -14,17 +15,19 @@ internal sealed class RegisterHttpApplicationFeatureMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ObjectPool<HttpApplication> _pool;
+    private readonly IOptions<HttpApplicationOptions> _options;
 
-    public RegisterHttpApplicationFeatureMiddleware(RequestDelegate next, ObjectPool<HttpApplication> pool)
+    public RegisterHttpApplicationFeatureMiddleware(RequestDelegate next, ObjectPool<HttpApplication> pool, IOptions<HttpApplicationOptions> options)
     {
         _next = next;
         _pool = pool;
+        _options = options;
     }
 
     public async Task InvokeAsync(HttpContextCore context)
     {
         var endFeature = context.Features.GetRequiredFeature<IHttpResponseEndFeature>();
-        using var httpApplicationFeature = new HttpApplicationFeature(context, endFeature, _pool);
+        using var httpApplicationFeature = new HttpApplicationFeature(context, endFeature, _pool, _options.Value);
 
         context.Features.Set<IHttpApplicationFeature>(httpApplicationFeature);
         context.Features.Set<IHttpResponseEndFeature>(httpApplicationFeature);

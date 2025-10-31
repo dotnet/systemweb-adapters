@@ -19,6 +19,8 @@ namespace System.Web
             _request = request;
         }
 
+        internal HttpRequest InnerRequest => _request;
+
         public override string[] AcceptTypes => _request.AcceptTypes;
 
         public override void Abort() => _request.Abort();

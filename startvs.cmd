@@ -16,8 +16,8 @@ SET PATH=%DOTNET_ROOT%;%PATH%
 SET sln=%~1
 
 IF "%sln%"=="" (
-    echo Solution not specified, using Microsoft.AspNetCore.SystemWebAdapters.slnf
-    SET sln=%~dp0Microsoft.AspNetCore.SystemWebAdapters.slnf
+    echo Solution not specified, using Microsoft.AspNetCore.SystemWebAdapters.slnx
+    SET sln=%~dp0Microsoft.AspNetCore.SystemWebAdapters.slnx
 )
 
 IF NOT EXIST "%DOTNET_ROOT%\dotnet.exe" (

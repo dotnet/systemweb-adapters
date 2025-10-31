@@ -26,7 +26,7 @@ namespace MvcCoreApp.Controllers
             return View();
         }
 
-        [Authorize(AuthenticationSchemes = RemoteAppAuthenticationDefaults.AuthenticationScheme)]
+        [Authorize]
         public IActionResult UserInfo()
         {
             return View();

@@ -1,0 +1,23 @@
+@model MvcCoreApp.Models.SendCodeViewModel
+@{
+    ViewBag.Title = "Send";
+}
+
+<h2>@ViewBag.Title.</h2>
+
+<form asp-action="SendCode" asp-controller="Account" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal" role="form">
+  <input type="hidden" name="rememberMe" value="@Model.RememberMe" />
+ <h4>Send verification code</h4>
+    <hr />
+    <div class="row">
+ <div class="col-md-8">
+  Select Two-Factor Authentication Provider:
+            <select asp-for="SelectedProvider" asp-items="Model.Providers"></select>
+            <input type="submit" value="Submit" class="btn btn-default" />
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
