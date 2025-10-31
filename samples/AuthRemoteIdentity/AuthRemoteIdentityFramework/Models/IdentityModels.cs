@@ -20,7 +20,7 @@ namespace MvcApp.Models
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
-            : base("DefaultConnection", throwIfV1Schema: false)
+            : base(Microsoft.AspNetCore.SystemWebAdapters.AppConfiguration.GetConnectionString("DefaultConnection"), throwIfV1Schema: false)
         {
         }
 

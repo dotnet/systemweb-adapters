@@ -47,6 +47,9 @@
     -->
     <NoWarn>$(NoWarn);SYSWEB1001</NoWarn>
 
+    <!-- Suppress warning for using .NET Framework packages -->
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
+    
     <!-- We want to run pack on the solution so this allows us to do that -->
     <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
   </PropertyGroup>

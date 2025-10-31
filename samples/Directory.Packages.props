@@ -13,9 +13,11 @@
     <PackageVersion Include="AspNet.ScriptManager.jQuery.UI.Combined" Version="1.13.2" />
     <PackageVersion Include="bootstrap" Version="5.3.6" />
     <PackageVersion Include="C3D.Extensions.Aspire.IISExpress" Version="0.2.20" />
+    <PackageVersion Include="EntityFramework" Version="6.5.1" />
     <PackageVersion Include="jQuery" Version="3.7.1" />
     <PackageVersion Include="Microsoft.AspNet.FriendlyUrls" Version="1.0.2" />
-    <PackageVersion Include="Microsoft.AspNet.Identity.EntityFramework" Version="2.2.3" />
+    <PackageVersion Include="Microsoft.AspNet.Identity.Core" Version="2.2.4" />
+    <PackageVersion Include="Microsoft.AspNet.Identity.EntityFramework" Version="2.2.4" />
     <PackageVersion Include="Microsoft.AspNet.Identity.Owin" Version="2.2.4" />
     <PackageVersion Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
     <PackageVersion Include="Microsoft.AspNet.ScriptManager.MSAjax" Version="5.0.0" />
@@ -27,7 +29,6 @@
     <PackageVersion Include="Microsoft.AspNetCore.Components.CustomElements" Version="9.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.DataProtection.SystemWeb" Version="2.3.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.3.0" />
-    <PackageVersion Include="Microsoft.Configuration.ConfigurationBuilders.Environment" Version="3.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.1" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.5" />
@@ -35,10 +36,10 @@
     <PackageVersion Include="Microsoft.Extensions.FileProviders.Composite" Version="9.0.5" />
     <PackageVersion Include="Microsoft.Extensions.FileProviders.Physical" Version="9.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.1" />
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.3.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.5.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.2" />
-    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.3.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.5.0" />
     <PackageVersion Include="Microsoft.Net.Compilers.Toolset" Version="4.14.0" />
     <PackageVersion Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform" Version="4.1.0" />
     <PackageVersion Include="Microsoft.jQuery.Unobtrusive.Validation" Version="3.2.11" />

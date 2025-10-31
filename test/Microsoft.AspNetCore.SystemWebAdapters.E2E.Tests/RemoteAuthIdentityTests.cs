@@ -7,13 +7,15 @@ using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
-public class RemoteAuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire) : DebugPageTest, IClassFixture<AspireFixture<AuthRemoteIdentityAppHost>>
+public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire) : DebugPageTest, IClassFixture<AspireFixture<AuthRemoteIdentityAppHost>>
 {
-    [Fact]
-    public async Task MVCCoreAppCanLogoutBothApps()
+    [Theory]
+    [InlineData("core")]
+    [InlineData("owin")]
+    public async Task MVCCoreAppCanLogoutBothApps(string name)
     {
         var email = $"{Path.GetRandomFileName()}@test.com";
-        var coreAppEndpoint = await GetAspNetCoreEndpoint();
+        var coreAppEndpoint = await GetEndpoint(name);
         var frameworkAppEndpoint = await GetAspNetFrameworkEndpoint();
 
         await Page.GotoAsync(frameworkAppEndpoint);
@@ -32,11 +34,13 @@ public class RemoteAuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> as
         await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
     }
 
-    [Fact]
-    public async Task MVCAppCanLogoutBothApps()
+    [Theory]
+    [InlineData("core")]
+    [InlineData("owin")]
+    public async Task MVCAppCanLogoutBothApps(string name)
     {
         var email = $"{Path.GetRandomFileName()}@test.com";
-        var coreAppEndpoint = await GetAspNetCoreEndpoint();
+        var coreAppEndpoint = await GetEndpoint(name);
         var frameworkAppEndpoint = await GetAspNetFrameworkEndpoint();
 
         // Login with core app
@@ -90,15 +94,12 @@ public class RemoteAuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> as
         }
     }
 
-    private async ValueTask<string> GetAspNetCoreEndpoint()
+    private async ValueTask<string> GetEndpoint(string name)
     {
         var app = await aspire.GetApplicationAsync();
-        return app.GetEndpoint("core", "https").AbsoluteUri;
+        var uri = app.GetEndpoint(name, "https").AbsoluteUri;
+        return uri;
     }
 
-    private async ValueTask<string> GetAspNetFrameworkEndpoint()
-    {
-        var app = await aspire.GetApplicationAsync();
-        return app.GetEndpoint("framework", "https").AbsoluteUri;
-    }
+    private ValueTask<string> GetAspNetFrameworkEndpoint() => GetEndpoint("framework");
 }
