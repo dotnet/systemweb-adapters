@@ -11,13 +11,13 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class OwinAspNetCoreExtension
 {
     /// <summary>
-    /// Add an OWIN pieline that will be executed within the emulated HttpApplication eventing similar to OWIN on ASP.NET Framework.
+    /// Add an OWIN pipeline that will be executed within the emulated HttpApplication eventing similar to OWIN on ASP.NET Framework.
     /// </summary>
     public static ISystemWebAdapterBuilder AddOwinApp(this ISystemWebAdapterBuilder builder, Action<IAppBuilder> configure)
         => builder.AddOwinApp((app, _) => configure(app));
 
     /// <summary>
-    /// Add an OWIN pieline that will be executed within the emulated HttpApplication eventing similar to OWIN on ASP.NET Framework.
+    /// Add an OWIN pipeline that will be executed within the emulated HttpApplication eventing similar to OWIN on ASP.NET Framework.
     /// </summary>
     public static ISystemWebAdapterBuilder AddOwinApp(this ISystemWebAdapterBuilder builder, Action<IAppBuilder, IServiceProvider> configure)
     {
