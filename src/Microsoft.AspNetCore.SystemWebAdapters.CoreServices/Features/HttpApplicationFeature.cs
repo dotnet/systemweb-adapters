@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -22,7 +23,7 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
     ];
 
     private readonly IHttpResponseEndFeature _previous;
-    private readonly Dictionary<ApplicationEvent, List<RequestDelegate>>? _events;
+    private readonly ImmutableDictionary<ApplicationEvent, ImmutableList<RequestDelegate>>? _events;
     private readonly ObjectPool<HttpApplication> _pool;
 
     private object? _contextOrApplication;

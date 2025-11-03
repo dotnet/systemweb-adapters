@@ -4,18 +4,20 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
-using static System.FormattableString;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public class HttpApplicationOptions
 {
     private ModuleCollection? _modules;
+    private Type _applicationType = typeof(HttpApplication);
+    private ImmutableDictionary<ApplicationEvent, ImmutableList<RequestDelegate>> _eventHandlers = ImmutableDictionary<ApplicationEvent, ImmutableList<RequestDelegate>>.Empty;
 
     internal ModuleCollection ModuleCollection
     {
@@ -23,7 +25,7 @@ public class HttpApplicationOptions
         set => _modules = value;
     }
 
-    internal Dictionary<ApplicationEvent, List<RequestDelegate>>? EventHandlers { get; private set; }
+    internal ImmutableDictionary<ApplicationEvent, ImmutableList<RequestDelegate>> EventHandlers => _eventHandlers;
 
     /// <summary>
     /// Used to track if the middleware for HttpApplication infrastructure should be added
@@ -32,8 +34,6 @@ public class HttpApplicationOptions
         _modules is { Count: > 0 } ||
         _applicationType != typeof(HttpApplication) ||
         EventHandlers is { Count: > 0 };
-
-    private Type _applicationType = typeof(HttpApplication);
 
     public Type ApplicationType
     {
@@ -57,13 +57,16 @@ public class HttpApplicationOptions
 
     public void RegisterEvent(ApplicationEvent @event, RequestDelegate func)
     {
-        EventHandlers ??= new();
-        if (!EventHandlers.TryGetValue(@event, out var handlers))
+        ImmutableInterlocked.Update(ref _eventHandlers, static (dict, state) =>
         {
-            handlers = new List<RequestDelegate>();
-            EventHandlers[@event] = handlers;
-        }
-        handlers.Add(func);
+            var (@event, func) = state;
+            if (!dict.TryGetValue(@event, out var handlers))
+            {
+                handlers = ImmutableList<RequestDelegate>.Empty;
+            }
+            handlers = handlers.Add(func);
+            return dict.SetItem(@event, handlers);
+        }, (@event, func));
     }
 
     /// <summary>
