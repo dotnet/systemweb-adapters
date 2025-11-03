@@ -4,16 +4,20 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using System.Web;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
-using static System.FormattableString;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public class HttpApplicationOptions
 {
     private ModuleCollection? _modules;
+    private Type _applicationType = typeof(HttpApplication);
+    private ImmutableDictionary<ApplicationEvent, ImmutableList<RequestDelegate>> _eventHandlers = ImmutableDictionary<ApplicationEvent, ImmutableList<RequestDelegate>>.Empty;
 
     internal ModuleCollection ModuleCollection
     {
@@ -21,12 +25,15 @@ public class HttpApplicationOptions
         set => _modules = value;
     }
 
-    /// <summary>
-    /// Used to track if the services were added or if the options was just automatically created.
-    /// </summary>
-    internal bool IsAdded => _modules is { };
+    internal ImmutableDictionary<ApplicationEvent, ImmutableList<RequestDelegate>> EventHandlers => _eventHandlers;
 
-    private Type _applicationType = typeof(HttpApplication);
+    /// <summary>
+    /// Used to track if the middleware for HttpApplication infrastructure should be added
+    /// </summary>
+    internal bool ShouldBeRegistered =>
+        _modules is { Count: > 0 } ||
+        _applicationType != typeof(HttpApplication) ||
+        EventHandlers is { Count: > 0 };
 
     public Type ApplicationType
     {
@@ -47,6 +54,20 @@ public class HttpApplicationOptions
     }
 
     public IDictionary<string, Type> Modules => ModuleCollection;
+
+    public void RegisterEvent(ApplicationEvent @event, RequestDelegate func)
+    {
+        ImmutableInterlocked.Update(ref _eventHandlers, static (dict, state) =>
+        {
+            var (@event, func) = state;
+            if (!dict.TryGetValue(@event, out var handlers))
+            {
+                handlers = ImmutableList<RequestDelegate>.Empty;
+            }
+            handlers = handlers.Add(func);
+            return dict.SetItem(@event, handlers);
+        }, (@event, func));
+    }
 
     /// <summary>
     /// Gets or sets whether <see cref="HttpApplication.PreSendRequestHeaders"/> and <see cref="HttpApplication.PreSendRequestContent"/> is supported

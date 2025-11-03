@@ -18,5 +18,15 @@
     <PackageVersion Include="System.Security.Principal.Windows" Version="5.0.0" />
     <PackageVersion Include="System.Text.Json" Version="8.0.5" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.Owin" Version="4.2.3" />
+    <PackageVersion Include="Microsoft.Owin.Security" Version="4.2.3" />
+    <PackageVersion Include="Owin" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+    <PackageVersion Include="Microsoft.AspNetCore.Owin" Version="8.0.21" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
+    <PackageVersion Include="Microsoft.AspNetCore.Owin" Version="9.0.10" />
   </ItemGroup>
 </Project>
