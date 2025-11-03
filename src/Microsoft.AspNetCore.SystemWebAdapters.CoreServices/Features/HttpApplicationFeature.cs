@@ -23,7 +23,7 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
     ];
 
     private readonly IHttpResponseEndFeature _previous;
-    private readonly ImmutableDictionary<ApplicationEvent, ImmutableList<RequestDelegate>>? _events;
+    private readonly ImmutableDictionary<ApplicationEvent, ImmutableList<RequestDelegate>> _events;
     private readonly ObjectPool<HttpApplication> _pool;
 
     private object? _contextOrApplication;
@@ -61,7 +61,7 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
 
     async ValueTask IHttpApplicationFeature.RaiseEventAsync(ApplicationEvent @event)
     {
-        if (_events is { } && _events.TryGetValue(@event, out var handlers))
+        if (_events.TryGetValue(@event, out var handlers))
         {
             var context = Application.Context.AsAspNetCore();
 
