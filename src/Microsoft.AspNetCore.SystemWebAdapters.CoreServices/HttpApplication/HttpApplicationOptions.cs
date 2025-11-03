@@ -26,9 +26,12 @@ public class HttpApplicationOptions
     internal Dictionary<ApplicationEvent, List<RequestDelegate>>? EventHandlers { get; private set; }
 
     /// <summary>
-    /// Used to track if the services were added or if the options was just automatically created.
+    /// Used to track if the middleware for HttpApplication infrastructure should be added
     /// </summary>
-    internal bool IsAdded => _modules is { };
+    internal bool ShouldBeRegistered =>
+        _modules is { Count: > 0 } ||
+        _applicationType != typeof(HttpApplication) ||
+        EventHandlers is { Count: > 0 };
 
     private Type _applicationType = typeof(HttpApplication);
 
