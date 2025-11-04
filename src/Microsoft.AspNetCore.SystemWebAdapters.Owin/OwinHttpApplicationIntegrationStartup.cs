@@ -21,10 +21,10 @@ internal sealed partial class OwinHttpApplicationIntegrationStartup(
     IServiceProvider sp)
     : IStartupFilter
 {
-    [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "Integrated Pipeline stage '{StageName}' added out of order before stage '{CurrentStageName}'. This stage will be ignored and middleware may run earlier than expected.")]
+    [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "Integrated OWIN pipeline stage '{StageName}' added out of order before stage '{CurrentStageName}'. This stage will be ignored and middleware may run earlier than expected.")]
     private static partial void LogOutOfOrder(ILogger logger, string stageName, string currentStageName);
 
-    [LoggerMessage(EventId = 1, Level = LogLevel.Error, Message = "Integrated Pipeline stage '{StageName}' could not be mapped to an ApplicationEvent")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Error, Message = "Integrated OWIN pipeline stage '{StageName}' could not be mapped to an ApplicationEvent")]
     private static partial void LogSkippedStage(ILogger logger, string stageName);
 
     public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
