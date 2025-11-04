@@ -15,8 +15,18 @@ using Owin;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal sealed partial class OwinHttpApplicationIntegrationStartup(IOptions<OwinAppOptions> owinOptions, IServiceProvider sp) : IStartupFilter
+internal sealed partial class OwinHttpApplicationIntegrationStartup(
+    IOptions<OwinAppOptions> owinOptions,
+    ILogger<OwinHttpApplicationIntegrationStartup> logger,
+    IServiceProvider sp)
+    : IStartupFilter
 {
+    [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "Integrated Pipeline stage '{StageName}' added out of order before stage '{CurrentStageName}'. This stage will be ignored and middleware may run earlier than expected.")]
+    private static partial void LogOutOfOrder(ILogger logger, string stageName, string currentStageName);
+
+    [LoggerMessage(EventId = 1, Level = LogLevel.Error, Message = "Integrated Pipeline stage '{StageName}' could not be mapped to an ApplicationEvent")]
+    private static partial void LogSkippedStage(ILogger logger, string stageName);
+
     public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
         => builder =>
         {
@@ -90,12 +100,16 @@ internal sealed partial class OwinHttpApplicationIntegrationStartup(IOptions<Owi
             {
                 yield return (value, stage.Next);
             }
+            else
+            {
+                LogSkippedStage(logger, stage.Name);
+            }
         }
     }
 
     private sealed record OwinStage(string Name, RequestDelegate Next);
 
-    private static IEnumerable<OwinStage> CreateStages(Action<IAppBuilder, IServiceProvider>? configure, IServiceProvider services)
+    private IEnumerable<OwinStage> CreateStages(Action<IAppBuilder, IServiceProvider>? configure, IServiceProvider services)
     {
         if (configure is null)
         {
@@ -121,7 +135,7 @@ internal sealed partial class OwinHttpApplicationIntegrationStartup(IOptions<Owi
 
         var appFunc = OwinBuilder.Build(DefaultApp, (builder, sp) =>
         {
-            EnableIntegratedPipeline(builder, stage => firstStage = stage, DefaultApp, sp.GetRequiredService<ILogger<OwinStage>>());
+            EnableIntegratedPipeline(builder, stage => firstStage = stage, DefaultApp, logger);
             configure(builder, services);
         }, services);
 
@@ -130,7 +144,7 @@ internal sealed partial class OwinHttpApplicationIntegrationStartup(IOptions<Owi
             throw new InvalidOperationException("Did not have a stage");
         }
 
-        return [.. GetStages(firstStage, appFunc, services)];
+        return GetStages(firstStage, appFunc, services);
     }
 
     private static IEnumerable<OwinStage> GetStages(StageBuilder? stage, AppFunc appFunc, IServiceProvider services)
@@ -167,9 +181,6 @@ internal sealed partial class OwinHttpApplicationIntegrationStartup(IOptions<Owi
 
         public AppFunc? EntryPoint { get; set; }
     }
-
-    [LoggerMessage(EventId = 1, Level = LogLevel.Error, Message = "Integrated Pipeline stage '{StageName}' added out of order before stage '{CurrentStageName}'. This stage will be ignored and middleware may run earlier than expected.")]
-    private static partial void LogOutOfOrder(ILogger logger, string stageName, string currentStageName);
 
     private static void EnableIntegratedPipeline(IAppBuilder app, Action<StageBuilder> onStageCreated, AppFunc exitPoint, ILogger logger)
     {
@@ -231,6 +242,7 @@ internal sealed partial class OwinHttpApplicationIntegrationStartup(IOptions<Owi
         {
             return false;
         }
+
         return stage1Index < stage2Index;
     }
 }
