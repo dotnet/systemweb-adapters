@@ -1,8 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Frozen;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,9 +15,66 @@ using Owin;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal sealed partial class IntegratedPipelineConfigureOptions(IOptions<OwinAppOptions> owinOptions, IServiceProvider sp) : IConfigureOptions<HttpApplicationOptions>
+internal sealed partial class OwinHttpApplicationIntegrationStartup(
+    IOptions<OwinAppOptions> owinOptions,
+    ILogger<OwinHttpApplicationIntegrationStartup> logger,
+    IServiceProvider sp)
+    : IStartupFilter
 {
-    public void Configure(HttpApplicationOptions options)
+    [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "Integrated OWIN pipeline stage '{StageName}' added out of order before stage '{CurrentStageName}'. This stage will be ignored and middleware may run earlier than expected.")]
+    private static partial void LogOutOfOrder(ILogger logger, string stageName, string currentStageName);
+
+    [LoggerMessage(EventId = 1, Level = LogLevel.Error, Message = "Integrated OWIN pipeline stage '{StageName}' could not be mapped to an ApplicationEvent")]
+    private static partial void LogSkippedStage(ILogger logger, string stageName);
+
+    public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
+        => builder =>
+        {
+            var stages = BuildStages().ToFrozenDictionary(kv => kv.Item1, kv => kv.Item2);
+
+            builder.Use(async (ctx, next) =>
+            {
+                var existing = ctx.Features.GetRequiredFeature<IHttpApplicationFeature>();
+
+                ctx.Features.Set<IHttpApplicationFeature>(new OwinPipelineApplicationEventsFeatures(existing, stages, ctx));
+
+                try
+                {
+                    await next();
+                }
+                finally
+                {
+                    ctx.Features.Set<IHttpApplicationFeature>(existing);
+                }
+            });
+
+            next(builder);
+        };
+
+    private sealed class OwinPipelineApplicationEventsFeatures(
+        IHttpApplicationFeature other,
+        FrozenDictionary<ApplicationEvent, RequestDelegate> stages,
+        HttpContext context)
+        : IHttpApplicationFeature
+    {
+        System.Web.HttpApplication IHttpApplicationFeature.Application => other.Application;
+
+        System.Web.RequestNotification IHttpApplicationFeature.CurrentNotification => other.CurrentNotification;
+
+        bool IHttpApplicationFeature.IsPostNotification => other.IsPostNotification;
+
+        async ValueTask IHttpApplicationFeature.RaiseEventAsync(ApplicationEvent appEvent)
+        {
+            await other.RaiseEventAsync(appEvent);
+
+            if (stages.TryGetValue(appEvent, out var stage))
+            {
+                await stage(context);
+            }
+        }
+    }
+
+    public IEnumerable<(ApplicationEvent, RequestDelegate)> BuildStages()
     {
         var stages = CreateStages(owinOptions.Value.Configure, sp);
 
@@ -38,14 +98,18 @@ internal sealed partial class IntegratedPipelineConfigureOptions(IOptions<OwinAp
 
             if (appEvent is { } value)
             {
-                options.RegisterEvent(value, stage.Next);
+                yield return (value, stage.Next);
+            }
+            else
+            {
+                LogSkippedStage(logger, stage.Name);
             }
         }
     }
 
     private sealed record OwinStage(string Name, RequestDelegate Next);
 
-    private static IEnumerable<OwinStage> CreateStages(Action<IAppBuilder, IServiceProvider>? configure, IServiceProvider services)
+    private IEnumerable<OwinStage> CreateStages(Action<IAppBuilder, IServiceProvider>? configure, IServiceProvider services)
     {
         if (configure is null)
         {
@@ -54,7 +118,7 @@ internal sealed partial class IntegratedPipelineConfigureOptions(IOptions<OwinAp
 
         StageBuilder? firstStage = null;
 
-        Task DefaultApp(IDictionary<string, object> env)
+        static Task DefaultApp(IDictionary<string, object> env)
         {
             if (!env.TryGetValue(OwinConstants.IntegratedPipelineCurrentStage, out var currentStage))
             {
@@ -71,7 +135,7 @@ internal sealed partial class IntegratedPipelineConfigureOptions(IOptions<OwinAp
 
         var appFunc = OwinBuilder.Build(DefaultApp, (builder, sp) =>
         {
-            EnableIntegratedPipeline(builder, stage => firstStage = stage, DefaultApp, sp.GetRequiredService<ILogger<OwinStage>>());
+            EnableIntegratedPipeline(builder, stage => firstStage = stage, DefaultApp, logger);
             configure(builder, services);
         }, services);
 
@@ -80,7 +144,7 @@ internal sealed partial class IntegratedPipelineConfigureOptions(IOptions<OwinAp
             throw new InvalidOperationException("Did not have a stage");
         }
 
-        return [.. GetStages(firstStage, appFunc, services)];
+        return GetStages(firstStage, appFunc, services);
     }
 
     private static IEnumerable<OwinStage> GetStages(StageBuilder? stage, AppFunc appFunc, IServiceProvider services)
@@ -117,9 +181,6 @@ internal sealed partial class IntegratedPipelineConfigureOptions(IOptions<OwinAp
 
         public AppFunc? EntryPoint { get; set; }
     }
-
-    [LoggerMessage(EventId = 1, Level = LogLevel.Error, Message = "Integrated Pipeline stage '{StageName}' added out of order before stage '{CurrentStageName}'. This stage will be ignored and middleware may run earlier than expected.")]
-    private static partial void LogOutOfOrder(ILogger logger, string stageName, string currentStageName);
 
     private static void EnableIntegratedPipeline(IAppBuilder app, Action<StageBuilder> onStageCreated, AppFunc exitPoint, ILogger logger)
     {
@@ -181,6 +242,7 @@ internal sealed partial class IntegratedPipelineConfigureOptions(IOptions<OwinAp
         {
             return false;
         }
+
         return stage1Index < stage2Index;
     }
 }

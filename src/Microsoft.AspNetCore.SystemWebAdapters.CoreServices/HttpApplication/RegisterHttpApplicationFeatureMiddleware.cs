@@ -15,19 +15,17 @@ internal sealed class RegisterHttpApplicationFeatureMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ObjectPool<HttpApplication> _pool;
-    private readonly IOptions<HttpApplicationOptions> _options;
 
-    public RegisterHttpApplicationFeatureMiddleware(RequestDelegate next, ObjectPool<HttpApplication> pool, IOptions<HttpApplicationOptions> options)
+    public RegisterHttpApplicationFeatureMiddleware(RequestDelegate next, ObjectPool<HttpApplication> pool)
     {
         _next = next;
         _pool = pool;
-        _options = options;
     }
 
     public async Task InvokeAsync(HttpContextCore context)
     {
         var endFeature = context.Features.GetRequiredFeature<IHttpResponseEndFeature>();
-        using var httpApplicationFeature = new HttpApplicationFeature(context, endFeature, _pool, _options.Value);
+        using var httpApplicationFeature = new HttpApplicationFeature(context, endFeature, _pool);
 
         context.Features.Set<IHttpApplicationFeature>(httpApplicationFeature);
         context.Features.Set<IHttpResponseEndFeature>(httpApplicationFeature);
