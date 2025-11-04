@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <!-- When consuming the NuGet package, this is automatically added, but we must add it manually -->
-  <Import Project="$(MSBuildThisFileDirectory)../src/Microsoft.AspNetCore.SystemWebAdapters/Build/Microsoft.AspNetCore.SystemWebAdapters.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)../src/Microsoft.AspNetCore.SystemWebAdapters/build/Microsoft.AspNetCore.SystemWebAdapters.props"/>
 
   <PropertyGroup>
     <!-- This allows the first build to be correct without any warnings on a new clone of the repo -->
