@@ -23,18 +23,16 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
     ];
 
     private readonly IHttpResponseEndFeature _previous;
-    private readonly ImmutableDictionary<ApplicationEvent, ImmutableList<RequestDelegate>> _events;
     private readonly ObjectPool<HttpApplication> _pool;
 
     private object? _contextOrApplication;
     private List<Exception>? _exceptions;
 
-    public HttpApplicationFeature(HttpContextCore context, IHttpResponseEndFeature previousEnd, ObjectPool<HttpApplication> pool, HttpApplicationOptions options)
+    public HttpApplicationFeature(HttpContextCore context, IHttpResponseEndFeature previousEnd, ObjectPool<HttpApplication> pool)
     {
         _contextOrApplication = context;
         _pool = pool;
         _previous = previousEnd;
-        _events = options.EventHandlers;
     }
 
     public RequestNotification CurrentNotification { get; set; }
@@ -59,19 +57,10 @@ internal sealed class HttpApplicationFeature : IHttpApplicationFeature, IHttpRes
         return app;
     }
 
-    async ValueTask IHttpApplicationFeature.RaiseEventAsync(ApplicationEvent @event)
+    ValueTask IHttpApplicationFeature.RaiseEventAsync(ApplicationEvent @event)
     {
-        if (_events.TryGetValue(@event, out var handlers))
-        {
-            var context = Application.Context.AsAspNetCore();
-
-            foreach (var handler in handlers)
-            {
-                await handler(context);
-            }
-        }
-
         RaiseEvent(@event);
+        return ValueTask.CompletedTask;
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Must handle all exceptions here")]

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -26,7 +27,7 @@ public static class OwinAspNetCoreExtension
 
         builder.AddHttpApplication();
         builder.Services.Configure<OwinAppOptions>(options => options.Configure += configure);
-        builder.Services.TryAddEnumerable(ServiceDescriptor.Transient<IConfigureOptions<HttpApplicationOptions>, IntegratedPipelineConfigureOptions>());
+        builder.Services.TryAddEnumerable(ServiceDescriptor.Transient<IStartupFilter, OwinHttpApplicationIntegrationStartup>());
 
         return builder;
     }

@@ -1,8 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Frozen;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,9 +15,56 @@ using Owin;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal sealed partial class IntegratedPipelineConfigureOptions(IOptions<OwinAppOptions> owinOptions, IServiceProvider sp) : IConfigureOptions<HttpApplicationOptions>
+internal sealed partial class OwinHttpApplicationIntegrationStartup(IOptions<OwinAppOptions> owinOptions, IServiceProvider sp) : IStartupFilter
 {
-    public void Configure(HttpApplicationOptions options)
+    public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
+        => builder =>
+        {
+            var stages = BuildStages().ToFrozenDictionary(kv => kv.Item1, kv => kv.Item2);
+
+            builder.Use(async (ctx, next) =>
+            {
+                var existing = ctx.Features.GetRequiredFeature<IHttpApplicationFeature>();
+
+                ctx.Features.Set<IHttpApplicationFeature>(new OwinPipelineApplicationEventsFeatures(existing, stages, ctx));
+
+                try
+                {
+                    await next();
+                }
+                finally
+                {
+                    ctx.Features.Set<IHttpApplicationFeature>(existing);
+                }
+            });
+
+            next(builder);
+        };
+
+    private sealed class OwinPipelineApplicationEventsFeatures(
+        IHttpApplicationFeature other,
+        FrozenDictionary<ApplicationEvent, RequestDelegate> stages,
+        HttpContext context)
+        : IHttpApplicationFeature
+    {
+        System.Web.HttpApplication IHttpApplicationFeature.Application => other.Application;
+
+        System.Web.RequestNotification IHttpApplicationFeature.CurrentNotification => other.CurrentNotification;
+
+        bool IHttpApplicationFeature.IsPostNotification => other.IsPostNotification;
+
+        async ValueTask IHttpApplicationFeature.RaiseEventAsync(ApplicationEvent appEvent)
+        {
+            await other.RaiseEventAsync(appEvent);
+
+            if (stages.TryGetValue(appEvent, out var stage))
+            {
+                await stage(context);
+            }
+        }
+    }
+
+    public IEnumerable<(ApplicationEvent, RequestDelegate)> BuildStages()
     {
         var stages = CreateStages(owinOptions.Value.Configure, sp);
 
@@ -38,7 +88,7 @@ internal sealed partial class IntegratedPipelineConfigureOptions(IOptions<OwinAp
 
             if (appEvent is { } value)
             {
-                options.RegisterEvent(value, stage.Next);
+                yield return (value, stage.Next);
             }
         }
     }
@@ -54,7 +104,7 @@ internal sealed partial class IntegratedPipelineConfigureOptions(IOptions<OwinAp
 
         StageBuilder? firstStage = null;
 
-        Task DefaultApp(IDictionary<string, object> env)
+        static Task DefaultApp(IDictionary<string, object> env)
         {
             if (!env.TryGetValue(OwinConstants.IntegratedPipelineCurrentStage, out var currentStage))
             {
