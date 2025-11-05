@@ -172,6 +172,7 @@ public class OwinAppTests
         }
     }
 
+    // Use a TaskCompletionSource to make sure we wait until things are completed
     private sealed class ResultWriterStartupFilter(TaskCompletionSource<Result> tcs) : IStartupFilter
     {
         public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
