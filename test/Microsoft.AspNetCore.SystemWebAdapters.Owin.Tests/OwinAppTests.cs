@@ -181,7 +181,7 @@ public class OwinAppTests
                 {
                     var result = new Result();
                     ctx.Features.Set(result);
-                    ctx.Response.RegisterForDispose(() =>
+                    ctx.Response.OnCompleted(() =>
                     {
                         tcs.SetResult(result);
                         return Task.CompletedTask;
