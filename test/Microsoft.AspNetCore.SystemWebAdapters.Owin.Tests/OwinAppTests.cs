@@ -25,13 +25,13 @@ public class OwinAppTests
     public async Task EventIntegration()
     {
         // Arrange
-        var result = new Result();
+        var tcs = new TaskCompletionSource<Result>();
         var builder = WebApplication.CreateSlimBuilder();
 
         builder.Logging.AddDebug();
         builder.WebHost.UseTestServer(options => options.AllowSynchronousIO = true);
 
-        builder.Services.AddSingleton<IStartupFilter>(new ResultWriterStartupFilter(result));
+        builder.Services.AddSingleton<IStartupFilter>(new ResultWriterStartupFilter(tcs));
         builder.Services.AddSystemWebAdapters()
             .AddOwinApp(app =>
             {
@@ -64,6 +64,8 @@ public class OwinAppTests
         using var response = await app.GetTestClient().GetAsync(new Uri("/", UriKind.Relative));
 
         // Assert
+        var result = await tcs.Task;
+
         Assert.Equal([
             "Before: AuthN",
             "Before: Owin1a",
@@ -87,12 +89,12 @@ public class OwinAppTests
     public async Task UseOwinTests()
     {
         // Arrange
-        var result = new Result();
+        var tcs = new TaskCompletionSource<Result>();
         var builder = WebApplication.CreateSlimBuilder();
 
         builder.WebHost.UseTestServer(options => options.AllowSynchronousIO = true);
 
-        builder.Services.AddSingleton<IStartupFilter>(new ResultWriterStartupFilter(result));
+        builder.Services.AddSingleton<IStartupFilter>(new ResultWriterStartupFilter(tcs));
 
         var app = builder.Build();
 
@@ -125,6 +127,7 @@ public class OwinAppTests
         var response = await app.GetTestClient().GetStringAsync(new Uri("/", UriKind.Relative));
 
         // Assert
+        var result = await tcs.Task;
         Assert.Equal("Hello", response);
         Assert.Equal([
             "Before: a",
@@ -169,14 +172,21 @@ public class OwinAppTests
         }
     }
 
-    private sealed class ResultWriterStartupFilter(Result result) : IStartupFilter
+    // Use a TaskCompletionSource to make sure we wait until things are completed
+    private sealed class ResultWriterStartupFilter(TaskCompletionSource<Result> tcs) : IStartupFilter
     {
         public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
             => builder =>
             {
                 builder.Use(async (ctx, next) =>
                 {
+                    var result = new Result();
                     ctx.Features.Set(result);
+                    ctx.Response.OnCompleted(() =>
+                    {
+                        tcs.SetResult(result);
+                        return Task.CompletedTask;
+                    });
                     await next(ctx);
                 });
                 next(builder);
