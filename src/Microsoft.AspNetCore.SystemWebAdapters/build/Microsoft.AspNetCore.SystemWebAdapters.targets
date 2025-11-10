@@ -1,3 +1,4 @@
 <Project>
   <Import Project="$(MSBuildThisFileDirectory)NuGetContentFiles.targets"/>
+  <Import Project="$(MSBuildThisFileDirectory)DependencyInjectionGenerator.targets"/>
 </Project>

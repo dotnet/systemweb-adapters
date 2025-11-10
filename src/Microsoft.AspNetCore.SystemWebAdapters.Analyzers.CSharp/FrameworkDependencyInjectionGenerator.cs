@@ -1,3 +1,4 @@
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
@@ -29,6 +30,10 @@ public class FrameworkDependencyInjectionGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        var options = context.AnalyzerConfigOptionsProvider
+            .Select((c, _) =>
+                c.GlobalOptions.TryGetValue("build_property.EnableSystemWebDependencyInjectionGenerator", out var enableSwitch) && enableSwitch.Equals("true", StringComparison.OrdinalIgnoreCase));
+
         var usedFrameworks = context.CompilationProvider.Select((compilation, token) => new FrameworksUsed
         {
             HttpApplicationHost = compilation.GetTypeByMetadataName("Microsoft.AspNetCore.SystemWebAdapters.Hosting.IDependencyRegistrar") is { },
@@ -36,8 +41,16 @@ public class FrameworkDependencyInjectionGenerator : IIncrementalGenerator
             Mvc = compilation.GetTypeByMetadataName("System.Web.Mvc.IDependencyResolver") is { },
         });
 
-        context.RegisterSourceOutput(usedFrameworks, (context, frameworks) =>
+        context.RegisterSourceOutput(usedFrameworks.Combine(options), (context, repoContext) =>
         {
+            var frameworks = repoContext.Left;
+            var isEnabled = repoContext.Right;
+
+            if (!isEnabled)
+            {
+                return;
+            }
+
             // No need to do anything if they're not referencing SystemWebAdapters with the ASP.NET Framework hosting infrastructure
             if (!frameworks.HttpApplicationHost)
             {
