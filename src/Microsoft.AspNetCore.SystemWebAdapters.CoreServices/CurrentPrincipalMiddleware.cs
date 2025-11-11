@@ -4,6 +4,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
@@ -23,7 +25,7 @@ internal sealed class CurrentPrincipalMiddleware
     {
         if (context.GetEndpoint()?.Metadata.GetMetadata<SetThreadCurrentPrincipalAttribute>() is { IsDisabled: false })
         {
-            context.GetRequestUser().EnableStaticAccessors();
+            context.Features.GetRequiredFeature<IRequestUserFeature>().EnableStaticAccessors();
         }
 
         return _next(context);

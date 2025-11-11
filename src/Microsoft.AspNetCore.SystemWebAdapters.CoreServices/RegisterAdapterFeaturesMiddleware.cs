@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 
@@ -23,6 +24,7 @@ internal sealed class RegisterAdapterFeaturesMiddleware
     {
         using (RegisterRequestFeatures(context))
         using (RegisterResponseFeatures(context))
+        using (RegisterUserFeatures(context))
         {
             try
             {
@@ -37,6 +39,21 @@ internal sealed class RegisterAdapterFeaturesMiddleware
                 }
             }
         }
+    }
+
+    private static DelegateDisposable RegisterUserFeatures(HttpContextCore context)
+    {
+        var userFeature = new RequestUserFeature(context);
+
+        context.Response.RegisterForDispose(userFeature);
+        context.Features.Set<IRequestUserFeature>(userFeature);
+        context.Features.Set<IHttpAuthenticationFeature>(userFeature);
+
+        return new DelegateDisposable(() =>
+        {
+            context.Features.Set<IRequestUserFeature>(null);
+            context.Features.Set<IHttpAuthenticationFeature>(null);
+        });
     }
 
     private static DelegateDisposable RegisterRequestFeatures(HttpContextCore context)
