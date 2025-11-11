@@ -61,7 +61,6 @@ else if (sampleMode == SampleMode.Owin)
                 // Must match the Scheme name on the MvcCoreApp, i.e. IdentityConstants.ApplicationScheme
                 "SharedCookie",
                 "v2");
-            app.SetDataProtectionProvider(services.GetDataProtectionProvider());
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
