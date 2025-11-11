@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+namespace Microsoft.AspNetCore.SystemWebAdapters.Middleware;
 
 internal sealed class CurrentPrincipalMiddleware
 {
