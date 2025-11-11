@@ -20,6 +20,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.Owin;
 using Microsoft.Owin.Extensions;
 using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.DataProtection;
 using Microsoft.Owin.Security.Interop;
 using MvcApp;
 using MvcApp.Models;
@@ -60,6 +61,7 @@ else if (sampleMode == SampleMode.Owin)
                 // Must match the Scheme name on the MvcCoreApp, i.e. IdentityConstants.ApplicationScheme
                 "SharedCookie",
                 "v2");
+            app.SetDataProtectionProvider(services.GetDataProtectionProvider());
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
