@@ -8,11 +8,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-internal partial class CurrentPrincipalMiddleware
+internal sealed class CurrentPrincipalMiddleware
 {
-    [LoggerMessage(0, LogLevel.Trace, "Thread.CurrentPrincipal has been set with the current user")]
-    private partial void LogCurrentPrincipalUsage();
-
     private readonly RequestDelegate _next;
     private readonly ILogger<CurrentPrincipalMiddleware> _logger;
 
@@ -23,23 +20,12 @@ internal partial class CurrentPrincipalMiddleware
     }
 
     public Task InvokeAsync(HttpContext context)
-        => context.GetEndpoint()?.Metadata.GetMetadata<SetThreadCurrentPrincipalAttribute>() is { IsDisabled: false } ? SetUserAsync(context) : _next(context);
-
-    private async Task SetUserAsync(HttpContext context)
     {
-        LogCurrentPrincipalUsage();
-
-        var current = Thread.CurrentPrincipal;
-
-        try
+        if (context.GetEndpoint()?.Metadata.GetMetadata<SetThreadCurrentPrincipalAttribute>() is { IsDisabled: false })
         {
-            Thread.CurrentPrincipal = context.User;
+            context.GetRequestUser().EnableStaticAccessors();
+        }
 
-            await _next(context);
-        }
-        finally
-        {
-            Thread.CurrentPrincipal = current;
-        }
+        return _next(context);
     }
 }
