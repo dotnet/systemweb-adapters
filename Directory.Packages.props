@@ -88,7 +88,7 @@
     <PackageVersion Include="Microsoft.AspNet.WebApi" Version="5.2.7" />
     <PackageVersion Include="Microsoft.AspNetCore.DataProtection.SystemWeb" Version="2.3.0" />
     <PackageVersion Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform" Version="4.1.0" />
-    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.5.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.0.0" />
     <PackageVersion Include="Microsoft.jQuery.Unobtrusive.Validation" Version="3.2.11" />
     <PackageVersion Include="Microsoft.Net.Compilers.Toolset" Version="4.14.0" />
     <PackageVersion Include="Microsoft.Owin.Host.SystemWeb" Version="4.2.2" />
@@ -100,10 +100,8 @@
     <PackageVersion Include="Modernizr" Version="2.8.3" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <PackageVersion Include="System.Net.Http.WinHttpHandler" Version="9.0.5" />
     <PackageVersion Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
     <PackageVersion Include="System.Security.AccessControl" Version="6.0.1" />
-    <PackageVersion Include="System.Text.Encodings.Web" Version="8.0.0" />
     <PackageVersion Include="WebGrease" Version="1.6.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.13.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNet" Version="1.13.0-rc.1" />
@@ -132,6 +130,7 @@
     <PackageVersion Include="Microsoft.Extensions.Options" Version="8.0.22" />
     <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0" />
+    <PackageVersion Include="System.Text.Encodings.Web" Version="8.0.0" />
   </ItemGroup>
   
   <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
@@ -152,6 +151,7 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.11" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.11" />
     <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.11" />
+    <PackageVersion Include="System.Text.Encodings.Web" Version="9.0.11" />
   </ItemGroup>
   
   <ItemGroup Condition=" '$(TargetFramework)' == 'net10.0' ">
@@ -173,5 +173,6 @@
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.0" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.13.1" />
+    <PackageVersion Include="System.Text.Encodings.Web" Version="10.0.0" />
   </ItemGroup>
 </Project>
