@@ -41,10 +41,9 @@ public class FrameworkDependencyInjectionGenerator : IIncrementalGenerator
             Mvc = compilation.GetTypeByMetadataName("System.Web.Mvc.IDependencyResolver") is { },
         });
 
-        context.RegisterSourceOutput(usedFrameworks.Combine(options), (context, repoContext) =>
+        context.RegisterSourceOutput(usedFrameworks.Combine(options), (context, combined) =>
         {
-            var frameworks = repoContext.Left;
-            var isEnabled = repoContext.Right;
+            var (frameworks, isEnabled) = combined;
 
             if (!isEnabled)
             {
