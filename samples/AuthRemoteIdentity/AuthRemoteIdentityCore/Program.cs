@@ -20,6 +20,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.Owin;
 using Microsoft.Owin.Extensions;
 using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.DataProtection;
 using Microsoft.Owin.Security.Interop;
 using MvcApp;
 using MvcApp.Models;

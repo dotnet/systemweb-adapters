@@ -20,6 +20,7 @@
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
     <PackageVersion Include="Microsoft.Owin" Version="4.2.3" />
     <PackageVersion Include="Microsoft.Owin.Security" Version="4.2.3" />
+    <PackageVersion Include="Microsoft.Owin.Security.Interop" Version="2.3.0" />
     <PackageVersion Include="Owin" Version="1.0.0" />
   </ItemGroup>
 

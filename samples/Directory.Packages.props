@@ -45,7 +45,7 @@
     <PackageVersion Include="Microsoft.jQuery.Unobtrusive.Validation" Version="3.2.11" />
     <PackageVersion Include="Microsoft.Owin.Host.SystemWeb" Version="4.2.2" />
     <PackageVersion Include="Microsoft.Owin.Security.Cookies" Version="4.2.2" />
-    <PackageVersion Include="Microsoft.Owin.Security.Interop" Version="2.1.38" />
+    <PackageVersion Include="Microsoft.Owin.Security.Interop" Version="2.3.0" />
     <PackageVersion Include="Microsoft.Owin.Security.OAuth" Version="4.2.2" />
     <PackageVersion Include="Microsoft.Web.Infrastructure" Version="2.0.1" />
     <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
