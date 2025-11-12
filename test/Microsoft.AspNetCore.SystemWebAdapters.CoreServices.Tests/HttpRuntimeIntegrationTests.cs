@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.IIS;
 using Microsoft.AspNetCore.TestHost;
@@ -15,7 +16,8 @@ using Xunit;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
-public class HttpRuntimeIntegrationTests : SelfHostedTestBase
+[Collection(nameof(SelfHostedTests))]
+public class HttpRuntimeIntegrationTests
 {
     private const string IIS_VERSION = "IIS_Version";
     private const string IIS_SITE_ID = "IIS_SITE_ID";
@@ -31,26 +33,29 @@ public class HttpRuntimeIntegrationTests : SelfHostedTestBase
     public async Task ConfigureRuntimeViaConfig()
     {
         // Arrange
-        using var host = await GetTestHost()
-            .ConfigureAppConfiguration(config =>
-            {
-                config.AddInMemoryCollection(new Dictionary<string, string?>
-                {
-                    [IIS_VERSION] = "10.0",
-                    [IIS_SITE_ID] = "1",
-                    [IIS_APP_POOL_ID] = IIS_APP_POOL_ID,
-                    [IIS_APP_POOL_CONFIG_FILE] = IIS_APP_POOL_CONFIG_FILE,
-                    [IIS_APP_CONFIG_PATH] = IIS_APP_CONFIG_PATH,
-                    [IIS_PHYSICAL_PATH] = IIS_PHYSICAL_PATH,
-                    [IIS_APPLICATION_VIRTUAL_PATH] = IIS_APPLICATION_VIRTUAL_PATH,
-                    [IIS_APPLICATION_ID] = IIS_APPLICATION_ID,
-                    [IIS_SITE_NAME] = IIS_SITE_NAME,
-                });
-            })
-            .StartAsync();
+        var builder = WebApplication.CreateBuilder();
+
+        builder.WebHost.UseTestServer();
+        builder.Services.AddSystemWebAdapters();
+        builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            [IIS_VERSION] = "10.0",
+            [IIS_SITE_ID] = "1",
+            [IIS_APP_POOL_ID] = IIS_APP_POOL_ID,
+            [IIS_APP_POOL_CONFIG_FILE] = IIS_APP_POOL_CONFIG_FILE,
+            [IIS_APP_CONFIG_PATH] = IIS_APP_CONFIG_PATH,
+            [IIS_PHYSICAL_PATH] = IIS_PHYSICAL_PATH,
+            [IIS_APPLICATION_VIRTUAL_PATH] = IIS_APPLICATION_VIRTUAL_PATH,
+            [IIS_APPLICATION_ID] = IIS_APPLICATION_ID,
+            [IIS_SITE_NAME] = IIS_SITE_NAME,
+        });
+
+        using var app = builder.Build();
+
+        await app.StartAsync();
 
         // Act
-        var options = host.Services.GetRequiredService<IOptions<SystemWebAdaptersOptions>>().Value;
+        var options = app.Services.GetRequiredService<IOptions<SystemWebAdaptersOptions>>().Value;
 
         // Assert
         Assert.Equal(IIS_SITE_NAME, options.SiteName);
@@ -76,13 +81,30 @@ public class HttpRuntimeIntegrationTests : SelfHostedTestBase
         feature.Setup(f => f.AppPoolConfigFile).Returns(IIS_APP_POOL_CONFIG_FILE);
         feature.Setup(f => f.AppPoolId).Returns(IIS_APP_POOL_ID);
 
-        using var host = await GetTestHost()
-            .StartAsync();
+        var builder = WebApplication.CreateBuilder();
 
-        host.GetTestServer().Features.Set<IIISEnvironmentFeature>(feature.Object);
+        builder.WebHost.UseTestServer();
+        builder.Services.AddSystemWebAdapters();
+        builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            [IIS_VERSION] = "10.0",
+            [IIS_SITE_ID] = "1",
+            [IIS_APP_POOL_ID] = IIS_APP_POOL_ID,
+            [IIS_APP_POOL_CONFIG_FILE] = IIS_APP_POOL_CONFIG_FILE,
+            [IIS_APP_CONFIG_PATH] = IIS_APP_CONFIG_PATH,
+            [IIS_PHYSICAL_PATH] = IIS_PHYSICAL_PATH,
+            [IIS_APPLICATION_VIRTUAL_PATH] = IIS_APPLICATION_VIRTUAL_PATH,
+            [IIS_APPLICATION_ID] = IIS_APPLICATION_ID,
+            [IIS_SITE_NAME] = IIS_SITE_NAME,
+        });
+
+        using var app = builder.Build();
+
+        // Must be set before calling anything that will build the options (i.e. including starting the app)
+        app.GetTestServer().Features.Set<IIISEnvironmentFeature>(feature.Object);
 
         // Act
-        var options = host.Services.GetRequiredService<IOptions<SystemWebAdaptersOptions>>().Value;
+        var options = app.Services.GetRequiredService<IOptions<SystemWebAdaptersOptions>>().Value;
 
         // Assert
         Assert.Equal(IIS_SITE_NAME, options.SiteName);

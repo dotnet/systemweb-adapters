@@ -49,6 +49,11 @@ public class SystemWebAdaptersOptions
     public string AppDomainAppPath { get; set; } = AppContext.BaseDirectory;
 
     /// <summary>
+    /// Gets or sets a value indicating whether to enable access to <see cref="System.Threading.Thread.CurrentPrincipal"/> and <see cref="System.Security.Claims.ClaimsPrincipal.Current"/> for the duration of the request.
+    /// </summary>
+    public bool EnableStaticUserAccessors { get; set; }
+
+    /// <summary>
     /// Gets or sets the value used by <see cref="HostingEnvironment.VirtualPathProvider"/>.
     /// </summary>
     public VirtualPathProvider? VirtualPathProvider

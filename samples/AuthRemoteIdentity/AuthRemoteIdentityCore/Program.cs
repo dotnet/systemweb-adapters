@@ -100,14 +100,31 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthenticationEvents();
 app.UseAuthentication();
-app.UseAuthorizationEvents();
+app.UseAuthenticationEvents();
 app.UseAuthorization();
+app.UseAuthorizationEvents();
 
 app.UseSystemWebAdapters();
 
 app.MapDefaultControllerRoute();
+
+app.Map("/user", () =>
+{
+    var user = ClaimsPrincipal.Current;
+
+    if (user is null)
+    {
+        return Results.Problem("Empty ClaimsPrincipal");
+    }
+
+    return Results.Json(new
+    {
+        IsAuthenticated = user.Identity?.IsAuthenticated ?? false,
+        Name = user.Identity?.Name,
+        Claims = user.Claims.Select(c => new { c.Type, c.Value })
+    });
+}).WithMetadata(new SetThreadCurrentPrincipalAttribute()); ;
 
 app.MapRemoteAppFallback()
     .ShortCircuit();

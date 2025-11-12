@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+namespace Microsoft.AspNetCore.SystemWebAdapters.Middleware;
 
 internal sealed class SessionStateMiddleware
 {
