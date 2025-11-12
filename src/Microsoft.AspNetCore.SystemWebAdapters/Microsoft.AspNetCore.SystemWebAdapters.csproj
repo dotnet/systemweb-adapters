@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;netstandard2.0;net45;net472</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0;net10.0;netstandard2.0;net45;net472</TargetFrameworks>
     <IsPackable>true</IsPackable>
 
     <!-- This will validate that the package will unify correctly with System.Web.dll -->
@@ -40,7 +40,7 @@
     <PackageReference Include="System.Security.Principal.Windows" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net10.0' ">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
 
     <PackageReference Include="System.Runtime.Caching" />
@@ -78,6 +78,6 @@
   </ItemGroup>
 
   <Import Project="Analyzers.targets" />
-  <Import Condition=" '$(TargetFramework)' == 'net8.0' " Project="Generated/GenerateApis.targets" />
+  <Import Condition=" '$(TargetFramework)' == 'net10.0' " Project="Generated/GenerateApis.targets" />
 
 </Project>
