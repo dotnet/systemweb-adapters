@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 
-namespace Microsoft.AspNetCore.SystemWebAdapters;
+namespace Microsoft.AspNetCore.SystemWebAdapters.Middleware;
 
 internal class SetHttpContextTimestampMiddleware
 {
