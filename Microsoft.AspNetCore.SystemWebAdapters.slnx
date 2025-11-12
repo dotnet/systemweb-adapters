@@ -2,8 +2,8 @@
   <Folder Name="/samples/">
     <File Path="samples/Directory.Build.props" />
     <File Path="samples/Directory.Build.targets" />
-    <File Path="samples/Directory.Packages.props" />
     <File Path="samples/README.md" />
+    <File Path="samples/Remove-WebConfigRuntimeEntries.ps1" />
     <Project Path="samples/ServiceDefaults/Samples.ServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/samples/AppConfig/">
@@ -54,6 +54,7 @@
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
     <File Path="global.json" />
     <File Path="NuGet.config" />
     <File Path="README.md" />
@@ -61,7 +62,6 @@
   <Folder Name="/src/">
     <File Path="src/Directory.Build.props" />
     <File Path="src/Directory.Build.targets" />
-    <File Path="src/Directory.Packages.props" />
     <Project Path="src/Aspire.Hosting.IncrementalMigration/Aspire.Hosting.IncrementalMigration.csproj" />
     <Project Path="src/Aspire.Microsoft.AspNetCore.SystemWebAdapters/Aspire.Microsoft.AspNetCore.SystemWebAdapters.csproj" />
     <Project Path="src/Microsoft.AspNetCore.SystemWebAdapters.Abstractions/Microsoft.AspNetCore.SystemWebAdapters.Abstractions.csproj" />
@@ -75,7 +75,6 @@
   <Folder Name="/test/">
     <File Path="test/Directory.Build.props" />
     <File Path="test/Directory.Build.targets" />
-    <File Path="test/Directory.Packages.props" />
     <Project Path="test/Microsoft.AspNetCore.SystemWebAdapters.Apis.Tests/Microsoft.AspNetCore.SystemWebAdapters.Apis.Tests.csproj" />
     <Project Path="test/Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests/Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests.csproj" />
     <Project Path="test/Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests/Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests.csproj" />

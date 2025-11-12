@@ -1,6 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <Sdk Name="Aspire.AppHost.Sdk" />
+<Project Sdk="Aspire.AppHost.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -9,11 +7,9 @@
     <Nullable>enable</Nullable>
     <IsAspireHost>true</IsAspireHost>
     <UserSecretsId>e4fa25b4-d989-447b-bf65-a59df2252e69</UserSecretsId>
-    <LangVersion>14</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" />
     <PackageReference Include="Aspire.Hosting.SqlServer" />
     <PackageReference Include="C3D.Extensions.Aspire.IISExpress" />
   </ItemGroup>
