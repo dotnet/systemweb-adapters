@@ -3,7 +3,9 @@ using Aspire.Hosting;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Playwright.Xunit;
 using Projects;
+using System.Text.Json;
 using Xunit;
+using System.Text.Json.Serialization;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
@@ -18,19 +20,19 @@ public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire) 
         var coreAppEndpoint = await GetEndpoint(name);
         var frameworkAppEndpoint = await GetAspNetFrameworkEndpoint();
 
-        await Page.GotoAsync(frameworkAppEndpoint);
+        await Page.GotoAsync(frameworkAppEndpoint.AbsoluteUri);
         await Expect(Page.Locator("text=My ASP.NET Application")).ToBeVisibleAsync();
 
         await RegisterUser(email);
 
         // Make sure core app also logged in
-        await Page.GotoAsync(coreAppEndpoint);
+        await Page.GotoAsync(coreAppEndpoint.AbsoluteUri);
         await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync();
 
         // Logout on core app and make sure both logged out
         await Page.Locator(@"text=Log out").ClickAsync();
         await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
-        await Page.GotoAsync(frameworkAppEndpoint);
+        await Page.GotoAsync(frameworkAppEndpoint.AbsoluteUri);
         await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
     }
 
@@ -44,20 +46,27 @@ public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire) 
         var frameworkAppEndpoint = await GetAspNetFrameworkEndpoint();
 
         // Login with core app
-        await Page.GotoAsync(coreAppEndpoint);
+        await Page.GotoAsync(coreAppEndpoint.AbsoluteUri);
         await Expect(Page.Locator("text=ASP.NET Core")).ToBeVisibleAsync();
 
         // Create the user
         await RegisterUser(email);
 
+        // Check the /user endpoint for ClaimsIdentity.Current setting
+        var user = await Page.GotoAsync(new Uri(coreAppEndpoint, "/user").AbsoluteUri);
+        Assert.NotNull(user);
+        var userResult = await user.JsonAsync<UserResult>();
+        Assert.Equal(email, userResult.Name);
+        Assert.True(userResult.IsAuthenticated);
+
         // Make sure framework app also logged in
-        await Page.GotoAsync(frameworkAppEndpoint);
+        await Page.GotoAsync(frameworkAppEndpoint.AbsoluteUri);
         await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync();
 
         // Logout on framework app and make sure both logged out
         await Page.Locator(@"text=Log out").ClickAsync();
         await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
-        await Page.GotoAsync(coreAppEndpoint);
+        await Page.GotoAsync(coreAppEndpoint.AbsoluteUri);
         await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
     }
 
@@ -94,12 +103,20 @@ public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire) 
         }
     }
 
-    private async ValueTask<string> GetEndpoint(string name)
+    private async ValueTask<Uri> GetEndpoint(string name)
     {
         var app = await aspire.GetApplicationAsync();
-        var uri = app.GetEndpoint(name, "https").AbsoluteUri;
-        return uri;
+        return app.GetEndpoint(name, "https");
     }
 
-    private ValueTask<string> GetAspNetFrameworkEndpoint() => GetEndpoint("framework");
+    private ValueTask<Uri> GetAspNetFrameworkEndpoint() => GetEndpoint("framework");
+
+    private sealed class UserResult
+    {
+        [JsonPropertyName("isAuthenticated")]
+        public bool IsAuthenticated { get; set; }
+
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+    }
 }

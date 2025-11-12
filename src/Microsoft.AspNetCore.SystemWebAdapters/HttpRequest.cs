@@ -57,7 +57,7 @@ namespace System.Web
 
         public string CurrentExecutionFilePath => Request.HttpContext.Features.GetRequiredFeature<IHttpRequestPathFeature>().CurrentExecutionFilePath;
 
-        public WindowsIdentity? LogonUserIdentity => Request.HttpContext.GetRequestUser().LogonUserIdentity;
+        public WindowsIdentity? LogonUserIdentity => Request.HttpContext.Features.GetRequiredFeature<IRequestUserFeature>().LogonUserIdentity;
 
         public NameValueCollection Headers => _headers ??= Request.Headers.ToNameValueCollection();
 

@@ -101,7 +101,7 @@ public class HttpContext : IServiceProvider
     public IPrincipal User
     {
         get => Context.Features.Get<IRequestUserFeature>()?.User ?? Context.User;
-        set => Context.GetRequestUser().User = value;
+        set => Context.Features.GetRequiredFeature<IRequestUserFeature>().User = value;
     }
 
     public HttpSessionState? Session => Context.Features.Get<ISessionStateFeature>()?.Session;
