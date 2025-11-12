@@ -3,6 +3,7 @@
     <File Path="samples/Directory.Build.props" />
     <File Path="samples/Directory.Build.targets" />
     <File Path="samples/README.md" />
+    <File Path="samples/Remove-WebConfigRuntimeEntries.ps1" />
     <Project Path="samples/ServiceDefaults/Samples.ServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/samples/AppConfig/">
