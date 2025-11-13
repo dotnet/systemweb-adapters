@@ -16,7 +16,12 @@ public static class AspireRemoteAppExtensions
         ArgumentNullException.ThrowIfNull(app);
         ArgumentNullException.ThrowIfNull(pattern);
 
-        var url = app.ServiceProvider.GetRequiredService<IOptions<RemoteAppClientOptions>>().Value.RemoteAppUrl.OriginalString;
+        var url = app.ServiceProvider.GetRequiredService<IOptions<RemoteAppClientOptions>>().Value.RemoteAppUrl?.OriginalString;
+
+        if (url is null)
+        {
+            throw new InvalidOperationException("RemoteAppUrl must be configured to use MapRemoteAppFallback.");
+        }
 
         return app.MapForwarder(pattern, url)
 

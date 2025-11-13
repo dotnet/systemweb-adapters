@@ -9,9 +9,18 @@
     <!-- This package won't produce a stable version -->
     <SuppressFinalPackageVersion>true</SuppressFinalPackageVersion>
     <PreReleaseVersionLabel>preview.1</PreReleaseVersionLabel>
-  </PropertyGroup>
+ </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting" />
+    <!--<PackageReference Include="envdte">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>compile; runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>-->
+    <PackageReference Include="Microsoft.Windows.CsWin32">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
+
 </Project>

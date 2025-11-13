@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>$(SAMPLES_TFM)-windows</TargetFramework>
+    <TargetFramework>$(SAMPLES_TFM)</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsAspireHost>true</IsAspireHost>
@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.SqlServer" />
-    <PackageReference Include="C3D.Extensions.Aspire.IISExpress" />
   </ItemGroup>
 
   <ItemGroup>

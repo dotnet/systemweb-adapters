@@ -4,11 +4,11 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Antlr" />
-    <PackageReference Include="AspNet.ScriptManager.jQuery" />
+    <PackageReference Include="AspNet.ScriptManager.jQuery" GeneratePathProperty="true" CopyContent="true" />
     <PackageReference Include="Microsoft.AspNet.FriendlyUrls" />
-    <PackageReference Include="Microsoft.AspNet.ScriptManager.MSAjax" />
-    <PackageReference Include="Microsoft.AspNet.ScriptManager.WebForms" />
-    <PackageReference Include="Microsoft.AspNet.Web.Optimization.WebForms" />
+    <PackageReference Include="Microsoft.AspNet.ScriptManager.MSAjax" GeneratePathProperty="true" CopyContent="true" />
+    <PackageReference Include="Microsoft.AspNet.ScriptManager.WebForms" GeneratePathProperty="true" CopyContent="true" />
+    <PackageReference Include="Microsoft.AspNet.Web.Optimization.WebForms" GeneratePathProperty="true" CopyContent="true" />
     <PackageReference Include="Microsoft.Web.Infrastructure" />
     <PackageReference Include="Modernizr" />
     <PackageReference Include="Newtonsoft.Json" />
