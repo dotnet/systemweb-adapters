@@ -79,22 +79,19 @@ internal static partial class VisualStudioExtensions
         {
             while (!cancellationToken.IsCancellationRequested)
             {
+                if (notifications.TryGetCurrentState(resourceName, out var notification))
+                {
+                    if (TryGetPid(notification.Snapshot.Properties, out var iisExpressPid))
+                    {
+                        return iisExpressPid;
+                    }
+                    else if (KnownResourceStates.TerminalStates.Contains(notification.Snapshot.State?.Text))
+                    {
+                        break;
+                    }
+                }
+
                 await notifications.WaitForResourceAsync(resourceName, cancellationToken: cancellationToken);
-
-                if (!notifications.TryGetCurrentState(resourceName, out var notification))
-                {
-                    continue;
-                }
-
-                if (TryGetPid(notification.Snapshot.Properties, out var iisExpressPid))
-                {
-                    return iisExpressPid;
-                }
-
-                if (KnownResourceStates.TerminalStates.Contains(notification.Snapshot.State?.Text))
-                {
-                    break;
-                }
             }
         }
         catch (OperationCanceledException)
