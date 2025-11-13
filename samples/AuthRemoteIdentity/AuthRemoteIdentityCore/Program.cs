@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
+using AuthRemoteIdentityCore.Services;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.AspNetCore.Authorization;
@@ -22,6 +23,7 @@ using Microsoft.Owin.Extensions;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.DataProtection;
 using Microsoft.Owin.Security.Interop;
+using Microsoft.Owin.Security.OAuth;
 using MvcApp;
 using MvcApp.Models;
 using Owin;
@@ -32,7 +34,8 @@ var builder = WebApplication.CreateBuilder();
 var sampleMode = Enum.Parse<SampleMode>(builder.Configuration.GetValue<string>("SAMPLE_MODE"), true);
 
 builder.AddServiceDefaults();
-builder.AddSystemWebAdapters();
+var webAapterBuilder = builder.AddSystemWebAdapters();
+webAapterBuilder.AddStaticUserAccessors();
 builder.Services.AddSingleton<MatcherPolicy>(new SamplesPolicy(sampleMode));
 
 // These must match the data protection settings in MvcApp Startup.Auth.cs for cookie sharing to work
@@ -81,6 +84,38 @@ else if (sampleMode == SampleMode.Owin)
             });
         });
 }
+else if (sampleMode == SampleMode.Owin_AccessToken)
+{
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = OwinAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = OwinAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultScheme = OwinAuthenticationDefaults.AuthenticationScheme;
+    })
+    .AddOwinAuthentication((app, services) =>
+    {
+        app.SetDataProtectionProvider(services.GetDataProtectionProvider());
+        // TODO: add in the Owin config
+        //use a cookie to temporarily store information about a user logging in with a third party login provider
+        app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalBearer);
+    
+        var OAuthBearerOptions = new OAuthBearerAuthenticationOptions();
+
+        var oAuthServerOptions = new OAuthAuthorizationServerOptions
+        {
+            AllowInsecureHttp = true,
+            TokenEndpointPath = new Microsoft.Owin.PathString("/api/v1/token"),
+            Provider = new SimpleAuthorizationServerProvider(),
+        };
+
+        // Token Generation
+        app.UseOAuthAuthorizationServer(oAuthServerOptions);
+        app.UseOAuthBearerAuthentication(OAuthBearerOptions);
+    });
+
+
+    builder.Services.AddAuthorization();
+}
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -126,8 +161,8 @@ app.Map("/user", () =>
     });
 }).WithMetadata(new SetThreadCurrentPrincipalAttribute()); ;
 
-app.MapRemoteAppFallback()
-    .ShortCircuit();
+//app.MapRemoteAppFallback()
+//    .ShortCircuit();
 
 app.MapDefaultEndpoints();
 

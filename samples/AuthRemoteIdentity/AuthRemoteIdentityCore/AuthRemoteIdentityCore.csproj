@@ -23,4 +23,7 @@
     <Compile Include="..\AuthRemoteIdentityFramework\App_Start\IdentityConfig.cs" Link="IdentityConfig.cs" />
     <Compile Include="..\AuthRemoteIdentityFramework\Models\IdentityModels.cs" Link="IdentityModels.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="services\" />
+  </ItemGroup>
 </Project>

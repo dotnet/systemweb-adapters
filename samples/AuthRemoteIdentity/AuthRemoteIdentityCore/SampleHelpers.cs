@@ -11,7 +11,8 @@ internal sealed class SampleVisibleMode : Attribute
 internal enum SampleMode
 {
     Remote,
-    Owin
+    Owin,
+    Owin_AccessToken
 }
 
 sealed class SamplesPolicy(SampleMode sampleMode) : MatcherPolicy, IEndpointSelectorPolicy

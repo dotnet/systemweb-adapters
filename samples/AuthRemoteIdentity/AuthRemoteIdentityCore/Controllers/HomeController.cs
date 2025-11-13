@@ -1,12 +1,14 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 using MvcCoreApp.Models;
-using System.Diagnostics;
 
 namespace MvcCoreApp.Controllers
 {
+    [SetThreadCurrentPrincipal]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
