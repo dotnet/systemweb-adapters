@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -83,6 +84,54 @@ public class OwinAppTests
             "After: Owin2a",
             "After: Owin1b",
             "After: Owin1a"], [.. result]);
+    }
+
+    [InlineData(true)]
+    [InlineData(true, OwinConstants.StageAuthenticate)]
+    [InlineData(false, OwinConstants.StageAuthenticate, OwinConstants.StageAuthorize)]
+    [InlineData(false, OwinConstants.StageAuthorize, OwinConstants.StageAuthenticate)]
+    [InlineData(true, OwinConstants.StageAuthenticate, OwinConstants.StageAuthenticate)]
+    [InlineData(false, OwinConstants.StageAuthorize)]
+    [Theory]
+    public async Task ThrowOnNonAuthenticationStageInHandler(bool allowed, params string[] stages)
+    {
+        // Arrange
+        var builder = WebApplication.CreateSlimBuilder();
+
+        builder.Logging.AddDebug();
+        builder.WebHost.UseTestServer(options => options.AllowSynchronousIO = true);
+
+        builder.Services.AddAuthentication()
+            .AddOwinAuthentication((app, _) =>
+            {
+                foreach (var stage in stages)
+                {
+                    app.UseStageMarker(stage);
+                }
+            });
+
+        var app = builder.Build();
+
+        app.UseAuthentication();
+
+        await app.StartAsync();
+
+        // Act
+        using var client = app.GetTestClient();
+        var s = app.GetTestServer();
+
+        if (allowed)
+        {
+            using var response = await Test();
+            Assert.NotNull(response);
+        }
+        else
+        {
+            await Assert.ThrowsAsync<InvalidOperationException>(Test);
+        }
+
+        Task<HttpResponseMessage> Test()
+           => app.GetTestClient().GetAsync(new Uri("/", UriKind.Relative));
     }
 
     [Fact]
