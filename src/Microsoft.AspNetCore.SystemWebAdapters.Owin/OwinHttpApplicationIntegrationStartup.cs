@@ -188,7 +188,7 @@ internal sealed partial class OwinHttpApplicationIntegrationStartup(
 
         onStageCreated(stage);
 
-        app.Properties[OwinConstants.IntegratedPipelineStageMarker] = (IAppBuilder builder, string name) =>
+        app.Properties[OwinConstants.IntegratedPipelineStageMarker] = (IAppBuilder _, string name) =>
         {
             app.Use((AppFunc next) =>
             {

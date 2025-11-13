@@ -101,10 +101,18 @@ public static class OwinAuthenticationExtensions
                 throw new InvalidOperationException("No OWIN pipeline configured for OWIN authentication.");
             }
 
-            application.UseOwin(owin =>
+            application.UseOwin(app =>
             {
-                options.OwinPipeline(owin, services);
-                owin.Run(ctx => ctx.GetHttpContext().JoinPipelineFork(typeof(OwinAuthenticationHandler)));
+                app.Properties[OwinConstants.IntegratedPipelineStageMarker] = (IAppBuilder _, string name) =>
+                {
+                    if (!string.Equals(name, OwinConstants.StageAuthenticate, StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new InvalidOperationException($"Using the OWIN authentication handler only allows the authentication stage. '{name}' was use. Consider using IApplicationBuilder.UseOwin to incorporate OWIN pipeline into the normal middleware.");
+                    }
+                };
+
+                options.OwinPipeline(app, services);
+                app.Run(ctx => ctx.GetHttpContext().JoinPipelineFork(typeof(OwinAuthenticationHandler)));
             });
 
             options.RequestDelegate = application.Build();
