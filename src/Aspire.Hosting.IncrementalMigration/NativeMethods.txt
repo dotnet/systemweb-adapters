@@ -1,0 +1,4 @@
+GetRunningObjectTable
+CoRegisterMessageFilter
+PENDINGMSG
+SERVERCALL

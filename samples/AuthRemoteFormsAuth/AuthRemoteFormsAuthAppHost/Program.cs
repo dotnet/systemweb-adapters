@@ -1,9 +1,6 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var frameworkApp = builder.AddIISExpress("iis")
-    .AddSiteProject<Projects.AuthRemoteFormsAuthFramework>("framework")
-    .WithDefaultIISExpressEndpoints()
-    .WithOtlpExporter()
+var frameworkApp = builder.AddIISExpressProject<Projects.AuthRemoteFormsAuthFramework>("framework")
     .WithHttpHealthCheck();
 
 var coreApp = builder.AddProject<Projects.AuthRemoteFormsAuthCore>("core")

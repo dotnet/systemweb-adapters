@@ -9,13 +9,11 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Options;
-
-
+using Microsoft.Extensions.ServiceDiscovery;
 
 #if NET
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Extensions.ServiceDiscovery;
 #endif
 
 namespace Microsoft.Extensions.Hosting;
@@ -25,26 +23,32 @@ namespace Microsoft.Extensions.Hosting;
 // To learn more about using this project, see https://aka.ms/dotnet/aspire/service-defaults
 public static class SampleServiceExtensions
 {
+    private const string HealthEndpointPath = "/health";
+    private const string AlivenessEndpointPath = "/alive";
+
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
         builder.ConfigureOpenTelemetry();
 
         builder.AddDefaultHealthChecks();
 
-#if NET
         builder.Services.AddServiceDiscovery();
-#endif
 
         builder.Services.ConfigureHttpClientDefaults(http =>
         {
             // Turn on resilience by default
             http.AddStandardResilienceHandler();
 
-#if NET
             // Turn on service discovery by default
             http.AddServiceDiscovery();
-#endif
         });
+
+        builder.Services
+            .AddHttpClient("OtlpMetricExporter")
+            .RemoveAllLoggers();
+        builder.Services
+            .AddHttpClient("OtlpTraceExporter")
+            .RemoveAllLoggers();
 
         // Uncomment the following to restrict the allowed schemes for service discovery.
         // builder.Services.Configure<ServiceDiscoveryOptions>(options =>
@@ -80,9 +84,17 @@ public static class SampleServiceExtensions
             {
                 tracing.AddSource(builder.Environment.ApplicationName)
 #if NET
-                    .AddAspNetCoreInstrumentation()
+                    .AddAspNetCoreInstrumentation(tracing =>
+                        // Exclude health check requests from tracing
+                        tracing.Filter = context =>
+                            !context.Request.Path.StartsWithSegments(HealthEndpointPath, StringComparison.OrdinalIgnoreCase)
+                            && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath, StringComparison.OrdinalIgnoreCase))
 #else
-                    .AddAspNetInstrumentation()
+                    .AddAspNetInstrumentation(tracing =>
+                        // Exclude health check requests from tracing
+                        tracing.Filter = context =>
+                            !context.Request.Path.StartsWith(HealthEndpointPath, StringComparison.OrdinalIgnoreCase)
+                            && !context.Request.Path.StartsWith(AlivenessEndpointPath, StringComparison.OrdinalIgnoreCase))
 #endif
                     .AddSqlClientInstrumentation()
                     .AddHttpClientInstrumentation();
@@ -130,13 +142,13 @@ public static class SampleServiceExtensions
         if (app.Environment.IsDevelopment())
         {
             // All health checks must pass for app to be considered ready to accept traffic after starting
-            app.MapHealthChecks("/health").ShortCircuit();
+            app.MapHealthChecks(HealthEndpointPath);
 
             // Only health checks tagged with the "live" tag must pass for app to be considered alive
-            app.MapHealthChecks("/alive", new HealthCheckOptions
+            app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions
             {
                 Predicate = r => r.Tags.Contains("live")
-            }).ShortCircuit();
+            });
         }
 
         return app;

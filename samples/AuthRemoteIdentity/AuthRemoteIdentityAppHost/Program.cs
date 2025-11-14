@@ -14,11 +14,8 @@ var db = builder.AddSqlServer("identityserver", password: password)
     .WithLifetime(ContainerLifetime.Persistent)
     .AddDatabase("identity");
 
-var frameworkApp = builder.AddIISExpress("iis")
-    .AddSiteProject<Projects.AuthRemoteIdentityFramework>("framework")
-    .WithDefaultIISExpressEndpoints()
+var frameworkApp = builder.AddIISExpressProject<Projects.AuthRemoteIdentityFramework>("framework")
     .WithReference(db, connectionName: "DefaultConnection")
-    .WithOtlpExporter()
     .WaitFor(db)
     .WithHttpHealthCheck();
 
