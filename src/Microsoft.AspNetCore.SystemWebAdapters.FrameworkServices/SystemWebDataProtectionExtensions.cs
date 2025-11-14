@@ -3,7 +3,6 @@
 
 using System.Configuration;
 using System.Web.Configuration;
-using System.Xml.Linq;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.SystemWeb;
 using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
