@@ -23,6 +23,8 @@ namespace System.Web
             _context = httpContext;
         }
 
+        internal HttpContext InnerContext => _context;
+
         public override DateTime Timestamp => _context.Timestamp;
 
         public override IDictionary Items => _context.Items;

@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="$(SolutionRootDirectory)src/Microsoft.AspNetCore.SystemWebAdapters/Build/Microsoft.AspNetCore.SystemWebAdapters.props" />
+  <Import Project="$(SolutionRootDirectory)src/Microsoft.AspNetCore.SystemWebAdapters/build/Microsoft.AspNetCore.SystemWebAdapters.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFrameworks>$(TestFrameworks)</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +17,6 @@
     <PackageReference Include="jQuery" CopyContent="true" />
   </ItemGroup>
 
-  <Import Project="$(SolutionRootDirectory)src/Microsoft.AspNetCore.SystemWebAdapters/Build/Microsoft.AspNetCore.SystemWebAdapters.targets" />
+  <Import Project="$(SolutionRootDirectory)src/Microsoft.AspNetCore.SystemWebAdapters/build/Microsoft.AspNetCore.SystemWebAdapters.targets" />
 
 </Project>

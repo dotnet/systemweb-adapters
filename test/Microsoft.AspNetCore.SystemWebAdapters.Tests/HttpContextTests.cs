@@ -10,6 +10,7 @@ using System.Web.Caching;
 using System.Web.SessionState;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.AspNetCore.SystemWebAdapters.SessionState;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,6 +65,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void UserIsProxied()
         {
             var coreContext = new DefaultHttpContext();
+            TestFeatures.Enable(coreContext);
+
             var context = new HttpContext(coreContext);
 
             Assert.Same(coreContext.User, context.User);
@@ -78,6 +81,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void UserIsProxiedWhenSetOnCoreAfterAdapter()
         {
             var coreContext = new DefaultHttpContext();
+            TestFeatures.Enable(coreContext);
+
             var context = new HttpContext(coreContext);
 
             Assert.Same(coreContext.User, context.User);
@@ -98,6 +103,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void UserIsNotClaimsPrincipal()
         {
             var coreContext = new DefaultHttpContext();
+            TestFeatures.Enable(coreContext);
+
             var context = new HttpContext(coreContext);
 
             Assert.Same(coreContext.User, context.User);
@@ -113,6 +120,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void UserIsDerivedClaimsPrincipal()
         {
             var coreContext = new DefaultHttpContext();
+            TestFeatures.Enable(coreContext);
+
             var context = new HttpContext(coreContext);
 
             Assert.Same(coreContext.User, context.User);
@@ -131,6 +140,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
         public void NonClaimsPrincipalIsCopied()
         {
             var coreContext = new DefaultHttpContext();
+            TestFeatures.Enable(coreContext);
+
             var context = new HttpContext(coreContext);
 
             var newUser = new Mock<IPrincipal>();
@@ -154,6 +165,34 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             Assert.Same(context.Session, provider.GetService(typeof(HttpSessionState)));
             Assert.Null(provider.GetService(typeof(HttpContext)));
             Assert.Null(provider.GetService<Cache>());
+        }
+
+        [Fact]
+        public void GetRequestServiceExtensions()
+        {
+            var coreContext = new DefaultHttpContext();
+
+            var requestServices = coreContext.AsSystemWeb().GetRequestServices();
+
+            Assert.Equal(coreContext.RequestServices, requestServices);
+        }
+
+        [Fact]
+        public void GetRequestServiceExtensionsWrapper()
+        {
+            var coreContext = new DefaultHttpContext();
+            var requestServices = new HttpContextWrapper(coreContext.AsSystemWeb()).GetRequestServices();
+
+            Assert.Equal(coreContext.RequestServices, requestServices);
+        }
+
+        [Fact]
+        public void GetRequestServiceExtensionsBaseNoService()
+        {
+            var coreContext = new DefaultHttpContext();
+            var contextBase = new Mock<HttpContextBase>();
+
+            Assert.Throws<InvalidOperationException>(() => contextBase.Object.GetRequestServices());
         }
 
         [Fact]
@@ -527,6 +566,47 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
 
             // Assert
             feature.VerifySet(f => f.Behavior = behavior);
+        }
+
+        private sealed class TestFeatures : IRequestUserFeature, IHttpAuthenticationFeature
+        {
+            public IPrincipal? User { get; set; }
+
+            public WindowsIdentity? LogonUserIdentity => null;
+
+            ClaimsPrincipal? IHttpAuthenticationFeature.User
+            {
+                get
+                {
+                    if (User is null)
+                    {
+                        return null;
+                    }
+
+                    if (User is ClaimsPrincipal claimsPrincipal)
+                    {
+                        return claimsPrincipal;
+                    }
+
+                    return new ClaimsPrincipal(User);
+                }
+                set
+                {
+                    User = value;
+                }
+            }
+
+            public void EnableStaticAccessors()
+            {
+                throw new NotImplementedException();
+            }
+
+            public static void Enable(HttpContext context)
+            {
+                var features = new TestFeatures();
+                context.Context.Features.Set<IRequestUserFeature>(features);
+                context.Context.Features.Set<IHttpAuthenticationFeature>(features);
+            }
         }
     }
 }

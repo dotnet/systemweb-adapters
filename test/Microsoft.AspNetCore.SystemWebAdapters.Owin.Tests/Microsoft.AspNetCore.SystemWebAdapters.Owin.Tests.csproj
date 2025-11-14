@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>$(TestFrameworks)</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.Owin\OwinConstants.cs" Link="OwinConstants.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Autofac.Extras.Moq" />
+    <PackageReference Include="AutoFixture" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" />
+    <PackageReference Include="Microsoft.Owin" />
+    <PackageReference Include="Owin" />
+    <PackageReference Include="Microsoft.AspNetCore.Owin" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.CoreServices\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.AspNetCore.SystemWebAdapters.Owin\Microsoft.AspNetCore.SystemWebAdapters.Owin.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.AspNetCore.Http.HttpContext" Alias="HttpContextCore" />
+    <Using Include="Microsoft.AspNetCore.Http.HttpRequest" Alias="HttpRequestCore" />
+    <Using Include="Microsoft.AspNetCore.Http.HttpResponse" Alias="HttpResponseCore" />
+    <Using Include="System.Web.HttpContext" Alias="HttpContext" />
+    <Using Include="System.Web.HttpRequest" Alias="HttpRequest" />
+    <Using Include="System.Web.HttpResponse" Alias="HttpResponse" />
+  </ItemGroup>
+</Project>

@@ -9,9 +9,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
+using Microsoft.AspNetCore.SystemWebAdapters.Middleware;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Security;
+using System.Security.Claims;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -25,6 +28,7 @@ public static class SystemWebAdaptersExtensions
         services.TryAddSingleton<IBrowserCapabilitiesFactory, BrowserCapabilitiesFactory>();
         services.TryAddEnumerable(ServiceDescriptor.Transient<IStartupFilter, HttpContextStartupFilter>());
         services.AddHostingRuntime();
+        services.AddConfigurationAccessor();
 
         return new SystemWebAdapterBuilder(services)
             .AddMvc();
@@ -42,6 +46,19 @@ public static class SystemWebAdaptersExtensions
         ArgumentNullException.ThrowIfNull(builder);
 
         builder.Services.AddSingleton<ITraceContext>(ctx => new LoggingTraceContext(defaultCategory ?? DefaultLoggingCategory, ctx.GetRequiredService<ILoggerFactory>()));
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Enables all requests to have static accessors for <see cref="ClaimsPrincipal.Current"/> and <see cref="System.Threading.Thread.CurrentPrincipal"/>.
+    /// </summary>
+    /// <param name="builder">System.Web adapter builder</param>
+    public static ISystemWebAdapterBuilder AddStaticUserAccessors(this ISystemWebAdapterBuilder builder)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+
+        builder.Services.Configure<SystemWebAdaptersOptions>(options => options.EnableStaticUserAccessors = true);
 
         return builder;
     }
@@ -149,7 +166,9 @@ public static class SystemWebAdaptersExtensions
                     builder.UseMiddleware<RegisterHttpApplicationPreSendEventsMiddleware>();
                 }
 
-                builder.UseMiddleware<RegisterAdapterFeaturesMiddleware>();
+                builder.UseMiddleware<RequestUserFeaturesMiddleware>();
+                builder.UseMiddleware<RequestFeaturesMiddleware>();
+                builder.UseMiddleware<ResponseFeaturesMiddleware>();
                 builder.UseMiddleware<SessionStateMiddleware>();
 
                 if (builder.AreHttpApplicationEventsRequired())

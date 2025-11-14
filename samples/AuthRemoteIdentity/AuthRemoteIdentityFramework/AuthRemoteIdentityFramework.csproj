@@ -1,20 +1,18 @@
-<Project Sdk="MSBuild.SDK.SystemWeb">
+﻿<Project Sdk="MSBuild.SDK.SystemWeb">
   <PropertyGroup>
     <TargetFramework>net481</TargetFramework>
+
+    <!-- To validate that the code generation for DI will be compatible with the latest supported version  -->
+    <LangVersion>7.3</LangVersion>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Antlr" />
-    <PackageReference Include="Microsoft.Configuration.ConfigurationBuilders.Environment" />
     <PackageReference Include="Microsoft.AspNet.Identity.EntityFramework" />
     <PackageReference Include="Microsoft.AspNet.Identity.Owin" />
     <PackageReference Include="Microsoft.AspNet.Mvc" />
     <PackageReference Include="Microsoft.AspNet.Web.Optimization" />
     <PackageReference Include="Microsoft.AspNet.WebApi" />
-    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-    <PackageReference Include="Microsoft.Extensions.Options" />
     <PackageReference Include="Microsoft.jQuery.Unobtrusive.Validation" />
     <PackageReference Include="Microsoft.Owin.Host.SystemWeb" />
     <PackageReference Include="Microsoft.Owin.Security.Cookies" />
@@ -30,10 +28,10 @@
     <PackageReference Include="WebGrease" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
+    <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.Framework\Samples.ServiceDefaults.Framework.csproj" />
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts/**/*" CopyToOutputDirectory="PreserveNewest" />

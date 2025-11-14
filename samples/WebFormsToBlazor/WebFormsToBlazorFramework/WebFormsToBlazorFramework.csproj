@@ -9,16 +9,12 @@
     <PackageReference Include="Microsoft.AspNet.ScriptManager.MSAjax" />
     <PackageReference Include="Microsoft.AspNet.ScriptManager.WebForms" />
     <PackageReference Include="Microsoft.AspNet.Web.Optimization.WebForms" />
-    <PackageReference Include="Microsoft.Configuration.ConfigurationBuilders.Environment" />
     <PackageReference Include="Microsoft.Web.Infrastructure" />
     <PackageReference Include="Modernizr" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="WebGrease" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.Framework\Samples.ServiceDefaults.Framework.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.Configuration" />
+    <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.csproj" />
   </ItemGroup>
 </Project>

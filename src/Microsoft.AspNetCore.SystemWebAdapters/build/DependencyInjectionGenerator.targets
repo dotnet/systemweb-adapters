@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <EnableSystemWebDependencyInjectionGenerator Condition=" '$(EnableSystemWebDependencyInjectionGenerator)' == '' ">true</EnableSystemWebDependencyInjectionGenerator>
+  </PropertyGroup>
+  <ItemGroup>
+    <CompilerVisibleProperty Include="EnableSystemWebDependencyInjectionGenerator" />
+  </ItemGroup>
+</Project>

@@ -4,23 +4,19 @@ using WebFormsToBlazorCore.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+builder.AddSystemWebAdapters()
+    .AddJsonSessionSerializer(options =>
+    {
+        options.RegisterKey<string>("test-value");
+    });
+
 // Add YARP
 builder.Services.AddHttpForwarder();
 
 // Add constraint to redirect .axd files to WebForms
 builder.Services.AddRouting(options => options.ConstraintMap.Add("isAxdFile", typeof(AxdConstraint)));
 // Add System Web Adapters and setup session
-builder.Services.AddSystemWebAdapters()
-    .AddJsonSessionSerializer(options =>
-    {
-        options.RegisterKey<string>("test-value");
-    })
-    .AddRemoteAppClient(options =>
-    {
-        options.RemoteAppUrl = new(builder.Configuration["RemoteApp:Url"]);
-        options.ApiKey = builder.Configuration["RemoteApp:ApiKey"]!;
-    })
-    .AddSessionClient();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -53,10 +49,15 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .RequireSystemWebAdapterSession();
 
-app.MapForwarder("/Scripts/{**catch-all}", app.Configuration["RemoteApp:Url"]).Add(static builder => ((RouteEndpointBuilder)builder).Order = int.MaxValue);
-app.MapForwarder("/Content/{**catch-all}", app.Configuration["RemoteApp:Url"]).Add(static builder => ((RouteEndpointBuilder)builder).Order = int.MaxValue);
-app.MapForwarder("/bundles/{**catch-all}", app.Configuration["RemoteApp:Url"]).Add(static builder => ((RouteEndpointBuilder)builder).Order = int.MaxValue);
-app.MapForwarder("/About", app.Configuration["RemoteApp:Url"]).Add(static builder => ((RouteEndpointBuilder)builder).Order = int.MaxValue);
-app.MapForwarder("/Contact", app.Configuration["RemoteApp:Url"]).Add(static builder => ((RouteEndpointBuilder)builder).Order = int.MaxValue);
-app.MapForwarder("/{route:isAxdFile}", app.Configuration["RemoteApp:Url"]).Add(static builder => ((RouteEndpointBuilder)builder).Order = int.MaxValue);
+var fallback = app.MapGroup("");
+
+fallback.ShortCircuit();
+
+fallback.MapRemoteAppFallback("/Scripts/{**catch-all}");
+fallback.MapRemoteAppFallback("/Content/{**catch-all}");
+fallback.MapRemoteAppFallback("/bundles/{**catch-all}");
+fallback.MapRemoteAppFallback("/About");
+fallback.MapRemoteAppFallback("/Contact");
+fallback.MapRemoteAppFallback("/{route:isAxdFile}");
+
 app.Run();

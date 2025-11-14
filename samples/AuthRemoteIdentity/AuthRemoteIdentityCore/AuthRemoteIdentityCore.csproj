@@ -1,13 +1,26 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>$(SAMPLES_TFM)</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- We use aspire to hook things up for multiple configurations and need all control -->
+    <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Yarp.ReverseProxy" />
+    <ProjectReference Include="..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters.Owin\Microsoft.AspNetCore.SystemWebAdapters.Owin.csproj" />
+    <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.Core\Samples.ServiceDefaults.Core.csproj" />
+    <PackageReference Include="EntityFramework" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="Microsoft.AspNet.Identity.EntityFramework" />
+    <PackageReference Include="Microsoft.AspNet.Identity.Core" />
+    <PackageReference Include="Microsoft.AspNet.Identity.Owin" />
+    <PackageReference Include="Microsoft.Owin.Security.Interop" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\AuthRemoteIdentityFramework\App_Start\IdentityConfig.cs" Link="IdentityConfig.cs" />
+    <Compile Include="..\AuthRemoteIdentityFramework\Models\IdentityModels.cs" Link="IdentityModels.cs" />
   </ItemGroup>
 </Project>

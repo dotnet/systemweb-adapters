@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -16,8 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\samples\AppConfig\AppConfigAppHost\AppConfigAppHost.csproj" />
     <ProjectReference Include="..\..\samples\AuthRemoteFormsAuth\AuthRemoteFormsAuthAppHost\AuthRemoteFormsAuthAppHost.csproj" />
     <ProjectReference Include="..\..\samples\AuthRemoteIdentity\AuthRemoteIdentityAppHost\AuthRemoteIdentityAppHost.csproj" />
+    <ProjectReference Include="..\..\samples\DependencyInjection\DependencyInjectionAppHost\DependencyInjectionAppHost.csproj" />
     <ProjectReference Include="..\..\samples\MachineKey\MachineKeyAppHost\MachineKeyAppHost.csproj" />
     <ProjectReference Include="..\..\samples\Modules\ModulesAppHost\ModulesAppHost.csproj" />
     <ProjectReference Include="..\..\samples\SessionRemote\SessionRemoteAppHost\SessionRemoteAppHost.csproj" />

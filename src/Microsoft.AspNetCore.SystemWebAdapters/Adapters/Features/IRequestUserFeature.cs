@@ -28,6 +28,11 @@ public interface IRequestUserFeature
     /// Gets the logged on user that corresponds to <see cref="HttpRequest.LogonUserIdentity" />
     /// </summary>
     WindowsIdentity? LogonUserIdentity { get; }
+
+    /// <summary>
+    /// Enables access to <see cref="Thread.CurrentPrincipal"/> and <see cref="ClaimsPrincipal.Current"/> for the duration of the request.
+    /// </summary>
+    void EnableStaticAccessors();
 }
 
 #endif

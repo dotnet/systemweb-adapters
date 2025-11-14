@@ -1,21 +1,25 @@
-using System.Configuration;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace MvcApp
 {
-    public class MvcApplication : System.Web.HttpApplication
+    public class MvcApplication : HttpApplication
     {
         protected void Application_Start()
         {
-            SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
-                .AddVirtualizedContentDirectories()
-                .AddProxySupport(options => options.UseForwardedHeaders = true)
-                .AddRemoteAppServer(options => options.ApiKey = ConfigurationManager.AppSettings["RemoteApp__ApiKey"])
-                .AddAuthenticationServer();
+            HttpApplicationHost.RegisterHost(builder =>
+            {
+                builder.AddServiceDefaults();
+                builder.AddSystemWebDependencyInjection();
+
+                builder.AddSystemWebAdapters()
+                    .AddVirtualizedContentDirectories();
+            });
 
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
@@ -25,3 +29,4 @@ namespace MvcApp
         }
     }
 }
+

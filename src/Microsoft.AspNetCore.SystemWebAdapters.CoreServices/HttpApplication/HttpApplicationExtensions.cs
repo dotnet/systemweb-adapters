@@ -158,7 +158,7 @@ public static class HttpApplicationExtensions
     }
 
     internal static bool AreHttpApplicationEventsRequired(this IApplicationBuilder builder)
-        => builder.ApplicationServices.GetRequiredService<IOptions<HttpApplicationOptions>>().Value.IsAdded;
+        => builder.ApplicationServices.GetRequiredService<IOptions<HttpApplicationOptions>>().Value.ShouldBeRegistered;
 
     private sealed class ModuleCollectionInitializeOptions(ModuleCollection modules) : IConfigureOptions<HttpApplicationOptions>
     {

@@ -18,7 +18,7 @@
 
 @code {
     [SupplyParameterFromForm]
-    private SessionData SessionData { get; set; } = new();
+    private SessionData SessionData { get; set; }
 
     [CascadingParameter]
     public HttpContext? HttpContext { get; set; }

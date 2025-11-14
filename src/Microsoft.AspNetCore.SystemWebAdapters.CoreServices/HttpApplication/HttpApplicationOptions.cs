@@ -4,16 +4,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using System.Web;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SystemWebAdapters.Features;
-using static System.FormattableString;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 public class HttpApplicationOptions
 {
     private ModuleCollection? _modules;
+    private Type _applicationType = typeof(HttpApplication);
 
     internal ModuleCollection ModuleCollection
     {
@@ -22,11 +25,9 @@ public class HttpApplicationOptions
     }
 
     /// <summary>
-    /// Used to track if the services were added or if the options was just automatically created.
+    /// Used to track if the middleware for HttpApplication infrastructure should be added
     /// </summary>
-    internal bool IsAdded => _modules is { };
-
-    private Type _applicationType = typeof(HttpApplication);
+    internal bool ShouldBeRegistered => _modules is not null;
 
     public Type ApplicationType
     {
