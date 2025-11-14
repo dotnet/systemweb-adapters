@@ -56,11 +56,10 @@ else if (sampleMode == SampleMode.Owin)
             app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
             app.CreatePerOwinContext<ApplicationSignInManager>(ApplicationSignInManager.Create);
             app.UseStageMarker(PipelineStage.Authenticate);
-            var dataProtector = services.GetDataProtector(
-                "Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationMiddleware",
-                // Must match the Scheme name on the MvcCoreApp, i.e. IdentityConstants.ApplicationScheme
-                "SharedCookie",
-                "v2");
+
+            // Must match the Scheme name on the MvcCoreApp, i.e. IdentityConstants.ApplicationScheme
+            var dataProtector = services.GetDataProtectionProvider()
+                .GetCookieAuthenticationDataProtector("SharedCookie");
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
