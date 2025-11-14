@@ -49,15 +49,10 @@ public static class SystemWebDataProtectionExtensions
                 return false;
             }
 
-            if (section.DataProtectorType is { } typeString && Type.GetType(typeString) is { } type)
+            if (section.DataProtectorType is { } typeString && Type.GetType(typeString) is { } type && type == typeof(CompatibilityDataProtector))
             {
-                if (type != typeof(CompatibilityDataProtector))
-                {
-                    return false;
-                }
+                return true;
             }
-
-            return true;
         }
 
         return false;
