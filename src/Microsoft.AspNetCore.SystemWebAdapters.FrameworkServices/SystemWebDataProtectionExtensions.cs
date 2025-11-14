@@ -22,11 +22,6 @@ public static class SystemWebDataProtectionExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
-        if (!string.IsNullOrEmpty(ConfigurationManager.AppSettings[StartupTypeKey]))
-        {
-            throw new InvalidOperationException($"Must not manually set the '{StartupTypeKey}' app setting when using HttpApplicationHostBuilder.AddDataProtection.");
-        }
-
         if (!IsMachineKeyOverriden())
         {
             const string ExpectedSetup = """
@@ -35,9 +30,28 @@ public static class SystemWebDataProtectionExtensions
             throw new InvalidOperationException($"Must configure machine key in web.config to use data protection: {ExpectedSetup}");
         }
 
-        ConfigurationManager.AppSettings[StartupTypeKey] = typeof(MachineKeyImpl).AssemblyQualifiedName;
+        if (!TrySetStartupType())
+        {
+            throw new InvalidOperationException($"Must not manually set the '{StartupTypeKey}' app setting when using HttpApplicationHostBuilder.AddDataProtection.");
+        }
 
         return builder.Services.AddDataProtection();
+    }
+
+    private static bool TrySetStartupType()
+    {
+        var startupType = typeof(MachineKeyImpl).AssemblyQualifiedName;
+
+        var current = ConfigurationManager.AppSettings[StartupTypeKey];
+
+        if (current != startupType && !string.IsNullOrEmpty(current))
+        {
+            return false;
+        }
+
+        ConfigurationManager.AppSettings[StartupTypeKey] = startupType;
+
+        return true;
     }
 
     private static bool IsMachineKeyOverriden()
