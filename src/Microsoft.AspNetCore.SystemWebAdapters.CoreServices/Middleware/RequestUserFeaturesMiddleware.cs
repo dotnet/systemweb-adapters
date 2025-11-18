@@ -19,7 +19,7 @@ internal sealed partial class RequestUserFeaturesMiddleware(RequestDelegate next
     private readonly ILogger _logger = loggerFactory.CreateLogger<RequestUserFeature>();
     private readonly bool _setCurrentAccessors = options.Value.EnableStaticUserAccessors;
 
-    public async Task InvokeAsync(HttpContextCore context, IOptions<SystemWebAdaptersOptions> options)
+    public async Task InvokeAsync(HttpContextCore context)
     {
         using var userFeature = new RequestUserFeature(_logger, _setCurrentAccessors) { User = context.User };
 
@@ -47,18 +47,32 @@ internal sealed partial class RequestUserFeaturesMiddleware(RequestDelegate next
         [LoggerMessage(1, LogLevel.Trace, "Thread.CurrentPrincipal has been set with the current user")]
         private partial void LogCurrentPrincipalUsage();
 
-        public IPrincipal? User { get; set; }
+        public IPrincipal? User
+        {
+            get;
+            set
+            {
+                field = value;
+
+                // This call is needed here and not in the IHttpAuthenticationFeature.User setter
+                // because this property is used to store the user.
+                EnsureCurrentPrincipalSetIfRequired();
+            }
+        }
 
         WindowsIdentity? IRequestUserFeature.LogonUserIdentity => User?.Identity as WindowsIdentity;
+
+        void IRequestUserFeature.EnableStaticAccessors()
+        {
+            LogCurrentPrincipalUsage();
+            setCurrentAccessors = true;
+            EnsureCurrentPrincipalSetIfRequired();
+        }
 
         ClaimsPrincipal? IHttpAuthenticationFeature.User
         {
             get => GetOrCreateClaims(User);
-            set
-            {
-                User = value;
-                EnsureCurrentPrincipalSetIfRequired();
-            }
+            set => User = value;
         }
 
         private ClaimsPrincipal? GetOrCreateClaims(IPrincipal? principal)
@@ -76,13 +90,6 @@ internal sealed partial class RequestUserFeaturesMiddleware(RequestDelegate next
             LogNonClaimsPrincipal(principal.GetType());
 
             return new ClaimsPrincipal(principal);
-        }
-
-        public void EnableStaticAccessors()
-        {
-            LogCurrentPrincipalUsage();
-            setCurrentAccessors = true;
-            EnsureCurrentPrincipalSetIfRequired();
         }
 
         private void EnsureCurrentPrincipalSetIfRequired()
