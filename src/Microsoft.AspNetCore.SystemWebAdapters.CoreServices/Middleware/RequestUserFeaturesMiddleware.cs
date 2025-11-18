@@ -82,7 +82,7 @@ internal sealed partial class RequestUserFeaturesMiddleware(RequestDelegate next
             return new ClaimsPrincipal(principal);
         }
 
-        public void EnableStaticAccessors()
+        void IRequestUserFeature.EnableStaticAccessors()
         {
             LogCurrentPrincipalUsage();
             setCurrentAccessors = true;
