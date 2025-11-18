@@ -53,6 +53,9 @@ internal sealed partial class RequestUserFeaturesMiddleware(RequestDelegate next
             set
             {
                 field = value;
+
+                // This call is needed here and not in the IHttpAuthenticationFeature.User setter
+                // because this property is used to store the user.
                 EnsureCurrentPrincipalSetIfRequired();
             }
         }
