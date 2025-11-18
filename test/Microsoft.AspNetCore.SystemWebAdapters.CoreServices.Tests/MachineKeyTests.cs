@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Security;
 using Microsoft.AspNetCore.DataProtection;
@@ -86,7 +87,7 @@ public class MachineKeyTests
         Assert.Equal(plaintext, result);
     }
 
-    private static IDataProtectionProvider BuildProvider(params string[] purposes)
+    private static IDataProtectionProvider BuildProvider(params IEnumerable<string> purposes)
     {
         const string DefaultPurpose = "User.MachineKey.Protect";
 
