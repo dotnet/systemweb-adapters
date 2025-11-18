@@ -59,6 +59,13 @@ internal sealed partial class RequestUserFeaturesMiddleware(RequestDelegate next
 
         WindowsIdentity? IRequestUserFeature.LogonUserIdentity => User?.Identity as WindowsIdentity;
 
+        void IRequestUserFeature.EnableStaticAccessors()
+        {
+            LogCurrentPrincipalUsage();
+            setCurrentAccessors = true;
+            EnsureCurrentPrincipalSetIfRequired();
+        }
+
         ClaimsPrincipal? IHttpAuthenticationFeature.User
         {
             get => GetOrCreateClaims(User);
@@ -80,13 +87,6 @@ internal sealed partial class RequestUserFeaturesMiddleware(RequestDelegate next
             LogNonClaimsPrincipal(principal.GetType());
 
             return new ClaimsPrincipal(principal);
-        }
-
-        void IRequestUserFeature.EnableStaticAccessors()
-        {
-            LogCurrentPrincipalUsage();
-            setCurrentAccessors = true;
-            EnsureCurrentPrincipalSetIfRequired();
         }
 
         private void EnsureCurrentPrincipalSetIfRequired()
