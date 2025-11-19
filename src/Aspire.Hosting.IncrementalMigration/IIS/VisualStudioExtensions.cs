@@ -128,7 +128,7 @@ internal static partial class VisualStudioExtensions
         // Because we're accessing the DTE object model, we need to be in an STA thread with a message pump.
         var thread = new Thread(() =>
         {
-            using var scheduler = new MessageFilter();
+            using var _ = new MessageFilter();
 
             try
             {
