@@ -183,7 +183,7 @@ internal static partial class VisualStudioExtensions
             runningObjectTable.EnumRunning(out var monikerEnumerator);
             monikerEnumerator.Reset();
 
-            while (GetFirst(monikerEnumerator) is { } moniker)
+            while (GetNext(monikerEnumerator) is { } moniker)
             {
                 runningObjectTable.GetObject(moniker, out var runningObjectVal);
 
@@ -193,7 +193,7 @@ internal static partial class VisualStudioExtensions
                 }
             }
 
-            static unsafe IMoniker? GetFirst(IEnumMoniker monikerEnumerator)
+            static unsafe IMoniker? GetNext(IEnumMoniker monikerEnumerator)
             {
                 var monikers = new IMoniker[1];
                 uint numFetched;
