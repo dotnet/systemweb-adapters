@@ -90,9 +90,9 @@ internal static partial class IISExpressLaunchDetailsExtensions
                 SslPort = iisExpressSettings.SslPort
             };
 
-            if (iisExpressSettings.ApplicationUrl is { })
+            if (iisExpressSettings.ApplicationUrl is { } urls && urls.Split(';', StringSplitOptions.RemoveEmptyEntries) is [{ } appUrl, ..])
             {
-                var url = new Uri(iisExpressSettings.ApplicationUrl);
+                var url = new Uri(appUrl);
 
                 metadata = metadata with
                 {
@@ -102,7 +102,6 @@ internal static partial class IISExpressLaunchDetailsExtensions
         }
 
         return metadata;
-
     }
 
     private sealed class IISLaunchSettings
@@ -166,7 +165,8 @@ internal static partial class IISExpressLaunchDetailsExtensions
             [JsonPropertyName("dotnetRunMessages")]
             public bool? DotnetRunMessages { get; set; }
 
-            public bool? Use64Bit { get; set; }
+            [JsonPropertyName("use64bit")]
+            public bool? Use64Bit { get; set; } = true;
 
             /// <summary>
             /// Gets or sets the launch browser flag for the launch profile.

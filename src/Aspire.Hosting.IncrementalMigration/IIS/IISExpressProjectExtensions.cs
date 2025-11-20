@@ -114,7 +114,7 @@ public static partial class IISExpressProjectExtensions
             siteXml.Descendants("site")
                 .Remove();
 
-            siteXml.Add(CreateSite(iis, siteConfig, logger));
+            siteXml.Add(site);
 
             using var ms = SaveConfiguration(appHostConfig);
 
