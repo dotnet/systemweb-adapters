@@ -1,9 +1,6 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var frameworkApp = builder.AddIISExpress("iis")
-    .AddSiteProject<Projects.ModulesFramework>("framework")
-    .WithDefaultIISExpressEndpoints()
-    .WithOtlpExporter()
+var frameworkApp = builder.AddIISExpressProject<Projects.ModulesFramework>("framework")
     .WithHttpHealthCheck();
 
 var coreApp = builder.AddProject<Projects.ModulesCore>("core")
