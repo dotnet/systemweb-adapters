@@ -8,29 +8,17 @@ using Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Middleware;
 
-internal class SetHttpContextTimestampMiddleware
+internal class SetHttpContextTimestampMiddleware(TimeProvider timeProvider, RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-    private readonly TimeProvider _timeProvider;
-
-    public SetHttpContextTimestampMiddleware(TimeProvider timeProvider, RequestDelegate next)
+    public Task InvokeAsync(HttpContextCore context)
     {
-        _timeProvider = timeProvider;
-        _next = next;
+        context.Features.Set<ITimestampFeature>(new TimestampFeature(timeProvider.GetLocalNow()));
+
+        return next(context);
     }
 
-    public Task InvokeAsync(HttpContext context)
+    private sealed class TimestampFeature(DateTimeOffset timestamp) : ITimestampFeature
     {
-        context.Features.Set<ITimestampFeature>(new TimestampFeature(_timeProvider));
-
-        return _next(context);
-    }
-
-    private sealed class TimestampFeature : ITimestampFeature
-    {
-        public TimestampFeature(TimeProvider timeProvider)
-            => Timestamp = timeProvider.GetLocalNow();
-
-        public DateTimeOffset Timestamp { get; }
+        public DateTimeOffset Timestamp { get; } = timestamp;
     }
 }

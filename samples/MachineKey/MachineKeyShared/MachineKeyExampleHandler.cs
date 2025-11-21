@@ -7,8 +7,10 @@ using System.Web.Security;
 
 namespace MachineKeyExample
 {
-    public static class MachineKeyExtensions
+    public class MachineKeyExampleHandler : IHttpHandler
     {
+        public bool IsReusable => true;
+
         public const string AppName = "MachineKeyExample";
 
         private enum InputAction
@@ -31,7 +33,8 @@ namespace MachineKeyExample
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3004:Review code for information disclosure vulnerabilities", Justification = "Only used in sample/test")]
-        public static void ProcessMachineKeyRequest(this HttpContext context)
+
+        public void ProcessRequest(HttpContext context)
         {
             try
             {

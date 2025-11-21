@@ -16,8 +16,8 @@ namespace MachineKeyFramework
             {
                 builder.AddServiceDefaults();
                 builder.AddDataProtection()
-                    .SetApplicationName(MachineKeyExtensions.AppName)
-                    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Path.GetTempPath(), "sharedkeys", MachineKeyExtensions.AppName)));
+                    .SetApplicationName(MachineKeyExampleHandler.AppName)
+                    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Path.GetTempPath(), "sharedkeys", MachineKeyExampleHandler.AppName)));
             });
         }
     }
