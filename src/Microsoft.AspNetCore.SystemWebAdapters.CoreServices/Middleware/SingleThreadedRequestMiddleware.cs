@@ -2,25 +2,23 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Middleware;
 
-internal class SingleThreadedRequestMiddleware
+internal sealed class SingleThreadedRequestMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public SingleThreadedRequestMiddleware(RequestDelegate next) => _next = next;
-
     public Task InvokeAsync(HttpContextCore context)
         => context.GetEndpoint()?.Metadata.GetMetadata<SingleThreadedRequestAttribute>() is { IsDisabled: false }
             ? EnsureSingleThreaded(context)
-            : _next(context);
+            : next(context);
 
     private Task EnsureSingleThreaded(HttpContextCore context)
     {
         var schedule = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, 1);
 
-        return Task.Factory.StartNew(() => _next(context), context.RequestAborted, TaskCreationOptions.DenyChildAttach, schedule.ExclusiveScheduler).Unwrap();
+        return Task.Factory.StartNew(() => next(context), context.RequestAborted, TaskCreationOptions.DenyChildAttach, schedule.ExclusiveScheduler).Unwrap();
     }
 }

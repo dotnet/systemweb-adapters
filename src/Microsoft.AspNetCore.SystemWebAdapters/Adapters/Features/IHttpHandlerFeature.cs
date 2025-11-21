@@ -23,6 +23,11 @@ public interface IHttpHandlerFeature
     /// Gets the previous handlers. When <see cref="Current"/> is set, the previous value should be surfaced here.
     /// </summary>
     IHttpHandler? Previous { get; }
+
+    /// <summary>
+    /// Gets whether the <see cref="Current"/> handler is an endpoint handler.
+    /// </summary>
+    bool IsEndpointHandler { get; }
 }
 
 #endif
