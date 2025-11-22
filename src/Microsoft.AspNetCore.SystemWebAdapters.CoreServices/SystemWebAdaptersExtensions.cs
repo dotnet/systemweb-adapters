@@ -135,6 +135,11 @@ public static class SystemWebAdaptersExtensions
         app.UseWhen(
             ctx => ctx.Features.Get<IHttpHandlerFeature>() is { IsEndpointHandler: false, Current: { } },
             app => app.RunHttpHandler());
+
+        app.Use((ctx, next) =>
+        {
+            return next(ctx);
+        });
     }
 
     /// <summary>

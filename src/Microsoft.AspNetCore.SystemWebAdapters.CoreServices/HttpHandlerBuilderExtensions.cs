@@ -70,15 +70,27 @@ public static class HttpHandlerBuilderExtensions
     /// </summary>
     public static IEndpointConventionBuilder MapHttpHandler<THandler>(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string pattern)
         where THandler : class, IHttpHandler
+        => endpoints.MapHttpHandler(pattern, typeof(THandler));
+
+    /// <summary>
+    /// Maps the specified <paramref name="handlerType"/> HTTP handler to the given route <paramref name="pattern"/>.
+    /// </summary>
+    public static IEndpointConventionBuilder MapHttpHandler(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string pattern, Type handlerType)
     {
         ArgumentNullException.ThrowIfNull(endpoints);
         ArgumentNullException.ThrowIfNull(pattern);
+        ArgumentNullException.ThrowIfNull(handlerType);
+
+        if (!handlerType.IsAssignableTo(typeof(IHttpHandler)))
+        {
+            throw new ArgumentException($"The type '{handlerType.FullName}' does not implement '{typeof(IHttpHandler).FullName}'", nameof(handlerType));
+        }
 
         var app = endpoints.CreateApplicationBuilder();
 
         app.RunHttpHandler();
 
-        var metadata = new HandlerMetadata<THandler>();
+        var metadata = new HandlerTypeMetadata(handlerType);
 
         return endpoints.Map(pattern, app.Build())
             .WithMetadata(metadata)
@@ -97,7 +109,7 @@ public static class HttpHandlerBuilderExtensions
 
         app.RunHttpHandler();
 
-        var metadata = new HandlerMetadata(handler);
+        var metadata = new HandlerInstanceMetadata(handler);
 
         return endpoints.Map(pattern, app.Build())
             .WithMetadata(metadata)
@@ -169,16 +181,15 @@ public static class HttpHandlerBuilderExtensions
         }
     }
 
-    private sealed class HandlerMetadata<THandler>() : HandlerMetadataBase(typeof(THandler))
-        where THandler : IHttpHandler
+    private sealed class HandlerTypeMetadata(Type type) : HandlerMetadataBase(type)
     {
-        private readonly ObjectFactory<THandler> _objectFactory = ActivatorUtilities.CreateFactory<THandler>([]);
+        private readonly ObjectFactory _objectFactory = ActivatorUtilities.CreateFactory(type, []);
 
         public override IHttpHandler GetHandler(HttpContextCore context)
         {
             if (context.Features.Get<RequestHandlerFeature>() is not { } feature)
             {
-                feature = new RequestHandlerFeature(_objectFactory(context.RequestServices, []));
+                feature = new RequestHandlerFeature((IHttpHandler)_objectFactory(context.RequestServices, []));
                 context.Features.Set<RequestHandlerFeature>(feature);
             }
 
@@ -189,19 +200,19 @@ public static class HttpHandlerBuilderExtensions
         private sealed record RequestHandlerFeature(IHttpHandler Handler);
     }
 
-    private sealed class HandlerMetadata(IHttpHandler handler) : HandlerMetadataBase(handler.GetType())
+    private sealed class HandlerInstanceMetadata(IHttpHandler handler) : HandlerMetadataBase(handler.GetType())
     {
         public override IHttpHandler GetHandler(HttpContextCore context) => handler;
     }
 
     private abstract class HandlerMetadataBase(Type type) : IHandlerMetadata
     {
-        public static object BufferResponse = new BufferResponseStreamAttribute();
-        public static object BufferRequest = new PreBufferRequestStreamAttribute();
-        public static object Principal = new SetThreadCurrentPrincipalAttribute();
+        private static object BufferResponse = new BufferResponseStreamAttribute();
+        private static object BufferRequest = new PreBufferRequestStreamAttribute();
+        private static object Principal = new SetThreadCurrentPrincipalAttribute();
 
-        public static object ReadOnlySession = new SessionAttribute { SessionBehavior = SessionStateBehavior.ReadOnly };
-        public static object RequiredSession = new SessionAttribute { SessionBehavior = SessionStateBehavior.Required };
+        private static object ReadOnlySession = new SessionAttribute { SessionBehavior = SessionStateBehavior.ReadOnly };
+        private static object RequiredSession = new SessionAttribute { SessionBehavior = SessionStateBehavior.Required };
 
         public IEnumerable<object> DefaultMetadata
         {

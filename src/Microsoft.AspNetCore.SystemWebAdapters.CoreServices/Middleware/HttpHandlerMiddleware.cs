@@ -33,6 +33,9 @@ internal sealed class HttpHandlerMiddleware(RequestDelegate next)
 
     private sealed partial class HttpHandlerFeature(HttpContextCore context) : IHttpHandlerFeature, IEndpointFeature
     {
+        private IHttpHandler? _current;
+        private IHttpHandler? _fromMetadata;
+
         public IHttpHandler? Previous { get; set; }
 
         public Endpoint? Endpoint
@@ -40,46 +43,35 @@ internal sealed class HttpHandlerMiddleware(RequestDelegate next)
             get;
             set
             {
-                field = value;
-
                 if (value is { })
                 {
-                    Current = null;
+                    field = value;
+                    _current = null;
+                    _fromMetadata = value.Metadata.GetMetadata<IHandlerMetadata>()?.GetHandler(context);
+                }
+                else
+                {
+                    field = null;
+                    _fromMetadata = null;
                 }
             }
         }
 
         public IHttpHandler? Current
         {
-            get
-            {
-                if (field is { } handler)
-                {
-                    IsEndpointHandler = false;
-                    return handler;
-                }
-
-                if (Endpoint?.Metadata.GetMetadata<IHandlerMetadata>() is { } metadata)
-                {
-                    IsEndpointHandler = true;
-                    return metadata.GetHandler(context);
-                }
-
-                return null;
-            }
+            get => _current ?? _fromMetadata;
             set
             {
-                Previous = field;
-                field = value;
+                Previous = _current;
+                _current = value;
 
                 if (value is { })
                 {
-                    IsEndpointHandler = true;
                     Endpoint = null;
                 }
             }
         }
 
-        public bool IsEndpointHandler { get; set; }
+        public bool IsEndpointHandler => _fromMetadata is { };
     }
 }
