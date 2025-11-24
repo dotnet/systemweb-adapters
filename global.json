@@ -18,6 +18,6 @@
   "msbuild-sdks": {
     "MSBuild.SDK.SystemWeb": "4.0.104",
     "Aspire.AppHost.Sdk": "13.0.0",
-    "Microsoft.DotNet.Arcade.Sdk": "11.0.0-beta.25562.6"
+    "Microsoft.DotNet.Arcade.Sdk": "11.0.0-beta.25571.8"
   }
 }
