@@ -245,4 +245,85 @@ public class ProxyHeaderModuleTests
         Assert.Equal(ForwardedForValue, serverVariables[RemoteHost]);
         Assert.Null(requestHeaders[options.OriginalHostHeaderName]);
     }
+
+    [Fact]
+    public void ForwardedForPreservesOriginalRemoteAddr()
+    {
+        const string ForwardedForValue = "10.0.0.1";
+        const string OriginalRemoteAddr = "192.168.1.100";
+
+        // Arrange
+        var requestHeaders = new NameValueCollection
+        {
+            { ForwardedFor, ForwardedForValue },
+        };
+        var serverVariables = new NameValueCollection
+        {
+            { RemoteAddress, OriginalRemoteAddr },
+        };
+        var options = new ProxyOptions();
+        var module = new ProxyHeaderModule(Options.Create(options));
+
+        // Act
+        module.UseHeaders(requestHeaders, serverVariables);
+
+        // Assert
+        Assert.Equal(ForwardedForValue, serverVariables[RemoteAddress]);
+        Assert.Equal(ForwardedForValue, serverVariables[RemoteHost]);
+        Assert.Equal(OriginalRemoteAddr, requestHeaders[options.OriginalForHeaderName]);
+    }
+
+    [Fact]
+    public void ForwardedForPreservesOriginalRemoteAddrWithCustomHeaderName()
+    {
+        const string ForwardedForValue = "10.0.0.1";
+        const string OriginalRemoteAddr = "192.168.1.100";
+        const string CustomHeaderName = "X-Custom-Original-For";
+
+        // Arrange
+        var requestHeaders = new NameValueCollection
+        {
+            { ForwardedFor, ForwardedForValue },
+        };
+        var serverVariables = new NameValueCollection
+        {
+            { RemoteAddress, OriginalRemoteAddr },
+        };
+        var options = new ProxyOptions
+        {
+            OriginalForHeaderName = CustomHeaderName
+        };
+        var module = new ProxyHeaderModule(Options.Create(options));
+
+        // Act
+        module.UseHeaders(requestHeaders, serverVariables);
+
+        // Assert
+        Assert.Equal(ForwardedForValue, serverVariables[RemoteAddress]);
+        Assert.Equal(ForwardedForValue, serverVariables[RemoteHost]);
+        Assert.Equal(OriginalRemoteAddr, requestHeaders[CustomHeaderName]);
+    }
+
+    [Fact]
+    public void ForwardedForDoesNotSetOriginalWhenNoRemoteAddr()
+    {
+        const string ForwardedForValue = "10.0.0.1";
+
+        // Arrange
+        var requestHeaders = new NameValueCollection
+        {
+            { ForwardedFor, ForwardedForValue },
+        };
+        var serverVariables = new NameValueCollection();
+        var options = new ProxyOptions();
+        var module = new ProxyHeaderModule(Options.Create(options));
+
+        // Act
+        module.UseHeaders(requestHeaders, serverVariables);
+
+        // Assert
+        Assert.Equal(ForwardedForValue, serverVariables[RemoteAddress]);
+        Assert.Equal(ForwardedForValue, serverVariables[RemoteHost]);
+        Assert.Null(requestHeaders[options.OriginalForHeaderName]);
+    }
 }

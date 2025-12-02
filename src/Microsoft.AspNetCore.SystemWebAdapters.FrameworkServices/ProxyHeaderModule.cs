@@ -105,10 +105,16 @@ internal class ProxyHeaderModule : IHttpModule
         }
     }
 
-    private static void UseForwardedFor(NameValueCollection requestHeaders, NameValueCollection serverVariables)
+    private void UseForwardedFor(NameValueCollection requestHeaders, NameValueCollection serverVariables)
     {
         if (requestHeaders["x-forwarded-for"] is { } remote)
         {
+            // Preserve the original connecting IP address before replacing it
+            if (serverVariables["REMOTE_ADDR"] is { } originalRemoteAddr)
+            {
+                requestHeaders[_options.Value.OriginalForHeaderName] = originalRemoteAddr;
+            }
+
             serverVariables.Set("REMOTE_ADDR", remote);
             serverVariables.Set("REMOTE_HOST", remote);
         }
