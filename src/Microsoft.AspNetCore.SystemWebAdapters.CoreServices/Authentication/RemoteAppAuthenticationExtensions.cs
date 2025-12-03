@@ -2,12 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Net.Http;
+using System.Text.Encodings.Web;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters;
 using Microsoft.AspNetCore.SystemWebAdapters.Authentication;
 using Microsoft.AspNetCore.SystemWebAdapters.Authentication.ResultProcessors;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -53,6 +56,7 @@ public static class RemoteAppAuthenticationExtensions
     {
         ArgumentNullException.ThrowIfNull(authenticationBuilder);
 
+        authenticationBuilder.AddEmptyAuthenticationScheme();
         authenticationBuilder.Services.TryAddScoped<IRemoteAppAuthenticationResultProcessor, RedirectUrlProcessor>();
         authenticationBuilder.Services.TryAddSingleton<IAuthenticationResultFactory, RemoteAppAuthenticationResultFactory>();
         authenticationBuilder.Services.TryAddSingleton<IRemoteAppAuthenticationService, RemoteAppAuthenticationService>();
@@ -84,5 +88,27 @@ public static class RemoteAppAuthenticationExtensions
         }).AddRemoteClientAuthentication(configureOptions);
 
         return builder;
+    }
+
+    /// <summary>
+    /// This adds an empty authentication scheme so that no default authentication is used.
+    /// See https://github.com/dotnet/aspnetcore/issues/44661 for more details and context.
+    /// </summary>
+    private static void AddEmptyAuthenticationScheme(this AuthenticationBuilder authenticationBuilder)
+    {
+        authenticationBuilder.AddScheme<AuthenticationSchemeOptions, EmptyAuthenticationHandler>(Guid.NewGuid().ToString(), _ => { });
+    }
+
+    private sealed class EmptyAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+    {
+        public EmptyAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder)
+            : base(options, logger, encoder)
+        {
+        }
+
+        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+        {
+            return Task.FromResult(AuthenticateResult.NoResult());
+        }
     }
 }

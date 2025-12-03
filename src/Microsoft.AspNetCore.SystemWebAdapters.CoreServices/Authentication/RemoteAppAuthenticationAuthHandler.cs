@@ -30,12 +30,7 @@ internal partial class RemoteAppAuthenticationAuthHandler : AuthenticationHandle
                                            IOptionsMonitor<RemoteAppAuthenticationClientOptions> options,
                                            ILoggerFactory loggerFactory,
                                            UrlEncoder encoder
-#if NET8_0_OR_GREATER
         ) : base(options, loggerFactory, encoder)
-#else
-        , ISystemClock clock)
-        : base(options, loggerFactory, encoder, clock)
-#endif
     {
         _logger = loggerFactory.CreateLogger<RemoteAppAuthenticationAuthHandler>();
         _authService = authService;
@@ -68,6 +63,16 @@ internal partial class RemoteAppAuthenticationAuthHandler : AuthenticationHandle
                 LogInvalidApiKey();
                 throw new InvalidOperationException("Failed to authenticate using the remote app due to invalid or missing API key");
             }
+
+            Context.Response.OnStarting(static state =>
+            {
+                if (((HttpContextCore)state).Response.Headers.Location.Count > 1)
+                {
+                    throw new InvalidOperationException("Multiple Location headers were detected. This is possibly because you have remote authentication as the default scheme. Consider short circuiting the YARP requests or disabling default scheme.");
+                }
+
+                return Task.CompletedTask;
+            }, Context);
         }
 
         return _remoteAppAuthResult;
