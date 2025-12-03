@@ -96,7 +96,7 @@ public static class RemoteAppAuthenticationExtensions
     /// </summary>
     private static void AddEmptyAuthenticationScheme(this AuthenticationBuilder authenticationBuilder)
     {
-        authenticationBuilder.AddScheme<AuthenticationSchemeOptions, EmptyAuthenticationHandler>(Guid.NewGuid().ToString(), _ => { });
+        authenticationBuilder.AddScheme<AuthenticationSchemeOptions, EmptyAuthenticationHandler>("__SystemWebAdapters_NotForUse__", _ => { });
     }
 
     private sealed class EmptyAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
