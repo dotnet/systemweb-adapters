@@ -10,7 +10,15 @@ public class ProxyOptions
     /// </summary>
     public bool UseForwardedHeaders { get; set; }
 
+    /// <summary>
+    /// Gets or sets the header name used for the original Host header when the X-Forwarded-Host header is used.
+    /// </summary>
     public string OriginalHostHeaderName { get; set; } = "X-Original-Host";
+
+    /// <summary>
+    /// Gets or sets the header name used for the original remote IP address when the X-Forwarded-For header is used.
+    /// </summary>
+    public string OriginalForHeaderName { get; set; } = "X-Original-For";
 
     /// <summary>
     /// Gets or sets the server name.
