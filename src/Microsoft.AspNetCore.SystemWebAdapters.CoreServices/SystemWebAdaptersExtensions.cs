@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Security;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -130,6 +131,10 @@ public static class SystemWebAdaptersExtensions
         app.UseHttpApplicationEvent(
             preEvents: new[] { ApplicationEvent.PreRequestHandlerExecute, ApplicationEvent.ExecuteRequestHandler },
             postEvents: new[] { ApplicationEvent.PostRequestHandlerExecute });
+
+        app.UseWhen(
+            ctx => ctx.Features.Get<IHttpHandlerFeature>() is { IsEndpoint: false, Current: { } },
+            app => app.RunHttpHandler());
     }
 
     /// <summary>
@@ -170,6 +175,7 @@ public static class SystemWebAdaptersExtensions
                 builder.UseMiddleware<RequestFeaturesMiddleware>();
                 builder.UseMiddleware<ResponseFeaturesMiddleware>();
                 builder.UseMiddleware<SessionStateMiddleware>();
+                builder.UseMiddleware<HttpHandlerMiddleware>();
 
                 if (builder.AreHttpApplicationEventsRequired())
                 {

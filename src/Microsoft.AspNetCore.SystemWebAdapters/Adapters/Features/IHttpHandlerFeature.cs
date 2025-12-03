@@ -23,6 +23,12 @@ public interface IHttpHandlerFeature
     /// Gets the previous handlers. When <see cref="Current"/> is set, the previous value should be surfaced here.
     /// </summary>
     IHttpHandler? Previous { get; }
+
+    /// <summary>
+    /// Gets whether the <see cref="Current"/> handler is an endpoint handler. If it is not (i.e. was manually added),
+    /// then the System.Web adapter middleware will run it.
+    /// </summary>
+    bool IsEndpoint { get; }
 }
 
 #endif
