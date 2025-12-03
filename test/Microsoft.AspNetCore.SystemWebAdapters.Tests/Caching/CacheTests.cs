@@ -238,7 +238,7 @@ public class CacheTests
         Assert.Equal(CacheItemUpdateReason.Expired, updateReason);
     }
 
-    [Fact(Skip = "Test randomly fails")]
+    [Fact]
     public async Task UpdateItemCallbackRemove()
     {
         // Arrange
@@ -248,6 +248,7 @@ public class CacheTests
         var key = _fixture.Create<string>();
         var updated = false;
         var slidingExpiration = TimeSpan.FromMilliseconds(1);
+        var slidingExpirationWait = slidingExpiration * 5;
         CacheItemUpdateReason? updateReason = default;
 
         void Callback(string key, CacheItemUpdateReason reason, out object? expensiveObject, out CacheDependency? dependency, out DateTime absoluteExpiration, out TimeSpan slidingExpiration)
@@ -265,7 +266,7 @@ public class CacheTests
         cache.Insert(key, item, null, Cache.NoAbsoluteExpiration, slidingExpiration, Callback);
 
         // Ensure sliding expiration has hit
-        await Task.Delay(slidingExpiration);
+        await Task.Delay(slidingExpirationWait);
 
         // Force cleanup to initiate callbacks on current thread
         memCache.Trim(100);
