@@ -21,18 +21,60 @@ internal static partial class VisualStudioExtensions
     private static class EnvDTE
     {
         [ComImport]
+        [Guid("95AC1923-6EAA-427C-B43E-6274A8CA6C95")]
         [DefaultMember("Name")]
-        [Guid("5C5A0070-F396-4E37-A82A-1B767E272DF9")]
-        public interface Process
+        public interface Process2
         {
+            [DispId(1)]
             void Attach();
 
-            object Stub_Detach();
-            object Stub_Break();
-            object Stub_Terminate();
-            object Stub_Name { get; }
+            [DispId(2)]
+            void Detach([In] bool WaitForBreakOrEnd = true);
 
-            int ProcessID { get; }
+            [DispId(3)]
+            void Break([In] bool WaitForBreakMode = true);
+
+            [DispId(4)]
+            void Terminate([In] bool WaitForBreakOrEnd = true);
+
+            [DispId(0)]
+            string Name
+            {
+                [DispId(0)]
+                [return: MarshalAs(UnmanagedType.BStr)]
+                get;
+            }
+
+            [DispId(100)]
+            int ProcessID
+            {
+                [DispId(100)]
+                get;
+            }
+
+            [DispId(101)]
+            object stub_Programs { get; }
+
+            [DispId(200)]
+            DTE DTE
+            {
+                [DispId(200)]
+                [return: MarshalAs(UnmanagedType.Interface)]
+                get;
+            }
+
+            [DispId(201)]
+            object stub_Parent { get; }
+
+            [DispId(202)]
+            object stub_Collection { get; }
+
+            //
+            // Parameters:
+            //   Engines:
+            //     Single System.String or an array of either System.String or EnvDTE80.Engine objects
+            [DispId(1001)]
+            void Attach2([In][MarshalAs(UnmanagedType.Struct)] object Engines);
         }
 
         [ComImport]
@@ -159,7 +201,7 @@ internal static partial class VisualStudioExtensions
         public interface Processes : IEnumerable
         {
             [return: MarshalAs(UnmanagedType.Interface)]
-            Process Item([In][MarshalAs(UnmanagedType.Struct)] object index);
+            Process2 Item([In][MarshalAs(UnmanagedType.Struct)] object index);
 
             [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalType = "System.Runtime.InteropServices.CustomMarshalers.EnumeratorToEnumVariantMarshaler, CustomMarshalers, Version=2.0.0.0, Culture=neutral, publicKeyToken=b03f5f7f11d50a3a")]
             new IEnumerator GetEnumerator();

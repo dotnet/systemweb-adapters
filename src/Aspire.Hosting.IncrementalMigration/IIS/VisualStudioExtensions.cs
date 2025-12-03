@@ -148,6 +148,9 @@ internal static partial class VisualStudioExtensions
         return tcs.Task;
     }
 
+    private const string Net4 = "{FB0D4648-F776-4980-95F8-BB7F36EBC1EE}";
+    private static readonly string[] Engines = { Net4 };
+
     private static bool TryAttachDebugger(int iisPid)
     {
         var currentPid = Environment.ProcessId;
@@ -158,16 +161,16 @@ internal static partial class VisualStudioExtensions
             var debugger = dte.Debugger;
 
             // Check if the Aspire application is being debugged by it
-            foreach (EnvDTE.Process debuggedProcess in debugger.DebuggedProcesses)
+            foreach (EnvDTE.Process2 debuggedProcess in debugger.DebuggedProcesses)
             {
                 if (debuggedProcess.ProcessID == currentPid)
                 {
                     // Go through the local processes the debugger can see and find the IIS one to attach
-                    foreach (EnvDTE.Process dteProcess in debugger.LocalProcesses)
+                    foreach (EnvDTE.Process2 dteProcess in debugger.LocalProcesses)
                     {
                         if (dteProcess.ProcessID == iisPid)
                         {
-                            dteProcess.Attach();
+                            dteProcess.Attach2(Engines);
                             return true;
                         }
                     }
