@@ -1,3 +1,12 @@
 <Project>
   <Import Project="..\Directory.Build.props" />
+
+  <!-- Include README.md in NuGet packages if it exists -->
+  <ItemGroup Condition="Exists('$(MSBuildProjectDirectory)\README.md')">
+    <None Include="$(MSBuildProjectDirectory)\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="Exists('$(MSBuildProjectDirectory)\README.md')">
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
 </Project>
