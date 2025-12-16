@@ -302,10 +302,13 @@ public class UserOnlyStoreEF6<TUser, TContext, TKey, TUserClaim, TUserLogin, TUs
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
 
-        return await Context.Set<TUserClaim>()
+        var userClaims = await Context.Set<TUserClaim>()
             .Where(uc => uc.UserId.Equals(user.Id))
-            .Select(c => new Claim(c.ClaimType!, c.ClaimValue!))
             .ToListAsync(cancellationToken);
+
+        return userClaims
+            .Select(c => new Claim(c.ClaimType!, c.ClaimValue!))
+            .ToList();
     }
 
     /// <summary>
@@ -435,10 +438,13 @@ public class UserOnlyStoreEF6<TUser, TContext, TKey, TUserClaim, TUserLogin, TUs
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
 
-        return await Context.Set<TUserLogin>()
+        var userLogins = await Context.Set<TUserLogin>()
             .Where(l => l.UserId.Equals(user.Id))
-            .Select(l => new UserLoginInfo(l.LoginProvider!, l.ProviderKey!, l.ProviderDisplayName!))
             .ToListAsync(cancellationToken);
+
+        return userLogins
+            .Select(l => new UserLoginInfo(l.LoginProvider!, l.ProviderKey!, l.ProviderDisplayName!))
+            .ToList();
     }
 
     /// <summary>

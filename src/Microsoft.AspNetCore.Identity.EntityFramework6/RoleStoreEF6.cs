@@ -234,10 +234,14 @@ public class RoleStoreEF6<TRole, TContext, TKey, TUserRole, TRoleClaim> :
     {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
-        return await Context.Set<TRoleClaim>()
+
+        var roleClaims = await Context.Set<TRoleClaim>()
             .Where(rc => rc.RoleId.Equals(role.Id))
-            .Select(c => new Claim(c.ClaimType!, c.ClaimValue!))
             .ToListAsync(cancellationToken);
+
+        return roleClaims
+            .Select(c => new Claim(c.ClaimType!, c.ClaimValue!))
+            .ToList();
     }
 
     /// <summary>

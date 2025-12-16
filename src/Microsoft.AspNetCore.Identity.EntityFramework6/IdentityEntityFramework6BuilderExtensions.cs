@@ -1,13 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.CodeDom;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFramework6;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +16,35 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// </summary>
 public static class IdentityEntityFramework6BuilderExtensions
 {
+    public static IdentityCookiesBuilder AddIdentityCookies(this AuthenticationBuilder builder, string schemeName, string cookieName = ".AspNet.ApplicationCookie")
+    {
+        var cookieBuilder = new IdentityCookiesBuilder();
+        cookieBuilder.ApplicationCookie = builder.AddApplicationCookie(schemeName, cookieName);
+        cookieBuilder.ExternalCookie = builder.AddExternalCookie();
+        cookieBuilder.TwoFactorRememberMeCookie = builder.AddTwoFactorRememberMeCookie();
+        cookieBuilder.TwoFactorUserIdCookie = builder.AddTwoFactorUserIdCookie();
+        return cookieBuilder;
+    }
+
+    /// <summary>
+    /// Adds the identity application cookie.
+    /// </summary>
+    /// <param name="builder">The current <see cref="AuthenticationBuilder"/> instance.</param>
+    /// <returns>The <see cref="OptionsBuilder{TOptions}"/> which can be used to configure the cookie authentication.</returns>
+    public static OptionsBuilder<CookieAuthenticationOptions> AddApplicationCookie(this AuthenticationBuilder builder, string schemeName, string cookieName)
+    {
+        builder.AddCookie(schemeName, o =>
+        {
+            o.Cookie.Name = cookieName;
+            o.LoginPath = new PathString("/Account/Login");
+            o.Events = new CookieAuthenticationEvents
+            {
+                OnValidatePrincipal = SecurityStampValidator.ValidatePrincipalAsync
+            };
+        });
+        return new OptionsBuilder<CookieAuthenticationOptions>(builder.Services, schemeName);
+    }
+
     public static void AddEntityFramework6DbContext<TContext>(this IServiceCollection services, String connectionString)
         where TContext : System.Data.Entity.DbContext
     {
