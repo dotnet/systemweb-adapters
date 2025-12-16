@@ -2,8 +2,6 @@
 
 This sample demonstrates four migration strategies using an Aspire AppHost (`AuthRemoteIdentityAppHost`) that runs the legacy ASP.NET Framework app alongside multiple ASP.NET Core variants against a shared SQL Server database.
 
----
-
 ## 1. Remote ASP.NET Identity with YARP Fallback
 
 **What it is:** Keep authentication/Identity in the legacy ASP.NET Framework app, and have the ASP.NET Core app proxy (or fall back) to the legacy app for auth-related endpoints during the migration.
@@ -47,6 +45,9 @@ This sample demonstrates four migration strategies using an Aspire AppHost (`Aut
 ### Cons
 - **Still on EF6**: Tooling and feature set differs from EF Core, so this is typically an intermediate step
 - **Compatibility concerns**: Potential operational complexity from running EF6 in a modern ASP.NET Core stack
+
+> [!NOTE]
+> The implementation for this is [here](../../src/Microsoft.AspNetCore.Identity.EntityFramework6/) and is currently a POC of what it might look like
 
 ## 4. Full Migration to EF Core and ASP.NET Core Identity
 
