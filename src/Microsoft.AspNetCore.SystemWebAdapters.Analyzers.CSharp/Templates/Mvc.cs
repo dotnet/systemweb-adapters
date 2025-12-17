@@ -85,10 +85,7 @@ namespace System.Web
 
             void IDisposable.Dispose()
             {
-                if (IsActive)
-                {
-                    DependencyResolver.SetResolver(null);
-                }
+                // Cannot set the dependency resolver to null as it throws
             }
         }
     }
