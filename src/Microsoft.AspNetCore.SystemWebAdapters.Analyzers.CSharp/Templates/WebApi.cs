@@ -26,10 +26,12 @@ namespace System.Web
         private sealed class WebApiAdapterDependencyResolver : IDependencyRegistrar, IDependencyResolver, IDisposable
         {
             private readonly IServiceProvider _services;
+            private readonly IDependencyResolver _previous;
 
             public WebApiAdapterDependencyResolver(IServiceProvider services)
             {
                 _services = services;
+                _previous = GlobalConfiguration.Configuration.DependencyResolver;
             }
 
             public string Name => "System.Web.Http.GlobalConfiguration.Configuration.DependencyResolver";
@@ -55,7 +57,10 @@ namespace System.Web
 
             void IDisposable.Dispose()
             {
-                // Cannot set the dependency resolver to null as it throws
+                if (IsActive)
+                {
+                    GlobalConfiguration.Configuration.DependencyResolver = _previous;
+                }
             }
 
             private sealed class Scope : IDependencyScope

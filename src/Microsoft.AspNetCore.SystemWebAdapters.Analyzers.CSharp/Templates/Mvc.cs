@@ -18,17 +18,17 @@ namespace System.Web
         public static void AddMvcDependencyInjection(this HttpApplicationHostBuilder builder)
         {
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IDependencyRegistrar, MvcAdapterDependencyResolver>());
-            builder.Services.TryAddSingleton<IViewPageActivator, MvcAdapterDependencyResolver>();
-            builder.Services.TryAddSingleton<IControllerActivator, MvcAdapterDependencyResolver>();
         }
 
         private sealed class MvcAdapterDependencyResolver : IDependencyRegistrar, IDependencyResolver, IViewPageActivator, IControllerActivator, IDisposable
         {
             private readonly IServiceProvider _serviceProvider;
+            private readonly IDependencyResolver _previous;
 
             public MvcAdapterDependencyResolver(IServiceProvider serviceProvider)
             {
                 _serviceProvider = serviceProvider;
+                _previous = DependencyResolver.Current;
             }
 
             public string Name => "System.Web.Mvc.DependencyResolver";
@@ -75,6 +75,16 @@ namespace System.Web
                     return existing;
                 }
 
+                if (serviceType == typeof(IViewPageActivator))
+                {
+                    return this;
+                }
+
+                if (serviceType == typeof(IControllerActivator))
+                {
+                    return this;
+                }
+
                 if (serviceType.IsInterface || serviceType.IsAbstract)
                 {
                     return null;
@@ -87,7 +97,7 @@ namespace System.Web
             {
                 if (IsActive)
                 {
-                    DependencyResolver.SetResolver(null);
+                    DependencyResolver.SetResolver(_previous);
                 }
             }
         }
