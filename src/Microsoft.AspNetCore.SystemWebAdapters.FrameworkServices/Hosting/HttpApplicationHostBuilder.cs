@@ -40,6 +40,7 @@ public sealed class HttpApplicationHostBuilder : IHostApplicationBuilder
     internal HttpApplicationHost Build() => new(_other.Build());
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Managed in the RunAsync method")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Need to propogate out any exceptions")]
     internal void BuildAndRunInBackground()
     {
         var host = Build();
@@ -55,13 +56,29 @@ public sealed class HttpApplicationHostBuilder : IHostApplicationBuilder
             tcs.SetResult(true);
         });
 
-        HostingEnvironment.QueueBackgroundWorkItem(host.RunAsync);
+        HostingEnvironment.QueueBackgroundWorkItem(async token =>
+        {
+            try
+            {
+                await host.RunAsync(token);
+            }
+            catch (Exception ex)
+            {
+                // If the host fails to start, we need to ensure that the TaskCompletionSource is set to faulted
+                tcs.SetException(ex);
+            }
+        });
 
         // We should wait for the application to start before returning - otherwise some things may not be available if
         // the caller tries to use them immediately after calling this method, such as HttpRuntime.WebObjectFactory
-        tcs.Task.GetAwaiter().GetResult();
-
-        HostingEnvironment.UnregisterObject(tcs);
+        try
+        {
+            tcs.Task.GetAwaiter().GetResult();
+        }
+        finally
+        {
+            HostingEnvironment.UnregisterObject(tcs);
+        }
     }
 
     private sealed class HostShutdownTaskCompletionSource : TaskCompletionSource<bool>, IRegisteredObject
