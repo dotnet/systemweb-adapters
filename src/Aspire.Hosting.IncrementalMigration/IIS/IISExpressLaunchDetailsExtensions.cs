@@ -75,7 +75,13 @@ internal static partial class IISExpressLaunchDetailsExtensions
         using var stream = File.OpenRead(path);
         var metadata = new IISExpressLaunchDetails();
 
-        if (System.Text.Json.JsonSerializer.Deserialize<IISLaunchSettings>(stream) is { Settings.IISExpress: { } iisExpressSettings } settings)
+        var options = new System.Text.Json.JsonSerializerOptions
+        {
+            ReadCommentHandling = System.Text.Json.JsonCommentHandling.Skip,
+            AllowTrailingCommas = true
+        };
+
+        if (System.Text.Json.JsonSerializer.Deserialize<IISLaunchSettings>(stream, options) is { Settings.IISExpress: { } iisExpressSettings } settings)
         {
             if (settings.GetIISExpressProfile() is { Use64Bit: { } use64bit })
             {
