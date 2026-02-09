@@ -64,7 +64,7 @@ internal sealed class HttpApplicationPreSendEventsResponseBodyFeature : PipeWrit
     public override void Advance(int bytes)
     {
         // Don't track additional bytes written when events are being raised or we end up with some recursion
-        if (_state is not State.RaisingPreContent or State.RaisingPreHeader)
+        if (_state is not (State.RaisingPreContent or State.RaisingPreHeader))
         {
             _byteCount += bytes;
         }
