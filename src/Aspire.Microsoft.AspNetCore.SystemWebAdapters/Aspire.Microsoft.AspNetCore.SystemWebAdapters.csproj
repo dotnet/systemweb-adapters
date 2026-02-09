@@ -10,7 +10,11 @@
     <SuppressFinalPackageVersion>true</SuppressFinalPackageVersion>
     <PreReleaseVersionLabel>preview.1</PreReleaseVersionLabel>
   </PropertyGroup>
-  
+
+  <PropertyGroup Label="Package Information">
+    <Description>Aspire integration for Microsoft.AspNetCore.SystemWebAdapters to support incremental migration scenarios.</Description>
+  </PropertyGroup>
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net10.0'">
     <ProjectReference Include="..\Microsoft.AspNetCore.SystemWebAdapters.CoreServices\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.csproj" />
     <PackageReference Include="Yarp.ReverseProxy" />
