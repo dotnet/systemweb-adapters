@@ -12,6 +12,12 @@ namespace Aspire.Hosting;
 
 internal static partial class IISExpressLaunchDetailsExtensions
 {
+    private static readonly System.Text.Json.JsonSerializerOptions s_launchSettingsJsonOptions = new()
+    {
+        ReadCommentHandling = System.Text.Json.JsonCommentHandling.Skip,
+        AllowTrailingCommas = true
+    };
+
     [LoggerMessage(LogLevel.Error, "IIS Express only allows SSL ports in the range 44300-44399. The port {Port} may not work as expected.")]
     private static partial void LogInvalidSslPort(ILogger logger, int port);
 
@@ -75,7 +81,7 @@ internal static partial class IISExpressLaunchDetailsExtensions
         using var stream = File.OpenRead(path);
         var metadata = new IISExpressLaunchDetails();
 
-        if (System.Text.Json.JsonSerializer.Deserialize<IISLaunchSettings>(stream) is { Settings.IISExpress: { } iisExpressSettings } settings)
+        if (System.Text.Json.JsonSerializer.Deserialize<IISLaunchSettings>(stream, s_launchSettingsJsonOptions) is { Settings.IISExpress: { } iisExpressSettings } settings)
         {
             if (settings.GetIISExpressProfile() is { Use64Bit: { } use64bit })
             {
