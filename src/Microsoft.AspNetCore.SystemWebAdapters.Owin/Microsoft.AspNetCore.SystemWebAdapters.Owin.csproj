@@ -7,6 +7,10 @@
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 
+  <PropertyGroup Label="Package Information">
+    <Description>OWIN integration support for Microsoft.AspNetCore.SystemWebAdapters.</Description>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Owin" />
     <PackageReference Include="Microsoft.Owin.Security" />
