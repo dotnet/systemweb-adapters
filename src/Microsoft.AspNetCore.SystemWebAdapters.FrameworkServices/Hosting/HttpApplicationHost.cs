@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics;
-using System.Web.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -30,29 +28,26 @@ public sealed class HttpApplicationHost : IHost
 
     public static HttpApplicationHostBuilder CreateBuilder()
     {
-        var config = new ConfigurationManager();
+        return CreateBuilder(new HostApplicationBuilderSettings());
+    }
 
-        config.AddConfigurationManager();
-
-        var builder = new HostApplicationBuilder(new HostApplicationBuilderSettings()
+    internal static HttpApplicationHostBuilder CreateBuilder(HostApplicationBuilderSettings settings)
+    {
+        if (settings is null)
         {
-            Configuration = config,
-            ApplicationName = HostingEnvironment.SiteName,
-            ContentRootPath = HostingEnvironment.ApplicationPhysicalPath,
-            EnvironmentName = HostingEnvironment.IsDevelopmentEnvironment || IsIISExpress() ? Environments.Development : Environments.Production
-        });
+            throw new ArgumentNullException(nameof(settings));
+        }
+
+        settings.Configuration ??= new ConfigurationManager();
+        settings.Configuration.AddConfigurationManager();
+        settings.Configuration.UseHostingEnvironmentFallback();
+
+        var builder = new HostApplicationBuilder(settings);
 
         builder.Services.AddSingleton<IHostLifetime, HttpApplicationLifetime>();
         builder.Services.AddConfigurationAccessor();
 
         return new(builder);
-
-        static bool IsIISExpress()
-        {
-            using var currentProcess = Process.GetCurrentProcess();
-
-            return string.Equals(currentProcess.ProcessName, "iisexpress", StringComparison.Ordinal);
-        }
     }
 
     public static void RegisterHost(Action<HttpApplicationHostBuilder> configure)

@@ -3,8 +3,11 @@
 
 using System.Collections;
 using System.Configuration;
+using System.Diagnostics;
+using System.Web.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
+using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.Hosting;
 
@@ -39,6 +42,36 @@ internal static class ConfigurationManagerConfigExtensions
 
         return builder;
     }
+
+    public static IConfigurationManager UseHostingEnvironmentFallback(this IConfigurationManager configuration)
+    {
+        List<KeyValuePair<string, string?>>? optionList = null;
+        if (configuration[HostDefaults.ApplicationKey] is null)
+        {
+            optionList = new();
+            optionList.Add(new KeyValuePair<string, string?>(HostDefaults.ApplicationKey, HostingEnvironment.SiteName));
+        }
+        if (configuration[HostDefaults.EnvironmentKey] is null && (HostingEnvironment.IsDevelopmentEnvironment || IsIISExpress()))
+        {
+            optionList ??= new();
+            optionList.Add(new KeyValuePair<string, string?>(HostDefaults.EnvironmentKey, Environments.Development));
+        }
+        if (configuration[HostDefaults.ContentRootKey] is null)
+        {
+            optionList ??= new();
+            optionList.Add(new KeyValuePair<string, string?>(HostDefaults.ContentRootKey, HostingEnvironment.ApplicationPhysicalPath));
+        }
+        if (optionList is not null)
+        {
+            configuration.AddInMemoryCollection(optionList);
+        }
+        static bool IsIISExpress()
+        {
+            using var currentProcess = Process.GetCurrentProcess();
+
+            return string.Equals(currentProcess.ProcessName, "iisexpress", StringComparison.Ordinal);
+        }
+
+        return configuration;
+    }
 }
-
-
