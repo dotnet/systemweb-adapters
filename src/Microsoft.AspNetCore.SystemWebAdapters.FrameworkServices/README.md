@@ -24,6 +24,22 @@ public class MvcApplication : HttpApplication
     }
 }
 ```
+or
+```csharp
+using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
+
+public class MvcApplication : HttpApplication
+{
+    protected void Application_Start()
+    {
+        var builder = CreateBuilder();
+        builder.AddSystemWebAdapters();
+        builder.BuildAndRunInBackground();
+
+        // ... other startup code
+    }
+}
+```
 
 ### Remote Session Server
 

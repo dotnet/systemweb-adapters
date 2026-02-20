@@ -40,8 +40,8 @@ public sealed class HttpApplicationHostBuilder : IHostApplicationBuilder
     internal HttpApplicationHost Build() => new(_other.Build());
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Managed in the RunAsync method")]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Need to propogate out any exceptions")]
-    internal void BuildAndRunInBackground()
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Need to propagate out any exceptions")]
+    public void BuildAndRunInBackground()
     {
         var host = Build();
 
