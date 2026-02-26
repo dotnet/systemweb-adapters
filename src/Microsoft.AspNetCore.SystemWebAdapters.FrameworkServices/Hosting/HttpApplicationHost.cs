@@ -26,10 +26,7 @@ public sealed class HttpApplicationHost : IHost
         _current = this;
     }
 
-    public static HttpApplicationHostBuilder CreateBuilder()
-    {
-        return CreateBuilder(new HostApplicationBuilderSettings());
-    }
+    public static HttpApplicationHostBuilder CreateBuilder() => CreateBuilder(new HostApplicationBuilderSettings());
 
     internal static HttpApplicationHostBuilder CreateBuilder(HostApplicationBuilderSettings settings)
     {
