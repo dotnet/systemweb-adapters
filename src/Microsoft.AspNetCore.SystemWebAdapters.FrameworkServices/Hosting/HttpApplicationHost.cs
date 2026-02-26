@@ -31,7 +31,7 @@ public sealed class HttpApplicationHost : IHost
         return CreateBuilder(new HostApplicationBuilderSettings());
     }
 
-    public static HttpApplicationHostBuilder CreateBuilder(HostApplicationBuilderSettings settings)
+    internal static HttpApplicationHostBuilder CreateBuilder(HostApplicationBuilderSettings settings)
     {
         if (settings is null)
         {
