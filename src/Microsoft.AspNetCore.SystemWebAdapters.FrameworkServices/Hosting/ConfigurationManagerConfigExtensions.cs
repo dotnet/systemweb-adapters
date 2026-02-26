@@ -65,6 +65,7 @@ internal static class ConfigurationManagerConfigExtensions
         {
             configuration.AddInMemoryCollection(optionList);
         }
+
         static bool IsIISExpress()
         {
             using var currentProcess = Process.GetCurrentProcess();
