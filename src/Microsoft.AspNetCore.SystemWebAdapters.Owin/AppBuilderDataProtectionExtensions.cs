@@ -17,7 +17,14 @@ public static class AppBuilderDataProtectionExtensions
         ArgumentNullException.ThrowIfNull(app);
         ArgumentNullException.ThrowIfNull(dataProtectionProvider);
 
-        app.SetDataProtectionProvider(new DataProtectionProviderShim(dataProtectionProvider));
+        app.SetDataProtectionProvider(dataProtectionProvider.AsOwin());
+    }
+
+    public static OwinProtectionProvider AsOwin(this AspNetCoreDataProtectionProvider dataProtectionProvider)
+    {
+        ArgumentNullException.ThrowIfNull(dataProtectionProvider);
+
+        return new DataProtectionProviderShim(dataProtectionProvider);
     }
 
     private sealed class DataProtectionProviderShim(AspNetCoreDataProtectionProvider other) : OwinProtectionProvider

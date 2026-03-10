@@ -11,6 +11,10 @@
     <PreReleaseVersionLabel>preview.1</PreReleaseVersionLabel>
  </PropertyGroup>
 
+  <PropertyGroup Label="Package Information">
+    <Description>Aspire hosting support for incremental migration with Microsoft.AspNetCore.SystemWebAdapters.</Description>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting" />
     <PackageReference Include="Microsoft.Windows.CsWin32">

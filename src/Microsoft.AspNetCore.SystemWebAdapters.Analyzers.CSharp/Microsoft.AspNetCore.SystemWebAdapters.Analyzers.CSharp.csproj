@@ -8,6 +8,10 @@
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
   </PropertyGroup>
 
+  <PropertyGroup Label="Package Information">
+    <Description>C# Roslyn analyzers for Microsoft.AspNetCore.SystemWebAdapters.</Description>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
   </ItemGroup>

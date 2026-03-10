@@ -42,7 +42,7 @@ internal sealed partial class HttpApplicationLifetime : IHostLifetime, IRegister
     void IRegisteredObject.Stop(bool immediate)
     {
         HostingEnvironment.UnregisterObject(this);
-        HostingEnvironment.QueueBackgroundWorkItem(_ => _applicationLifetime.StopApplication());
+        _applicationLifetime.StopApplication();
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
