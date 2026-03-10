@@ -62,11 +62,13 @@
       Include="$(MSBuildThisFileDirectory)..\src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.csproj"
       OutputItemType="Analyzer"
       ReferenceOutputAssembly="false"
+      IsAspireProjectResource="false"
       SetTargetFramework="TargetFramework=netstandard2.0" />
     <ProjectReference
       Include="$(MSBuildThisFileDirectory)..\src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CSharp\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CSharp.csproj"
       OutputItemType="Analyzer"
       ReferenceOutputAssembly="false"
+      IsAspireProjectResource="false"
       SetTargetFramework="TargetFramework=netstandard2.0" />
   </ItemGroup>
 
