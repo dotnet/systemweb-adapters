@@ -31,6 +31,7 @@ public static class SystemWebDataProtectionExtensions
 
 
     private static bool _isSet;
+    private static readonly object _setLock = new();
 
     private static void TrySetMachineKeyOverride()
     {
@@ -39,43 +40,50 @@ public static class SystemWebDataProtectionExtensions
             return;
         }
 
-        _isSet = true;
-
-        if (ConfigurationManager.GetSection("system.web/machineKey") is MachineKeySection section)
+        lock (_setLock)
         {
-            if (!string.IsNullOrEmpty(section.DataProtectorType))
+            if (_isSet)
             {
-                throw new InvalidOperationException("Could not setup DataProtection for use with MachineKey due to existing configuration of system.web/machineKey");
+                return;
             }
 
-            if (section.CompatibilityMode != MachineKeyCompatibilityMode.Framework45)
+            if (ConfigurationManager.GetSection("system.web/machineKey") is MachineKeySection section)
             {
-                throw new InvalidOperationException($"Could not setup DataProtection for use with MachineKey due to invalid CompatibilityMode ({section.CompatibilityMode})");
+                if (!string.IsNullOrEmpty(section.DataProtectorType))
+                {
+                    throw new InvalidOperationException("Could not setup DataProtection for use with MachineKey due to existing configuration of system.web/machineKey");
+                }
+
+                if (section.CompatibilityMode != MachineKeyCompatibilityMode.Framework45)
+                {
+                    throw new InvalidOperationException($"Could not setup DataProtection for use with MachineKey due to invalid CompatibilityMode ({section.CompatibilityMode})");
+                }
             }
-        }
 
-        var existing = MachineKeySection.GetApplicationConfig();
-        var updated = new MachineKeySection()
-        {
-            ApplicationName = existing.ApplicationName,
-            CompatibilityMode = MachineKeyCompatibilityMode.Framework45,
-            DataProtectorType = typeof(CompatibilityDataProtector).AssemblyQualifiedName,
-            Decryption = existing.Decryption,
-            DecryptionKey = existing.DecryptionKey,
-        };
+            var existing = MachineKeySection.GetApplicationConfig();
+            var updated = new MachineKeySection()
+            {
+                ApplicationName = existing.ApplicationName,
+                CompatibilityMode = MachineKeyCompatibilityMode.Framework45,
+                DataProtectorType = typeof(CompatibilityDataProtector).AssemblyQualifiedName,
+                Decryption = existing.Decryption,
+                DecryptionKey = existing.DecryptionKey,
+            };
 
-        MachineKeySection.Value = updated;
+            MachineKeySection.Value = updated;
 
 #if DEBUG
-        var newAppConfig = MachineKeySection.GetApplicationConfig();
-        MachineKeySection.EnsureConfig();
-        var afterEnsureConfig = MachineKeySection.GetApplicationConfig();
+            var newAppConfig = MachineKeySection.GetApplicationConfig();
+            MachineKeySection.EnsureConfig();
+            var afterEnsureConfig = MachineKeySection.GetApplicationConfig();
 
-        if (!object.ReferenceEquals(updated, newAppConfig) || !ReferenceEquals(updated, afterEnsureConfig))
-        {
-            throw new InvalidOperationException("MachineKey was overwritten");
-        }
+            if (!object.ReferenceEquals(updated, newAppConfig) || !ReferenceEquals(updated, afterEnsureConfig))
+            {
+                throw new InvalidOperationException("MachineKey was overwritten");
+            }
 #endif
+            _isSet = true;
+        }
     }
 
     private sealed class SystemWebApplicationDiscriminator : IApplicationDiscriminator
