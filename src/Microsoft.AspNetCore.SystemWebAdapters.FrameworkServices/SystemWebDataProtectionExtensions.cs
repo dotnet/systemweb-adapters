@@ -31,7 +31,7 @@ public static class SystemWebDataProtectionExtensions
 
 
     private static bool _isSet;
-    private static readonly object _setLock = new();
+    private static readonly object _initializationLock = new();
 
     private static void TrySetMachineKeyOverride()
     {
@@ -40,7 +40,7 @@ public static class SystemWebDataProtectionExtensions
             return;
         }
 
-        lock (_setLock)
+        lock (_initializationLock)
         {
             if (_isSet)
             {
