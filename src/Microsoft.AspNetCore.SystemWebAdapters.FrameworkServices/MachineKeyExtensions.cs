@@ -9,10 +9,23 @@ namespace System.Web;
 internal static class MachineKeyExtensions
 {
 
-    private static FieldInfo _configField = typeof(MachineKeySection).GetField("s_config", BindingFlags.NonPublic | BindingFlags.Static);
-    private static MethodInfo _ensureConfig = typeof(MachineKeySection).GetMethod("EnsureConfig", BindingFlags.NonPublic | BindingFlags.Static);
-    private static MethodInfo _getApplicationConfig = typeof(MachineKeySection).GetMethod("GetApplicationConfig", BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly FieldInfo _configField = GetRequiredField("s_config");
+    private static readonly MethodInfo _ensureConfig = GetRequiredMethod("EnsureConfig");
+    private static readonly MethodInfo _getApplicationConfig = GetRequiredMethod("GetApplicationConfig");
 
+    private static FieldInfo GetRequiredField(string name)
+    {
+        var field = typeof(MachineKeySection).GetField(name, BindingFlags.NonPublic | BindingFlags.Static);
+
+        return field ?? throw new NotSupportedException($"The required MachineKeySection field '{name}' could not be found. The current System.Web implementation is not supported.");
+    }
+
+    private static MethodInfo GetRequiredMethod(string name)
+    {
+        var method = typeof(MachineKeySection).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Static);
+
+        return method ?? throw new NotSupportedException($"The required MachineKeySection method '{name}' could not be found. The current System.Web implementation is not supported.");
+    }
     extension(MachineKeySection section)
     {
         internal static MachineKeySection Value
