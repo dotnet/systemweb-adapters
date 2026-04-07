@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Web;
 using System.Web.Hosting;
 using Microsoft.AspNetCore.Builder;
@@ -189,15 +191,22 @@ internal static class HostingRuntimeExtensions
     {
         public RuntimeIIISEnvironmentFeature(object feature)
         {
-            IISVersion = GetVersionProperty(feature, nameof(IISVersion));
-            AppPoolId = GetStringProperty(feature, nameof(AppPoolId));
-            AppPoolConfigFile = GetStringProperty(feature, nameof(AppPoolConfigFile));
-            AppConfigPath = GetStringProperty(feature, nameof(AppConfigPath));
-            ApplicationPhysicalPath = GetStringProperty(feature, nameof(ApplicationPhysicalPath));
-            ApplicationVirtualPath = GetStringProperty(feature, nameof(ApplicationVirtualPath));
-            ApplicationId = GetStringProperty(feature, nameof(ApplicationId));
-            SiteName = GetStringProperty(feature, nameof(SiteName));
-            SiteId = GetUIntProperty(feature, nameof(SiteId));
+            var properties = new Dictionary<string, PropertyInfo>(StringComparer.Ordinal);
+
+            foreach (var property in feature.GetType().GetProperties())
+            {
+                properties[property.Name] = property;
+            }
+
+            IISVersion = GetVersionProperty(feature, properties, nameof(IISVersion));
+            AppPoolId = GetStringProperty(feature, properties, nameof(AppPoolId));
+            AppPoolConfigFile = GetStringProperty(feature, properties, nameof(AppPoolConfigFile));
+            AppConfigPath = GetStringProperty(feature, properties, nameof(AppConfigPath));
+            ApplicationPhysicalPath = GetStringProperty(feature, properties, nameof(ApplicationPhysicalPath));
+            ApplicationVirtualPath = GetStringProperty(feature, properties, nameof(ApplicationVirtualPath));
+            ApplicationId = GetStringProperty(feature, properties, nameof(ApplicationId));
+            SiteName = GetStringProperty(feature, properties, nameof(SiteName));
+            SiteId = GetUIntProperty(feature, properties, nameof(SiteId));
         }
 
         public Version IISVersion { get; }
@@ -218,13 +227,16 @@ internal static class HostingRuntimeExtensions
 
         public uint SiteId { get; }
 
-        private static string GetStringProperty(object feature, string propertyName)
-            => feature.GetType().GetProperty(propertyName)?.GetValue(feature) as string ?? string.Empty;
+        private static string GetStringProperty(object feature, IReadOnlyDictionary<string, PropertyInfo> properties, string propertyName)
+            => GetPropertyValue(feature, properties, propertyName) as string ?? string.Empty;
 
-        private static Version GetVersionProperty(object feature, string propertyName)
-            => feature.GetType().GetProperty(propertyName)?.GetValue(feature) as Version ?? new Version(0, 0);
+        private static Version GetVersionProperty(object feature, IReadOnlyDictionary<string, PropertyInfo> properties, string propertyName)
+            => GetPropertyValue(feature, properties, propertyName) as Version ?? new Version(0, 0);
 
-        private static uint GetUIntProperty(object feature, string propertyName)
-            => feature.GetType().GetProperty(propertyName)?.GetValue(feature) is uint value ? value : 0;
+        private static uint GetUIntProperty(object feature, IReadOnlyDictionary<string, PropertyInfo> properties, string propertyName)
+            => GetPropertyValue(feature, properties, propertyName) is uint value ? value : 0;
+
+        private static object? GetPropertyValue(object feature, IReadOnlyDictionary<string, PropertyInfo> properties, string propertyName)
+            => properties.TryGetValue(propertyName, out var property) ? property.GetValue(feature) : null;
     }
 }
