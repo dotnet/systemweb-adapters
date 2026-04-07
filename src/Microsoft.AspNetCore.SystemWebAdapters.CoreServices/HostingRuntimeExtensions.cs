@@ -30,9 +30,12 @@ internal static class HostingRuntimeExtensions
 
         try
         {
-            return typeof(DispatchProxy)
-                .GetMethod(nameof(DispatchProxy.Create), BindingFlags.Public | BindingFlags.Static)!
-                .MakeGenericMethod(RuntimeIIISEnvironmentFeatureType, typeof(RuntimeFeatureProxy));
+            var createMethod = typeof(DispatchProxy)
+                .GetMethod(nameof(DispatchProxy.Create), BindingFlags.Public | BindingFlags.Static);
+
+            if (createMethod is null) return null;
+
+            return createMethod.MakeGenericMethod(RuntimeIIISEnvironmentFeatureType, typeof(RuntimeFeatureProxy));
         }
         catch
         {
@@ -169,8 +172,11 @@ internal static class HostingRuntimeExtensions
 
         try
         {
-            var proxy = createMethod.Invoke(null, null)!;
-            ((RuntimeFeatureProxy)proxy).Source = source;
+            var proxy = createMethod.Invoke(null, null);
+
+            if (proxy is not RuntimeFeatureProxy runtimeProxy) return;
+
+            runtimeProxy.Source = source;
             server.Features[runtimeType] = proxy;
         }
         catch
