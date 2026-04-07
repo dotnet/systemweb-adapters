@@ -22,6 +22,24 @@ internal static class HostingRuntimeExtensions
 {
     private static readonly Type? RuntimeIIISEnvironmentFeatureType = Type.GetType("Microsoft.AspNetCore.Server.IIS.IIISEnvironmentFeature, Microsoft.AspNetCore.Server.IIS");
 
+    private static readonly MethodInfo? RuntimeFeatureProxyCreateMethod = CreateRuntimeFeatureProxyCreateMethod();
+
+    private static MethodInfo? CreateRuntimeFeatureProxyCreateMethod()
+    {
+        if (RuntimeIIISEnvironmentFeatureType is null) return null;
+
+        try
+        {
+            return typeof(DispatchProxy)
+                .GetMethod(nameof(DispatchProxy.Create), BindingFlags.Public | BindingFlags.Static)!
+                .MakeGenericMethod(RuntimeIIISEnvironmentFeatureType, typeof(RuntimeFeatureProxy));
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     public static void AddHostingRuntime(this IServiceCollection services)
     {
         services.TryAddSingleton<HostingEnvironmentAccessor>();
@@ -97,12 +115,29 @@ internal static class HostingRuntimeExtensions
         public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
             => builder =>
             {
-                // We ensure this feature is available for both pre-.NET 8 as well as .NET 8+ on non-IIS systems if the right environment variables are set
-                if (builder.ApplicationServices.GetService<IServer>() is { } server && !TryGetEnvironmentFeature(server, out _))
+                if (builder.ApplicationServices.GetService<IServer>() is { } server)
                 {
-                    if (IISEnvironmentFeature.TryCreate(builder.ApplicationServices.GetRequiredService<IConfiguration>(), out var feature))
+                    // Ensure our internal feature type is set so it can be accessed regardless of runtime packaging
+                    if (server.Features.Get<IIISEnvironmentFeature>() is null)
                     {
-                        server.Features.Set<IIISEnvironmentFeature>(feature);
+                        if (RuntimeIIISEnvironmentFeatureType is { } runtimeType && server.Features[runtimeType] is { } runtimeFeature)
+                        {
+                            // Runtime IIS type is set (e.g., running on IIS) - bridge it to our internal type
+                            server.Features.Set<IIISEnvironmentFeature>(new RuntimeIIISEnvironmentFeature(runtimeFeature));
+                        }
+                        else if (IISEnvironmentFeature.TryCreate(builder.ApplicationServices.GetRequiredService<IConfiguration>(), out var feature))
+                        {
+                            // No IIS server feature - populate from config environment variables
+                            server.Features.Set<IIISEnvironmentFeature>(feature);
+                        }
+                    }
+
+                    // Ensure the runtime type is also set when our internal type is populated and the runtime type exists
+                    if (RuntimeIIISEnvironmentFeatureType is { } rType
+                        && server.Features[rType] is null
+                        && server.Features.Get<IIISEnvironmentFeature>() is { } internalFeature)
+                    {
+                        TrySetRuntimeFeature(server, rType, internalFeature);
                     }
                 }
 
@@ -126,6 +161,22 @@ internal static class HostingRuntimeExtensions
 
         feature = null;
         return false;
+    }
+
+    private static void TrySetRuntimeFeature(IServer server, Type runtimeType, IIISEnvironmentFeature source)
+    {
+        if (RuntimeFeatureProxyCreateMethod is not { } createMethod) return;
+
+        try
+        {
+            var proxy = createMethod.Invoke(null, null)!;
+            ((RuntimeFeatureProxy)proxy).Source = source;
+            server.Features[runtimeType] = proxy;
+        }
+        catch
+        {
+            // If proxy creation fails for any reason, continue without surfacing the runtime type
+        }
     }
 
     /// <summary>
@@ -238,5 +289,30 @@ internal static class HostingRuntimeExtensions
 
         private static object? GetPropertyValue(object feature, IReadOnlyDictionary<string, PropertyInfo> properties, string propertyName)
             => properties.TryGetValue(propertyName, out var property) ? property.GetValue(feature) : null;
+    }
+
+    /// <summary>
+    /// A DispatchProxy-based adapter that implements the runtime IIS feature type by delegating to our internal <see cref="IIISEnvironmentFeature"/>.
+    /// This allows consumers that use <c>Microsoft.AspNetCore.Server.IIS.IIISEnvironmentFeature</c> directly to find the feature on the server
+    /// even when it was populated via configuration environment variables rather than the IIS server.
+    /// </summary>
+    private sealed class RuntimeFeatureProxy : DispatchProxy
+    {
+        internal IIISEnvironmentFeature? Source { get; set; }
+
+        protected override object? Invoke(MethodInfo? targetMethod, object?[]? args)
+            => targetMethod?.Name switch
+            {
+                "get_IISVersion" => Source?.IISVersion,
+                "get_AppPoolId" => Source?.AppPoolId,
+                "get_AppPoolConfigFile" => Source?.AppPoolConfigFile,
+                "get_AppConfigPath" => Source?.AppConfigPath,
+                "get_ApplicationPhysicalPath" => Source?.ApplicationPhysicalPath,
+                "get_ApplicationVirtualPath" => Source?.ApplicationVirtualPath,
+                "get_ApplicationId" => Source?.ApplicationId,
+                "get_SiteName" => Source?.SiteName,
+                "get_SiteId" => Source?.SiteId,
+                _ => null,
+            };
     }
 }
