@@ -8,7 +8,7 @@ using System.Web.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
-using Microsoft.AspNetCore.Server.IIS;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -18,6 +18,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal static class HostingRuntimeExtensions
 {
+    private static readonly Type? RuntimeIIISEnvironmentFeatureType = Type.GetType("Microsoft.AspNetCore.Server.IIS.IIISEnvironmentFeature, Microsoft.AspNetCore.Server.IIS");
+
     public static void AddHostingRuntime(this IServiceCollection services)
     {
         services.TryAddSingleton<HostingEnvironmentAccessor>();
@@ -39,7 +41,7 @@ internal static class HostingRuntimeExtensions
     {
         public void Configure(SystemWebAdaptersOptions options)
         {
-            if (server.Features.Get<IIISEnvironmentFeature>() is { } feature)
+            if (TryGetEnvironmentFeature(server, out var feature))
             {
                 options.ApplicationPhysicalPath = feature.ApplicationPhysicalPath;
                 options.ApplicationVirtualPath = feature.ApplicationVirtualPath;
@@ -94,7 +96,7 @@ internal static class HostingRuntimeExtensions
             => builder =>
             {
                 // We ensure this feature is available for both pre-.NET 8 as well as .NET 8+ on non-IIS systems if the right environment variables are set
-                if (builder.ApplicationServices.GetService<IServer>() is { } server && server.Features.Get<IIISEnvironmentFeature>() is null)
+                if (builder.ApplicationServices.GetService<IServer>() is { } server && !TryGetEnvironmentFeature(server, out _))
                 {
                     if (IISEnvironmentFeature.TryCreate(builder.ApplicationServices.GetRequiredService<IConfiguration>(), out var feature))
                     {
@@ -104,6 +106,24 @@ internal static class HostingRuntimeExtensions
 
                 next(builder);
             };
+    }
+
+    private static bool TryGetEnvironmentFeature(IServer server, [NotNullWhen(true)] out IIISEnvironmentFeature? feature)
+    {
+        if (server.Features.Get<IIISEnvironmentFeature>() is { } existing)
+        {
+            feature = existing;
+            return true;
+        }
+
+        if (RuntimeIIISEnvironmentFeatureType is { } type && server.Features[type] is { } runtimeFeature)
+        {
+            feature = new RuntimeIIISEnvironmentFeature(runtimeFeature);
+            return true;
+        }
+
+        feature = null;
+        return false;
     }
 
     /// <summary>
@@ -163,5 +183,48 @@ internal static class HostingRuntimeExtensions
         public string SiteName { get; }
 
         public uint SiteId { get; }
+    }
+
+    private sealed class RuntimeIIISEnvironmentFeature : IIISEnvironmentFeature
+    {
+        public RuntimeIIISEnvironmentFeature(object feature)
+        {
+            IISVersion = GetVersionProperty(feature, nameof(IISVersion));
+            AppPoolId = GetStringProperty(feature, nameof(AppPoolId));
+            AppPoolConfigFile = GetStringProperty(feature, nameof(AppPoolConfigFile));
+            AppConfigPath = GetStringProperty(feature, nameof(AppConfigPath));
+            ApplicationPhysicalPath = GetStringProperty(feature, nameof(ApplicationPhysicalPath));
+            ApplicationVirtualPath = GetStringProperty(feature, nameof(ApplicationVirtualPath));
+            ApplicationId = GetStringProperty(feature, nameof(ApplicationId));
+            SiteName = GetStringProperty(feature, nameof(SiteName));
+            SiteId = GetUIntProperty(feature, nameof(SiteId));
+        }
+
+        public Version IISVersion { get; }
+
+        public string AppPoolId { get; }
+
+        public string AppPoolConfigFile { get; }
+
+        public string AppConfigPath { get; }
+
+        public string ApplicationPhysicalPath { get; }
+
+        public string ApplicationVirtualPath { get; }
+
+        public string ApplicationId { get; }
+
+        public string SiteName { get; }
+
+        public uint SiteId { get; }
+
+        private static string GetStringProperty(object feature, string propertyName)
+            => feature.GetType().GetProperty(propertyName)?.GetValue(feature) as string ?? string.Empty;
+
+        private static Version GetVersionProperty(object feature, string propertyName)
+            => feature.GetType().GetProperty(propertyName)?.GetValue(feature) as Version ?? new Version(0, 0);
+
+        private static uint GetUIntProperty(object feature, string propertyName)
+            => feature.GetType().GetProperty(propertyName)?.GetValue(feature) is uint value ? value : 0;
     }
 }
