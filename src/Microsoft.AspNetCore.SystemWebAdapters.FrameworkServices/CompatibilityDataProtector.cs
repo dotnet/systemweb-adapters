@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.DataProtection;
 namespace Microsoft.AspNetCore.DataProtection.SystemWeb;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public  class CompatibilityDataProtector : DataProtector
+public class CompatibilityDataProtector : DataProtector
 {
     [ThreadStatic]
     private static bool _suppressPrimaryPurpose;
