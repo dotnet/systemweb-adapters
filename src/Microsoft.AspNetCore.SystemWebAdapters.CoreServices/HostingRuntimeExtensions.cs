@@ -37,7 +37,11 @@ internal static class HostingRuntimeExtensions
 
             return createMethod.MakeGenericMethod(RuntimeIIISEnvironmentFeatureType, typeof(RuntimeFeatureProxy));
         }
-        catch
+        catch (ArgumentException)
+        {
+            return null;
+        }
+        catch (InvalidOperationException)
         {
             return null;
         }
@@ -179,7 +183,15 @@ internal static class HostingRuntimeExtensions
             runtimeProxy.Source = source;
             server.Features[runtimeType] = proxy;
         }
-        catch
+        catch (TargetInvocationException)
+        {
+            // If proxy creation fails for any reason, continue without surfacing the runtime type
+        }
+        catch (MethodAccessException)
+        {
+            // If proxy creation fails for any reason, continue without surfacing the runtime type
+        }
+        catch (InvalidOperationException)
         {
             // If proxy creation fails for any reason, continue without surfacing the runtime type
         }
