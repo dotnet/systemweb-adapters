@@ -24,13 +24,42 @@ public static partial class SystemWebDataProtectionExtensions
     /// Adds <see cref="IDataProtectionProvider"/> to the <see cref="HttpApplicationHost"/> and enables <see cref="MachineKey"/> integration.
     /// </summary>
     /// <param name="builder">The <see cref="HttpApplicationHostBuilder"/>.</param>
-    public static IDataProtectionBuilder AddDataProtection(this HttpApplicationHostBuilder builder)
+    /// <param name="setupAction">The setup action for data protection</param>
+    public static IDataProtectionBuilder AddDataProtection(this HttpApplicationHostBuilder builder, Action<DataProtectionOptions> setupAction)
     {
         if (builder is null)
         {
             throw new ArgumentNullException(nameof(builder));
         }
 
+        if (setupAction is null)
+        {
+            throw new ArgumentNullException(nameof(setupAction));
+        }
+
+        builder.Services.AddMachineKey();
+
+        return builder.Services.AddDataProtection(setupAction);
+    }
+
+    /// <summary>
+    /// Adds <see cref="IDataProtectionProvider"/> to the <see cref="HttpApplicationHost"/> and enables <see cref="MachineKey"/> integration.
+    /// </summary>
+    /// <param name="builder">The <see cref="HttpApplicationHostBuilder"/>.</param>
+    public static IDataProtectionBuilder AddDataProtectionInternal(this HttpApplicationHostBuilder builder)
+    {
+        if (builder is null)
+        {
+            throw new ArgumentNullException(nameof(builder));
+        }
+
+        builder.Services.AddMachineKey();
+
+        return builder.Services.AddDataProtection();
+    }
+
+    private static void AddMachineKey(this IServiceCollection services)
+    {
         if (ConfigurationManager.GetSection("system.web/machineKey") is MachineKeySection section)
         {
             if (!string.IsNullOrEmpty(section.DataProtectorType))
@@ -40,10 +69,8 @@ public static partial class SystemWebDataProtectionExtensions
         }
 
         // We use this to auto-start it ASAP to ensure the dataprotector is set up before anyone else tries to do anything
-        builder.Services.AddHostedService<MachineKeySetup>();
-        builder.Services.TryAddSingleton<IApplicationDiscriminator, SystemWebApplicationDiscriminator>();
-
-        return builder.Services.AddDataProtection();
+        services.AddHostedService<MachineKeySetup>();
+        services.TryAddSingleton<IApplicationDiscriminator, SystemWebApplicationDiscriminator>();
     }
 
     /// <summary>
