@@ -84,7 +84,7 @@ internal static class ConfigurationManagerConfigExtensions
     }
 
     /// <summary>
-    /// Does a best effort to get the the name of the assembly that was launched. This matches ASP.NET Core and allows things like UserSecrets to work.
+    /// Does a best effort to get the name of the assembly that was launched. This matches ASP.NET Core and allows things like UserSecrets to work.
     /// </summary>
     private static string GetExecutingAssemblyName()
     {
