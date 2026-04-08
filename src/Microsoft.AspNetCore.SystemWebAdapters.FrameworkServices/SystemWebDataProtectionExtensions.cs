@@ -46,7 +46,7 @@ public static partial class SystemWebDataProtectionExtensions
     /// Adds <see cref="IDataProtectionProvider"/> to the <see cref="HttpApplicationHost"/> and enables <see cref="MachineKey"/> integration.
     /// </summary>
     /// <param name="builder">The <see cref="HttpApplicationHostBuilder"/>.</param>
-    public static IDataProtectionBuilder AddDataProtectionInternal(this HttpApplicationHostBuilder builder)
+    public static IDataProtectionBuilder AddDataProtection(this HttpApplicationHostBuilder builder)
     {
         if (builder is null)
         {
