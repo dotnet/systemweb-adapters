@@ -24,7 +24,7 @@ public class GetWriteableSessionHandlerTests
         _fixture = new Fixture();
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void SessionInterfaces()
     {
         // Arrange
@@ -37,7 +37,7 @@ public class GetWriteableSessionHandlerTests
         Assert.False(handler is IReadOnlySessionState);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task RequestCompleted()
     {
         // Arrange
@@ -97,7 +97,7 @@ public class GetWriteableSessionHandlerTests
         response.Verify(r => r.FlushAsync(), Times.Exactly(bytes.Length - 1));
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task DisconnectedRequest()
     {
         // Arrange

@@ -2,9 +2,9 @@ using System.Runtime.InteropServices;
 
 namespace Xunit;
 
-public sealed class WindowsOnlyFact : FactAttribute
+public sealed class WindowsOnlyWindowsOnlyFact : WindowsOnlyFactAttribute
 {
-    public WindowsOnlyFact()
+    public WindowsOnlyWindowsOnlyFact()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -13,9 +13,9 @@ public sealed class WindowsOnlyFact : FactAttribute
     }
 }
 
-public sealed class WindowsOnlyTheory : TheoryAttribute
+public sealed class WindowsOnlyWindowsOnlyTheory : WindowsOnlyTheoryAttribute
 {
-    public WindowsOnlyTheory()
+    public WindowsOnlyWindowsOnlyTheory()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {

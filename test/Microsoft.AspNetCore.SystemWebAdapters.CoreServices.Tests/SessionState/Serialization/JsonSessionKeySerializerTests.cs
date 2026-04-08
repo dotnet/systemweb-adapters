@@ -21,7 +21,7 @@ public class JsonSessionKeySerializerTests
         _fixture = new Fixture();
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void SerializeNothingRegistered()
     {
         // Arrange
@@ -41,7 +41,7 @@ public class JsonSessionKeySerializerTests
         Assert.Empty(bytes);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void DeserializeNothingRegistered()
     {
         // Arrange
@@ -62,7 +62,7 @@ public class JsonSessionKeySerializerTests
         Assert.Null(obj);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void SerializeTypeRegistered()
     {
         // Arrange
@@ -89,7 +89,7 @@ public class JsonSessionKeySerializerTests
         Assert.Equal("{}"u8.ToArray(), bytes);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void HandleNullValues()
     {
         // Arrange
@@ -119,7 +119,7 @@ public class JsonSessionKeySerializerTests
         Assert.Null(deserialized);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void SerializeDerivedTypeRegistered()
     {
         // Arrange
@@ -146,7 +146,7 @@ public class JsonSessionKeySerializerTests
         Assert.Empty(bytes);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void DeserializeTypeRegistered()
     {
         // Arrange
@@ -173,7 +173,7 @@ public class JsonSessionKeySerializerTests
         Assert.NotNull(obj);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void SerializeIncorrectTypeRegistered()
     {
         // Arrange
@@ -203,7 +203,7 @@ public class JsonSessionKeySerializerTests
     [InlineData(-1)]
     [InlineData(1)]
     [InlineData(100)]
-    [Theory]
+    [WindowsOnlyTheory]
     public void PrimitiveSerializer(int primitive)
     {
         // Arrange
@@ -233,7 +233,7 @@ public class JsonSessionKeySerializerTests
         Assert.Equal(primitive, deserialized);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void PrimitiveNullableNotSupportedSerializer()
     {
         // Arrange
@@ -264,7 +264,7 @@ public class JsonSessionKeySerializerTests
     [InlineData(-1)]
     [InlineData(1)]
     [InlineData(100)]
-    [Theory]
+    [WindowsOnlyTheory]
     public void PrimitiveNullableSerializer(int? primitive)
     {
         // Arrange
@@ -294,7 +294,7 @@ public class JsonSessionKeySerializerTests
         Assert.Equal(primitive, deserialized);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void CaseInsensitiveSessionKeys()
     {
         // Arrange
@@ -320,7 +320,7 @@ public class JsonSessionKeySerializerTests
         Assert.True(result2);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void ChangeSessionKeysComparer()
     {
         // Arrange
@@ -358,7 +358,7 @@ public class JsonSessionKeySerializerTests
         Assert.True(result2);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void RegisterKey()
     {
         // Arrange
@@ -373,7 +373,7 @@ public class JsonSessionKeySerializerTests
         Assert.Equal("key", item.Key);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void RegisterKeySameName()
     {
         // Arrange

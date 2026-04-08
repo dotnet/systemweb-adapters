@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <RootNamespace>Microsoft.AspNetCore.SystemWebAdapters.Tests</RootNamespace>
@@ -6,6 +6,7 @@
   <ItemGroup>
     <Compile Include="..\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests\SessionState\Serialization\BinarySessionSerializerTests.cs" Link="SessionState\BinarySessionSerializerTests.cs" />
     <Compile Include="..\Microsoft.AspNetCore.SystemWebAdapters.CoreServices.Tests\SessionState\Serialization\JsonSessionKeySerializerTests.cs" Link="SessionState\JsonSessionKeySerializerTests.cs" />
+    <Compile Include="..\Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests\WindowsOnlyAttributes.cs" Link="WindowsOnlyAttributes.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac.Extras.Moq" />

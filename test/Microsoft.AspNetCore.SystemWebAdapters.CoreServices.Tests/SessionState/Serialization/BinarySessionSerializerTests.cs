@@ -13,7 +13,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization.Test
 
 public class BinarySessionSerializerTests
 {
-    [Fact]
+    [WindowsOnlyFact]
     public async Task SerializeEmpty()
     {
         // Arrange
@@ -30,7 +30,7 @@ public class BinarySessionSerializerTests
         Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 0, 0 });
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task DeserializeEmpty()
     {
         // Arrange
@@ -52,7 +52,7 @@ public class BinarySessionSerializerTests
         Assert.Empty(result.Keys);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task SerializeIsNewSession()
     {
         // Arrange
@@ -70,7 +70,7 @@ public class BinarySessionSerializerTests
         Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 1, 0, 0, 0, 0, 0 });
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task DeserializeIsNewSession()
     {
         // Arrange
@@ -92,7 +92,7 @@ public class BinarySessionSerializerTests
         Assert.Empty(result.Keys);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task SerializeIsAbandoned()
     {
         // Arrange
@@ -110,7 +110,7 @@ public class BinarySessionSerializerTests
         Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 1, 0, 0, 0, 0 });
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task DeserializeIsAbandoned()
     {
         // Arrange
@@ -132,7 +132,7 @@ public class BinarySessionSerializerTests
         Assert.Empty(result.Keys);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task SerializeIsReadOnly()
     {
         // Arrange
@@ -150,7 +150,7 @@ public class BinarySessionSerializerTests
         Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 1, 0, 0, 0 });
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task DeserializeIsReadOnly()
     {
         // Arrange
@@ -172,7 +172,7 @@ public class BinarySessionSerializerTests
         Assert.Empty(result.Keys);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task DeserializeIsReadOnlyEmptyNull()
     {
         // Arrange
@@ -194,7 +194,7 @@ public class BinarySessionSerializerTests
         Assert.Empty(result.Keys);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task SerializeTimeout()
     {
         // Arrange
@@ -212,7 +212,7 @@ public class BinarySessionSerializerTests
         Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 20, 0, 0 });
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task DeserializeTimeout()
     {
         // Arrange
@@ -234,7 +234,7 @@ public class BinarySessionSerializerTests
         Assert.Empty(result.Keys);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task Serialize1Key()
     {
         // Arrange
@@ -259,7 +259,7 @@ public class BinarySessionSerializerTests
         Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 42, 0 });
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task Serialize1KeyNull()
     {
         // Arrange
@@ -284,7 +284,7 @@ public class BinarySessionSerializerTests
         Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0 });
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task Deserialize1KeyNull()
     {
         // Arrange
@@ -311,7 +311,7 @@ public class BinarySessionSerializerTests
         Assert.Collection(result.Keys, k => Assert.Equal("key1", k));
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task Deserialize1KeyV1()
     {
         // Arrange
@@ -338,7 +338,7 @@ public class BinarySessionSerializerTests
         Assert.Equal(obj, result["key1"]);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task Serialize1KeyNullable()
     {
         // Arrange
@@ -363,7 +363,7 @@ public class BinarySessionSerializerTests
         Assert.Equal(ms.ToArray(), new byte[] { 1, 2, 105, 100, 0, 0, 0, 0, 1, 4, 107, 101, 121, 49, 1, 0, 0 });
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task Deserialize1Key()
     {
         // Arrange

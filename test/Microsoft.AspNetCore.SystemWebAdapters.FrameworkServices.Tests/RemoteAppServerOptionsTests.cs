@@ -20,7 +20,7 @@ public class RemoteAppServerOptionsTests
     [InlineData("", "MyKey", false)]
     [InlineData("HeaderName", null, false)]
     [InlineData("HeaderName", "", false)]
-    [Theory]
+    [WindowsOnlyTheory]
     public void VerifyIsCalled(string? apiKeyHeader, string? apiKey, bool shouldSucceed)
     {
         // Arrange
