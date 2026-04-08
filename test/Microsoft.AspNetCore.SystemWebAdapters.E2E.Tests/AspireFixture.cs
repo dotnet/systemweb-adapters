@@ -53,10 +53,13 @@ public sealed class AspireFixture<TEntryPoint> : IDisposable, IAsyncDisposable, 
         await (await _app).DisposeAsync();
     }
 
+    private readonly List<string> _captured = [];
     private ITestOutputHelper? _current;
 
     public async Task<IDistributeApplicationScope> GetApplicationScopeAsync(ITestOutputHelper output)
     {
+        ArgumentNullException.ThrowIfNull(output);
+
         if (_current is { })
         {
             throw new InvalidOperationException("Tests cannot be run concurrently");
@@ -64,6 +67,12 @@ public sealed class AspireFixture<TEntryPoint> : IDisposable, IAsyncDisposable, 
 
         var app = await _app;
         _current = output;
+
+        // flush any captured logs to the output
+        foreach (var existing in _captured)
+        {
+            output.WriteLine(existing);
+        }
 
         return new DistributeApplicationScope(app, () => _current = null);
     }
@@ -76,9 +85,15 @@ public sealed class AspireFixture<TEntryPoint> : IDisposable, IAsyncDisposable, 
 
     void ILogger.Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
+        var str = $"[{logLevel}] {formatter(state, exception)}";
+
         if (_current is { } current)
         {
-            current.WriteLine($"[{logLevel}] {formatter(state, exception)}");
+            current.WriteLine(str);
+        }
+        else
+        {
+            _captured.Add(str);
         }
     }
 
