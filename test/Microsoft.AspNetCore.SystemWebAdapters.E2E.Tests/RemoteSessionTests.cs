@@ -25,8 +25,8 @@ public class RemoteSessionTests(ITestOutputHelper output, AspireFixture<SessionR
 
     private async Task ValidateCount(string relative, int coreCount, int frameworkCount)
     {
-        var app = await aspire.GetApplicationAsync();
-        var endpoint = app.GetEndpoint("core");
+        using var scope = await aspire.GetApplicationScopeAsync(output);
+        var endpoint = scope.App.GetEndpoint("core");
 
         var response = await Page.GotoAsync(new Uri(endpoint, relative).ToString());
 

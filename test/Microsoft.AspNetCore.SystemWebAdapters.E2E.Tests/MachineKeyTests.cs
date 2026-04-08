@@ -2,20 +2,21 @@ using System.Security.Cryptography;
 using Aspire.Hosting.ApplicationModel;
 using Projects;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
-public class MachineKeyTests(AspireFixture<MachineKeyAppHost> aspire) : IClassFixture<AspireFixture<MachineKeyAppHost>>
+public class MachineKeyTests(AspireFixture<MachineKeyAppHost> aspire, ITestOutputHelper output) : IClassFixture<AspireFixture<MachineKeyAppHost>>
 {
     [WindowsOnlyTheory]
     [InlineData(AppEndpoint.Core, AppEndpoint.Framework)]
     [InlineData(AppEndpoint.Framework, AppEndpoint.Core)]
     public async Task RoundtripBetweenServices(AppEndpoint source, AppEndpoint destination)
     {
-        var app = await aspire.GetApplicationAsync();
+        using var scope = await aspire.GetApplicationScopeAsync(output);
 
-        using var sourceClient = app.CreateHttpClient(GetName(source));
-        using var destinationClient = app.CreateHttpClient(GetName(destination));
+        using var sourceClient = scope.App.CreateHttpClient(GetName(source));
+        using var destinationClient = scope.App.CreateHttpClient(GetName(destination));
 
         var data = RandomNumberGenerator.GetBytes(1024);
 

@@ -1,16 +1,17 @@
 using System.Net.Http.Json;
 using Projects;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
-public class AppConfigTests(AspireFixture<AppConfigAppHost> aspire) : IClassFixture<AspireFixture<AppConfigAppHost>>
+public class AppConfigTests(AspireFixture<AppConfigAppHost> aspire, ITestOutputHelper output) : IClassFixture<AspireFixture<AppConfigAppHost>>
 {
     [WindowsOnlyFact]
     public async Task CoreConfigurationIsConfigured()
     {
-        var app = await aspire.GetApplicationAsync();
-        using var client = app.CreateHttpClient("core");
+        using var scope = await aspire.GetApplicationScopeAsync(output);
+        using var client = scope.App.CreateHttpClient("core");
         var response = await client.GetFromJsonAsync<ConfigResult>("/");
 
         Assert.NotNull(response);
@@ -23,8 +24,8 @@ public class AppConfigTests(AspireFixture<AppConfigAppHost> aspire) : IClassFixt
     [WindowsOnlyFact]
     public async Task FrameworkConfigurationIsConfigured()
     {
-        var app = await aspire.GetApplicationAsync();
-        using var client = app.CreateHttpClient("framework");
+        using var scope = await aspire.GetApplicationScopeAsync(output);
+        using var client = scope.App.CreateHttpClient("framework");
         var response = await client.GetFromJsonAsync<ConfigResult>("/");
 
         Assert.NotNull(response);

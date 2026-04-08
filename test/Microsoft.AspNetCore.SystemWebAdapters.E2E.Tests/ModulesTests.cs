@@ -21,8 +21,8 @@ public class ModulesTests(ITestOutputHelper output, AspireFixture<ModulesAppHost
     {
         var baseUrl = new Uri("/", UriKind.Relative);
 
-        var app = await aspire.GetApplicationAsync();
-        using var client = app.CreateHttpClient(name);
+        using var scope = await aspire.GetApplicationScopeAsync(output);
+        using var client = scope.App.CreateHttpClient(name);
         using var response = await client.GetAsync(baseUrl);
 
         response.EnsureSuccessStatusCode();

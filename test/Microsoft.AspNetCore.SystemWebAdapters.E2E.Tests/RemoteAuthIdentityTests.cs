@@ -1,24 +1,27 @@
 using System.Security.Cryptography;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Aspire.Hosting;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Playwright.Xunit;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Projects;
-using System.Text.Json;
 using Xunit;
-using System.Text.Json.Serialization;
+using Xunit.Abstractions;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
-public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire) : DebugPageTest, IClassFixture<AspireFixture<AuthRemoteIdentityAppHost>>
+public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire, ITestOutputHelper output) : DebugPageTest, IClassFixture<AspireFixture<AuthRemoteIdentityAppHost>>
 {
     [WindowsOnlyTheory]
     [InlineData("core")]
     [InlineData("owin")]
     public async Task MVCCoreAppCanLogoutBothApps(string name)
     {
+        using var scope = await aspire.GetApplicationScopeAsync(output);
         var email = $"{Path.GetRandomFileName()}@test.com";
-        var coreAppEndpoint = await GetEndpoint(name);
-        var frameworkAppEndpoint = await GetAspNetFrameworkEndpoint();
+        var coreAppEndpoint = GetEndpoint(scope, name);
+        var frameworkAppEndpoint = GetAspNetFrameworkEndpoint(scope);
 
         await Page.GotoAsync(frameworkAppEndpoint.AbsoluteUri);
         await Expect(Page.Locator("text=My ASP.NET Application")).ToBeVisibleAsync();
@@ -41,9 +44,10 @@ public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire) 
     [InlineData("owin")]
     public async Task MVCAppCanLogoutBothApps(string name)
     {
+        using var scope = await aspire.GetApplicationScopeAsync(output);
         var email = $"{Path.GetRandomFileName()}@test.com";
-        var coreAppEndpoint = await GetEndpoint(name);
-        var frameworkAppEndpoint = await GetAspNetFrameworkEndpoint();
+        var coreAppEndpoint = GetEndpoint(scope, name);
+        var frameworkAppEndpoint = GetAspNetFrameworkEndpoint(scope);
 
         // Login with core app
         await Page.GotoAsync(coreAppEndpoint.AbsoluteUri);
@@ -103,13 +107,12 @@ public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire) 
         }
     }
 
-    private async ValueTask<Uri> GetEndpoint(string name)
+    private static Uri GetEndpoint(IDistributeApplicationScope scope, string name)
     {
-        var app = await aspire.GetApplicationAsync();
-        return app.GetEndpoint(name, "https");
+        return scope.App.GetEndpoint(name, "https");
     }
 
-    private ValueTask<Uri> GetAspNetFrameworkEndpoint() => GetEndpoint("framework");
+    private static Uri GetAspNetFrameworkEndpoint(IDistributeApplicationScope scope) => GetEndpoint(scope, "framework");
 
     private sealed class UserResult
     {

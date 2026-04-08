@@ -1,18 +1,20 @@
 using Aspire.Hosting;
 using Microsoft.Playwright.Xunit;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
-public class RemoteAuthFormsTests(AspireFixture<Projects.AuthRemoteFormsAuthAppHost> aspire) : DebugPageTest, IClassFixture<AspireFixture<Projects.AuthRemoteFormsAuthAppHost>>
+public class RemoteAuthFormsTests(AspireFixture<Projects.AuthRemoteFormsAuthAppHost> aspire, ITestOutputHelper output) : DebugPageTest, IClassFixture<AspireFixture<Projects.AuthRemoteFormsAuthAppHost>>
 {
     [WindowsOnlyFact]
     public async Task CoreAppCanLogout()
     {
         var username = "User1";
 
-        var frameworkAppEndpoint = await GetAspNetFrameworkEndpoint();
-        var coreAppEndpoint = await GetAspNetCoreEndpoint();
+        using var scope = await aspire.GetApplicationScopeAsync(output);
+        var frameworkAppEndpoint = GetAspNetFrameworkEndpoint(scope);
+        var coreAppEndpoint = GetAspNetCoreEndpoint(scope);
 
         await Page.GotoAsync(frameworkAppEndpoint);
         await Expect(Page.Locator("text=My ASP.NET Application")).ToBeVisibleAsync();
@@ -42,8 +44,10 @@ public class RemoteAuthFormsTests(AspireFixture<Projects.AuthRemoteFormsAuthAppH
     {
         var username = "User1";
 
-        var frameworkAppEndpoint = await GetAspNetFrameworkEndpoint();
-        var coreAppEndpoint = await GetAspNetCoreEndpoint();
+        using var scope = await aspire.GetApplicationScopeAsync(output);
+
+        var frameworkAppEndpoint = GetAspNetFrameworkEndpoint(scope);
+        var coreAppEndpoint = GetAspNetCoreEndpoint(scope);
 
         // Login with core app
         await Page.GotoAsync(coreAppEndpoint);
@@ -67,15 +71,13 @@ public class RemoteAuthFormsTests(AspireFixture<Projects.AuthRemoteFormsAuthAppH
         await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
     }
 
-    private async ValueTask<string> GetAspNetCoreEndpoint()
+    private static string GetAspNetCoreEndpoint(IDistributeApplicationScope scope)
     {
-        var app = await aspire.GetApplicationAsync();
-        return app.GetEndpoint("core", "https").AbsoluteUri;
+        return scope.App.GetEndpoint("core", "https").AbsoluteUri;
     }
 
-    private async ValueTask<string> GetAspNetFrameworkEndpoint()
+    private static string GetAspNetFrameworkEndpoint(IDistributeApplicationScope scope)
     {
-        var app = await aspire.GetApplicationAsync();
-        return app.GetEndpoint("framework", "https").AbsoluteUri;
+        return scope.App.GetEndpoint("framework", "https").AbsoluteUri;
     }
 }
