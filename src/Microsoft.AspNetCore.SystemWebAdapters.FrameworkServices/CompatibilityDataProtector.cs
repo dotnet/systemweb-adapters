@@ -6,6 +6,7 @@ using System.Configuration;
 using System.Security.Cryptography;
 using System.Web;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
 
 namespace Microsoft.AspNetCore.DataProtection.SystemWeb;
 
@@ -48,14 +49,7 @@ public class CompatibilityDataProtector : DataProtector
     private IDataProtector Protector => ((_suppressPrimaryPurpose) ? _lazyProtectorSuppressedPrimaryPurpose : _lazyProtector).Value;
 
     protected virtual IDataProtectionProvider GetDataProtectionProvider()
-    {
-        if (HttpRuntime.WebObjectActivator is not IServiceProvider services)
-        {
-            throw new InvalidOperationException("Must configure HttpRuntime.WebObjectActivator to use DataProtection");
-        }
-
-        return services.GetDataProtectionProvider();
-    }
+        => HttpApplicationHost.Current.Services.GetDataProtectionProvider();
 
     public override bool IsReprotectRequired(byte[] encryptedData)
     {
