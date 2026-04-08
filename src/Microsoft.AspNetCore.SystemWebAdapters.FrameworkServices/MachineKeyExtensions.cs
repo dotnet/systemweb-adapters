@@ -8,7 +8,6 @@ namespace System.Web;
 
 internal static class MachineKeyExtensions
 {
-
     private static readonly FieldInfo _configField = GetRequiredField("s_config");
     private static readonly MethodInfo _ensureConfig = GetRequiredMethod("EnsureConfig");
     private static readonly MethodInfo _getApplicationConfig = GetRequiredMethod("GetApplicationConfig");
