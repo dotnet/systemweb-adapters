@@ -7,10 +7,9 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
 public class MachineKeyTests(AspireFixture<MachineKeyAppHost> aspire) : IClassFixture<AspireFixture<MachineKeyAppHost>>
 {
-    [Theory]
+    [WindowsOnlyTheory]
     [InlineData(AppEndpoint.Core, AppEndpoint.Framework)]
     [InlineData(AppEndpoint.Framework, AppEndpoint.Core)]
-
     public async Task RoundtripBetweenServices(AppEndpoint source, AppEndpoint destination)
     {
         var app = await aspire.GetApplicationAsync();

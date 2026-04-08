@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Projects;
 using Xunit;
 using Xunit.Abstractions;
@@ -6,7 +8,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
 public class ModulesTests(ITestOutputHelper output, AspireFixture<ModulesAppHost> aspire) : IClassFixture<AspireFixture<ModulesAppHost>>
 {
-    [Fact]
+    [WindowsOnlyFact]
     public async Task ValidateModuleFiringOrder()
     {
         var coreModules = await GetModules("core");

@@ -5,7 +5,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
 public class WebFormsToBlazorTests(AspireFixture<WebFormsToBlazorAppHost> aspire) : DebugPageTest, IClassFixture<AspireFixture<WebFormsToBlazorAppHost>>
 {
-    [Fact(Skip = "Failing to load")]
+    [WindowsOnlyFact(Skip = "Failing to load")]
     public async Task CanNavigateToWebFormsPage()
     {
         var app = await aspire.GetApplicationAsync();

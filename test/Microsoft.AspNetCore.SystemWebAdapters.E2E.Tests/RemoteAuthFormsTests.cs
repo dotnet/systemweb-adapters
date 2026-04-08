@@ -6,7 +6,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
 public class RemoteAuthFormsTests(AspireFixture<Projects.AuthRemoteFormsAuthAppHost> aspire) : DebugPageTest, IClassFixture<AspireFixture<Projects.AuthRemoteFormsAuthAppHost>>
 {
-    [Fact]
+    [WindowsOnlyFact]
     public async Task CoreAppCanLogout()
     {
         var username = "User1";
@@ -37,7 +37,7 @@ public class RemoteAuthFormsTests(AspireFixture<Projects.AuthRemoteFormsAuthAppH
         //await Expect(Page.Locator(@"text=Login")).ToBeVisibleAsync();
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task FrameworkCanLogoutBothApps()
     {
         var username = "User1";

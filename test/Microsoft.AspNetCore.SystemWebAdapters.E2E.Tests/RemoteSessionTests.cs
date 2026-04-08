@@ -11,7 +11,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
 public class RemoteSessionTests(ITestOutputHelper output, AspireFixture<SessionRemoteAppHost> aspire) : DebugPageTest, IClassFixture<AspireFixture<SessionRemoteAppHost>>
 {
-    [Fact]
+    [WindowsOnlyFact]
     public async Task SessionTests()
     {
         await ValidateCount("/", 1, 0);

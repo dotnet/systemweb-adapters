@@ -6,7 +6,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
 public class AppConfigTests(AspireFixture<AppConfigAppHost> aspire) : IClassFixture<AspireFixture<AppConfigAppHost>>
 {
-    [Fact]
+    [WindowsOnlyFact]
     public async Task CoreConfigurationIsConfigured()
     {
         var app = await aspire.GetApplicationAsync();
@@ -20,7 +20,7 @@ public class AppConfigTests(AspireFixture<AppConfigAppHost> aspire) : IClassFixt
         Assert.Null(response.ConnStr2);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public async Task FrameworkConfigurationIsConfigured()
     {
         var app = await aspire.GetApplicationAsync();

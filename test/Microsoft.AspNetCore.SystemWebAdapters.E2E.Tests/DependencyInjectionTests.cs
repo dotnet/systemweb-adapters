@@ -9,7 +9,7 @@ public class DependencyInjectionTests(AspireFixture<DependencyInjectionAppHost> 
     [InlineData("/mvc")]
     [InlineData("/api")]
     [InlineData("/webforms.aspx")]
-    [Theory]
+    [WindowsOnlyTheory]
     public async Task CheckFrameworkDI(string path)
     {
         var app = await aspire.GetApplicationAsync();
