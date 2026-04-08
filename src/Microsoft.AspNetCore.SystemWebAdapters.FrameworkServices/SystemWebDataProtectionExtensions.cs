@@ -157,19 +157,9 @@ public static partial class SystemWebDataProtectionExtensions
 
     private sealed class SystemWebApplicationDiscriminator : IApplicationDiscriminator
     {
-        private readonly Lazy<string> _lazyDiscriminator;
+        public string? Discriminator { get; } = GetAppDiscriminatorCore();
 
-        public SystemWebApplicationDiscriminator(IHostEnvironment env)
-        {
-            _lazyDiscriminator = new Lazy<string>(() => GetAppDiscriminatorCore(env));
-            IsInitialized = true;
-        }
-
-        internal static bool IsInitialized { get; set; }
-
-        public string Discriminator => _lazyDiscriminator.Value;
-
-        private static string GetAppDiscriminatorCore(IHostEnvironment env)
+        private static string GetAppDiscriminatorCore()
         {
             // Try reading the discriminator from <machineKey applicationName="..." /> defined
             // at the web app root. If the value was set explicitly (even if the value is empty),
