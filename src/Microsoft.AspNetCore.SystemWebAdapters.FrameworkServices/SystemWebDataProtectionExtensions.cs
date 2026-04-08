@@ -14,11 +14,16 @@ using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace System.Web;
 
-public static class SystemWebDataProtectionExtensions
+public static partial class SystemWebDataProtectionExtensions
 {
+    /// <summary>
+    /// Adds <see cref="IDataProtectionProvider"/> to the <see cref="HttpApplicationHost"/> and enables <see cref="MachineKey"/> integration.
+    /// </summary>
+    /// <param name="builder">The <see cref="HttpApplicationHostBuilder"/>.</param>
     public static IDataProtectionBuilder AddDataProtection(this HttpApplicationHostBuilder builder)
     {
         if (builder is null)
@@ -35,32 +40,54 @@ public static class SystemWebDataProtectionExtensions
         }
 
         // We use this to auto-start it ASAP to ensure the dataprotector is set up before anyone else tries to do anything
-        builder.Services.AddHostedService<DataProtectionInitializerStartup>();
+        builder.Services.AddHostedService<MachineKeySetup>();
         builder.Services.TryAddSingleton<IApplicationDiscriminator, SystemWebApplicationDiscriminator>();
 
         return builder.Services.AddDataProtection();
     }
 
-    // This is used to initialized the data protection infrastructure early in the set up
-    private sealed class DataProtectionInitializerStartup(IServiceProvider sp, IHostEnvironment env) : IHostedService
+    /// <summary>
+    /// This is used to initialized the data protection infrastructure early in the set up for <see cref="MachineKey"/>. Optionally, will run
+    /// a runtime diagnostic to verify it is set up correctly.
+    /// </summary>
+    private sealed partial class MachineKeySetup(IServiceProvider sp, IHostEnvironment env, ILogger<MachineKeySetup> logger) : IHostedService
     {
         private static readonly FieldInfo _configField = GetRequiredField("s_config");
         private static readonly MethodInfo _getApplicationConfig = GetRequiredMethod("GetApplicationConfig");
 
+        [LoggerMessage(LogLevel.Trace, EventId = 0, Message = "Initializing MachineKey infrastructure to use IDataProtection")]
+        private static partial void LogInitializing(ILogger logger);
+
+        [LoggerMessage(LogLevel.Trace, EventId = 1, Message = "Running test to validate IDataProtection")]
+        private static partial void LogRunningTest(ILogger logger);
+
+        [LoggerMessage(LogLevel.Trace, EventId = 2, Message = "Initialized MachineKey infrastructure to use IDataProtection")]
+        private static partial void LogInitialized(ILogger logger);
+
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            LogInitializing(logger);
+
             Initialize();
 
             if (env.IsDevelopment())
             {
+                LogRunningTest(logger);
                 ValidateMachineKey();
             }
+
+            LogInitialized(logger);
 
             return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
+        /// <summary>
+        /// This method initializes the <see cref="MachineKey"/> infrastructure such that it will use the <see cref="IDataProtectionProvider"/>.
+        /// Since this uses reflection, there are a few checks to make sure things are set up correctly. .NET Framework is not being changed at
+        /// this point that much, so there's little risk in relying on some of these internals.
+        /// </summary>
         private static void Initialize()
         {
             var existing = GetApplicationConfig();
@@ -79,7 +106,9 @@ public static class SystemWebDataProtectionExtensions
             _ = MachineKey.Protect([]);
         }
 
-        // This is a mini test in production when under Development to verify that things are setup correctly
+        /// <summary>
+        /// This is a mini test in production when ran in development mode to verify that things are setup correctly
+        /// </summary>
         private void ValidateMachineKey()
         {
             using var rng = RandomNumberGenerator.Create();
@@ -152,8 +181,6 @@ public static class SystemWebDataProtectionExtensions
             }
             else
             {
-                var a = env.ApplicationName;
-                var b = HostingEnvironment.SiteName;
                 return env.ApplicationName;
             }
         }
