@@ -13,7 +13,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.SessionState.RemoteSession.Test
 
 public class ReadOnlySessionHandlerTests
 {
-    [WindowsOnlyFact]
+    [Fact]
     public void ImplementsReadOnlyState()
     {
         // Arrange
@@ -24,7 +24,7 @@ public class ReadOnlySessionHandlerTests
         Assert.IsAssignableFrom<IReadOnlySessionState>(handler);
     }
 
-    [WindowsOnlyFact]
+    [Fact]
     public async Task Process()
     {
 

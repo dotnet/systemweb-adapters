@@ -27,7 +27,7 @@ public class RemoteAppAuthenticationModuleTests
     [InlineData(null, null, "/a", 302, "/a", null)]
     [InlineData(null, null, "", 400, null, null)]
     [InlineData(null, null, "http://a", 400, null, null)]
-    [WindowsOnlyTheory]
+    [Theory]
     public void VerifyAuthenticationRequestHandling(string? apiKey, string? authMigrationHeader, string? originalPath, int expectedStatusCode, string? expectedRedirect, Type? expectedHandlerType)
     {
         // Arrange

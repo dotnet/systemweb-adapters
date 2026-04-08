@@ -14,7 +14,7 @@ public class RemoteAppAuthenticationServerOptionsTests
     [InlineData("AuthEndpoint", true)]
     [InlineData(null, false)]
     [InlineData("", false)]
-    [WindowsOnlyTheory]
+    [Theory]
     public void VerifyIsCalled(string? endpoint, bool shouldSucceed)
     {
         // Arrange

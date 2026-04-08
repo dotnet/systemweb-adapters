@@ -21,7 +21,7 @@ public class ProxyHeaderModuleTests
     private const string On = "on";
     private const string Off = "off";
 
-    [WindowsOnlyFact]
+    [Fact]
     public void NoHeaderChange()
     {
         // Arrange
@@ -38,7 +38,7 @@ public class ProxyHeaderModuleTests
         Assert.Empty(serverVariables);
     }
 
-    [WindowsOnlyFact]
+    [Fact]
     public void HostWithPortNoProto()
     {
         // Arrange
@@ -63,7 +63,7 @@ public class ProxyHeaderModuleTests
         Assert.Equal(Off, serverVariables[ServerHttps]);
     }
 
-    [WindowsOnlyFact]
+    [Fact]
     public void HostWithNoPortNoProto()
     {
         // Arrange
@@ -88,7 +88,7 @@ public class ProxyHeaderModuleTests
         Assert.Equal(Off, serverVariables[ServerHttps]);
     }
 
-    [WindowsOnlyFact]
+    [Fact]
     public void HostWithNoPortHttp()
     {
         // Arrange
@@ -114,7 +114,7 @@ public class ProxyHeaderModuleTests
         Assert.Equal(Off, serverVariables[ServerHttps]);
     }
 
-    [WindowsOnlyFact]
+    [Fact]
     public void HostAlreadySet()
     {
         // Arrange
@@ -141,7 +141,7 @@ public class ProxyHeaderModuleTests
         Assert.Equal(Off, serverVariables[ServerHttps]);
     }
 
-    [WindowsOnlyFact]
+    [Fact]
     public void HostWithNoPortHttps()
     {
         // Arrange
@@ -167,7 +167,7 @@ public class ProxyHeaderModuleTests
         Assert.Equal(On, serverVariables[ServerHttps]);
     }
 
-    [WindowsOnlyFact]
+    [Fact]
     public void IPv6NoPort()
     {
         // Arrange
@@ -193,7 +193,7 @@ public class ProxyHeaderModuleTests
         Assert.Equal(On, serverVariables[ServerHttps]);
     }
 
-    [WindowsOnlyFact]
+    [Fact]
     public void IPv6WithPort()
     {
         // Arrange
@@ -219,7 +219,7 @@ public class ProxyHeaderModuleTests
         Assert.Equal(On, serverVariables[ServerHttps]);
     }
 
-    [WindowsOnlyFact]
+    [Fact]
     public void ForwardedForSet()
     {
         const string ForwardedForValue = "something";
@@ -246,7 +246,7 @@ public class ProxyHeaderModuleTests
         Assert.Null(requestHeaders[options.OriginalHostHeaderName]);
     }
 
-    [WindowsOnlyFact]
+    [Fact]
     public void ForwardedForPreservesOriginalRemoteAddr()
     {
         const string ForwardedForValue = "10.0.0.1";
@@ -273,7 +273,7 @@ public class ProxyHeaderModuleTests
         Assert.Equal(OriginalRemoteAddr, requestHeaders[options.OriginalForHeaderName]);
     }
 
-    [WindowsOnlyFact]
+    [Fact]
     public void ForwardedForPreservesOriginalRemoteAddrWithCustomHeaderName()
     {
         const string ForwardedForValue = "10.0.0.1";
@@ -304,7 +304,7 @@ public class ProxyHeaderModuleTests
         Assert.Equal(OriginalRemoteAddr, requestHeaders[CustomHeaderName]);
     }
 
-    [WindowsOnlyFact]
+    [Fact]
     public void ForwardedForDoesNotSetOriginalWhenNoRemoteAddr()
     {
         const string ForwardedForValue = "10.0.0.1";

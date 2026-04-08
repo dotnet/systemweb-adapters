@@ -20,7 +20,7 @@ public class StoreSessionStateHandlerTests
         _fixture = new Fixture();
     }
 
-    [WindowsOnlyFact]
+    [Fact]
     public void NoSessionStateInterfaces()
     {
         // Arrange
@@ -33,7 +33,7 @@ public class StoreSessionStateHandlerTests
         Assert.False(handler is IReadOnlySessionState);
     }
 
-    [WindowsOnlyFact]
+    [Fact]
     public async Task NoCookieSet()
     {
         // Arrange
@@ -65,7 +65,7 @@ public class StoreSessionStateHandlerTests
     [InlineData((int)SessionSaveResult.SessionNotFound, 400, StoreSessionStateHandler.Messages.SessionNotFound)]
     [InlineData((int)SessionSaveResult.AlreadyUpdated, 400, StoreSessionStateHandler.Messages.SessionAlreadyUpdated)]
     [InlineData((int)SessionSaveResult.DeserializationError, 400, StoreSessionStateHandler.Messages.DeserializationFailed)]
-    [WindowsOnlyTheory]
+    [Theory]
     public async Task WithCookie(int result, int statusCode, string? description)
     {
         // Arrange
