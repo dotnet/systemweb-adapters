@@ -181,7 +181,7 @@ public static partial class SystemWebDataProtectionExtensions
             }
             else
             {
-                return env.ApplicationName;
+                return HttpRuntime.AppDomainAppId;
             }
         }
     }
