@@ -35,7 +35,7 @@ public static partial class SystemWebDataProtectionExtensions
         {
             if (!string.IsNullOrEmpty(section.DataProtectorType))
             {
-                throw new InvalidOperationException("Could not setup DataProtection for use with MachineKey due to existing configuration of system.web/machineKey");
+                throw new InvalidOperationException("Could not set up DataProtection for use with MachineKey because 'system.web/machineKey' already has 'dataProtectorType' configured. Remove or clear the 'dataProtectorType' attribute (and 'compatibilityMode' if it was previously set for older MachineKey/DataProtection integration), or do not call AddDataProtection if you want to keep the existing machineKey configuration. AddDataProtection now configures MachineKey integration automatically.");
             }
         }
 
