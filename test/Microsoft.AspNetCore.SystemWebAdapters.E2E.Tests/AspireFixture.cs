@@ -1,4 +1,5 @@
 using Aspire.Hosting;
+using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
@@ -63,6 +64,14 @@ public sealed class AspireFixture<TEntryPoint> : ILoggerProvider, ILogger, IAsyn
     {
         var builder = await DistributedApplicationTestingBuilder
             .CreateAsync<TEntryPoint>();
+
+        builder.Configuration.Sources.Add(new MemoryConfigurationSource()
+        {
+            InitialData = new Dictionary<string, string?>
+            {
+                ["Parameters:sqlPass"] = PasswordGenerator.CreatePassword(),
+            }
+        });
 
         builder.Services.AddLogging(logging =>
         {
