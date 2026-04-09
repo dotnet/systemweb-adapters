@@ -194,7 +194,7 @@ public class CacheTests
         // Assert
         Assert.Null(first);
         Assert.NotNull(removed);
-        Assert.Equal(key, removed!.Key);
+        Assert.Equal(key, removed.Key);
         Assert.Equal(item, removed.Item);
         Assert.Equal(CacheItemRemovedReason.Removed, removed.Reason);
     }

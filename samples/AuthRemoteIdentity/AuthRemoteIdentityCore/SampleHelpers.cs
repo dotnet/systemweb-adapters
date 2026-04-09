@@ -24,14 +24,16 @@ sealed class SamplesPolicy(SampleMode sampleMode) : MatcherPolicy, IEndpointSele
     private bool ShouldSkip(Endpoint e)
         => e.Metadata.GetMetadata<SampleVisibleMode>() is { App: { } app, Include: false } && app == sampleMode;
 
-    public async Task ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+    public Task ApplyAsync(HttpContext httpContext, CandidateSet candidates)
     {
-        for (int i = 0; i < candidates.Count; i++)
+        for (var i = 0; i < candidates.Count; i++)
         {
             if (ShouldSkip(candidates[i].Endpoint))
             {
                 candidates.SetValidity(i, false);
             }
         }
+
+        return Task.CompletedTask;
     }
 }

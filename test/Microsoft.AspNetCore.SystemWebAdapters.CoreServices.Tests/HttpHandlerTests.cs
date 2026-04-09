@@ -299,11 +299,7 @@ public class HttpHandlerTests
         app.UseSystemWebAdapters();
         app.Use(async (ctx, next) =>
         {
-            var feature = ctx.Features.Get<Features.IHttpHandlerFeature>();
-            if (feature is not null)
-            {
-                feature.Current = new SimpleHandler();
-            }
+            ctx.Features.Get<IHttpHandlerFeature>()?.Current = new SimpleHandler();
             await next(ctx);
         });
         app.RunHttpHandler();
@@ -516,7 +512,7 @@ public class HttpHandlerTests
 
         app.UseSystemWebAdapters();
 
-        bool isEndpointHandler = !expectedIsEndpointHandler;
+        var isEndpointHandler = !expectedIsEndpointHandler;
 
         app.Use(async (ctx, next) =>
         {
@@ -568,7 +564,7 @@ public class HttpHandlerTests
         app.UseSystemWebAdapters();
 
         IHttpHandler? current = null;
-        bool isEndpointHandler = false;
+        var isEndpointHandler = false;
 
         app.Use(async (ctx, next) =>
         {

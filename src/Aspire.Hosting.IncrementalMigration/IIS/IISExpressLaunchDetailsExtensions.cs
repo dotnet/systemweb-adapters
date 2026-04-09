@@ -219,9 +219,9 @@ internal static partial class IISExpressLaunchDetailsExtensions
 
         var propertyGroups = project
             .Descendants(MsbuildNS + "PropertyGroup");
-        var use64bitIISExpress = propertyGroups
+        var use64bitIISExpress = !(propertyGroups
             .Descendants(MsbuildNS + "Use64BitIISExpress")
-            .FirstOrDefault() is { } b && bool.TryParse(b.Value, out var use64BitValue) ? use64BitValue : true;
+            .FirstOrDefault() is { } b) || !bool.TryParse(b.Value, out var use64BitValue) || use64BitValue;
         var sslPort = propertyGroups
             .Descendants(MsbuildNS + "IISExpressSSLPort")
             .FirstOrDefault() is { } s && int.TryParse(s.Value, out var sslPortValue) ? sslPortValue : default;
