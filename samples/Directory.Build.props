@@ -58,6 +58,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <MvcBuildViews>false</MvcBuildViews>
     <WebApplicationsTargetPath>$(MSBuildThisFileDirectory)Microsoft.WebApplication.Empty.targets</WebApplicationsTargetPath>
   </PropertyGroup>
 
