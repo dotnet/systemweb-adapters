@@ -33,9 +33,13 @@
     <Using Include="Aspire.Hosting.Testing" />
   </ItemGroup>
 
-  <Target Name="InstallPlaywrightBrowsers"
-          AfterTargets="Build"
-          Condition="'$(InstallPlaywright)' == 'true' and '$(OS)' == 'Windows_NT' ">
+  <ItemGroup>
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="InstallPlaywrightBrowsers" AfterTargets="Build" Condition="'$(InstallPlaywright)' == 'true' and '$(OS)' == 'Windows_NT' ">
     <Exec Command="pwsh &quot;$(TargetDir)playwright.ps1&quot; install" />
   </Target>
 

@@ -1,5 +1,4 @@
 using Aspire.Hosting;
-using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
@@ -7,10 +6,11 @@ using Xunit.Sdk;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
-public sealed class AspireFixture<TEntryPoint> : ILoggerProvider, ILogger, IAsyncLifetime
+public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvider, ILogger, IAsyncLifetime
      where TEntryPoint : class
 {
     private DistributedApplication? _app;
+    private Exception? _startupException;
 
     private readonly List<string> _captured = [];
     private ITestOutputHelper? _current;
@@ -18,6 +18,11 @@ public sealed class AspireFixture<TEntryPoint> : ILoggerProvider, ILogger, IAsyn
     public async Task<IDistributeApplicationScope> GetApplicationScopeAsync(ITestOutputHelper output)
     {
         ArgumentNullException.ThrowIfNull(output);
+
+        if (_startupException is { })
+        {
+            throw new InvalidOperationException("Could not start application", _startupException);
+        }
 
         if (_current is { })
         {
@@ -54,16 +59,37 @@ public sealed class AspireFixture<TEntryPoint> : ILoggerProvider, ILogger, IAsyn
         {
             current.WriteLine(str);
         }
+        else if (_app is not { })
+        {
+            Log(str);
+        }
         else
         {
             _captured.Add(str);
         }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
     async Task IAsyncLifetime.InitializeAsync()
     {
+        try
+        {
+            await InitializeAppAsync();
+        }
+        catch (Exception ex)
+        {
+            _startupException = ex;
+        }
+    }
+
+    private async Task InitializeAppAsync()
+    {
+        Log("Starting initializing");
+
         var builder = await DistributedApplicationTestingBuilder
             .CreateAsync<TEntryPoint>();
+
+        Log("Initialized");
 
         builder.Services.AddLogging(logging =>
         {
@@ -81,12 +107,32 @@ public sealed class AspireFixture<TEntryPoint> : ILoggerProvider, ILogger, IAsyn
         builder.Configuration["ASPIRE_DASHBOARD_OTLP_HTTP_ENDPOINT_URL"] = "https://localhost:21002";
         builder.Configuration["ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL"] = null;
 
+        Log("Starting app building");
+
         var app = await builder.BuildAsync();
+        
+        Log("Starting app");
 
         await app.StartAsync();
 
+        foreach (var resource in app.Services.GetRequiredService<DistributedApplicationModel>().Resources)
+        {
+            if (resource.TryGetAnnotationsOfType<ExplicitStartupAnnotation>(out _))
+            {
+                continue;
+            }
+
+            Log($"Waiting for resource {resource.Name} to be ready");
+
+            await app.ResourceNotifications.WaitForResourceHealthyAsync(resource.Name, WaitBehavior.StopOnResourceUnavailable);
+        }
+
+        sink.OnMessage(new DiagnosticMessage("All ready"));
         _app = app;
     }
+
+    private void Log(string message)
+        => sink.OnMessage(new DiagnosticMessage("[{0}] {1}", typeof(TEntryPoint), message));
 
     async Task IAsyncLifetime.DisposeAsync()
     {
@@ -102,6 +148,7 @@ public sealed class AspireFixture<TEntryPoint> : ILoggerProvider, ILogger, IAsyn
     void IDisposable.Dispose()
     {
     }
+
 
     private sealed class DistributeApplicationScope : IDistributeApplicationScope
     {
