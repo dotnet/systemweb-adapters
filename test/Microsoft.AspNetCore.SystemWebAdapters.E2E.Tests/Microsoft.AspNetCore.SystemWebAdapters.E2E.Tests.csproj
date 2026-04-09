@@ -35,7 +35,7 @@
 
   <Target Name="InstallPlaywrightBrowsers"
           AfterTargets="Build"
-          Condition="'$(InstallPlaywright)' == 'true' and Exists('$(TargetDir)playwright.ps1')">
+          Condition="'$(InstallPlaywright)' == 'true' and '$(OS)' == 'Windows_NT' ">
     <Exec Command="pwsh &quot;$(TargetDir)playwright.ps1&quot; install" />
   </Target>
 
