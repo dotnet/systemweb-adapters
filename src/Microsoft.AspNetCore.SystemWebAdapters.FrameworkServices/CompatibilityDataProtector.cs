@@ -43,7 +43,7 @@ public class CompatibilityDataProtector : DataProtector
     }
 
     // We take care of flowing purposes ourselves.
-    protected override bool PrependHashedPurposeToPlaintext { get; }
+    protected override bool PrependHashedPurposeToPlaintext => false;
 
     // Retrieves the appropriate protector (potentially with a suppressed primary purpose) for this operation.
     private IDataProtector Protector => ((_suppressPrimaryPurpose) ? _lazyProtectorSuppressedPrimaryPurpose : _lazyProtector).Value;
