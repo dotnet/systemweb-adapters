@@ -75,7 +75,7 @@ public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire, 
 
     private async Task RegisterUser(string email)
     {
-        var password = PasswordGenerator.CreatePassword();
+        var password = new GenerateParameterDefault().GetDefaultValue();
 
         // Create the user
         await Page.Locator("text=Register").ClickAsync();
