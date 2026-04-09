@@ -39,8 +39,12 @@
     </None>
   </ItemGroup>
 
-  <Target Name="InstallPlaywrightBrowsers" AfterTargets="Build" Condition="'$(InstallPlaywright)' == 'true' and '$(OS)' == 'Windows_NT' ">
-    <Exec Command="pwsh &quot;$(TargetDir)playwright.ps1&quot; install" />
+  <Target Name="InstallPlaywrightBrowsers" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT' ">
+    <Exec Command="pwsh &quot;$(TargetDir)playwright.ps1&quot; install" ConsoleToMSBuild="true" StandardOutputImportance="Low">
+      <Output TaskParameter="ExitCode" PropertyName="PlaywrightInstallExitCode"/>
+      <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfInstall" />
+    </Exec>
+    <Error Condition="$(PlaywrightInstallExitCode) != 0" Text="Playwright install failed with exit code $(PlaywrightInstallExitCode):\n$(OutputOfInstall)"/>
   </Target>
 
 </Project>
