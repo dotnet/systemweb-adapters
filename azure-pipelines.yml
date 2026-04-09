@@ -47,7 +47,7 @@ extends:
         enabled: true
       sourceAnalysisPool:
         name: NetCore1ESPool-Internal
-        image: windows.vs2022preview.amd64
+        image: windows.vs2026.amd64
         os: windows
     stages:
     - stage: build
@@ -69,7 +69,7 @@ extends:
           - job: Windows
             pool:
               name: NetCore1ESPool-Internal
-              image: windows.vs2022preview.amd64
+              image: windows.vs2026.amd64
               os: windows
             variables:
             - name: _HelixBuildConfig
