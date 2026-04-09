@@ -12,7 +12,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
 public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire, ITestOutputHelper output) : DebugPageTest, IClassFixture<AspireFixture<AuthRemoteIdentityAppHost>>
 {
-    [WindowsOnlyTheory]
+    [WindowsWithLinuxContainersTheory]
     [InlineData("core")]
     [InlineData("owin")]
     public async Task MVCCoreAppCanLogoutBothApps(string name)
@@ -38,7 +38,7 @@ public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire, 
         await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
     }
 
-    [WindowsOnlyTheory]
+    [WindowsWithLinuxContainersTheory]
     [InlineData("core")]
     [InlineData("owin")]
     public async Task MVCAppCanLogoutBothApps(string name)
