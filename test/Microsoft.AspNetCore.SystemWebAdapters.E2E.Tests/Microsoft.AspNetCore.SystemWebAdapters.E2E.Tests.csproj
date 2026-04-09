@@ -33,4 +33,10 @@
     <Using Include="Aspire.Hosting.Testing" />
   </ItemGroup>
 
+  <Target Name="InstallPlaywrightBrowsers"
+          AfterTargets="Build"
+          Condition="'$(InstallPlaywright)' == 'true' and Exists('$(TargetDir)playwright.ps1')">
+    <Exec Command="pwsh &quot;$(TargetDir)playwright.ps1&quot; install" />
+  </Target>
+
 </Project>

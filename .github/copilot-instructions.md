@@ -40,6 +40,14 @@
 - Prefer AppHost-defined topology and environment wiring over ad-hoc process orchestration. Keep endpoint/API key/session/auth wiring aligned with existing incremental migration extensions.
 - When an AI workflow needs Aspire dashboard orchestration/telemetry context, use Aspire agent/MCP guidance rather than inventing custom scripts.
 
+### Working on samples or E2E tests
+1. Ensure you are on Windows (IIS Express is Windows-only).
+2. Run `./restore.cmd` then `. ./activate.ps1` from the repo root if not done yet.
+3. Build the solution: `./build.cmd` (or `dotnet build` on the relevant AppHost/test project).
+4. To run a sample locally, launch its AppHost — e.g. `dotnet run --project samples/SessionRemote/SessionRemoteAppHost`.
+5. To run E2E tests: `dotnet test test/Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests`.
+6. Check Aspire dashboard output for resource health and logs; use `aspire agent init` to wire the MCP server to your AI assistant for live telemetry queries.
+
 ## Pitfalls and Gotchas
 - Files in [eng/common/](../eng/common/) are managed by Arcade automation; do not edit them directly.
 - Build outputs and generated files under [artifacts/](../artifacts/) are not source-of-truth.

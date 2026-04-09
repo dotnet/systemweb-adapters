@@ -133,6 +133,7 @@ function Build {
     /p:DotNetBuildFromVMR=$fromVMR `
     /p:IntegrationTest=$integrationTest `
     /p:PerformanceTest=$performanceTest `
+    /p:InstallPlaywright=true `
     /p:Sign=$sign `
     /p:Publish=$publish `
     /p:RestoreStaticGraphEnableBinaryLogger=$binaryLog `
