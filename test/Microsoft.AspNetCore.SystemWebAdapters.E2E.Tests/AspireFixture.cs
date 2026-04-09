@@ -12,7 +12,7 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
     private DistributedApplication? _app;
     private Exception? _startupException;
 
-    private readonly List<string> _captured = [];
+    private readonly List<string> _initializationLogs = [];
     private ITestOutputHelper? _current;
 
     public async Task<IDistributeApplicationScope> GetApplicationScopeAsync(ITestOutputHelper output)
@@ -37,12 +37,12 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
         _current = output;
 
         // flush any captured logs to the output
-        foreach (var existing in _captured)
+        foreach (var existing in _initializationLogs)
         {
             output.WriteLine(existing);
         }
 
-        return new DistributeApplicationScope(output, _app, () => _current = null);
+        return new DistributeApplicationScope(_app, () => _current = null);
     }
 
     ILogger ILoggerProvider.CreateLogger(string categoryName) => this;
@@ -61,11 +61,14 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
         }
         else if (_app is not { })
         {
-            Log(str);
-        }
-        else
-        {
-            _captured.Add(str);
+            // Capture so it shows in the test logs
+            _initializationLogs.Add(str);
+
+            // Log immediately as there's a warning that the app didn't start, so we want to make sure we capture any logs that might indicate why
+            if (logLevel >= LogLevel.Warning)
+            {
+                Log(str);
+            }
         }
     }
 
@@ -84,12 +87,10 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
 
     private async Task InitializeAppAsync()
     {
-        Log("Starting initializing");
+        Log("Registering services for distributed app");
 
         var builder = await DistributedApplicationTestingBuilder
             .CreateAsync<TEntryPoint>();
-
-        Log("Initialized");
 
         builder.Services.AddLogging(logging =>
         {
@@ -107,11 +108,11 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
         builder.Configuration["ASPIRE_DASHBOARD_OTLP_HTTP_ENDPOINT_URL"] = "https://localhost:21002";
         builder.Configuration["ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL"] = null;
 
-        Log("Starting app building");
+        Log("Building distributed app");
 
         var app = await builder.BuildAsync();
-        
-        Log("Starting app");
+
+        Log("Starting distributed app");
 
         await app.StartAsync();
 
@@ -127,7 +128,8 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
             await app.ResourceNotifications.WaitForResourceHealthyAsync(resource.Name, WaitBehavior.StopOnResourceUnavailable);
         }
 
-        sink.OnMessage(new DiagnosticMessage("All ready"));
+        Log("All resources ready");
+
         _app = app;
     }
 
@@ -149,42 +151,12 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
     {
     }
 
-
-    private sealed class DistributeApplicationScope : IDistributeApplicationScope
+    private sealed class DistributeApplicationScope(DistributedApplication app, Action dispose) : IDistributeApplicationScope
     {
-        private readonly Action _dispose;
-        private readonly CancellationTokenSource _cts = new();
 
-        public DistributeApplicationScope(ITestOutputHelper output, DistributedApplication app, Action dispose)
-        {
-            App = app;
-            _dispose = dispose;
+        public DistributedApplication App => app;
 
-            _ = Task.Run(async () =>
-            {
-                using var stdio = Console.OpenStandardOutput();
-                using var reader = new StreamReader(stdio);
-
-                while (!reader.EndOfStream && !_cts.Token.IsCancellationRequested)
-                {
-                    var line = await reader.ReadLineAsync(_cts.Token);
-
-                    if (!string.IsNullOrEmpty(line))
-                    {
-                        output.WriteLine(line);
-                    }
-                }
-            });
-        }
-
-        public DistributedApplication App { get; }
-
-        public void Dispose()
-        {
-            _dispose();
-            _cts.Cancel();
-            _cts.Dispose();
-        }
+        public void Dispose() => dispose();
     }
 }
 
