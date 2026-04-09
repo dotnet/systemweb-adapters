@@ -13,7 +13,7 @@ public class WebFormsToBlazorTests(AspireFixture<WebFormsToBlazorAppHost> aspire
         var endpoint = scope.App.GetEndpoint("core", "https");
 
         await Page.GotoAsync(new Uri(endpoint, "/about").ToString());
-        await Page.WaitForSelectorAsync("text=HelloWorld from ASP.NET Core");
-        await Page.WaitForSelectorAsync("text=Current path: /about");
+        await Expect(Page.Locator("text=HelloWorld from ASP.NET Core")).ToBeVisibleAsync(DefaultVisibleTimeout);
+        await Expect(Page.Locator("text=Current path: /about")).ToBeVisibleAsync(DefaultVisibleTimeout);
     }
 }

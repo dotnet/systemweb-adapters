@@ -17,22 +17,22 @@ public class RemoteAuthFormsTests(AspireFixture<Projects.AuthRemoteFormsAuthAppH
         var coreAppEndpoint = GetAspNetCoreEndpoint(scope);
 
         await Page.GotoAsync(frameworkAppEndpoint);
-        await Expect(Page.Locator("text=My ASP.NET Application")).ToBeVisibleAsync();
+        await Expect(Page.Locator("text=My ASP.NET Application")).ToBeVisibleAsync(DefaultVisibleTimeout);
 
         // Login
         await Page.Locator("a:has-text(\"Log In\")").ClickAsync();
         await Page.Locator("input[name=\"ctl00\\$MainContent\\$UserName\"]").FillAsync(username);
         await Page.Locator("input[name=\"ctl00\\$MainContent\\$Password\"]").FillAsync("PasswordA");
         await Page.Locator(@"input:has-text(""Login"")").ClickAsync();
-        await Expect(Page.Locator($"text=Welcome back, {username}!")).ToBeVisibleAsync();
+        await Expect(Page.Locator($"text=Welcome back, {username}!")).ToBeVisibleAsync(DefaultVisibleTimeout);
 
         // Make sure core app also logged in
         await Page.GotoAsync(coreAppEndpoint);
-        await Expect(Page.Locator($"text=Hello {username}!")).ToBeVisibleAsync();
+        await Expect(Page.Locator($"text=Hello {username}!")).ToBeVisibleAsync(DefaultVisibleTimeout);
 
         // Logout on core app and make sure both logged out
         await Page.Locator(@"text=Log out").ClickAsync();
-        await Expect(Page.Locator($"text=You have been logged out")).ToBeVisibleAsync();
+        await Expect(Page.Locator($"text=You have been logged out")).ToBeVisibleAsync(DefaultVisibleTimeout);
 
         // Note: Logout on core app doesn't logout framework app
         //await Page.GotoAsync(FrameworkAppUrl);
@@ -51,24 +51,24 @@ public class RemoteAuthFormsTests(AspireFixture<Projects.AuthRemoteFormsAuthAppH
 
         // Login with core app
         await Page.GotoAsync(coreAppEndpoint);
-        await Expect(Page.Locator("text=ASP.NET Core")).ToBeVisibleAsync();
+        await Expect(Page.Locator("text=ASP.NET Core")).ToBeVisibleAsync(DefaultVisibleTimeout);
 
         // Login
         await Page.Locator("a:has-text(\"Log In\")").ClickAsync();
         await Page.Locator("input[name=\"ctl00\\$MainContent\\$UserName\"]").FillAsync(username);
         await Page.Locator("input[name=\"ctl00\\$MainContent\\$Password\"]").FillAsync("PasswordA");
         await Page.Locator(@"input:has-text(""Login"")").ClickAsync();
-        await Expect(Page.Locator($"text=Welcome back, {username}!")).ToBeVisibleAsync();
+        await Expect(Page.Locator($"text=Welcome back, {username}!")).ToBeVisibleAsync(DefaultVisibleTimeout);
 
         // Make sure framework app also logged in
         await Page.GotoAsync(frameworkAppEndpoint);
-        await Expect(Page.Locator($"text=Welcome back, {username}!")).ToBeVisibleAsync();
+        await Expect(Page.Locator($"text=Welcome back, {username}!")).ToBeVisibleAsync(DefaultVisibleTimeout);
 
         // Logout on framework app and make sure both logged out
         await Page.Locator(@"text=Logout").ClickAsync();
-        await Expect(Page.Locator(@"text=Login")).ToBeVisibleAsync();
+        await Expect(Page.Locator(@"text=Login")).ToBeVisibleAsync(DefaultVisibleTimeout);
         await Page.GotoAsync(coreAppEndpoint);
-        await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
+        await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync(DefaultVisibleTimeout);
     }
 
     private static string GetAspNetCoreEndpoint(IDistributeApplicationScope scope)

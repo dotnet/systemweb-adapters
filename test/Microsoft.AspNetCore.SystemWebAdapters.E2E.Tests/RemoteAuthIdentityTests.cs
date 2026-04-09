@@ -23,19 +23,19 @@ public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire, 
         var frameworkAppEndpoint = GetAspNetFrameworkEndpoint(scope);
 
         await Page.GotoAsync(frameworkAppEndpoint.AbsoluteUri);
-        await Expect(Page.Locator("text=My ASP.NET Application")).ToBeVisibleAsync();
+        await Expect(Page.Locator("text=My ASP.NET Application")).ToBeVisibleAsync(DefaultVisibleTimeout);
 
         await RegisterUser(email);
 
         // Make sure core app also logged in
         await Page.GotoAsync(coreAppEndpoint.AbsoluteUri);
-        await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync();
+        await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync(DefaultVisibleTimeout);
 
         // Logout on core app and make sure both logged out
         await Page.Locator(@"text=Log out").ClickAsync();
-        await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
+        await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync(DefaultVisibleTimeout);
         await Page.GotoAsync(frameworkAppEndpoint.AbsoluteUri);
-        await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
+        await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync(DefaultVisibleTimeout);
     }
 
     [WindowsWithLinuxContainersTheory]
@@ -50,7 +50,7 @@ public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire, 
 
         // Login with core app
         await Page.GotoAsync(coreAppEndpoint.AbsoluteUri);
-        await Expect(Page.Locator("text=ASP.NET Core")).ToBeVisibleAsync();
+        await Expect(Page.Locator("text=ASP.NET Core")).ToBeVisibleAsync(DefaultVisibleTimeout);
 
         // Create the user
         await RegisterUser(email);
@@ -64,13 +64,13 @@ public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire, 
 
         // Make sure framework app also logged in
         await Page.GotoAsync(frameworkAppEndpoint.AbsoluteUri);
-        await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync();
+        await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync(DefaultVisibleTimeout);
 
         // Logout on framework app and make sure both logged out
         await Page.Locator(@"text=Log out").ClickAsync();
-        await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
+        await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync(DefaultVisibleTimeout);
         await Page.GotoAsync(coreAppEndpoint.AbsoluteUri);
-        await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync();
+        await Expect(Page.Locator(@"text=Log in")).ToBeVisibleAsync(DefaultVisibleTimeout);
     }
 
     private async Task RegisterUser(string email)
@@ -83,7 +83,7 @@ public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire, 
         await Page.Locator("input[name=Password]").FillAsync(password);
         await Page.Locator("input[name=ConfirmPassword]").FillAsync(password);
         await Page.Locator(@"input:has-text(""Register"")").ClickAsync();
-        await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync();
+        await Expect(Page.Locator($"text=Hello {email}!")).ToBeVisibleAsync(DefaultVisibleTimeout);
     }
 
     private static Uri GetEndpoint(IDistributeApplicationScope scope, string name)
