@@ -1,57 +1,15 @@
 using Aspire.Hosting;
 using Microsoft.Extensions.Logging;
+using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
-public sealed class AspireFixture<TEntryPoint> : IDisposable, IAsyncDisposable, ILoggerProvider, ILogger
+public sealed class AspireFixture<TEntryPoint> : ILoggerProvider, ILogger, IAsyncLifetime
      where TEntryPoint : class
 {
-    private readonly Task<DistributedApplication> _app;
-
-    public AspireFixture(IMessageSink sink)
-    {
-        _app = Task.Run(async () =>
-        {
-            var builder = await DistributedApplicationTestingBuilder
-                .CreateAsync<TEntryPoint>();
-
-            builder.Services.AddLogging(logging =>
-            {
-                logging.SetMinimumLevel(LogLevel.Debug);
-
-                // Override the logging filters from the app's configuration
-                logging.AddFilter(builder.Environment.ApplicationName, LogLevel.Trace);
-                logging.AddFilter("Aspire.", LogLevel.Debug);
-
-                logging.ClearProviders();
-                logging.AddProvider(this);
-            });
-
-            // Must set the HTTP endpoint
-            builder.Configuration["ASPIRE_DASHBOARD_OTLP_HTTP_ENDPOINT_URL"] = "https://localhost:21002";
-            builder.Configuration["ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL"] = null;
-
-            var app = await builder.BuildAsync();
-
-            sink.OnMessage(new DiagnosticMessage($"Starting application {typeof(TEntryPoint)}"));
-            await app.StartAsync();
-            sink.OnMessage(new DiagnosticMessage($"Application {typeof(TEntryPoint)} started"));
-
-            return app;
-        });
-    }
-
-    public void Dispose()
-    {
-        _app.Result.Dispose();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await (await _app).DisposeAsync();
-    }
+    private DistributedApplication? _app;
 
     private readonly List<string> _captured = [];
     private ITestOutputHelper? _current;
@@ -65,7 +23,11 @@ public sealed class AspireFixture<TEntryPoint> : IDisposable, IAsyncDisposable, 
             throw new InvalidOperationException("Tests cannot be run concurrently");
         }
 
-        var app = await _app;
+        if (_app is not { })
+        {
+            throw new InvalidOperationException("App is not initialized");
+        }
+
         _current = output;
 
         // flush any captured logs to the output
@@ -74,7 +36,7 @@ public sealed class AspireFixture<TEntryPoint> : IDisposable, IAsyncDisposable, 
             output.WriteLine(existing);
         }
 
-        return new DistributeApplicationScope(app, () => _current = null);
+        return new DistributeApplicationScope(output, _app, () => _current = null);
     }
 
     ILogger ILoggerProvider.CreateLogger(string categoryName) => this;
@@ -97,11 +59,84 @@ public sealed class AspireFixture<TEntryPoint> : IDisposable, IAsyncDisposable, 
         }
     }
 
-    private sealed class DistributeApplicationScope(DistributedApplication app, Action dispose) : IDistributeApplicationScope
+    async Task IAsyncLifetime.InitializeAsync()
     {
-        public DistributedApplication App => app;
+        var builder = await DistributedApplicationTestingBuilder
+            .CreateAsync<TEntryPoint>();
 
-        public void Dispose() => dispose();
+        builder.Services.AddLogging(logging =>
+        {
+            logging.SetMinimumLevel(LogLevel.Debug);
+
+            // Override the logging filters from the app's configuration
+            logging.AddFilter(builder.Environment.ApplicationName, LogLevel.Trace);
+            logging.AddFilter("Aspire.", LogLevel.Debug);
+
+            logging.ClearProviders();
+            logging.AddProvider(this);
+        });
+
+        // Must set the HTTP endpoint
+        builder.Configuration["ASPIRE_DASHBOARD_OTLP_HTTP_ENDPOINT_URL"] = "https://localhost:21002";
+        builder.Configuration["ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL"] = null;
+
+        var app = await builder.BuildAsync();
+
+        await app.StartAsync();
+
+        _app = app;
+    }
+
+    async Task IAsyncLifetime.DisposeAsync()
+    {
+        if (_app is { } app)
+        {
+            _app = null;
+            await app.StopAsync();
+            await app.DisposeAsync();
+        }
+    }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "<Pending>")]
+    void IDisposable.Dispose()
+    {
+    }
+
+    private sealed class DistributeApplicationScope : IDistributeApplicationScope
+    {
+        private readonly Action _dispose;
+        private readonly CancellationTokenSource _cts = new();
+
+        public DistributeApplicationScope(ITestOutputHelper output, DistributedApplication app, Action dispose)
+        {
+            App = app;
+            _dispose = dispose;
+
+            _ = Task.Run(async () =>
+            {
+                using var stdio = Console.OpenStandardOutput();
+                using var reader = new StreamReader(stdio);
+
+                while (!reader.EndOfStream && !_cts.Token.IsCancellationRequested)
+                {
+                    var line = await reader.ReadLineAsync(_cts.Token);
+
+                    if (!string.IsNullOrEmpty(line))
+                    {
+                        output.WriteLine(line);
+                    }
+                }
+            });
+        }
+
+        public DistributedApplication App { get; }
+
+        public void Dispose()
+        {
+            _dispose();
+            _cts.Cancel();
+            _cts.Dispose();
+        }
     }
 }
 
