@@ -102,7 +102,7 @@ internal static class ConfigurationManagerConfigExtensions
                 }
             }
 
-            // Fall back in case HttpContext.Current is not available; most likely this will be the case in the test environment where the HttpApplication
+            // Fallback in case HttpContext.Current is not available; most likely this will be the case in the test environment where the HttpApplication
             // is not starting up
             return HostingEnvironment.SiteName ?? AppDomain.CurrentDomain.FriendlyName;
         }
