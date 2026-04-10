@@ -1,3 +1,6 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using System.Runtime.InteropServices;
 
 namespace Xunit;
@@ -6,10 +9,7 @@ public sealed class WindowsOnlyFact : FactAttribute
 {
     public WindowsOnlyFact()
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            Skip = "This test is only run on Windows";
-        }
+        Skip = WindowsSkipReasons.OSPlatformSkipReason;
     }
 }
 
@@ -17,10 +17,7 @@ public sealed class WindowsOnlyTheory : TheoryAttribute
 {
     public WindowsOnlyTheory()
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            Skip = "This test is only run on Windows";
-        }
+        Skip = WindowsSkipReasons.OSPlatformSkipReason;
     }
 }
 
@@ -28,33 +25,48 @@ public sealed class WindowsWithLinuxContainersTheory : TheoryAttribute
 {
     public WindowsWithLinuxContainersTheory()
     {
-        Skip = WindowsWithLinuxContainersSupport.SkipReason;
+        Skip = WindowsSkipReasons.DockerRequiredSkipVersion;
     }
 }
 
-internal static partial class WindowsWithLinuxContainersSupport
+internal static partial class WindowsSkipReasons
 {
-    public static string? SkipReason { get; } = GetSkipReason();
-
-    private static string? GetSkipReason()
+    public static string? OSPlatformSkipReason
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        get
         {
-            return "This test is only run on Windows";
-        }
 
-        if (!DockerStatus.IsSupported)
-        {
-            var status = "This test requires Docker to be configured for Linux container";
-
-            if (DockerStatus.OS is { } os)
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                status += $", but it appears to be configured for {os} containers";
+                return "This test is only supported on Windows";
             }
 
-            return status;
+            return null;
         }
+    }
 
-        return null;
+    public static string? DockerRequiredSkipVersion
+    {
+        get
+        {
+            if (OSPlatformSkipReason is { } osReason)
+            {
+                return osReason;
+            }
+
+            if (!DockerStatus.IsSupported)
+            {
+                var status = "This test requires Docker to be configured for Linux container";
+
+                if (DockerStatus.OS is { } os)
+                {
+                    status += $", but it appears to be configured for {os} containers";
+                }
+
+                return status;
+            }
+
+            return null;
+        }
     }
 }

@@ -1,3 +1,6 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using System.Diagnostics;
 using System.Text.Json.Serialization;
 using System.Text.Json;
@@ -48,16 +51,16 @@ internal static partial class DockerStatus
 
     [JsonSerializable(typeof(DockerVersionInfo))]
     [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
-    private partial class DockerJsonContext : JsonSerializerContext
+    private sealed partial class DockerJsonContext : JsonSerializerContext
     {
     }
 
-    public class DockerVersionInfo
+    private sealed class DockerVersionInfo
     {
         public Server? Server { get; set; }
     }
 
-    public class Server
+    private sealed class Server
     {
         public string? Os { get; set; }
     }
