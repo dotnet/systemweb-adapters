@@ -72,7 +72,12 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
         }
     }
 
-    Task IAsyncLifetime.InitializeAsync() => InitializeAsync(CancellationToken.None);
+    async Task IAsyncLifetime.InitializeAsync()
+    {
+        using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(10));
+
+        await InitializeAsync(cts.Token);
+    }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
     private async Task InitializeAsync(CancellationToken token)
@@ -108,14 +113,9 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
                 continue;
             }
 
-            // Give time for the container to download and startup (we filter so those go first)
-            var delay = resource is ContainerResource ? TimeSpan.FromMinutes(10) : TimeSpan.FromMinutes(3);
-            using var delayedCts = new CancellationTokenSource(delay);
-            using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, delayedCts.Token);
-
             Log($"Waiting for resource {resource.Name} to be ready");
 
-            await app.ResourceNotifications.WaitForResourceHealthyAsync(resource.Name, WaitBehavior.StopOnResourceUnavailable, cts.Token);
+            await app.ResourceNotifications.WaitForResourceHealthyAsync(resource.Name, WaitBehavior.StopOnResourceUnavailable, token);
         }
 
         Log("All resources ready");
