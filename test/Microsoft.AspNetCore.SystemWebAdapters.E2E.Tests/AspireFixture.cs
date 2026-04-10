@@ -12,7 +12,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvider, ILogger, IAsyncLifetime
      where TEntryPoint : class
 {
-    private const int MinuteTimeout = 5;
+    private const int DefaultInitializationTimeout = 5;
 
     private DistributedApplication? _app;
     private Exception? _startupException;
@@ -64,7 +64,7 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
         {
             current.WriteLine(str);
         }
-        else if (_app is not { })
+        else
         {
             // Capture so it shows in the test logs
             _initializationLogs.Add(str);
@@ -79,17 +79,17 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
 
     async Task IAsyncLifetime.InitializeAsync()
     {
-        using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(MinuteTimeout));
+        using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(DefaultInitializationTimeout));
 
         await InitializeAsync(cts.Token);
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "We want to capture the exception to show up in the test output")]
     private async Task InitializeAsync(CancellationToken token)
     {
         try
         {
-            _app = await BuildApp(token);
+            _app = await BuildAppAsync(token);
 
             await InitializeAppAsync(_app, token);
         }
@@ -134,7 +134,7 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
         };
     }
 
-    private async Task<DistributedApplication> BuildApp(CancellationToken token)
+    private async Task<DistributedApplication> BuildAppAsync(CancellationToken token)
     {
         Log("Registering services for distributed app");
 
@@ -148,7 +148,7 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
             // Override the logging filters from the app's configuration
             logging.AddFilter(builder.Environment.ApplicationName, LogLevel.Trace);
             logging.AddFilter("Aspire.", LogLevel.Debug);
-            logging.AddFilter("Polly", LogLevel.Error);
+            logging.AddFilter("Polly.", LogLevel.Error);
 
             logging.ClearProviders();
             logging.AddProvider(this);
