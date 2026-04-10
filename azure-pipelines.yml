@@ -100,7 +100,6 @@ extends:
                   $aspireBin = Join-Path $HOME '.aspire/bin'
                   Write-Host "##vso[task.prependpath]$aspireBin"
                   aspire --version
-                  aspire certs trust --non-interactive
                   aspire doctor --non-interactive
             - task: NuGetCommand@2
               displayName: 'Clear NuGet caches'
