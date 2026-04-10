@@ -46,8 +46,8 @@
     <Project Path="samples/SessionRemote/SessionRemoteFramework/SessionRemoteFramework.csproj" />
   </Folder>
   <Folder Name="/samples/WebFormsToBlazor/">
+    <Project Path="samples/WebFormsToBlazor/BlazorWebApp/BlazorWebApp.csproj" />
     <Project Path="samples/WebFormsToBlazor/WebFormsToBlazorAppHost/WebFormsToBlazorAppHost.csproj" />
-    <Project Path="samples/WebFormsToBlazor/WebFormsToBlazorCore/WebFormsToBlazorCore.csproj" />
     <Project Path="samples/WebFormsToBlazor/WebFormsToBlazorFramework/WebFormsToBlazorFramework.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">

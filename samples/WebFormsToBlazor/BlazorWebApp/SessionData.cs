@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace WebFormsToBlazorCore;
+namespace BlazorWebApp;
 
 internal sealed class SessionData
 {
