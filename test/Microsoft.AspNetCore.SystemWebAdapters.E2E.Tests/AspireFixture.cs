@@ -125,6 +125,8 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
 
         Log("All resources ready");
 
+        // Allows us to make sure the container resource is always first in the logs since
+        // they take longer to start up
         static int ResourceComparer(IResource x, IResource y) => (x, y) switch
         {
             (ContainerResource, ContainerResource) => 0,
