@@ -4,7 +4,10 @@ using Microsoft.Extensions.Configuration;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var password = builder.AddParameter("sqlPass", secret: true);
+var password = builder.AddParameter(
+    name: "sqlPass",
+    value: new GenerateParameterDefault() { MinSpecial = 3 },
+    secret: true);
 var apiKey = builder.AddParameter("remoteapp-apiKey", () => Guid.NewGuid().ToString(), secret: true);
 
 var db = builder.AddSqlServer("identityserver", password: password)

@@ -44,7 +44,7 @@
       </_NuGetContentFiles>
 
       <Content Include="@(_NuGetContentFiles)">
-        <Link>$([MSBuild]::MakeRelative(%(_NuGetContentFiles.BasePath),%(_NuGetContentFiles.Identity)))</Link>
+        <Link>%(_NuGetContentFiles.RecursiveDir)%(_NuGetContentFiles.Filename)%(_NuGetContentFiles.Extension)</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

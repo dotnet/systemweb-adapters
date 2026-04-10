@@ -3,9 +3,6 @@
     <TargetFramework>$(SAMPLES_TFM)</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-
-    <!-- We use aspire to hook things up for multiple configurations and need all control -->
-    <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters.Owin\Microsoft.AspNetCore.SystemWebAdapters.Owin.csproj" />
