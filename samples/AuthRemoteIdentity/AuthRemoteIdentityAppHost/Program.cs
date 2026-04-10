@@ -12,9 +12,9 @@ var apiKey = builder.AddParameter("remoteapp-apiKey", () => Guid.NewGuid().ToStr
 
 var db = builder.AddSqlServer("identityserver", password: password)
     // Configure the container to store data in a volume so that it persists across instances.
-    //.WithDataVolume()
+    .WithDataVolume()
     // Keep the container running between app host sessions.
-    //.WithLifetime(ContainerLifetime.Persistent)
+    .WithLifetime(ContainerLifetime.Persistent)
     .AddDatabase("identity");
 
 var frameworkApp = builder.AddIISExpressProject<Projects.AuthRemoteIdentityFramework>("framework")
