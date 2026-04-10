@@ -13,7 +13,7 @@ public class MachineKeyTests(AspireFixture<MachineKeyAppHost> aspire, ITestOutpu
     [InlineData(AppEndpoint.Framework, AppEndpoint.Core)]
     public async Task RoundtripBetweenServices(AppEndpoint source, AppEndpoint destination)
     {
-        using var scope = await aspire.GetApplicationScopeAsync(output);
+        using var scope = aspire.GetApplicationScope(output);
 
         using var sourceClient = scope.App.CreateHttpClient(GetName(source));
         using var destinationClient = scope.App.CreateHttpClient(GetName(destination));

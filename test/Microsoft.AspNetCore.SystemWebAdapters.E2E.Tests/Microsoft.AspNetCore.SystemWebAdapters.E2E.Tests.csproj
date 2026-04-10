@@ -40,6 +40,7 @@
   </ItemGroup>
 
   <Target Name="InstallPlaywrightBrowsers" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT' ">
+    <Message Text="Installing playwright..." />
     <Exec Command="pwsh &quot;$(TargetDir)playwright.ps1&quot; install" ConsoleToMSBuild="true" StandardOutputImportance="Low">
       <Output TaskParameter="ExitCode" PropertyName="PlaywrightInstallExitCode"/>
       <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfInstall" />

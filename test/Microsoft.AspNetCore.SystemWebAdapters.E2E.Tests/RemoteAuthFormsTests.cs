@@ -12,7 +12,7 @@ public class RemoteAuthFormsTests(AspireFixture<Projects.AuthRemoteFormsAuthAppH
     {
         var username = "User1";
 
-        using var scope = await aspire.GetApplicationScopeAsync(output);
+        using var scope = aspire.GetApplicationScope(output);
         var frameworkAppEndpoint = GetAspNetFrameworkEndpoint(scope);
         var coreAppEndpoint = GetAspNetCoreEndpoint(scope);
 
@@ -44,7 +44,7 @@ public class RemoteAuthFormsTests(AspireFixture<Projects.AuthRemoteFormsAuthAppH
     {
         var username = "User1";
 
-        using var scope = await aspire.GetApplicationScopeAsync(output);
+        using var scope = aspire.GetApplicationScope(output);
 
         var frameworkAppEndpoint = GetAspNetFrameworkEndpoint(scope);
         var coreAppEndpoint = GetAspNetCoreEndpoint(scope);

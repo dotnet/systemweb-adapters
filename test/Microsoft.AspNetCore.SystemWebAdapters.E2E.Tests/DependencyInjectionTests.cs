@@ -13,7 +13,7 @@ public class DependencyInjectionTests(AspireFixture<DependencyInjectionAppHost> 
     [WindowsOnlyTheory]
     public async Task CheckFrameworkDI(string path)
     {
-        using var scope = await aspire.GetApplicationScopeAsync(output);
+        using var scope = aspire.GetApplicationScope(output);
         using var client = scope.App.CreateHttpClient("framework");
         var response = await client.GetStringAsync(new Uri(path, UriKind.Relative));
 

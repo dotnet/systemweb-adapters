@@ -15,7 +15,7 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
     private readonly List<string> _initializationLogs = [];
     private ITestOutputHelper? _current;
 
-    public async Task<IDistributeApplicationScope> GetApplicationScopeAsync(ITestOutputHelper output)
+    public IDistributeApplicationScope GetApplicationScope(ITestOutputHelper output)
     {
         ArgumentNullException.ThrowIfNull(output);
 

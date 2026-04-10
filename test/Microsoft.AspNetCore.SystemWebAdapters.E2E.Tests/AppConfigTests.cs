@@ -10,7 +10,7 @@ public class AppConfigTests(AspireFixture<AppConfigAppHost> aspire, ITestOutputH
     [WindowsOnlyFact]
     public async Task CoreConfigurationIsConfigured()
     {
-        using var scope = await aspire.GetApplicationScopeAsync(output);
+        using var scope = aspire.GetApplicationScope(output);
         using var client = scope.App.CreateHttpClient("core");
         var response = await client.GetFromJsonAsync<ConfigResult>("/");
 
@@ -24,7 +24,7 @@ public class AppConfigTests(AspireFixture<AppConfigAppHost> aspire, ITestOutputH
     [WindowsOnlyFact]
     public async Task FrameworkConfigurationIsConfigured()
     {
-        using var scope = await aspire.GetApplicationScopeAsync(output);
+        using var scope = aspire.GetApplicationScope(output);
         using var client = scope.App.CreateHttpClient("framework");
         var response = await client.GetFromJsonAsync<ConfigResult>("/");
 
