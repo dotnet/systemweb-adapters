@@ -53,19 +53,19 @@ internal static class ConfigurationManagerConfigExtensions
         if (configuration[HostDefaults.ApplicationKey] is null)
         {
             optionList = new();
-            optionList.Add(new KeyValuePair<string, string?>(HostDefaults.ApplicationKey, GetDefaultApplicationName()));
+            optionList.Add(new(HostDefaults.ApplicationKey, GetDefaultApplicationName()));
         }
 
         if (configuration[HostDefaults.EnvironmentKey] is null && (HostingEnvironment.IsDevelopmentEnvironment || IsIISExpress()))
         {
             optionList ??= new();
-            optionList.Add(new KeyValuePair<string, string?>(HostDefaults.EnvironmentKey, Environments.Development));
+            optionList.Add(new(HostDefaults.EnvironmentKey, Environments.Development));
         }
 
         if (configuration[HostDefaults.ContentRootKey] is null)
         {
             optionList ??= new();
-            optionList.Add(new KeyValuePair<string, string?>(HostDefaults.ContentRootKey, HostingEnvironment.ApplicationPhysicalPath));
+            optionList.Add(new(HostDefaults.ContentRootKey, HostingEnvironment.ApplicationPhysicalPath));
         }
 
         if (optionList is not null)
