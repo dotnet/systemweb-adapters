@@ -177,12 +177,8 @@ internal class HttpRequestInputStreamFeature : IHttpRequestInputStreamFeature, I
     private void Reset()
     {
         Mode = ReadEntityBodyMode.None;
-
-        if (_bufferedStream is not null)
-        {
-            _bufferedStream.Dispose();
-            _bufferedStream = null;
-        }
+        _bufferedStream?.Dispose();
+        _bufferedStream = null;
     }
 
     private Stream GetBody() => _bufferedStream ?? _other.Body;

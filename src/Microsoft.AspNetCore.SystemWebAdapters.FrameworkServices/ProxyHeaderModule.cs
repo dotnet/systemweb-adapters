@@ -137,11 +137,9 @@ internal class ProxyHeaderModule : IHttpModule
             // Need to use reflection to force HttpRequest to update the known headers
             var workerRequest = _wrField.GetValue(request);
             var knownRequestHeaders = (string[])_knownRequestHeadersField.GetValue(workerRequest);
+
             // We don't need to do anything if the known headers haven't been built yet
-            if (knownRequestHeaders != null)
-            {
-                knownRequestHeaders[HttpWorkerRequest.HeaderHost] = host;
-            }
+            knownRequestHeaders?[HttpWorkerRequest.HeaderHost] = host;
         }
     }
 

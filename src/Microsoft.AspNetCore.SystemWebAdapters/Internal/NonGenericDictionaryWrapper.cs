@@ -23,7 +23,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Internal
         public object? this[object key]
         {
             get => _original.TryGetValue(key, out var value) ? value : null;
-            set => _original[key] = value!;
+            set => _original[key] = value;
         }
 
         public bool IsFixedSize => false;

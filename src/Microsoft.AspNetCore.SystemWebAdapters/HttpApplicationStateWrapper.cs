@@ -32,7 +32,7 @@ public class HttpApplicationStateWrapper : HttpApplicationStateBase
     public override object SyncRoot => ((ICollection)_application).SyncRoot;
 
     [DisallowNull]
-    public override object? this[int index] => _application[index]!;
+    public override object? this[int index] => _application[index];
 
     [DisallowNull]
     public override object? this[string name]

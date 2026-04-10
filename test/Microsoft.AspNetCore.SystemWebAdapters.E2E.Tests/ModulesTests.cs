@@ -35,12 +35,8 @@ public class ModulesTests(ITestOutputHelper output, AspireFixture<ModulesAppHost
 
         var list = new List<string>();
 
-        while (!reader.EndOfStream)
+        while (await reader.ReadLineAsync() is { } line)
         {
-            var line = await reader.ReadLineAsync();
-
-            Assert.NotNull(line);
-
             if (line == "PreSendRequestHeaders" || line == "PreSendRequestContent")
             {
                 // TODO: These are currently in a different order
