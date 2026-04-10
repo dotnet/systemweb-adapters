@@ -9,6 +9,8 @@ variables:
     value: build/product
   - name: _DotNetArtifactsCategory
     value: .NETCore
+  - name: ASPIRE_ENABLE_CONTAINER_TUNNEL
+    value: true
 
   # Variables to automatically handle build pools
   - template: /eng/common/templates/variables/pool-providers.yml
@@ -74,7 +76,8 @@ stages:
               $aspireBin = Join-Path $HOME '.aspire/bin'
               Write-Host "##vso[task.prependpath]$aspireBin"
               aspire --version
-              aspire doctor
+              aspire certs trust --non-interactive
+              aspire doctor --non-interactive
         - task: NuGetCommand@2
           displayName: 'Clear NuGet caches'
           condition: succeeded()
