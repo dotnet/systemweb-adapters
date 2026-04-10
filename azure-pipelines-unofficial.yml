@@ -85,20 +85,6 @@ extends:
               inputs:
                 command: custom
                 arguments: 'locals all -clear'
-            - task: PowerShell@2
-              displayName: Ensure trusted ASP.NET Core HTTPS dev cert
-              condition: succeeded()
-              inputs:
-                targetType: inline
-                script: |
-                  $ErrorActionPreference = 'Stop'
-
-                  dotnet dev-certs https --check --trust
-
-                  if ($LASTEXITCODE -ne 0)
-                  {
-                    dotnet dev-certs https --trust
-                  }
             - script: eng\common\cibuild.cmd
                 -configuration $(_BuildConfig)
                 -prepareMachine
