@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using System.Diagnostics;
 
 namespace Xunit;
 
@@ -33,7 +32,7 @@ public sealed class WindowsWithLinuxContainersTheory : TheoryAttribute
     }
 }
 
-internal static class WindowsWithLinuxContainersSupport
+internal static partial class WindowsWithLinuxContainersSupport
 {
     public static string? SkipReason { get; } = GetSkipReason();
 
@@ -44,43 +43,18 @@ internal static class WindowsWithLinuxContainersSupport
             return "This test is only run on Windows";
         }
 
-        if (!CanRunLinuxContainers())
+        if (!DockerStatus.IsSupported)
         {
-            return "This test requires Docker to be configured for Linux containers";
+            var status = "This test requires Docker to be configured for Linux container";
+
+            if (DockerStatus.OS is { } os)
+            {
+                status += $", but it appears to be configured for {os} containers";
+            }
+
+            return status;
         }
 
         return null;
-    }
-
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
-    private static bool CanRunLinuxContainers()
-    {
-        try
-        {
-            using var process = Process.Start(new ProcessStartInfo
-            {
-                FileName = "docker",
-                Arguments = "version --format {{.Server.Os}}",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            });
-
-            if (process is null)
-            {
-                return false;
-            }
-
-            var output = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
-
-            return process.ExitCode == 0
-                && output.Trim().Equals("linux", StringComparison.OrdinalIgnoreCase);
-        }
-        catch
-        {
-            return false;
-        }
     }
 }

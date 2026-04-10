@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
-public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire, ITestOutputHelper output) : DebugPageTest, IClassFixture<AspireFixture<AuthRemoteIdentityAppHost>>
+public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost, ContainerAspireFixtureOptions> aspire, ITestOutputHelper output) : DebugPageTest, IClassFixture<AspireFixture<AuthRemoteIdentityAppHost, ContainerAspireFixtureOptions>>
 {
     [WindowsWithLinuxContainersTheory]
     [InlineData("core")]

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
@@ -6,18 +7,46 @@ using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using YamlDotNet.Core.Tokens;
 
 namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
-public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvider, ILogger, IAsyncLifetime
-     where TEntryPoint : class
+public interface IAspireFixtureOptions
 {
-    private const int DefaultInitializationTimeout = 5;
+    static abstract TimeSpan InitializeTimeOut { get; }
 
+    static abstract bool RequiresContainers { get; }
+}
+
+public sealed class ContainerAspireFixtureOptions : IAspireFixtureOptions
+{
+    public static TimeSpan InitializeTimeOut => TimeSpan.FromMinutes(10);
+
+    public static bool RequiresContainers => true;
+}
+
+public sealed class DefaultAspireFixtureOptions : IAspireFixtureOptions
+{
+    public static TimeSpan InitializeTimeOut => TimeSpan.FromMinutes(5);
+
+    public static bool RequiresContainers => false;
+}
+
+public class AspireFixture<TEntryPoint>(IMessageSink sink) : AspireFixture<TEntryPoint, DefaultAspireFixtureOptions>(sink), ILoggerProvider, ILogger, IAsyncLifetime
+    where TEntryPoint : class
+{
+}
+
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "<Pending>")]
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "<Pending>")]
+public class AspireFixture<TEntryPoint, TOptions>(IMessageSink sink) : ILoggerProvider, ILogger, IAsyncLifetime
+    where TEntryPoint : class
+    where TOptions : IAspireFixtureOptions
+{
     private DistributedApplication? _app;
     private Exception? _startupException;
 
-    private readonly List<string> _initializationLogs = [];
+    private ImmutableList<string> _initializationLogs = [];
     private ITestOutputHelper? _current;
 
     public IDistributeApplicationScope GetApplicationScope(ITestOutputHelper output)
@@ -67,7 +96,7 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
         else
         {
             // Capture so it shows in the test logs
-            _initializationLogs.Add(str);
+            ImmutableInterlocked.Update(ref _initializationLogs, list => list.Add(str));
 
             // Log immediately as there's a warning that the app didn't start, so we want to make sure we capture any logs that might indicate why
             if (logLevel >= LogLevel.Warning)
@@ -79,9 +108,16 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
 
     async Task IAsyncLifetime.InitializeAsync()
     {
-        using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(DefaultInitializationTimeout));
+        if (TOptions.RequiresContainers && !DockerStatus.IsSupported)
+        {
+            Log("Container support is required but not available, skipping initialization");
+        }
+        else
+        {
+            using var cts = new CancellationTokenSource(TOptions.InitializeTimeOut);
 
-        await InitializeAsync(cts.Token);
+            await InitializeAsync(cts.Token);
+        }
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "We want to capture the exception to show up in the test output")]
@@ -180,7 +216,7 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
         }
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "<Pending>")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1816:Dispose methods should call SuppressFinalize", Justification = "<Pending>")]
     void IDisposable.Dispose()
     {
     }
