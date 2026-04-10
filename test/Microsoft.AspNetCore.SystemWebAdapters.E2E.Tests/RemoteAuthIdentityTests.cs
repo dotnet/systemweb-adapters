@@ -17,7 +17,7 @@ public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire, 
     [InlineData("owin")]
     public async Task MVCCoreAppCanLogoutBothApps(string name)
     {
-        using var scope = await aspire.GetApplicationScopeAsync(output);
+        using var scope = aspire.GetApplicationScope(output);
         var email = $"{Path.GetRandomFileName()}@test.com";
         var coreAppEndpoint = GetEndpoint(scope, name);
         var frameworkAppEndpoint = GetAspNetFrameworkEndpoint(scope);
@@ -43,7 +43,7 @@ public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire, 
     [InlineData("owin")]
     public async Task MVCAppCanLogoutBothApps(string name)
     {
-        using var scope = await aspire.GetApplicationScopeAsync(output);
+        using var scope = aspire.GetApplicationScope(output);
         var email = $"{Path.GetRandomFileName()}@test.com";
         var coreAppEndpoint = GetEndpoint(scope, name);
         var frameworkAppEndpoint = GetAspNetFrameworkEndpoint(scope);
