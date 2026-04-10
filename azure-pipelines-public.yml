@@ -62,6 +62,19 @@ stages:
         steps:
         - checkout: self
           clean: true
+        - task: PowerShell@2
+          displayName: Install Aspire CLI
+          condition: succeeded()
+          inputs:
+            targetType: inline
+            pwsh: true
+            script: |
+              Invoke-RestMethod https://aspire.dev/install.ps1 -OutFile aspire-install.ps1
+              .\aspire-install.ps1
+              $aspireBin = Join-Path $HOME '.aspire/bin'
+              Write-Host "##vso[task.prependpath]$aspireBin"
+              aspire --version
+              aspire doctor
         - task: NuGetCommand@2
           displayName: 'Clear NuGet caches'
           condition: succeeded()
