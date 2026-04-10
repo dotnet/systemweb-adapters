@@ -1,3 +1,6 @@
+using System.Globalization;
+using System.Text;
+using System.Text.Json;
 using Aspire.Hosting;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -9,6 +12,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvider, ILogger, IAsyncLifetime
      where TEntryPoint : class
 {
+    private const int MinuteTimeout = 5;
+
     private DistributedApplication? _app;
     private Exception? _startupException;
 
@@ -19,14 +24,20 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
     {
         ArgumentNullException.ThrowIfNull(output);
 
-        if (_startupException is { })
+        // flush any captured logs to the output
+        foreach (var existing in _initializationLogs)
         {
-            throw new InvalidOperationException("Could not start application", _startupException);
+            output.WriteLine(existing);
         }
 
         if (_current is { })
         {
             throw new InvalidOperationException("Tests cannot be run concurrently");
+        }
+
+        if (_startupException is { })
+        {
+            throw new InvalidOperationException("Could not start application", _startupException);
         }
 
         if (_app is not { })
@@ -35,12 +46,6 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
         }
 
         _current = output;
-
-        // flush any captured logs to the output
-        foreach (var existing in _initializationLogs)
-        {
-            output.WriteLine(existing);
-        }
 
         return new DistributeApplicationScope(_app, () => _current = null);
     }
@@ -74,7 +79,7 @@ public sealed class AspireFixture<TEntryPoint>(IMessageSink sink) : ILoggerProvi
 
     async Task IAsyncLifetime.InitializeAsync()
     {
-        using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(10));
+        using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(MinuteTimeout));
 
         await InitializeAsync(cts.Token);
     }
