@@ -119,7 +119,7 @@ public sealed class HttpCachePolicy
         _useCachedHeaders = false;
     }
 
-    static internal void AppendValueToHeader(StringBuilder s, string? value)
+    internal static void AppendValueToHeader(StringBuilder s, string? value)
     {
         if (!string.IsNullOrEmpty(value))
         {
@@ -352,7 +352,7 @@ public sealed class HttpCachePolicy
                 // See if anyone has explicitly set this value
                 if (_omitVaryStar != -1)
                 {
-                    omitVaryStar = _omitVaryStar == 1 ? true : false;
+                    omitVaryStar = _omitVaryStar == 1;
                 }
                 else
                 {

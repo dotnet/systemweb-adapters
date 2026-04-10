@@ -61,7 +61,7 @@ internal sealed class HttpHandlerMiddleware(RequestDelegate next)
 
         public IHttpHandler? Current
         {
-            get => field;
+            get;
             set
             {
                 Previous = field;

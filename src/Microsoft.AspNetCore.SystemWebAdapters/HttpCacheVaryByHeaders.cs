@@ -195,7 +195,7 @@ public sealed class HttpCacheVaryByHeaders
              * want components to be able to set a Vary header to false
              * if another component has set it to true.
              */
-            if (value == false)
+            if (!value)
             {
                 return;
             }

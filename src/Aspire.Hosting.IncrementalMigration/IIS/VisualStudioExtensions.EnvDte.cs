@@ -9,6 +9,7 @@ using System.Runtime.Versioning;
 
 namespace Aspire.Hosting;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
 internal static partial class VisualStudioExtensions
 {
     /// <summary>

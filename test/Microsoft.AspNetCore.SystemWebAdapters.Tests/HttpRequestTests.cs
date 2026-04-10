@@ -182,7 +182,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters
             // Arrange
             var info = new Mock<ConnectionInfo>();
             var remoteIp = hasRemote ? _fixture.Create<IPAddress>() : null;
-            info.Setup(i => i.RemoteIpAddress).Returns(remoteIp!);
+            info.Setup(i => i.RemoteIpAddress).Returns(remoteIp);
 
             var coreContext = new Mock<HttpContextCore>();
             coreContext.Setup(c => c.Connection).Returns(info.Object);
