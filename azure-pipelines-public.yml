@@ -39,7 +39,7 @@ stages:
       enablePublishBuildArtifacts: true
       enablePublishTestResults: true
       enablePublishBuildAssets: true
-      enablePublishUsingPipelines: true
+      publishingVersion: 4
       helixRepo: dotnet/SystemWeb-Adapters
       # Align w/ Maestro++ default channel when generating software bills of materials (SBOMs).
       PackageVersion: 6.0.0
