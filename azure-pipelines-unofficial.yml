@@ -41,7 +41,7 @@ extends:
     sdl:
       sourceAnalysisPool:
         name: NetCore1ESPool-Internal
-        image: windows.vs2022preview.amd64
+        image: windows.vs2022.amd64
         os: windows
     stages:
     - stage: build
@@ -52,7 +52,6 @@ extends:
           enablePublishBuildArtifacts: false
           enablePublishTestResults: true
           enablePublishBuildAssets: false
-          enablePublishUsingPipelines: false
           helixRepo: dotnet/SystemWeb-Adapters
           # Align w/ Maestro++ default channel when generating software bills of materials (SBOMs).
           PackageVersion: 6.0.0
@@ -63,7 +62,7 @@ extends:
           - job: Windows
             pool:
               name: NetCore1ESPool-Internal
-              image: windows.vs2022preview.amd64
+              image: windows.vs2022.amd64
               os: windows
             variables:
             - name: _HelixBuildConfig
@@ -75,7 +74,6 @@ extends:
                   ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
                     _SignType: test
                     _BuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:OfficialBuildId=$(Build.BuildNumber)
-                      /p:DotNetPublishUsingPipelines=false
                       /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory)
                       /p:DotNetPublishToBlobFeed=false
             steps:
