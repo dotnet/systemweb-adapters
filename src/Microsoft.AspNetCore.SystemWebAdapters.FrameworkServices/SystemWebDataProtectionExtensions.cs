@@ -2,18 +2,50 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Configuration;
+using System.Reflection;
+using System.Security.Cryptography;
 using System.Web.Configuration;
+using System.Web.Hosting;
+using System.Web.Security;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.Infrastructure;
 using Microsoft.AspNetCore.DataProtection.SystemWeb;
 using Microsoft.AspNetCore.SystemWebAdapters.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace System.Web;
 
-public static class SystemWebDataProtectionExtensions
+public static partial class SystemWebDataProtectionExtensions
 {
-    private const string StartupTypeKey = "aspnet:dataProtectionStartupType";
+    /// <summary>
+    /// Adds <see cref="IDataProtectionProvider"/> to the <see cref="HttpApplicationHost"/> and enables <see cref="MachineKey"/> integration.
+    /// </summary>
+    /// <param name="builder">The <see cref="HttpApplicationHostBuilder"/>.</param>
+    /// <param name="setupAction">The setup action for data protection</param>
+    public static IDataProtectionBuilder AddDataProtection(this HttpApplicationHostBuilder builder, Action<DataProtectionOptions> setupAction)
+    {
+        if (builder is null)
+        {
+            throw new ArgumentNullException(nameof(builder));
+        }
 
+        if (setupAction is null)
+        {
+            throw new ArgumentNullException(nameof(setupAction));
+        }
+
+        builder.Services.AddMachineKey();
+
+        return builder.Services.AddDataProtection(setupAction);
+    }
+
+    /// <summary>
+    /// Adds <see cref="IDataProtectionProvider"/> to the <see cref="HttpApplicationHost"/> and enables <see cref="MachineKey"/> integration.
+    /// </summary>
+    /// <param name="builder">The <see cref="HttpApplicationHostBuilder"/>.</param>
     public static IDataProtectionBuilder AddDataProtection(this HttpApplicationHostBuilder builder)
     {
         if (builder is null)
@@ -21,61 +53,153 @@ public static class SystemWebDataProtectionExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
-        if (!IsMachineKeyOverriden())
-        {
-            const string ExpectedSetup = """
-                <machineKey compatibilityMode="Framework45" dataProtectorType="Microsoft.AspNetCore.DataProtection.SystemWeb.CompatibilityDataProtector, Microsoft.AspNetCore.DataProtection.SystemWeb" />
-                """;
-            throw new InvalidOperationException($"Must configure machine key in web.config to use data protection: {ExpectedSetup}");
-        }
-
-        if (!TrySetStartupType())
-        {
-            throw new InvalidOperationException($"Must not manually set the '{StartupTypeKey}' app setting when using HttpApplicationHostBuilder.AddDataProtection.");
-        }
+        builder.Services.AddMachineKey();
 
         return builder.Services.AddDataProtection();
     }
 
-    private static bool TrySetStartupType()
-    {
-        var startupType = typeof(MachineKeyImpl).AssemblyQualifiedName;
-
-        var current = ConfigurationManager.AppSettings[StartupTypeKey];
-
-        if (current != startupType && !string.IsNullOrEmpty(current))
-        {
-            return false;
-        }
-
-        ConfigurationManager.AppSettings[StartupTypeKey] = startupType;
-
-        return true;
-    }
-
-    private static bool IsMachineKeyOverriden()
+    private static void AddMachineKey(this IServiceCollection services)
     {
         if (ConfigurationManager.GetSection("system.web/machineKey") is MachineKeySection section)
         {
-            if (section.CompatibilityMode != MachineKeyCompatibilityMode.Framework45)
+            if (!string.IsNullOrEmpty(section.DataProtectorType))
             {
-                return false;
-            }
-
-            if (section.DataProtectorType is { } typeString && Type.GetType(typeString) is { } type && type == typeof(CompatibilityDataProtector))
-            {
-                return true;
+                throw new InvalidOperationException("Could not set up DataProtection for use with MachineKey because 'system.web/machineKey' already has 'dataProtectorType' configured. Remove or clear the 'dataProtectorType' attribute (and 'compatibilityMode' if it was previously set for older MachineKey/DataProtection integration), or do not call AddDataProtection if you want to keep the existing machineKey configuration. AddDataProtection now configures MachineKey integration automatically.");
             }
         }
 
-        return false;
+        // We use this to auto-start it ASAP to ensure the dataprotector is set up before anyone else tries to do anything
+        services.AddHostedService<MachineKeySetup>();
+        services.TryAddSingleton<IApplicationDiscriminator, SystemWebApplicationDiscriminator>();
     }
 
-    private sealed class MachineKeyImpl : DataProtectionStartup
+    /// <summary>
+    /// This is used to initialized the data protection infrastructure early in the set up for <see cref="MachineKey"/>. Optionally, will run
+    /// a runtime diagnostic to verify it is set up correctly.
+    /// </summary>
+    private sealed partial class MachineKeySetup(IServiceProvider sp, IHostEnvironment env, ILogger<MachineKeySetup> logger) : IHostedService
     {
-        public override IDataProtectionProvider CreateDataProtectionProvider(IServiceProvider services)
+        private static readonly FieldInfo _configField = GetRequiredField("s_config");
+        private static readonly MethodInfo _getApplicationConfig = GetRequiredMethod("GetApplicationConfig");
+
+        [LoggerMessage(LogLevel.Trace, EventId = 0, Message = "Initializing MachineKey infrastructure to use IDataProtection")]
+        private static partial void LogInitializing(ILogger logger);
+
+        [LoggerMessage(LogLevel.Trace, EventId = 1, Message = "Running test to validate IDataProtection")]
+        private static partial void LogRunningTest(ILogger logger);
+
+        [LoggerMessage(LogLevel.Trace, EventId = 2, Message = "Initialized MachineKey infrastructure to use IDataProtection")]
+        private static partial void LogInitialized(ILogger logger);
+
+        public Task StartAsync(CancellationToken cancellationToken)
         {
-            return base.CreateDataProtectionProvider(HttpApplicationHost.Current.Services);
+            LogInitializing(logger);
+
+            Initialize();
+
+            if (env.IsDevelopment())
+            {
+                LogRunningTest(logger);
+                ValidateMachineKey();
+            }
+
+            LogInitialized(logger);
+
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+        /// <summary>
+        /// This method initializes the <see cref="MachineKey"/> infrastructure such that it will use the <see cref="IDataProtectionProvider"/>.
+        /// Since this uses reflection, there are a few checks to make sure things are set up correctly. .NET Framework is not being changed at
+        /// this point that much, so there's little risk in relying on some of these internals.
+        /// </summary>
+        private static void Initialize()
+        {
+            var existing = GetApplicationConfig();
+            var updated = new MachineKeySection()
+            {
+                ApplicationName = existing.ApplicationName,
+                CompatibilityMode = MachineKeyCompatibilityMode.Framework45,
+                DataProtectorType = typeof(CompatibilityDataProtector).AssemblyQualifiedName,
+                Decryption = existing.Decryption,
+                DecryptionKey = existing.DecryptionKey,
+            };
+
+            Value = updated;
+
+            // Force MachineKey to start up data protection
+            _ = MachineKey.Protect([]);
+        }
+
+        /// <summary>
+        /// This is a mini test in production when ran in development mode to verify that things are setup correctly
+        /// </summary>
+        private void ValidateMachineKey()
+        {
+            using var rng = RandomNumberGenerator.Create();
+
+            // Arrange
+            var dp = sp.GetDataProtector("User.MachineKey.Protect");
+            var bytes = new byte[10];
+            rng.GetBytes(bytes);
+
+            // Act
+            var dpProtected = dp.Protect(bytes);
+            var mProtected = MachineKey.Protect(bytes);
+
+            // Assert
+            var unprotected1 = MachineKey.Unprotect(dpProtected);
+            var unprotected2 = dp.Unprotect(mProtected);
+
+            if (!bytes.SequenceEqual(unprotected1) || !bytes.SequenceEqual(unprotected2))
+            {
+                throw new InvalidOperationException("DataProtection was not setup correctly for MachineKey");
+            }
+        }
+
+        private static MachineKeySection Value
+        {
+            get => (MachineKeySection)_configField.GetValue(null);
+            set => _configField.SetValue(null, value);
+        }
+
+        private static MachineKeySection GetApplicationConfig() => (MachineKeySection)_getApplicationConfig.Invoke(null, []);
+
+        private static FieldInfo GetRequiredField(string name)
+        {
+            var field = typeof(MachineKeySection).GetField(name, BindingFlags.NonPublic | BindingFlags.Static);
+
+            return field ?? throw new NotSupportedException($"The required MachineKeySection field '{name}' could not be found. The current System.Web implementation is not supported.");
+        }
+
+        private static MethodInfo GetRequiredMethod(string name)
+        {
+            var method = typeof(MachineKeySection).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Static);
+
+            return method ?? throw new NotSupportedException($"The required MachineKeySection method '{name}' could not be found. The current System.Web implementation is not supported.");
+        }
+    }
+
+    private sealed class SystemWebApplicationDiscriminator : IApplicationDiscriminator
+    {
+        public string? Discriminator { get; } = GetAppDiscriminatorCore();
+
+        private static string GetAppDiscriminatorCore()
+        {
+            // Try reading the discriminator from <machineKey applicationName="..." /> defined
+            // at the web app root. If the value was set explicitly (even if the value is empty),
+            // honor it as the discriminator.
+            var machineKeySection = (MachineKeySection)WebConfigurationManager.GetWebApplicationSection("system.web/machineKey");
+            if (machineKeySection.ElementInformation.Properties["applicationName"].ValueOrigin != PropertyValueOrigin.Default)
+            {
+                return machineKeySection.ApplicationName;
+            }
+            else
+            {
+                return HttpRuntime.AppDomainAppId;
+            }
         }
     }
 }

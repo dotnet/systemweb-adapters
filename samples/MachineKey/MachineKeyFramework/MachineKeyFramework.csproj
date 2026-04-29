@@ -3,9 +3,6 @@
     <TargetFramework>net481</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.SystemWeb" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\MachineKeyShared\MachineKeyShared.csproj" />
     <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.csproj" />
   </ItemGroup>
