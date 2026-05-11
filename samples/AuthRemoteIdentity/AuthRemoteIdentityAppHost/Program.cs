@@ -30,6 +30,10 @@ var owin = builder.AddProject<Projects.AuthRemoteIdentityCore>("owin")
     .WaitFor(frameworkApp)
     .WaitFor(db);
 
+var identityEf6 = builder.AddProject<Projects.AuthIdentityCoreEF6>("identityef6")
+    .WithReference(db, connectionName: "DefaultConnection")
+    .WaitFor(db);
+
 var coreApp = builder.AddProject<Projects.AuthRemoteIdentityCore>("core")
     .WithHttpEndpoint(targetPort: 5002)
     .WithHttpsEndpoint(targetPort: 5003)

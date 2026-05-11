@@ -17,6 +17,7 @@
     <Project Path="samples/AuthRemoteFormsAuth/AuthRemoteFormsAuthFramework/AuthRemoteFormsAuthFramework.csproj" />
   </Folder>
   <Folder Name="/samples/AuthRemoteIdentity/">
+    <Project Path="samples/AuthRemoteIdentity/AuthIdentityCoreEF6/AuthIdentityCoreEF6.csproj" />
     <Project Path="samples/AuthRemoteIdentity/AuthRemoteIdentityAppHost/AuthRemoteIdentityAppHost.csproj" />
     <Project Path="samples/AuthRemoteIdentity/AuthRemoteIdentityCore/AuthRemoteIdentityCore.csproj" />
     <Project Path="samples/AuthRemoteIdentity/AuthRemoteIdentityFramework/AuthRemoteIdentityFramework.csproj" />
@@ -64,6 +65,7 @@
     <File Path="src/Directory.Build.targets" />
     <Project Path="src/Aspire.Hosting.IncrementalMigration/Aspire.Hosting.IncrementalMigration.csproj" />
     <Project Path="src/Aspire.Microsoft.AspNetCore.SystemWebAdapters/Aspire.Microsoft.AspNetCore.SystemWebAdapters.csproj" />
+    <Project Path="src/Microsoft.AspNetCore.Identity.EntityFramework6/Microsoft.AspNetCore.Identity.EntityFramework6.csproj" />
     <Project Path="src/Microsoft.AspNetCore.SystemWebAdapters.Abstractions/Microsoft.AspNetCore.SystemWebAdapters.Abstractions.csproj" />
     <Project Path="src/Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CSharp/Microsoft.AspNetCore.SystemWebAdapters.Analyzers.CSharp.csproj" />
     <Project Path="src/Microsoft.AspNetCore.SystemWebAdapters.Analyzers/Microsoft.AspNetCore.SystemWebAdapters.Analyzers.csproj" />
