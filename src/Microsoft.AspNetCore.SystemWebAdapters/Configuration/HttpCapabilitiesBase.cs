@@ -64,6 +64,8 @@ public class HttpCapabilitiesBase
 
     public bool IsMobileDevice => GetBoolean("isMobileDevice");
 
+    public bool IsBrowser(string browserName) => Capability.IsBrowser(browserName);
+
     private int GetInt(string key) => int.TryParse(Capability[key], NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : throw new HttpUnhandledException($"Invalid string from browser capabilities '{key}'");
 
     private bool GetBoolean(string key) => bool.TryParse(Capability[key], out var result) && result;
