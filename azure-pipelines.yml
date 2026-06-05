@@ -49,7 +49,7 @@ extends:
         enabled: true
       sourceAnalysisPool:
         name: NetCore1ESPool-Internal
-        image: windows.vs2026.amd64
+        image: windows.vs2022.amd64
         os: windows
     stages:
     - stage: build
@@ -57,10 +57,10 @@ extends:
       jobs:
       - template: /eng/common/templates-official/jobs/jobs.yml@self
         parameters:
-          enablePublishBuildArtifacts: true
+          enablePublishBuildArtifacts: false
           enablePublishTestResults: true
           enablePublishBuildAssets: true
-          enablePublishUsingPipelines: true
+          publishingVersion: 4
           helixRepo: dotnet/SystemWeb-Adapters
           # Align w/ Maestro++ default channel when generating software bills of materials (SBOMs).
           PackageVersion: 6.0.0
@@ -69,9 +69,10 @@ extends:
             enableMicrobuild: true
           jobs:
           - job: Windows
+            enablePublishing: true
             pool:
               name: NetCore1ESPool-Internal
-              image: windows.vs2026.amd64
+              image: windows.vs2022.amd64
               os: windows
             variables:
             - name: _HelixBuildConfig
@@ -83,7 +84,6 @@ extends:
                   ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
                     _SignType: real
                     _BuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:OfficialBuildId=$(Build.BuildNumber)
-                      /p:DotNetPublishUsingPipelines=true
                       /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory)
                       /p:DotNetPublishBlobFeedUrl=https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json
                       /p:DotNetPublishToBlobFeed=true
@@ -270,10 +270,7 @@ extends:
     - ${{ if notin(variables['Build.Reason'], 'PullRequest') }}:
       - template: eng\common\templates-official\post-build\post-build.yml@self
         parameters:
-          publishingInfraVersion: 3
+          publishingInfraVersion: 4
           # Symbol validation isn't being very reliable lately. This should be enabled back
           # once this issue is resolved: https://github.com/dotnet/arcade/issues/2871
           enableSymbolValidation: false
-          # This is to enable SDL runs part of Post-Build Validation Stage
-          SDLValidationParameters:
-            enable: false
