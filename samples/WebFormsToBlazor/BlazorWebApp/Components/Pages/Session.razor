@@ -1,4 +1,4 @@
-@page "/"
+@page "/blazor-session"
 
 <PageTitle>Home</PageTitle>
 
@@ -8,7 +8,7 @@
     <EditForm Model="SessionData" OnSubmit="OnSubmit" class="col-md-4" FormName="Session">
         <div class="mb-2">
             <label for="session-message" class="form-label">Session Message:</label>
-            <InputText id="session-message" class="form-control" @bind-Value="SessionData.SessionMessage" />
+            <InputText id="session-message" class="form-control" @bind-Value="SessionData!.SessionMessage" />
         </div>
         <div class="mb-2">
             <button type="submit" class="btn btn-primary">Submit</button>
@@ -18,13 +18,15 @@
 
 @code {
     [SupplyParameterFromForm]
-    private SessionData SessionData { get; set; }
+    private SessionData? SessionData { get; set; }
 
     [CascadingParameter]
     public HttpContext? HttpContext { get; set; }
 
     protected override Task OnInitializedAsync()
     {
+        SessionData ??= new();
+
         if (HttpContext != null)
         {
             var webHttpContext = ((System.Web.HttpContext)HttpContext);
@@ -39,7 +41,7 @@
 
     private void OnSubmit()
     {
-        if (HttpContext != null)
+        if (HttpContext != null && SessionData is { })
         {
             var webHttpContext = ((System.Web.HttpContext)HttpContext);
             if (webHttpContext != null && webHttpContext.Session != null)

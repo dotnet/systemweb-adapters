@@ -6,11 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsAspireHost>true</IsAspireHost>
+    <UserSecretsId>b0743c95-fa2a-4ab2-8ed5-7ad15a95996e</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Aspire.Hosting.IncrementalMigration\Aspire.Hosting.IncrementalMigration.csproj" IsAspireProjectResource="false" />
-    <ProjectReference Include="..\WebFormsToBlazorCore\WebFormsToBlazorCore.csproj" />
+    <ProjectReference Include="..\BlazorWebApp\BlazorWebApp.csproj" />
     <ProjectReference Include="..\WebFormsToBlazorFramework\WebFormsToBlazorFramework.csproj" />
   </ItemGroup>
 

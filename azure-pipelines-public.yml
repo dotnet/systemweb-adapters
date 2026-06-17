@@ -9,6 +9,8 @@ variables:
     value: build/product
   - name: _DotNetArtifactsCategory
     value: .NETCore
+  - name: ASPIRE_ENABLE_CONTAINER_TUNNEL
+    value: true
 
   # Variables to automatically handle build pools
   - template: /eng/common/templates/variables/pool-providers.yml
@@ -46,7 +48,7 @@ stages:
       - job: Windows
         pool:
           name: $(DncEngPublicBuildPool)
-          demands: ImageOverride -equals 1es-windows-2019-open
+          demands: ImageOverride -equals windows.vs2026.amd64.open
         variables:
         - name: _HelixBuildConfig
           value: $(_BuildConfig)
@@ -61,12 +63,47 @@ stages:
         steps:
         - checkout: self
           clean: true
+        - task: PowerShell@2
+          displayName: Install Aspire CLI
+          condition: succeeded()
+          inputs:
+            targetType: inline
+            pwsh: true
+            script: |
+              Invoke-RestMethod https://aspire.dev/install.ps1 -OutFile aspire-install.ps1
+              .\aspire-install.ps1
+              $aspireBin = Join-Path $HOME '.aspire/bin'
+              Write-Host "##vso[task.prependpath]$aspireBin"
+              aspire --version
+              aspire doctor --non-interactive
         - task: NuGetCommand@2
           displayName: 'Clear NuGet caches'
           condition: succeeded()
           inputs:
             command: custom
             arguments: 'locals all -clear'
+        - task: DockerInstaller@0
+          displayName: Install Docker CLI
+          condition: succeeded()
+          inputs:
+            dockerVersion: '28.0.0'
+        - task: PowerShell@2
+          displayName: Docker diagnostics (before build/tests)
+          condition: succeededOrFailed()
+          inputs:
+            targetType: inline
+            script: |
+              $ErrorActionPreference = 'Continue'
+              if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
+                Write-Host "##vso[task.logissue type=warning]Docker CLI not found on PATH"
+                exit 0
+              }
+
+              docker version
+              docker info
+              docker container ls -a
+              docker network ls
+              docker volume ls
         - script: eng\common\cibuild.cmd
             -configuration $(_BuildConfig)
             -prepareMachine
@@ -74,6 +111,23 @@ stages:
           name: Build
           displayName: Build
           condition: succeeded()
+          env:
+            DOCKER_BUILDKIT: 1
+        - task: PowerShell@2
+          displayName: Docker diagnostics (after build/tests)
+          condition: always()
+          inputs:
+            targetType: inline
+            script: |
+              $ErrorActionPreference = 'Continue'
+              if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
+                Write-Host "##vso[task.logissue type=warning]Docker CLI not found on PATH"
+                exit 0
+              }
+
+              docker container ls -a
+              docker network ls
+              docker volume ls
         - task: PowerShell@2
           inputs:
             filePath: update_apis.ps1
