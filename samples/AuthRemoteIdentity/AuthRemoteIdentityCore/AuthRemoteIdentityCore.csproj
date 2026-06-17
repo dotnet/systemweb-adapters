@@ -8,6 +8,7 @@
     <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Microsoft.AspNetCore.Identity.EntityFramework6\Microsoft.AspNetCore.Identity.EntityFramework6.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.AspNetCore.SystemWebAdapters.Owin\Microsoft.AspNetCore.SystemWebAdapters.Owin.csproj" />
     <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.csproj" />
   </ItemGroup>
