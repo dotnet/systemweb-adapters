@@ -1,9 +1,9 @@
 {
   "sdk": {
-    "version": "11.0.100-preview.5.26227.104"
+    "version": "11.0.100-preview.5.26302.115"
   },
   "tools": {
-    "dotnet": "11.0.100-preview.5.26227.104",
+    "dotnet": "11.0.100-preview.5.26302.115",
     "runtimes": {
       "dotnet": [
         "8.0.16",
@@ -20,6 +20,6 @@
   "msbuild-sdks": {
     "MSBuild.SDK.SystemWeb": "4.0.104",
     "Aspire.AppHost.Sdk": "13.0.0",
-    "Microsoft.DotNet.Arcade.Sdk": "11.0.0-beta.26325.1"
+    "Microsoft.DotNet.Arcade.Sdk": "11.0.0-beta.26330.1"
   }
 }
