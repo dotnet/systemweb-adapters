@@ -53,12 +53,12 @@
     <PackageVersion Include="Aspire.Hosting.Testing" Version="13.4.6" />
     <PackageVersion Include="Autofac.Extras.Moq" Version="6.1.1" />
     <PackageVersion Include="AutoFixture" Version="4.18.1" />
-    <PackageVersion Include="Basic.Reference.Assemblies" Version="1.8.9" />
+    <PackageVersion Include="Basic.Reference.Assemblies" Version="1.4.5" />
     <PackageVersion Include="coverlet.collector" Version="3.2.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis" Version="4.14.0" />
     <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="1.0.3" />
     <PackageVersion Include="Microsoft.Playwright.Xunit" Version="1.61.0" />
-    <PackageVersion Include="Moq" Version="4.20.72" />
+    <PackageVersion Include="Moq" Version="4.16.1" />
     <PackageVersion Include="NUnit.Analyzers" Version="3.10.0" />
   </ItemGroup>
 
