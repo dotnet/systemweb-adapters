@@ -98,6 +98,7 @@ public class GetWriteableSessionHandlerTests
     }
 
     [Fact]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2025:Do not pass 'IDisposable' instances into unawaited tasks", Justification = "<Pending>")]
     public async Task DisconnectedRequest()
     {
         // Arrange
@@ -112,8 +113,7 @@ public class GetWriteableSessionHandlerTests
 
         var handler = new GetWriteableSessionHandler(serializer.Object, sessions.Object);
 
-
-        var stream = new MemoryStream();
+        using var stream = new MemoryStream();
         var response = new Mock<HttpResponseBase>();
         response.SetupAllProperties();
         response.Setup(s => s.OutputStream).Returns(stream);

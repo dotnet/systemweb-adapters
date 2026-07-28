@@ -68,7 +68,7 @@ public class HttpRuntimeIntegrationTests
     }
 
     [Fact]
-    public async Task ConfigureRuntimeViaFeature()
+    public void ConfigureRuntimeViaFeature()
     {
         // Arrange
         var feature = new Mock<IIISEnvironmentFeature>();

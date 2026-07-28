@@ -49,17 +49,17 @@ internal static partial class ExecutionForkJoinExtensions
 
     private sealed partial class PipelineForkFeature(HttpContext context, ILogger logger)
     {
-        internal Stack<(object Key, PipelineForkRunner Runner)> _forks { get; } = [];
+        internal Stack<(object Key, PipelineForkRunner Runner)> Forks { get; } = [];
 
         public async ValueTask CompleteAsync()
         {
-            foreach (var (_, runner) in _forks)
+            foreach (var (_, runner) in Forks)
             {
                 await runner.CompleteAsync();
                 runner.Dispose();
             }
 
-            _forks.Clear();
+            Forks.Clear();
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Handled by containing class")]
@@ -67,14 +67,14 @@ internal static partial class ExecutionForkJoinExtensions
         {
             var runner = new PipelineForkRunner(context, next, logger);
 
-            _forks.Push((key, runner));
+            Forks.Push((key, runner));
 
             return runner.RunAsync();
         }
 
         public Task WaitForPipelineJoin(object key)
         {
-            if (_forks.TryPeek(out var current))
+            if (Forks.TryPeek(out var current))
             {
                 if (!Equals(current.Key, key))
                 {

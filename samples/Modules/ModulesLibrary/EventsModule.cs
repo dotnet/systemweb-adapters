@@ -14,7 +14,7 @@ namespace ModulesLibrary
         {
             if (application is { })
             {
-                application.BeginRequest += (s, o) => ((HttpApplication)s!).Context.Response.ContentType = "text/plain";
+                application.BeginRequest += (s, o) => ((HttpApplication?)s)!.Context.Response.ContentType = "text/plain";
 
                 base.Init(application);
             }

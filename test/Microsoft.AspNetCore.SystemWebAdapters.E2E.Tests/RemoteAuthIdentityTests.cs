@@ -92,7 +92,7 @@ public class AuthIdentityTests(AspireFixture<AuthRemoteIdentityAppHost> aspire) 
 
             Span<char> str = stackalloc char[8];
 
-            RandomNumberGenerator.GetItems(lower, str.Slice(0, 2));
+            RandomNumberGenerator.GetItems(lower, str[..2]);
             RandomNumberGenerator.GetItems(upper, str.Slice(2, 2));
             RandomNumberGenerator.GetItems(numbers, str.Slice(4, 2));
             RandomNumberGenerator.GetItems(symbols, str.Slice(6, 2));

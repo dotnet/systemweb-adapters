@@ -89,9 +89,7 @@ public static class HttpContextRequestServicesExtensions
             return services;
         }
 
-        var scope = HttpRuntime.WebObjectActivator?.GetService(typeof(IServiceScopeFactoryProxy)) as IServiceScopeFactoryProxy;
-
-        if (scope is null)
+        if (HttpRuntime.WebObjectActivator?.GetService(typeof(IServiceScopeFactoryProxy)) is not IServiceScopeFactoryProxy scope)
         {
             throw new InvalidOperationException("Could not retrieve service to get scoped services.");
         }

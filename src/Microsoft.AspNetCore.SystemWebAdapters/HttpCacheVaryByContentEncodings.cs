@@ -119,7 +119,7 @@ public sealed class HttpCacheVaryByContentEncodings
                 {
                     contentEncodings[i] = _contentEncodings[i];
                 }
-                contentEncodings[contentEncodings.Length - 1] = contentEncoding;
+                contentEncodings[^1] = contentEncoding;
                 _contentEncodings = contentEncodings;
                 return;
             }

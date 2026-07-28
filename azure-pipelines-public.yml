@@ -39,7 +39,6 @@ stages:
       enablePublishBuildArtifacts: true
       enablePublishTestResults: true
       enablePublishBuildAssets: true
-      enablePublishUsingPipelines: true
       helixRepo: dotnet/SystemWeb-Adapters
       # Align w/ Maestro++ default channel when generating software bills of materials (SBOMs).
       PackageVersion: 6.0.0
@@ -47,7 +46,7 @@ stages:
       - job: Windows
         pool:
           name: $(DncEngPublicBuildPool)
-          demands: ImageOverride -equals 1es-windows-2019-open
+          demands: ImageOverride -equals 1es-windows-2022-open
         variables:
         - name: _HelixBuildConfig
           value: $(_BuildConfig)
