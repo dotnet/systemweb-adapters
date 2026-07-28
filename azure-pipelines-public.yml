@@ -48,7 +48,7 @@ stages:
       - job: Windows
         pool:
           name: $(DncEngPublicBuildPool)
-          demands: ImageOverride -equals windows.vs2026.amd64.open
+          demands: ImageOverride -equals 1es-windows-2022-open
         variables:
         - name: _HelixBuildConfig
           value: $(_BuildConfig)
