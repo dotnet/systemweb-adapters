@@ -29,6 +29,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.SystemWeb" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection" />
+    <PackageReference Include="System.Security.Cryptography.Xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.AspNetCore.SystemWebAdapters\Microsoft.AspNetCore.SystemWebAdapters.csproj" />
