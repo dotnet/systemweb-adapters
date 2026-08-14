@@ -1,3 +1,6 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -11,7 +14,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
 public class RemoteSessionTests(ITestOutputHelper output, AspireFixture<SessionRemoteAppHost> aspire) : DebugPageTest, IClassFixture<AspireFixture<SessionRemoteAppHost>>
 {
-    [Fact]
+    [WindowsOnlyFact]
     public async Task SessionTests()
     {
         await ValidateCount("/", 1, 0);
@@ -25,8 +28,8 @@ public class RemoteSessionTests(ITestOutputHelper output, AspireFixture<SessionR
 
     private async Task ValidateCount(string relative, int coreCount, int frameworkCount)
     {
-        var app = await aspire.GetApplicationAsync();
-        var endpoint = app.GetEndpoint("core");
+        using var scope = aspire.GetApplicationScope(output);
+        var endpoint = scope.App.GetEndpoint("core");
 
         var response = await Page.GotoAsync(new Uri(endpoint, relative).ToString());
 

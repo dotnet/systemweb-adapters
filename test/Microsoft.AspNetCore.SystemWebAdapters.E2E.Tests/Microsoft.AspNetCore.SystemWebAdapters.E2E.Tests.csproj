@@ -33,4 +33,19 @@
     <Using Include="Aspire.Hosting.Testing" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="InstallPlaywrightBrowsers" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT' ">
+    <Message Text="Installing playwright..." />
+    <Exec Command="pwsh &quot;$(TargetDir)playwright.ps1&quot; install" ConsoleToMSBuild="true" StandardOutputImportance="Low">
+      <Output TaskParameter="ExitCode" PropertyName="PlaywrightInstallExitCode"/>
+      <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfInstall" />
+    </Exec>
+    <Error Condition="$(PlaywrightInstallExitCode) != 0" Text="Playwright install failed with exit code $(PlaywrightInstallExitCode):\n$(OutputOfInstall)"/>
+  </Target>
+
 </Project>

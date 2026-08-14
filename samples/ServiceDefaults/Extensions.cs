@@ -50,6 +50,11 @@ public static class SampleServiceExtensions
             .AddHttpClient("OtlpTraceExporter")
             .RemoveAllLoggers();
 
+        builder.Services.AddLogging(logging =>
+        {
+            logging.AddFilter("Polly", LogLevel.Warning);
+        });
+
         // Uncomment the following to restrict the allowed schemes for service discovery.
         // builder.Services.Configure<ServiceDiscoveryOptions>(options =>
         // {

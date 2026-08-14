@@ -1,3 +1,8 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using System.Runtime.InteropServices;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Projects;
 using Xunit;
 using Xunit.Abstractions;
@@ -6,7 +11,7 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.E2E.Tests;
 
 public class ModulesTests(ITestOutputHelper output, AspireFixture<ModulesAppHost> aspire) : IClassFixture<AspireFixture<ModulesAppHost>>
 {
-    [Fact]
+    [WindowsOnlyFact]
     public async Task ValidateModuleFiringOrder()
     {
         var coreModules = await GetModules("core");
@@ -19,8 +24,8 @@ public class ModulesTests(ITestOutputHelper output, AspireFixture<ModulesAppHost
     {
         var baseUrl = new Uri("/", UriKind.Relative);
 
-        var app = await aspire.GetApplicationAsync();
-        using var client = app.CreateHttpClient(name);
+        using var scope = aspire.GetApplicationScope(output);
+        using var client = scope.App.CreateHttpClient(name);
         using var response = await client.GetAsync(baseUrl);
 
         response.EnsureSuccessStatusCode();

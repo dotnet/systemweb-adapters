@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.SqlServer" />
-    <PackageReference Include="C3D.Extensions.Aspire.IISExpress" />
   </ItemGroup>
 
   <ItemGroup>

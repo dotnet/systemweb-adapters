@@ -57,6 +57,11 @@
     </NoWarn>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <MvcBuildViews>false</MvcBuildViews>
+    <WebApplicationsTargetPath>$(MSBuildThisFileDirectory)Microsoft.WebApplication.Empty.targets</WebApplicationsTargetPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference
       Include="$(MSBuildThisFileDirectory)..\src\Microsoft.AspNetCore.SystemWebAdapters.Analyzers\Microsoft.AspNetCore.SystemWebAdapters.Analyzers.csproj"

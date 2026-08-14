@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 
 namespace Aspire.Hosting;
 
@@ -205,7 +206,7 @@ internal static partial class IISExpressLaunchDetailsExtensions
         XNamespace MsbuildNS = "http://schemas.microsoft.com/developer/msbuild/2003";
 
         // This is the GUID for the old-style web project flavor in Visual Studio.
-        var webProjectGuid = new Guid("{349c5851-65df-11da-9384-00065b846f21}");
+        var webProjectGuid = Guid.Parse("{349c5851-65df-11da-9384-00065b846f21}");
 
         var doc = XDocument.Load(path);
 
@@ -219,27 +220,36 @@ internal static partial class IISExpressLaunchDetailsExtensions
 
         var propertyGroups = project
             .Descendants(MsbuildNS + "PropertyGroup");
-        var use64bitIISExpress = !(propertyGroups
+        var use64bitIISExpress = propertyGroups
             .Descendants(MsbuildNS + "Use64BitIISExpress")
-            .FirstOrDefault() is { } b) || !bool.TryParse(b.Value, out var use64BitValue) || use64BitValue;
+            .ParseFirstOrDefault(true);
         var sslPort = propertyGroups
             .Descendants(MsbuildNS + "IISExpressSSLPort")
-            .FirstOrDefault() is { } s && int.TryParse(s.Value, out var sslPortValue) ? sslPortValue : default;
+            .ParseFirstOrDefault(0);
         var webProjectProperties = project
             .Descendants(MsbuildNS + "ProjectExtensions")
             .Descendants(MsbuildNS + "VisualStudio")
             .Descendants(MsbuildNS + "FlavorProperties")
-            .FirstOrDefault(flavor => flavor.Attribute("GUID") is { } g && Guid.TryParse(g.Value, out var guid) && guid == webProjectGuid);
-        var port = webProjectProperties?
+            .Where(flavor => flavor.Attribute("GUID") is { } g && Guid.TryParse(g.Value, out var guid) && guid == webProjectGuid);
+        var port = webProjectProperties
             .Descendants(MsbuildNS + "DevelopmentServerPort")
-            .FirstOrDefault() is { } p && int.TryParse(p.Value, out var portValue) ? portValue : default;
+            .ParseFirstOrDefault(0);
 
         metadata = new IISExpressLaunchDetails
         {
             Use64BitIISExpress = use64bitIISExpress,
-            SslPort = sslPort,
-            HttpPort = port,
+            SslPort = sslPort > 0 ? sslPort : null,
+            HttpPort = port > 0 ? port : null,
         };
+
         return true;
+    }
+
+    private static T ParseFirstOrDefault<T>(this IEnumerable<XElement> elements, T defaultValue)
+        where T : IParsable<T>
+    {
+        var value = elements.FirstOrDefault()?.Value;
+
+        return (T.TryParse(value, CultureInfo.InvariantCulture, out var result)) ? result : defaultValue;
     }
 }
