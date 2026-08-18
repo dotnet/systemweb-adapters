@@ -16,6 +16,7 @@
     <PackageReference Include="Microsoft.Owin.Security" />
     <PackageReference Include="Microsoft.Owin.Security.Interop" />
     <PackageReference Include="Microsoft.AspNetCore.Owin" />
+    <PackageReference Include="System.Security.Cryptography.Xml" />
   </ItemGroup>
 
   <ItemGroup>
