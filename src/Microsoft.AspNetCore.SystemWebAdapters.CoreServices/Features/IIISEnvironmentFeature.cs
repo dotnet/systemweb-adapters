@@ -1,14 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#if !NET8_0_OR_GREATER
 using System;
 
-namespace Microsoft.AspNetCore.Server.IIS;
+namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 
 /// <summary>
 /// This feature provides access to IIS application information. This is <see href="https://github.com/dotnet/aspnetcore/blob/4218bd758012820a955b0185e5b1824168d00c6a/src/Servers/IIS/IIS/src/IIISEnvironmentFeature.cs">available in-box</see>
-/// on .NET 8, but we have an internal copy so we can utilize its features on downlevel versions.
+/// on newer .NET versions, but we have an internal copy so we can use this shape regardless of runtime packaging.
 /// </summary>
 internal interface IIISEnvironmentFeature
 {
@@ -57,4 +56,3 @@ internal interface IIISEnvironmentFeature
     /// </summary>
     uint SiteId { get; }
 }
-#endif

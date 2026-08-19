@@ -2,13 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Web;
 using System.Web.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
-using Microsoft.AspNetCore.Server.IIS;
+using Microsoft.AspNetCore.SystemWebAdapters.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -18,6 +20,33 @@ namespace Microsoft.AspNetCore.SystemWebAdapters;
 
 internal static class HostingRuntimeExtensions
 {
+    private static readonly Type? RuntimeIIISEnvironmentFeatureType = Type.GetType("Microsoft.AspNetCore.Server.IIS.IIISEnvironmentFeature, Microsoft.AspNetCore.Server.IIS");
+
+    private static readonly MethodInfo? RuntimeFeatureProxyCreateMethod = CreateRuntimeFeatureProxyCreateMethod();
+
+    private static MethodInfo? CreateRuntimeFeatureProxyCreateMethod()
+    {
+        if (RuntimeIIISEnvironmentFeatureType is null) return null;
+
+        try
+        {
+            var createMethod = typeof(DispatchProxy)
+                .GetMethod(nameof(DispatchProxy.Create), BindingFlags.Public | BindingFlags.Static);
+
+            if (createMethod is null) return null;
+
+            return createMethod.MakeGenericMethod(RuntimeIIISEnvironmentFeatureType, typeof(RuntimeFeatureProxy));
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
+        catch (InvalidOperationException)
+        {
+            return null;
+        }
+    }
+
     public static void AddHostingRuntime(this IServiceCollection services)
     {
         services.TryAddSingleton<HostingEnvironmentAccessor>();
@@ -39,7 +68,7 @@ internal static class HostingRuntimeExtensions
     {
         public void Configure(SystemWebAdaptersOptions options)
         {
-            if (server.Features.Get<IIISEnvironmentFeature>() is { } feature)
+            if (TryGetEnvironmentFeature(server, out var feature))
             {
                 options.ApplicationPhysicalPath = feature.ApplicationPhysicalPath;
                 options.ApplicationVirtualPath = feature.ApplicationVirtualPath;
@@ -93,17 +122,79 @@ internal static class HostingRuntimeExtensions
         public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
             => builder =>
             {
-                // We ensure this feature is available for both pre-.NET 8 as well as .NET 8+ on non-IIS systems if the right environment variables are set
-                if (builder.ApplicationServices.GetService<IServer>() is { } server && server.Features.Get<IIISEnvironmentFeature>() is null)
+                if (builder.ApplicationServices.GetService<IServer>() is { } server)
                 {
-                    if (IISEnvironmentFeature.TryCreate(builder.ApplicationServices.GetRequiredService<IConfiguration>(), out var feature))
+                    // Ensure our internal feature type is set so it can be accessed regardless of runtime packaging
+                    if (server.Features.Get<IIISEnvironmentFeature>() is null)
                     {
-                        server.Features.Set<IIISEnvironmentFeature>(feature);
+                        if (RuntimeIIISEnvironmentFeatureType is { } runtimeType && server.Features[runtimeType] is { } runtimeFeature)
+                        {
+                            // Runtime IIS type is set (e.g., running on IIS) - bridge it to our internal type
+                            server.Features.Set<IIISEnvironmentFeature>(new RuntimeIIISEnvironmentFeature(runtimeFeature));
+                        }
+                        else if (IISEnvironmentFeature.TryCreate(builder.ApplicationServices.GetRequiredService<IConfiguration>(), out var feature))
+                        {
+                            // No IIS server feature - populate from config environment variables
+                            server.Features.Set<IIISEnvironmentFeature>(feature);
+                        }
+                    }
+
+                    // Ensure the runtime type is also set when our internal type is populated and the runtime type exists
+                    if (RuntimeIIISEnvironmentFeatureType is { } rType
+                        && server.Features[rType] is null
+                        && server.Features.Get<IIISEnvironmentFeature>() is { } internalFeature)
+                    {
+                        TrySetRuntimeFeature(server, rType, internalFeature);
                     }
                 }
 
                 next(builder);
             };
+    }
+
+    private static bool TryGetEnvironmentFeature(IServer server, [NotNullWhen(true)] out IIISEnvironmentFeature? feature)
+    {
+        if (server.Features.Get<IIISEnvironmentFeature>() is { } existing)
+        {
+            feature = existing;
+            return true;
+        }
+
+        if (RuntimeIIISEnvironmentFeatureType is { } type && server.Features[type] is { } runtimeFeature)
+        {
+            feature = new RuntimeIIISEnvironmentFeature(runtimeFeature);
+            return true;
+        }
+
+        feature = null;
+        return false;
+    }
+
+    private static void TrySetRuntimeFeature(IServer server, Type runtimeType, IIISEnvironmentFeature source)
+    {
+        if (RuntimeFeatureProxyCreateMethod is not { } createMethod) return;
+
+        try
+        {
+            var proxy = createMethod.Invoke(null, null);
+
+            if (proxy is not RuntimeFeatureProxy runtimeProxy) return;
+
+            runtimeProxy.Source = source;
+            server.Features[runtimeType] = proxy;
+        }
+        catch (TargetInvocationException)
+        {
+            // If proxy creation fails for any reason, continue without surfacing the runtime type
+        }
+        catch (MethodAccessException)
+        {
+            // If proxy creation fails for any reason, continue without surfacing the runtime type
+        }
+        catch (InvalidOperationException)
+        {
+            // If proxy creation fails for any reason, continue without surfacing the runtime type
+        }
     }
 
     /// <summary>
@@ -163,5 +254,83 @@ internal static class HostingRuntimeExtensions
         public string SiteName { get; }
 
         public uint SiteId { get; }
+    }
+
+    private sealed class RuntimeIIISEnvironmentFeature : IIISEnvironmentFeature
+    {
+        public RuntimeIIISEnvironmentFeature(object feature)
+        {
+            var properties = new Dictionary<string, PropertyInfo>(StringComparer.Ordinal);
+
+            foreach (var property in feature.GetType().GetProperties())
+            {
+                properties[property.Name] = property;
+            }
+
+            IISVersion = GetVersionProperty(feature, properties, nameof(IISVersion));
+            AppPoolId = GetStringProperty(feature, properties, nameof(AppPoolId));
+            AppPoolConfigFile = GetStringProperty(feature, properties, nameof(AppPoolConfigFile));
+            AppConfigPath = GetStringProperty(feature, properties, nameof(AppConfigPath));
+            ApplicationPhysicalPath = GetStringProperty(feature, properties, nameof(ApplicationPhysicalPath));
+            ApplicationVirtualPath = GetStringProperty(feature, properties, nameof(ApplicationVirtualPath));
+            ApplicationId = GetStringProperty(feature, properties, nameof(ApplicationId));
+            SiteName = GetStringProperty(feature, properties, nameof(SiteName));
+            SiteId = GetUIntProperty(feature, properties, nameof(SiteId));
+        }
+
+        public Version IISVersion { get; }
+
+        public string AppPoolId { get; }
+
+        public string AppPoolConfigFile { get; }
+
+        public string AppConfigPath { get; }
+
+        public string ApplicationPhysicalPath { get; }
+
+        public string ApplicationVirtualPath { get; }
+
+        public string ApplicationId { get; }
+
+        public string SiteName { get; }
+
+        public uint SiteId { get; }
+
+        private static string GetStringProperty(object feature, IReadOnlyDictionary<string, PropertyInfo> properties, string propertyName)
+            => GetPropertyValue(feature, properties, propertyName) as string ?? string.Empty;
+
+        private static Version GetVersionProperty(object feature, IReadOnlyDictionary<string, PropertyInfo> properties, string propertyName)
+            => GetPropertyValue(feature, properties, propertyName) as Version ?? new Version(0, 0);
+
+        private static uint GetUIntProperty(object feature, IReadOnlyDictionary<string, PropertyInfo> properties, string propertyName)
+            => GetPropertyValue(feature, properties, propertyName) is uint value ? value : 0;
+
+        private static object? GetPropertyValue(object feature, IReadOnlyDictionary<string, PropertyInfo> properties, string propertyName)
+            => properties.TryGetValue(propertyName, out var property) ? property.GetValue(feature) : null;
+    }
+
+    /// <summary>
+    /// A DispatchProxy-based adapter that implements the runtime IIS feature type by delegating to our internal <see cref="IIISEnvironmentFeature"/>.
+    /// This allows consumers that use <c>Microsoft.AspNetCore.Server.IIS.IIISEnvironmentFeature</c> directly to find the feature on the server
+    /// even when it was populated via configuration environment variables rather than the IIS server.
+    /// </summary>
+    private sealed class RuntimeFeatureProxy : DispatchProxy
+    {
+        internal IIISEnvironmentFeature? Source { get; set; }
+
+        protected override object? Invoke(MethodInfo? targetMethod, object?[]? args)
+            => targetMethod?.Name switch
+            {
+                "get_IISVersion" => Source?.IISVersion,
+                "get_AppPoolId" => Source?.AppPoolId,
+                "get_AppPoolConfigFile" => Source?.AppPoolConfigFile,
+                "get_AppConfigPath" => Source?.AppConfigPath,
+                "get_ApplicationPhysicalPath" => Source?.ApplicationPhysicalPath,
+                "get_ApplicationVirtualPath" => Source?.ApplicationVirtualPath,
+                "get_ApplicationId" => Source?.ApplicationId,
+                "get_SiteName" => Source?.SiteName,
+                "get_SiteId" => Source?.SiteId,
+                _ => null,
+            };
     }
 }
