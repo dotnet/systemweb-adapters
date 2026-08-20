@@ -14,6 +14,7 @@ namespace MachineKeyFramework
         {
             HttpApplicationHost.RegisterHost(builder =>
             {
+                builder.AddSystemWebDependencyInjection();
                 builder.AddServiceDefaults();
                 builder.AddDataProtection()
                     .SetApplicationName(MachineKeyExampleHandler.AppName)
