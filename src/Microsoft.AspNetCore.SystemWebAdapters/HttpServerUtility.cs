@@ -3,7 +3,9 @@
 
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Net;
 using System.Web.Hosting;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SystemWebAdapters;
@@ -31,6 +33,11 @@ public class HttpServerUtility
     public Exception? GetLastError() => _context.AsSystemWeb().Error;
 
     public void ClearError() => _context.AsSystemWeb().ClearError();
+
+    [return: NotNullIfNotNull(nameof(value))]
+    public string? HtmlEncode(string? value) => WebUtility.HtmlEncode(value);
+
+    public void HtmlEncode(string? value, TextWriter output) => WebUtility.HtmlEncode(value, output);
 
     /// <summary>
     /// This method is similar to <see cref="WebEncoders.Base64UrlDecode(string)"/> but handles the trailing character that <see cref="UrlTokenEncode(byte[])"/>

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 namespace System.Web;
 
@@ -9,6 +10,10 @@ namespace System.Web;
 public class HttpServerUtilityBase
 {
     public virtual string MachineName => throw new NotImplementedException();
+
+    public virtual string? HtmlEncode(string? value) => throw new NotImplementedException();
+
+    public virtual void HtmlEncode(string? value, TextWriter output) => throw new NotImplementedException();
 
     public virtual string MapPath(string path) => throw new NotImplementedException();
 
