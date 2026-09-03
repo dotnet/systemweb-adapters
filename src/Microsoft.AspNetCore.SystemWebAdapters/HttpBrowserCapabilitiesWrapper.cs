@@ -27,4 +27,6 @@ public class HttpBrowserCapabilitiesWrapper : HttpBrowserCapabilitiesBase
     public override bool Crawler => _capabilities.Crawler;
 
     public override bool IsMobileDevice => _capabilities.IsMobileDevice;
+
+    public override bool IsBrowser(string browserName) => _capabilities.IsBrowser(browserName);
 }

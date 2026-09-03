@@ -652,18 +652,19 @@ internal sealed class BrowserCapabilitiesFactory : IBrowserCapabilitiesFactory
 
     private sealed class ParsedBrowserResult : Dictionary<string, string?>, IHttpBrowserCapabilityFeature
     {
+        private readonly HashSet<string> _browsers = new(StringComparer.OrdinalIgnoreCase);
+
         public ParsedBrowserResult()
             : base(StringComparer.OrdinalIgnoreCase)
         {
         }
 
-        [Conditional("NotNeededYet")]
-        [Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Retained in case we need the data later")]
-        public void AddBrowser(string browser)
-        {
-        }
+        public void AddBrowser(string browser) => _browsers.Add(browser);
 
         string? IHttpBrowserCapabilityFeature.this[string key] => TryGetValue(key, out var value) ? value : null;
+
+        bool IHttpBrowserCapabilityFeature.IsBrowser(string browserName)
+            => !string.IsNullOrEmpty(browserName) && _browsers.Contains(browserName);
     }
 
     private readonly struct RegexResult
@@ -724,5 +725,7 @@ internal sealed class BrowserCapabilitiesFactory : IBrowserCapabilitiesFactory
         public static IHttpBrowserCapabilityFeature Instance { get; } = new EmptyBrowserFeatures();
 
         public string? this[string key] => null;
+
+        public bool IsBrowser(string browserName) => false;
     }
 }

@@ -19,4 +19,6 @@ public class HttpBrowserCapabilitiesBase
     public virtual bool Crawler => throw new NotImplementedException();
 
     public virtual bool IsMobileDevice => throw new NotImplementedException();
+
+    public virtual bool IsBrowser(string browserName) => throw new NotImplementedException();
 }

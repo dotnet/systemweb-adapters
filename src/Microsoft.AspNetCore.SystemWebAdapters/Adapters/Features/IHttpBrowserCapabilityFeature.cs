@@ -15,6 +15,8 @@ namespace Microsoft.AspNetCore.SystemWebAdapters.Features;
 public interface IHttpBrowserCapabilityFeature
 {
     string? this[string key] { get; }
+
+    bool IsBrowser(string browserName);
 }
 
 #endif

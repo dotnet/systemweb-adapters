@@ -225,4 +225,113 @@ public class BrowserCapabilitiesFactoryTests
             };
         }
     }
+
+    [Theory]
+    [MemberData(nameof(IsBrowserTestData))]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "Used for tests")]
+    public void IsBrowserMatchesHierarchy(string userAgent, string[] expectedMatches, string[] expectedNonMatches)
+    {
+        // Arrange
+        var browserFactory = new BrowserCapabilitiesFactory();
+
+        // Act
+        var result = browserFactory.Parse(userAgent);
+
+        // Assert
+        foreach (var name in expectedMatches)
+        {
+            Assert.True(result.IsBrowser(name), $"Expected IsBrowser(\"{name}\") to be true for '{userAgent}'");
+        }
+
+        foreach (var name in expectedNonMatches)
+        {
+            Assert.False(result.IsBrowser(name), $"Expected IsBrowser(\"{name}\") to be false for '{userAgent}'");
+        }
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void IsBrowserRejectsEmpty(string? browserName)
+    {
+        // Arrange
+        var browserFactory = new BrowserCapabilitiesFactory();
+
+        // Act
+        var result = browserFactory.Parse(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36");
+
+        // Assert
+        Assert.False(result.IsBrowser(browserName!));
+    }
+
+    [Fact]
+    public void IsBrowserCaseInsensitive()
+    {
+        // Arrange
+        var browserFactory = new BrowserCapabilitiesFactory();
+
+        // Act
+        var result = browserFactory.Parse(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0");
+
+        // Assert
+        Assert.True(result.IsBrowser("firefox"));
+        Assert.True(result.IsBrowser("FIREFOX"));
+        Assert.True(result.IsBrowser("Firefox"));
+    }
+
+    public static IEnumerable<object[]> IsBrowserTestData
+    {
+        get
+        {
+            // Chrome desktop -> Default, Mozilla, WebKit, Chrome
+            yield return new object[]
+            {
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36",
+                new[] { "Default", "Mozilla", "WebKit", "Chrome" },
+                new[] { "Firefox", "IE", "Safari", "Opera" },
+            };
+
+            // Firefox desktop -> Default, Mozilla, Firefox
+            yield return new object[]
+            {
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0",
+                new[] { "Default", "Mozilla", "Firefox" },
+                new[] { "Chrome", "WebKit", "IE", "Safari" },
+            };
+
+            // MSIE 10 -> Default, Mozilla, IE
+            yield return new object[]
+            {
+                "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0; MDDCJS)",
+                new[] { "Default", "Mozilla", "IE" },
+                new[] { "Chrome", "Firefox", "WebKit", "Safari" },
+            };
+
+            // iPhone CriOS (no "Chrome/" token in UA, Safari branch wins) -> Default, Mozilla, WebKit, Safari
+            yield return new object[]
+            {
+                "Mozilla/5.0 (iPhone; CPU iPhone OS 15_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/102.0.5005.87 Mobile/15E148 Safari/604.1",
+                new[] { "Default", "Mozilla", "WebKit", "Safari" },
+                new[] { "Chrome", "Firefox", "IE" },
+            };
+
+            // Opera (handled before Mozilla, no Mozilla node added) -> Default, Opera
+            yield return new object[]
+            {
+                "Opera/9.80 (Windows NT 6.0) Presto/2.12.388 Version/12.14",
+                new[] { "Default", "Opera" },
+                new[] { "Mozilla", "Chrome", "Firefox", "IE" },
+            };
+
+            // Empty UA via Parse still runs DefaultProcess -> only Default is added
+            yield return new object[]
+            {
+                string.Empty,
+                new[] { "Default" },
+                new[] { "Mozilla", "Chrome", "Firefox", "IE" },
+            };
+        }
+    }
 }
