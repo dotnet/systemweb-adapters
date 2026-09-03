@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>aspnet-AuthIdentityCoreEF6-22eb46d4-c647-442b-8b28-f8659a00ae49</UserSecretsId>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Microsoft.AspNetCore.Identity.EntityFramework6\Microsoft.AspNetCore.Identity.EntityFramework6.csproj" />
+    <ProjectReference Include="..\..\ServiceDefaults\Samples.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+</Project>
